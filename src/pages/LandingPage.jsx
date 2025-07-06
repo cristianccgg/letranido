@@ -242,7 +242,214 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Featured Texts */}
+      {/* Timeline del concurso */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              ¿Cómo funciona el concurso?
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Nuestro sistema de fases garantiza que todos los participantes
+              tengan las mismas oportunidades de ganar, sin importar cuándo
+              envíen su historia.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="relative">
+              {/* Línea de tiempo */}
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-200"></div>
+
+              <div className="space-y-12">
+                {/* Fase 1: Envío */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 pr-8 text-right">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                      <div className="flex items-center justify-end gap-2 mb-3">
+                        <h3 className="text-xl font-bold text-blue-900">
+                          Fase de Envío
+                        </h3>
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            1
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-blue-800 font-medium mb-2">
+                        📅 Día 1 al 26 del mes
+                      </div>
+                      <p className="text-blue-700 text-sm mb-3">
+                        Los escritores envían sus historias basadas en el prompt
+                        del mes. Las participaciones permanecen{" "}
+                        <strong>ocultas</strong> durante esta fase.
+                      </p>
+                      <div className="flex items-center justify-end gap-2 text-sm text-blue-600">
+                        <span>📝 Solo escritura</span>
+                        <span>•</span>
+                        <span>🔒 Historias privadas</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-blue-500 rounded-full border-4 border-white z-10"></div>
+
+                  <div className="flex-1 pl-8"></div>
+                </div>
+
+                {/* Fase 2: Votación */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 pr-8"></div>
+
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-green-500 rounded-full border-4 border-white z-10"></div>
+
+                  <div className="flex-1 pl-8">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            2
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-green-900">
+                          Fase de Votación
+                        </h3>
+                      </div>
+                      <div className="text-green-800 font-medium mb-2">
+                        📅 Día 27 al 31 del mes
+                      </div>
+                      <p className="text-green-700 text-sm mb-3">
+                        ¡Las historias se revelan! Todos pueden leer y votar por
+                        sus favoritas. Los escritores también pueden enviar
+                        historias de último minuto.
+                      </p>
+                      <div className="flex items-center gap-2 text-sm text-green-600">
+                        <span>👀 Historias públicas</span>
+                        <span>•</span>
+                        <span>❤️ Votación activa</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fase 3: Resultados */}
+                <div className="relative flex items-center">
+                  <div className="flex-1 pr-8 text-right">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                      <div className="flex items-center justify-end gap-2 mb-3">
+                        <h3 className="text-xl font-bold text-yellow-900">
+                          Resultados
+                        </h3>
+                        <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            3
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-yellow-800 font-medium mb-2">
+                        📅 Día 1 del mes siguiente
+                      </div>
+                      <p className="text-yellow-700 text-sm mb-3">
+                        Se anuncian los ganadores automáticamente. Los tres
+                        primeros lugares reciben insignias especiales y
+                        reconocimiento.
+                      </p>
+                      <div className="flex items-center justify-end gap-2 text-sm text-yellow-600">
+                        <span>🏆 Ganadores</span>
+                        <span>•</span>
+                        <span>🎖️ Insignias</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-yellow-500 rounded-full border-4 border-white z-10"></div>
+
+                  <div className="flex-1 pl-8"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Estado actual */}
+            <div className="mt-12 text-center">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-100 to-accent-100 border border-primary-200 rounded-lg px-6 py-3">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-medium text-gray-800">
+                  Actualmente en: <strong>Fase de Votación</strong> • Cierra en{" "}
+                  {Math.floor(
+                    (currentContest.endDate - new Date()) /
+                      (1000 * 60 * 60 * 24)
+                  )}{" "}
+                  días
+                </span>
+              </div>
+            </div>
+
+            {/* FAQ sobre el sistema */}
+            <div className="mt-12 bg-gray-50 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-4 text-center">
+                ¿Por qué este sistema?
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6 text-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-600 text-xs">⚖️</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Competencia justa
+                    </h4>
+                    <p className="text-gray-600">
+                      Todos tienen la misma oportunidad de recibir votos, sin
+                      ventaja por tiempo de envío.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-green-600 text-xs">🎯</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Más participación
+                    </h4>
+                    <p className="text-gray-600">
+                      La fase de votación concentra la atención y aumenta las
+                      lecturas.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-yellow-600 text-xs">⏰</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Sin presión de tiempo
+                    </h4>
+                    <p className="text-gray-600">
+                      Puedes enviar tu historia en cualquier momento del mes.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-purple-600 text-xs">📈</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">
+                      Mejor calidad
+                    </h4>
+                    <p className="text-gray-600">
+                      Los escritores se enfocan en la calidad, no en ser los
+                      primeros.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
