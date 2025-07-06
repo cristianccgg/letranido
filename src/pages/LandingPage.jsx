@@ -26,7 +26,7 @@ const LandingPage = () => {
     title: "El último libro de la biblioteca",
     description:
       "Eres el bibliotecario de una biblioteca que está a punto de cerrar para siempre. Solo queda un libro en los estantes. ¿Cuál es y por qué es tan especial?",
-    endDate: new Date("2025-07-31T23:59:59"), // Fin del mes
+    endDate: new Date("2025-07-26T23:59:59"), // Fin del mes
     participants: 127,
     category: "Ficción",
     month: "Julio 2025",
