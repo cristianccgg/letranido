@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PenTool, BookOpen, Users, User, Menu, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import AuthModal from "../forms/AuthModal";
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
 
   const isLanding = location.pathname === "/";
 
@@ -61,13 +63,27 @@ const Layout = ({ children }) => {
                     <User className="h-5 w-5" />
                     <span className="hidden sm:block">{user?.name}</span>
                   </Link>
+                  <button
+                    onClick={logout}
+                    className="hidden sm:block text-gray-600 hover:text-gray-900 font-medium text-sm"
+                  >
+                    Cerrar sesión
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <button className="text-gray-600 hover:text-gray-900 font-medium">
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="text-gray-600 hover:text-gray-900 font-medium"
+                  >
                     Iniciar sesión
                   </button>
-                  <button className="btn-primary">Registrarse</button>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="btn-primary"
+                  >
+                    Registrarse
+                  </button>
                 </div>
               )}
 
@@ -90,24 +106,141 @@ const Layout = ({ children }) => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                return (
+              {/* Navigation Items (solo si está autenticado) */}
+              {isAuthenticated &&
+                navigation.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
+                        location.pathname === item.href
+                          ? "text-primary-600 bg-primary-50"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+
+              {/* Separador si hay items de navegación */}
+              {isAuthenticated && (
+                <div className="border-t border-gray-200 my-2"></div>
+              )}
+
+              {/* Auth Options */}
+              {isAuthenticated ? (
+                <>
+                  {/* Profile Link */}
                   <Link
-                    key={item.name}
-                    to={item.href}
+                    to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
-                      location.pathname === item.href
-                        ? "text-primary-600 bg-primary-50"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
+                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.name}</span>
+                    <User className="h-5 w-5" />
+                    <span>Mi perfil</span>
                   </Link>
-                );
-              })}
+
+                  {/* Dashboard Link */}
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  >
+                    <Users className="h-5 w-5" />
+                    <span>Mi dashboard</span>
+                  </Link>
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={() => {
+                      useAuthStore.getState().logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 2v4a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h6a2 2 0 012 2v4"
+                      />
+                    </svg>
+                    <span>Cerrar sesión</span>
+                  </button>
+
+                  {/* User Info */}
+                  <div className="px-3 py-2 border-t border-gray-200 mt-2">
+                    <div className="text-sm text-gray-500">Conectado como:</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {user?.name}
+                    </div>
+                    <div className="text-xs text-gray-400">{user?.email}</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Login Button */}
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setShowAuthModal(true);
+                    }}
+                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 16l-4-4m0 0l4-4m0 0v3H3v2h8v3z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Iniciar sesión</span>
+                  </button>
+
+                  {/* Register Button */}
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setShowAuthModal(true);
+                    }}
+                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                  >
+                    <User className="h-5 w-5" />
+                    <span>Registrarse gratis</span>
+                  </button>
+
+                  {/* Guest Info */}
+                  <div className="px-3 py-2 border-t border-gray-200 mt-2">
+                    <div className="text-sm text-gray-500">
+                      Regístrate para participar en concursos y votar por tus
+                      historias favoritas.
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -121,6 +254,15 @@ const Layout = ({ children }) => {
       >
         {children}
       </main>
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => setShowAuthModal(false)}
+        />
+      )}
     </div>
   );
 };
