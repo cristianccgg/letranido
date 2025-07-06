@@ -71,7 +71,7 @@ const Layout = ({ children }) => {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-3">
+                <div className=" items-center space-x-3 hidden md:flex">
                   <button
                     onClick={() => setShowAuthModal(true)}
                     className="text-gray-600 hover:text-gray-900 font-medium"
