@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Send, Save, AlertCircle, PenTool } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { useContests } from "../hooks/useContests";
+import { useStories } from "../hooks/useStories";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 
@@ -10,137 +12,213 @@ const WritePrompt = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
 
+  // Hooks para datos
+  const {
+    currentContest,
+    getContestById,
+    loading: contestLoading,
+  } = useContests();
+  const { submitStory, loading: submissionLoading } = useStories();
+
+  // Estado local
+  const [prompt, setPrompt] = useState(null);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Mock prompt data
-  const prompt = {
-    id: promptId || 1,
-    title: "El último libro de la biblioteca",
-    description:
-      "Eres el bibliotecario de una biblioteca que está a punto de cerrar para siempre. Solo queda un libro en los estantes. ¿Cuál es y por qué es tan especial?",
-    timeLeft: "2 días, 14 horas",
-    category: "Ficción",
-    maxWords: 1000,
-    minWords: 100,
-  };
-
-  // Auto-save to localStorage
+  // Cargar prompt/concurso
   useEffect(() => {
-    const savedData = localStorage.getItem(`prompt-${prompt.id}`);
-    if (savedData) {
-      const { title: savedTitle, text: savedText } = JSON.parse(savedData);
-      setTitle(savedTitle || "");
-      setText(savedText || "");
+    const loadPrompt = async () => {
+      if (promptId && promptId !== "1") {
+        // Solo intentar cargar por ID si es un UUID válido
+        const isValidUUID =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            promptId
+          );
+
+        if (isValidUUID) {
+          const contest = await getContestById(promptId);
+          if (contest) {
+            setPrompt(contest);
+            return;
+          }
+        }
+      }
+
+      // Fallback: usar concurso actual
+      if (currentContest) {
+        setPrompt(currentContest);
+      } else {
+        setError("No hay concursos disponibles");
+      }
+    };
+
+    if (!contestLoading) {
+      loadPrompt();
     }
-  }, [prompt.id]);
+  }, [promptId, currentContest, contestLoading, getContestById]);
 
+  // Auto-guardar en localStorage
   useEffect(() => {
-    // Count words
+    if (prompt) {
+      const savedData = localStorage.getItem(`story-draft-${prompt.id}`);
+      if (savedData) {
+        const { title: savedTitle, text: savedText } = JSON.parse(savedData);
+        setTitle(savedTitle || "");
+        setText(savedText || "");
+      }
+    }
+  }, [prompt]);
+
+  // Actualizar contador de palabras y auto-guardar
+  useEffect(() => {
+    if (!prompt) return;
+
+    // Contar palabras
     const words = text
       .trim()
       .split(/\s+/)
       .filter((word) => word.length > 0);
     setWordCount(words.length);
 
-    // Auto-save
+    // Auto-guardar
     const saveData = { title, text };
-    localStorage.setItem(`prompt-${prompt.id}`, JSON.stringify(saveData));
+    localStorage.setItem(`story-draft-${prompt.id}`, JSON.stringify(saveData));
     setIsSaved(true);
 
     const timer = setTimeout(() => setIsSaved(false), 2000);
     return () => clearTimeout(timer);
-  }, [text, title, prompt.id]);
+  }, [text, title, prompt]);
 
   const handleSubmit = () => {
-    // Validaciones básicas primero
+    // Validaciones básicas
     if (!title.trim()) {
       alert("Debes escribir un título para tu historia");
       return;
     }
 
-    if (wordCount < prompt.minWords) {
-      alert(`Tu texto debe tener al menos ${prompt.minWords} palabras`);
+    if (wordCount < prompt.min_words) {
+      alert(`Tu texto debe tener al menos ${prompt.min_words} palabras`);
       return;
     }
 
-    if (wordCount > prompt.maxWords) {
-      alert(`Tu texto no puede superar las ${prompt.maxWords} palabras`);
+    if (wordCount > prompt.max_words) {
+      alert(`Tu texto no puede superar las ${prompt.max_words} palabras`);
       return;
     }
 
-    // Si no está autenticado, mostrar modal de registro
+    // Verificar autenticación
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
 
-    // Si está autenticado, mostrar modal de confirmación
-    console.log("Abriendo modal de confirmación..."); // Debug
+    // Mostrar modal de confirmación
     setShowConfirmationModal(true);
   };
 
   const handleConfirmSubmission = async ({ hasMatureContent }) => {
-    setIsSubmitting(true);
+    const storyData = {
+      title: title.trim(),
+      content: text.trim(),
+      wordCount,
+      contestId: prompt.id,
+      hasMatureContent,
+    };
 
-    try {
-      // TODO: Enviar a la API con la metadata
-      const submissionData = {
-        title: title.trim(),
-        text: text.trim(),
-        promptId: prompt.id,
-        wordCount,
-        hasMatureContent,
-        category: prompt.category,
-      };
+    console.log("📝 Enviando historia:", storyData);
 
-      console.log("Enviando historia:", submissionData);
+    const result = await submitStory(storyData);
 
-      // Simular API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Clear localStorage
-      localStorage.removeItem(`prompt-${prompt.id}`);
+    if (result.success) {
+      // Limpiar borrador
+      localStorage.removeItem(`story-draft-${prompt.id}`);
 
       // Cerrar modal
       setShowConfirmationModal(false);
 
-      // Redirect to success page or gallery
+      // Redirigir con mensaje de éxito
       navigate("/gallery", {
         state: {
-          message:
-            "¡Tu historia ha sido enviada exitosamente! Ya está participando en el concurso.",
+          message: result.message,
         },
       });
-    } catch (error) {
-      alert("Error al enviar tu historia. Intenta nuevamente.");
-      console.error("Error:", error);
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      // Mostrar error pero mantener modal abierto
+      alert(result.error);
     }
   };
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    // No auto-enviar, permitir que el usuario revise
-    // Opcionalmente mostrar un mensaje de que ya puede enviar
+    // Después del login, el usuario puede continuar
   };
 
   const getWordCountColor = () => {
-    if (wordCount < prompt.minWords) return "text-red-500";
-    if (wordCount > prompt.maxWords) return "text-red-500";
-    if (wordCount > prompt.maxWords * 0.9) return "text-yellow-500";
+    if (!prompt) return "text-gray-500";
+    if (wordCount < prompt.min_words) return "text-red-500";
+    if (wordCount > prompt.max_words) return "text-red-500";
+    if (wordCount > prompt.max_words * 0.9) return "text-yellow-500";
     return "text-green-500";
   };
 
+  const getTimeLeft = () => {
+    if (!prompt?.submission_deadline) return "Cargando...";
+
+    const now = new Date();
+    const deadline = new Date(prompt.submission_deadline);
+    const diff = deadline - now;
+
+    if (diff <= 0) return "Concurso cerrado";
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    if (days > 0) return `${days} días, ${hours} horas`;
+    return `${hours} horas`;
+  };
+
+  const isSubmissionClosed = () => {
+    if (!prompt?.submission_deadline) return false;
+    return new Date() > new Date(prompt.submission_deadline);
+  };
+
+  // Loading state
+  if (contestLoading || !prompt) {
+    return (
+      <div className="max-w-4xl mx-auto py-12">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center">
+        <div className="text-red-600 mb-4">
+          <AlertCircle className="h-12 w-12 mx-auto mb-4" />
+          <h2 className="text-xl font-bold">Error</h2>
+          <p>{error}</p>
+        </div>
+        <button onClick={() => navigate("/")} className="btn-primary">
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Prompt Info */}
+      {/* Información del concurso */}
       <div className="card mb-8">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -148,10 +226,18 @@ const WritePrompt = () => {
               <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
                 {prompt.category}
               </span>
+              <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
+                {prompt.month}
+              </span>
               <div className="flex items-center text-gray-500 text-sm">
                 <Clock className="h-4 w-4 mr-1" />
-                {prompt.timeLeft}
+                {getTimeLeft()}
               </div>
+              {isSubmissionClosed() && (
+                <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                  Cerrado
+                </span>
+              )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
               {prompt.title}
@@ -164,7 +250,7 @@ const WritePrompt = () => {
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div className="text-sm text-gray-500">
-            Límite: {prompt.minWords} - {prompt.maxWords} palabras
+            Límite: {prompt.min_words} - {prompt.max_words} palabras
           </div>
           <div className="flex items-center gap-4">
             {isSaved && (
@@ -173,11 +259,14 @@ const WritePrompt = () => {
                 Guardado automáticamente
               </div>
             )}
+            <div className="text-sm text-gray-500">
+              {prompt.participants_count} participantes
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Writing Area */}
+      {/* Área de escritura */}
       <div className="card">
         <div className="mb-4">
           <label
@@ -194,6 +283,7 @@ const WritePrompt = () => {
             placeholder="Escribe un título llamativo para tu historia..."
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             maxLength={100}
+            disabled={isSubmissionClosed()}
           />
         </div>
 
@@ -211,25 +301,26 @@ const WritePrompt = () => {
             placeholder="Comienza a escribir tu historia aquí..."
             className="writing-area w-full"
             rows={20}
+            disabled={isSubmissionClosed()}
           />
         </div>
 
-        {/* Word Count & Actions */}
+        {/* Contador de palabras y acciones */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className={`text-sm font-medium ${getWordCountColor()}`}>
-              {wordCount} / {prompt.maxWords} palabras
+              {wordCount} / {prompt.max_words} palabras
             </div>
-            {wordCount < prompt.minWords && (
+            {wordCount < prompt.min_words && (
               <div className="flex items-center text-amber-600 text-sm">
                 <AlertCircle className="h-4 w-4 mr-1" />
-                Mínimo {prompt.minWords} palabras
+                Mínimo {prompt.min_words} palabras
               </div>
             )}
-            {wordCount > prompt.maxWords && (
+            {wordCount > prompt.max_words && (
               <div className="flex items-center text-red-600 text-sm">
                 <AlertCircle className="h-4 w-4 mr-1" />
-                Excede el límite por {wordCount - prompt.maxWords} palabras
+                Excede el límite por {wordCount - prompt.max_words} palabras
               </div>
             )}
           </div>
@@ -241,14 +332,18 @@ const WritePrompt = () => {
             <button
               onClick={handleSubmit}
               disabled={
-                isSubmitting ||
+                submissionLoading ||
+                isSubmissionClosed() ||
                 !title.trim() ||
                 !text.trim() ||
-                wordCount < prompt.minWords ||
-                wordCount > prompt.maxWords
+                wordCount < prompt.min_words ||
+                wordCount > prompt.max_words
               }
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
+              {submissionLoading && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              )}
               <Send className="h-4 w-4 mr-2" />
               {isAuthenticated ? "Enviar historia" : "Registrarse y continuar"}
             </button>
@@ -256,7 +351,7 @@ const WritePrompt = () => {
         </div>
       </div>
 
-      {/* Tips */}
+      {/* Consejos */}
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
           <PenTool className="h-5 w-5 mr-2" />
@@ -272,7 +367,7 @@ const WritePrompt = () => {
         </ul>
       </div>
 
-      {/* Auth Modal */}
+      {/* Modales */}
       {showAuthModal && (
         <AuthModal
           isOpen={showAuthModal}
@@ -281,29 +376,17 @@ const WritePrompt = () => {
         />
       )}
 
-      {/* Submission Confirmation Modal */}
       {showConfirmationModal && (
         <SubmissionConfirmationModal
           isOpen={showConfirmationModal}
-          onClose={() => {
-            console.log("Cerrando modal de confirmación"); // Debug
-            setShowConfirmationModal(false);
-          }}
+          onClose={() => setShowConfirmationModal(false)}
           onConfirm={handleConfirmSubmission}
           title={title}
           text={text}
           wordCount={wordCount}
           prompt={prompt}
-          isSubmitting={isSubmitting}
+          isSubmitting={submissionLoading}
         />
-      )}
-
-      {/* Debug info */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-xs">
-          Modal: {showConfirmationModal ? "ABIERTO" : "CERRADO"} | Auth:{" "}
-          {isAuthenticated ? "SÍ" : "NO"}
-        </div>
       )}
     </div>
   );
