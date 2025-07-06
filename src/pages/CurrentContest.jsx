@@ -18,21 +18,44 @@ import {
 } from "lucide-react";
 
 const CurrentContest = () => {
-  const [sortBy, setSortBy] = useState("random"); // Aleatorio por defecto para ser más justo
-  const [debugPhase, setDebugPhase] = useState("voting"); // Para testing
-  const [viewMode, setViewMode] = useState("compact"); // 'compact' o 'expanded'
+  const [sortBy, setSortBy] = useState("random");
+  const [debugPhase, setDebugPhase] = useState("voting"); // Solo para desarrollo
+  const [viewMode, setViewMode] = useState("compact");
 
-  // Cambiar sortBy automáticamente cuando cambie la fase
-  useEffect(() => {
-    if (debugPhase === "results") {
-      setSortBy("popular"); // En resultados, mostrar por ranking
-    } else if (debugPhase === "voting") {
-      setSortBy("random"); // En votación, aleatorio para justicia
+  // Fechas reales del concurso actual (Julio 2025)
+  const realContestDates = {
+    submissionEndDate: new Date("2025-07-26T23:59:59"), // 26 de julio
+    votingStartDate: new Date("2025-07-27T00:00:00"), // 27 de julio
+    votingEndDate: new Date("2025-07-31T23:59:59"), // 31 de julio
+  };
+
+  // Función para detectar la fase real basada en la fecha actual
+  const getRealPhase = () => {
+    const now = new Date();
+    if (now <= realContestDates.submissionEndDate) {
+      return "submission";
+    } else if (
+      now >= realContestDates.votingStartDate &&
+      now <= realContestDates.votingEndDate
+    ) {
+      return "voting";
+    } else {
+      return "results";
     }
-  }, [debugPhase]);
+  };
+
+  // Usar fase real en producción, debug en desarrollo
+  const actualPhase =
+    process.env.NODE_ENV === "production" ? getRealPhase() : debugPhase;
 
   // Mock data del concurso actual
   const getContestDates = (phase) => {
+    // En producción, usar siempre las fechas reales
+    if (process.env.NODE_ENV === "production") {
+      return realContestDates;
+    }
+
+    // En desarrollo, usar fechas de debug
     switch (phase) {
       case "submission":
         return {
@@ -53,11 +76,20 @@ const CurrentContest = () => {
           votingEndDate: new Date("2025-06-30T23:59:59"), // Pasado - todo cerrado
         };
       default:
-        return getContestDates("voting");
+        return realContestDates;
     }
   };
 
-  const contestDates = getContestDates(debugPhase);
+  const contestDates = getContestDates(actualPhase);
+
+  // Cambiar sortBy automáticamente cuando cambie la fase
+  useEffect(() => {
+    if (actualPhase === "results") {
+      setSortBy("popular"); // En resultados, mostrar por ranking
+    } else if (actualPhase === "voting") {
+      setSortBy("random"); // En votación, aleatorio para justicia
+    }
+  }, [actualPhase]);
 
   const currentContest = {
     id: 1,
@@ -88,7 +120,8 @@ const CurrentContest = () => {
     return "submission";
   };
 
-  const currentPhase = getCurrentPhase();
+  // Usar la fase calculada (real en producción, debug en desarrollo)
+  const currentPhase = actualPhase;
 
   // Mock participaciones (solo visibles en fase de voting)
   const submissions = [
@@ -1102,6 +1135,9 @@ const CurrentContest = () => {
           </div>
           <div className="text-xs mt-2 text-gray-400">
             Fase actual: <span className="font-medium">{currentPhase}</span>
+            {process.env.NODE_ENV === "production" && (
+              <span className="text-green-400 ml-2">(REAL)</span>
+            )}
           </div>
         </div>
       )}
