@@ -46,23 +46,11 @@ const CurrentContest = () => {
   };
 
   // Función para detectar la fase real basada en la fecha actual
-  const getRealPhase = () => {
-    const now = new Date();
-    if (now <= realContestDates.submissionEndDate) {
-      return "submission";
-    } else if (
-      now >= realContestDates.votingStartDate &&
-      now <= realContestDates.votingEndDate
-    ) {
-      return "voting";
-    } else {
-      return "results";
-    }
-  };
 
-  // Usar fase real en producción, debug en desarrollo
   const actualPhase =
-    process.env.NODE_ENV === "production" ? getRealPhase() : debugPhase;
+    process.env.NODE_ENV === "production"
+      ? currentContest?.status || "submission"
+      : debugPhase;
 
   // Cargar historias del concurso actual
   const loadStories = useCallback(async () => {
