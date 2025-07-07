@@ -1,22 +1,136 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { PenTool, BookOpen, Users, User, Menu, X } from "lucide-react";
+import {
+  PenTool,
+  BookOpen,
+  Users,
+  User,
+  Menu,
+  X,
+  BarChart3,
+  CheckCircle,
+} from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { useContests } from "../../hooks/useContests";
+import { supabase } from "../../lib/supabase";
 import AuthModal from "../forms/AuthModal";
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" o "register"
+  const [hasUserParticipated, setHasUserParticipated] = useState(false);
+  const [loadingParticipation, setLoadingParticipation] = useState(false);
+
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { currentContest, getContestPhase } = useContests();
 
   const isLanding = location.pathname === "/";
+  const currentPhase = currentContest ? getContestPhase(currentContest) : null;
 
-  const navigation = [
-    { name: "Escribir", href: "/write", icon: PenTool },
-    { name: "Galería", href: "/gallery", icon: BookOpen },
-    { name: "Comunidad", href: "/community", icon: Users },
+  // Verificar si el usuario ya participó en el concurso actual
+  useEffect(() => {
+    const checkUserParticipation = async () => {
+      if (!isAuthenticated || !currentContest || !user) {
+        setHasUserParticipated(false);
+        return;
+      }
+
+      setLoadingParticipation(true);
+      try {
+        const { data, error } = await supabase
+          .from("stories")
+          .select("id")
+          .eq("contest_id", currentContest.id)
+          .eq("user_id", user.id)
+          .single();
+
+        setHasUserParticipated(!!data && !error);
+      } catch (err) {
+        console.error("Error checking participation:", err);
+        setHasUserParticipated(false);
+      } finally {
+        setLoadingParticipation(false);
+      }
+    };
+
+    checkUserParticipation();
+  }, [isAuthenticated, currentContest, user]);
+
+  // Función para obtener el texto del botón "Escribir"
+  const getWriteButtonText = () => {
+    if (!isAuthenticated) return "Escribir";
+    if (loadingParticipation) return "Verificando...";
+    if (hasUserParticipated) return "Ya participaste ✓";
+    if (currentPhase === "results") return "Ver resultados";
+    return "Escribir";
+  };
+
+  // Función para obtener el estado del botón "Escribir"
+  const getWriteButtonState = () => {
+    if (!isAuthenticated) return { disabled: false, href: "/write" };
+    if (hasUserParticipated)
+      return { disabled: true, href: "/contest/current" };
+    if (currentPhase === "results")
+      return { disabled: false, href: "/contest/current" };
+    return { disabled: false, href: "/write" };
+  };
+
+  // Función para obtener el texto de la galería con fase actual
+  const getGalleryText = () => {
+    if (!currentPhase) return "Galería";
+
+    switch (currentPhase) {
+      case "submission":
+        return "Galería (Envío)";
+      case "voting":
+        return "Galería (Votación)";
+      case "results":
+        return "Galería (Resultados)";
+      default:
+        return "Galería";
+    }
+  };
+
+  const writeButtonState = getWriteButtonState();
+
+  // Navegación para usuarios autenticados
+  const authenticatedNavigation = [
+    {
+      name: getWriteButtonText(),
+      href: writeButtonState.href,
+      icon: hasUserParticipated ? CheckCircle : PenTool,
+      disabled: writeButtonState.disabled,
+      className: hasUserParticipated ? "text-green-600" : "",
+    },
+    { name: getGalleryText(), href: "/contest/current", icon: BookOpen },
+    { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   ];
+
+  // Navegación para usuarios no autenticados
+  const publicNavigation = [
+    { name: "Galería", href: "/gallery", icon: BookOpen },
+  ];
+
+  const navigation = isAuthenticated
+    ? authenticatedNavigation
+    : publicNavigation;
+
+  const handleAuthClick = (mode) => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
+  };
+
+  const handleWriteClick = (e) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      handleAuthClick("register");
+    } else if (writeButtonState.disabled && hasUserParticipated) {
+      e.preventDefault();
+      // Opcional: mostrar mensaje o redirigir
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,24 +146,51 @@ const Layout = ({ children }) => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              {isAuthenticated &&
-                navigation.map((item) => {
-                  const Icon = item.icon;
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href;
+
+                if (item.disabled) {
                   return (
-                    <Link
+                    <div
                       key={item.name}
-                      to={item.href}
-                      className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        location.pathname === item.href
-                          ? "text-primary-600 bg-primary-50"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed opacity-60 ${
+                        item.className || "text-gray-400"
                       }`}
+                      title={
+                        hasUserParticipated
+                          ? "Ya enviaste tu historia para este concurso"
+                          : ""
+                      }
                     >
                       <Icon className="h-4 w-4" />
                       <span>{item.name}</span>
-                    </Link>
+                    </div>
                   );
-                })}
+                }
+
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={
+                      item.name.includes("Escribir")
+                        ? handleWriteClick
+                        : undefined
+                    }
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive
+                        ? "text-primary-600 bg-primary-50"
+                        : `hover:text-gray-900 hover:bg-gray-100 ${
+                            item.className || "text-gray-600"
+                          }`
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Auth Section */}
@@ -71,15 +212,15 @@ const Layout = ({ children }) => {
                   </button>
                 </div>
               ) : (
-                <div className=" items-center space-x-3 hidden md:flex">
+                <div className="items-center space-x-3 hidden md:flex">
                   <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => handleAuthClick("login")}
                     className="text-gray-600 hover:text-gray-900 font-medium"
                   >
                     Iniciar sesión
                   </button>
                   <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => handleAuthClick("register")}
                     className="btn-primary"
                   >
                     Registrarse
@@ -106,26 +247,46 @@ const Layout = ({ children }) => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Navigation Items (solo si está autenticado) */}
-              {isAuthenticated &&
-                navigation.map((item) => {
-                  const Icon = item.icon;
+              {/* Navigation Items */}
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href;
+
+                if (item.disabled) {
                   return (
-                    <Link
+                    <div
                       key={item.name}
-                      to={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
-                        location.pathname === item.href
-                          ? "text-primary-600 bg-primary-50"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium cursor-not-allowed opacity-60 ${
+                        item.className || "text-gray-400"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
                       <span>{item.name}</span>
-                    </Link>
+                    </div>
                   );
-                })}
+                }
+
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => {
+                      if (item.name.includes("Escribir")) handleWriteClick;
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
+                      isActive
+                        ? "text-primary-600 bg-primary-50"
+                        : `text-gray-600 hover:text-gray-900 hover:bg-gray-100 ${
+                            item.className || ""
+                          }`
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
 
               {/* Separador si hay items de navegación */}
               {isAuthenticated && (
@@ -145,20 +306,10 @@ const Layout = ({ children }) => {
                     <span>Mi perfil</span>
                   </Link>
 
-                  {/* Dashboard Link */}
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  >
-                    <Users className="h-5 w-5" />
-                    <span>Mi dashboard</span>
-                  </Link>
-
                   {/* Logout Button */}
                   <button
                     onClick={() => {
-                      useAuthStore.getState().logout();
+                      logout();
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -186,6 +337,11 @@ const Layout = ({ children }) => {
                       {user?.name}
                     </div>
                     <div className="text-xs text-gray-400">{user?.email}</div>
+                    {hasUserParticipated && (
+                      <div className="text-xs text-green-600 mt-1">
+                        ✓ Ya participaste en el concurso actual
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -194,7 +350,7 @@ const Layout = ({ children }) => {
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      setShowAuthModal(true);
+                      handleAuthClick("login");
                     }}
                     className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   >
@@ -224,7 +380,7 @@ const Layout = ({ children }) => {
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      setShowAuthModal(true);
+                      handleAuthClick("register");
                     }}
                     className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
                   >
@@ -261,6 +417,7 @@ const Layout = ({ children }) => {
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
           onSuccess={() => setShowAuthModal(false)}
+          initialMode={authMode} // Nuevo prop para el modo inicial
         />
       )}
     </div>

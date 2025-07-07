@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Loader } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
-const AuthModal = ({ isOpen, onClose, onSuccess }) => {
-  const [mode, setMode] = useState("register"); // 'login' or 'register'
+const AuthModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  initialMode = "register",
+}) => {
+  const [mode, setMode] = useState(initialMode);
   const [formData, setFormData] = useState({
     email: "",
     name: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+    }
+  }, [isOpen, initialMode]);
 
   const { login, register, isLoading } = useAuthStore();
 

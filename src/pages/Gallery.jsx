@@ -11,11 +11,14 @@ import {
   Loader,
   AlertCircle,
   User,
+  Clock,
+  Vote,
 } from "lucide-react";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import AuthModal from "../components/forms/AuthModal";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
+import { useContests } from "../hooks/useContests";
 
 const Gallery = () => {
   const location = useLocation();
@@ -31,6 +34,9 @@ const Gallery = () => {
   // Hooks
   const { getStoriesForGallery, toggleLike, canVoteInStory } = useStories();
   const { isAuthenticated } = useAuthStore();
+  const { currentContest, getContestPhase } = useContests();
+
+  const currentPhase = currentContest ? getContestPhase(currentContest) : null;
 
   // Show success message if coming from submission
   useEffect(() => {
@@ -189,6 +195,38 @@ const Gallery = () => {
     }
   };
 
+  const getPhaseInfo = () => {
+    if (!currentPhase) return null;
+
+    switch (currentPhase) {
+      case "submission":
+        return {
+          icon: <Clock className="h-4 w-4" />,
+          text: "Fase de envío - Las historias se mostrarán cuando inicie la votación",
+          bgColor: "bg-blue-50 border-blue-200",
+          textColor: "text-blue-800",
+        };
+      case "voting":
+        return {
+          icon: <Vote className="h-4 w-4" />,
+          text: "Fase de votación - ¡Vota por tus historias favoritas!",
+          bgColor: "bg-green-50 border-green-200",
+          textColor: "text-green-800",
+        };
+      case "results":
+        return {
+          icon: <Trophy className="h-4 w-4" />,
+          text: "Resultados finales - Concurso terminado",
+          bgColor: "bg-yellow-50 border-yellow-200",
+          textColor: "text-yellow-800",
+        };
+      default:
+        return null;
+    }
+  };
+
+  const phaseInfo = getPhaseInfo();
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Success Message */}
@@ -203,9 +241,19 @@ const Gallery = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Galería de historias
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-4">
           Descubre las mejores historias de nuestra comunidad de escritores
         </p>
+
+        {/* Phase Info */}
+        {phaseInfo && (
+          <div className={`${phaseInfo.bgColor} border rounded-lg p-4`}>
+            <div className={`flex items-center gap-2 ${phaseInfo.textColor}`}>
+              {phaseInfo.icon}
+              <span className="font-medium">{phaseInfo.text}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filters */}

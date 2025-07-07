@@ -6,7 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import WritePrompt from "./pages/WritePrompt";
 import Gallery from "./pages/Gallery";
-import Profile from "./pages/Profile";
+import UnifiedProfile from "./pages/UnifiedProfile";
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
 
@@ -35,10 +35,10 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<UnifiedProfile />} />
+          <Route path="/dashboard" element={<UnifiedProfile />} />
           <Route path="/write/:promptId?" element={<WritePrompt />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/profile/:userId?" element={<Profile />} />
           <Route path="/contest/current" element={<CurrentContest />} />
           <Route path="/story/:id" element={<StoryPage />} />
         </Routes>
