@@ -532,53 +532,6 @@ const StoryPage = () => {
         </div>
       </div>
 
-      {/* Author Info */}
-      <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-6 mb-8">
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <User className="h-8 w-8 text-white" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {story.author.name}
-              </h3>
-              {/* Badges dinámicos */}
-              {(story.author?.wins || 0) > 0 && (
-                <span
-                  className="text-sm text-yellow-600"
-                  title="Ganador de concursos"
-                >
-                  🏆
-                </span>
-              )}
-              {(story.author?.totalLikes || 0) > 50 && (
-                <span className="text-sm text-blue-600" title="Autor popular">
-                  ⭐
-                </span>
-              )}
-            </div>
-            <p className="text-gray-600 mb-3">{story.author.bio}</p>
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              <div>
-                Se unió en{" "}
-                {new Date(story.author.joinedAt).toLocaleDateString("es-ES", {
-                  year: "numeric",
-                  month: "long",
-                })}
-              </div>
-              <div>{story.author.totalLikes} likes totales</div>
-              <Link
-                to={`/profile/${story.author.id}`}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Ver perfil completo →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <SimpleComments storyId={story.id} storyTitle={story.title} />
 
       {/* CTA */}
