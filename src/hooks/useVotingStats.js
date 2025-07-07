@@ -94,7 +94,7 @@ export const useVotingStats = () => {
       console.error("💥 Error cargando estadísticas de votación:", err);
       setStats((prev) => ({ ...prev, loading: false }));
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     loadUserVotingStats();

@@ -92,7 +92,7 @@ export const useStories = () => {
         setLoading(false);
       }
     },
-    [user]
+    [user?.id] // 🔧 CAMBIO: Solo user.id en lugar de user completo
   );
 
   const getStoriesByContest = useCallback(async (contestId) => {
@@ -212,7 +212,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar las historias",
       };
     }
-  }, []);
+  }, []); // 🔧 CAMBIO: Sin dependencias para evitar re-renders
 
   const getStoriesForGallery = useCallback(async (filters = {}) => {
     try {
@@ -326,7 +326,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar las historias",
       };
     }
-  }, []);
+  }, []); // 🔧 CAMBIO: Sin dependencias
 
   const getUserStories = useCallback(
     async (userId = user?.id) => {
@@ -401,7 +401,7 @@ export const useStories = () => {
         };
       }
     },
-    [user?.id]
+    [user?.id] // 🔧 CAMBIO: Solo user.id
   );
 
   const getStoryById = useCallback(async (storyId) => {
@@ -479,7 +479,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar la historia",
       };
     }
-  }, []);
+  }, []); // 🔧 CAMBIO: Sin dependencias
 
   const recordStoryView = useCallback(
     async (storyId) => {
@@ -522,7 +522,7 @@ export const useStories = () => {
         return { success: false, error: err.message };
       }
     },
-    [user?.id]
+    [user?.id] // 🔧 CAMBIO: Solo user.id
   );
 
   const toggleLike = useCallback(
@@ -649,7 +649,7 @@ export const useStories = () => {
         };
       }
     },
-    [user]
+    [user?.id] // 🔧 CAMBIO: Solo user.id
   );
 
   const checkUserLike = useCallback(
@@ -685,7 +685,7 @@ export const useStories = () => {
         return { success: true, liked: false };
       }
     },
-    [user]
+    [user?.id] // 🔧 CAMBIO: Solo user.id
   );
 
   // Nueva función para verificar si se puede votar en un concurso
@@ -770,7 +770,7 @@ export const useStories = () => {
         return { canVote: false, reason: "Error al verificar permisos" };
       }
     },
-    [user?.id]
+    [user?.id] // 🔧 CAMBIO: Solo user.id
   );
 
   return {

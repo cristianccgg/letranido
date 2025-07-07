@@ -104,7 +104,7 @@ const CurrentContest = () => {
     } finally {
       setLoadingSubmissions(false);
     }
-  }, [currentContest?.id, contestLoading, getStoriesByContest]);
+  }, [currentContest?.id, contestLoading]);
 
   useEffect(() => {
     loadStories();
