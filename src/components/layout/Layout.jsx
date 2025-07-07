@@ -83,13 +83,13 @@ const Layout = ({ children }) => {
 
     switch (currentPhase) {
       case "submission":
-        return "Galería (Envío)";
+        return "Concurso Actual (Envío)";
       case "voting":
-        return "Galería (Votación)";
+        return "Concurso Actual (Votación)";
       case "results":
-        return "Galería (Resultados)";
+        return "Concurso Actual (Resultados)";
       default:
-        return "Galería";
+        return "Concurso Actual";
     }
   };
 
@@ -110,7 +110,7 @@ const Layout = ({ children }) => {
 
   // Navegación para usuarios no autenticados
   const publicNavigation = [
-    { name: "Concurso actual", href: "/contest/current", icon: BookOpen },
+    { name: "Concurso Actual", href: "/contest/current", icon: BookOpen },
   ];
 
   const navigation = isAuthenticated
