@@ -1,4 +1,4 @@
-// pages/Dashboard.jsx - Versión con datos reales
+// pages/Dashboard.jsx - Versión con datos reales y estadísticas de votación
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -8,15 +8,24 @@ import {
   TrendingUp,
   Clock,
   Star,
+  Heart,
+  Eye,
+  Users,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useContests } from "../hooks/useContests";
 import { useStories } from "../hooks/useStories";
+import { useVotingStats } from "../hooks/useVotingStats";
 
 const Dashboard = () => {
   const { user } = useAuthStore();
   const { currentContest } = useContests();
   const { getUserStories } = useStories();
+  const {
+    userVotesCount,
+    currentContestVotes,
+    loading: votingStatsLoading,
+  } = useVotingStats();
 
   const [userStories, setUserStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +73,7 @@ const Dashboard = () => {
         </p>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
               {userStories.length}
@@ -80,6 +89,13 @@ const Dashboard = () => {
               )}
             </div>
             <div className="text-sm text-gray-600">Likes recibidos</div>
+          </div>
+
+          <div className="bg-white rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-red-600">
+              {votingStatsLoading ? "..." : userVotesCount}
+            </div>
+            <div className="text-sm text-gray-600">Votos dados</div>
           </div>
 
           <div className="bg-white rounded-lg p-4 text-center">
@@ -265,6 +281,46 @@ const Dashboard = () => {
                       : "Finalizado"}
                   </span>
                 </div>
+                {currentContest.status === "voting" && (
+                  <div className="flex justify-between pt-2 border-t border-gray-200">
+                    <span className="text-gray-600">Tus votos:</span>
+                    <span className="font-medium text-red-600">
+                      {votingStatsLoading ? "..." : currentContestVotes}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Voting Activity */}
+          {!votingStatsLoading && userVotesCount > 0 && (
+            <div className="card">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <Heart className="h-5 w-5 mr-2 text-red-500" />
+                Actividad de votación
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total votos dados:</span>
+                  <span className="font-medium text-red-600">
+                    {userVotesCount}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">En concurso actual:</span>
+                  <span className="font-medium text-blue-600">
+                    {currentContestVotes}
+                  </span>
+                </div>
+                {currentContest?.status === "voting" &&
+                  currentContestVotes === 0 && (
+                    <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-xs text-yellow-800">
+                        💡 ¡Aún no has votado en el concurso actual!
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
           )}

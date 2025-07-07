@@ -17,6 +17,8 @@ import {
   List,
   Loader,
 } from "lucide-react";
+import { useVotingStats } from "../hooks/useVotingStats";
+import VotingGuidance from "../components/voting/VotingGuidance";
 import { useContests } from "../hooks/useContests";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
@@ -33,6 +35,7 @@ const CurrentContest = () => {
   const { currentContest, loading: contestLoading } = useContests();
   const { getStoriesByContest } = useStories();
   const { user } = useAuthStore();
+  const { userVotesCount, currentContestVotes } = useVotingStats();
 
   // Fechas reales del concurso actual (Julio 2025)
   const realContestDates = {
@@ -560,6 +563,16 @@ const CurrentContest = () => {
 
       {(currentPhase === "voting" || currentPhase === "results") && (
         <>
+          {/* Voting Guidance - Solo en fase de votación */}
+          {currentPhase === "voting" && (
+            <VotingGuidance
+              currentPhase={currentPhase}
+              userVotesCount={currentContestVotes}
+              totalStories={submissions.length}
+              contestMonth={contestData.month}
+            />
+          )}
+
           {/* Podio de ganadores - Solo en resultados */}
           {currentPhase === "results" && sortedSubmissions.length > 0 && (
             <div className="mb-12 bg-gradient-to-br from-yellow-50 via-gray-50 to-orange-50 border border-yellow-200 rounded-2xl p-8">

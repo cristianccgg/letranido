@@ -27,4 +27,129 @@
 
   /* Typography */
   --font-family-writing: "Georgia", "Times New Roman", serif;
+
+  /* Custom animations for voting system */
+  --animate-heart-beat: heart-beat 0.6s ease-in-out;
+  --animate-gentle-pulse: gentle-pulse 1.5s infinite;
+  --animate-vote-glow: vote-glow 0.3s ease-out;
+  --animate-count-up: count-up 0.3s ease-out;
+  --animate-slide-down: slide-down 0.4s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+  --animate-wiggle: wiggle 0.5s ease-in-out;
+
+  /* Animation keyframes */
+  --keyframes-heart-beat: {
+    0% {
+      transform: scale(1);
+    }
+    14% {
+      transform: scale(1.15);
+    }
+    28% {
+      transform: scale(1);
+    }
+    42% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(1);
+    }
+  }
+
+  --keyframes-gentle-pulse: {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  --keyframes-vote-glow: {
+    0% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+  }
+
+  --keyframes-count-up: {
+    0% {
+      transform: translateY(-8px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  --keyframes-slide-down: {
+    0% {
+      transform: translateY(-16px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  --keyframes-fade-in: {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  --keyframes-scale-in: {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  --keyframes-wiggle: {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-3deg);
+    }
+    75% {
+      transform: rotate(3deg);
+    }
+  }
+
+  /* Custom transition timing */
+  --transition-vote: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s ease;
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Custom shadows for voting states */
+  --shadow-vote-hover: 0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(59, 130, 246, 0.1);
+  --shadow-vote-active: 0 2px 8px rgba(239, 68, 68, 0.2),
+    0 0 0 3px rgba(239, 68, 68, 0.1);
+  --shadow-vote-disabled: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  /* Custom spacing for vote components */
+  --spacing-vote-compact: 0.5rem 0.75rem;
+  --spacing-vote-normal: 0.75rem 1rem;
+  --spacing-vote-large: 1rem 1.5rem;
 }

@@ -12,6 +12,8 @@ import {
   AlertCircle,
   User,
 } from "lucide-react";
+import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
+import AuthModal from "../components/forms/AuthModal";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
 
@@ -24,6 +26,7 @@ const Gallery = () => {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Hooks
   const { getStoriesForGallery, toggleLike, canVoteInStory } = useStories();
@@ -359,22 +362,15 @@ const Gallery = () => {
                     <Eye className="h-4 w-4 mr-1" />
                     {story.views_count}
                   </div>
-                  <button
-                    onClick={() => handleLikeToggle(story.id)}
-                    className={`flex items-center text-sm transition-colors ${
-                      story.isLiked
-                        ? "text-red-500 hover:text-red-600"
-                        : "text-gray-500 hover:text-red-500"
-                    }`}
-                    disabled={!isAuthenticated}
-                  >
-                    <Heart
-                      className={`h-4 w-4 mr-1 ${
-                        story.isLiked ? "fill-current" : ""
-                      }`}
-                    />
-                    {story.likes_count}
-                  </button>
+                  <EnhancedVoteButton
+                    isLiked={story.isLiked}
+                    likesCount={story.likes_count}
+                    canVote={true} // La gallery siempre permite votar si está autenticado
+                    isAuthenticated={isAuthenticated}
+                    onVote={() => handleLikeToggle(story.id)}
+                    onAuthRequired={() => setShowAuthModal(true)}
+                    size="small"
+                  />
                   <Link
                     to={`/story/${story.id}`}
                     className="text-primary-600 hover:text-primary-700 font-medium text-sm"
@@ -436,6 +432,18 @@ const Gallery = () => {
             </Link>
           </div>
         </div>
+      )}
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => {
+            setShowAuthModal(false);
+            // Recargar para obtener el estado de likes del usuario
+            loadStories();
+          }}
+        />
       )}
     </div>
   );

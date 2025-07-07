@@ -19,6 +19,7 @@ import {
 import { useAuthStore } from "../store/authStore";
 import { useStories } from "../hooks/useStories";
 import AuthModal from "../components/forms/AuthModal";
+import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -307,21 +308,17 @@ const StoryPage = () => {
         {/* Actions */}
         <div className="flex items-center justify-between py-4 border-t border-b border-gray-200">
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleLike}
-              disabled={!votingInfo.canVote}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                !votingInfo.canVote
-                  ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
-                  : isLiked
-                  ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                  : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-600"
-              }`}
-              title={!votingInfo.canVote ? votingInfo.reason : ""}
-            >
-              <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
-              {likesCount} likes
-            </button>
+            <EnhancedVoteButton
+              isLiked={isLiked}
+              likesCount={likesCount}
+              canVote={votingInfo.canVote}
+              votingInfo={votingInfo}
+              isAuthenticated={isAuthenticated}
+              onVote={handleLike}
+              onAuthRequired={() => setShowAuthModal(true)}
+              size="default"
+              showTooltip={true}
+            />
 
             <button
               onClick={handleShare}
