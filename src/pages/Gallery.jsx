@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, Link } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -8,7 +8,12 @@ import {
   Calendar,
   Trophy,
   Heart,
+  Loader,
+  AlertCircle,
+  User,
 } from "lucide-react";
+import { useStories } from "../hooks/useStories";
+import { useAuthStore } from "../store/authStore";
 
 const Gallery = () => {
   const location = useLocation();
@@ -16,6 +21,13 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [showMessage, setShowMessage] = useState(false);
+  const [stories, setStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Hooks
+  const { getStoriesForGallery, toggleLike, canVoteInStory } = useStories();
+  const { isAuthenticated } = useAuthStore();
 
   // Show success message if coming from submission
   useEffect(() => {
@@ -26,77 +38,65 @@ const Gallery = () => {
     }
   }, [location.state]);
 
-  // Mock data - esto vendrá de la API
-  const texts = [
-    {
-      id: 1,
-      title: "El Susurro de las Páginas",
-      excerpt:
-        "Entre las sombras de los estantes vacíos, el último libro parecía brillar con luz propia. Sus páginas amarillentas guardaban secretos que solo yo conocía, historias que habían susurrado a generaciones de lectores...",
-      author: "Elena M.",
-      authorId: "elena_m",
-      category: "Ficción",
-      likes: 45,
-      views: 234,
-      publishedAt: "2025-07-03T10:30:00Z",
-      prompt: "El último libro de la biblioteca",
-      isWinner: true,
-      readTime: "3 min",
-    },
-    {
-      id: 2,
-      title: "Memorias de Papel",
-      excerpt:
-        "No era solo un libro, era una ventana al alma de todos los que habían pasado por esta biblioteca. Cada página contenía las lágrimas, risas y suspiros de miles de lectores que encontraron refugio entre estos muros...",
-      author: "Carlos R.",
-      authorId: "carlos_r",
-      category: "Drama",
-      likes: 38,
-      views: 189,
-      publishedAt: "2025-07-02T15:45:00Z",
-      prompt: "El último libro de la biblioteca",
-      isWinner: false,
-      readTime: "4 min",
-    },
-    {
-      id: 3,
-      title: "La Guardiana de Historias",
-      excerpt:
-        "Había dedicado cincuenta años de su vida a cuidar estos libros, y ahora solo uno quedaba. Pero sabía que era el más importante de todos: el libro de los visitantes, lleno de nombres y sueños...",
-      author: "Ana L.",
-      authorId: "ana_l",
-      category: "Ficción",
-      likes: 52,
-      views: 312,
-      publishedAt: "2025-07-01T09:15:00Z",
-      prompt: "El último libro de la biblioteca",
-      isWinner: false,
-      readTime: "5 min",
-    },
-    {
-      id: 4,
-      title: "El Eco del Silencio",
-      excerpt:
-        "En el silencio absoluto de la biblioteca vacía, solo quedaba el eco de todas las historias que habían resonado en este lugar. Y ese último libro era el recipiente de todos esos ecos...",
-      author: "Miguel F.",
-      authorId: "miguel_f",
-      category: "Poesía",
-      likes: 29,
-      views: 156,
-      publishedAt: "2025-06-30T20:00:00Z",
-      prompt: "El último libro de la biblioteca",
-      isWinner: false,
-      readTime: "2 min",
-    },
-  ];
+  // Función memoizada para cargar historias
+  const loadStories = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const filters = {
+        category: selectedCategory,
+        sortBy: sortBy,
+        search: searchTerm.trim() || undefined,
+      };
+
+      console.log("🔍 Cargando historias con filtros:", filters);
+
+      const result = await getStoriesForGallery(filters);
+
+      if (result.success) {
+        console.log("✅ Historias cargadas:", result.stories.length);
+        setStories(result.stories || []);
+      } else {
+        console.error("❌ Error cargando historias:", result.error);
+        setError(result.error);
+      }
+    } catch (err) {
+      console.error("💥 Error inesperado:", err);
+      setError("Error inesperado al cargar las historias");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCategory, sortBy, getStoriesForGallery]); // Solo estas dependencias
+
+  // Cargar historias cuando cambien los filtros
+  useEffect(() => {
+    loadStories();
+  }, [loadStories]); // Solo loadStories como dependencia
+
+  // Filtrar historias por búsqueda (local)
+  const filteredStories = stories.filter((story) => {
+    if (!searchTerm.trim()) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      story.title.toLowerCase().includes(searchLower) ||
+      story.author.toLowerCase().includes(searchLower) ||
+      story.excerpt.toLowerCase().includes(searchLower)
+    );
+  });
 
   const categories = [
     { value: "all", label: "Todas las categorías" },
-    { value: "ficcion", label: "Ficción" },
-    { value: "drama", label: "Drama" },
-    { value: "poesia", label: "Poesía" },
-    { value: "ensayo", label: "Ensayo" },
-    { value: "humor", label: "Humor" },
+    { value: "Ficción", label: "Ficción" },
+    { value: "Drama", label: "Drama" },
+    { value: "Poesía", label: "Poesía" },
+    { value: "Ensayo", label: "Ensayo" },
+    { value: "Humor", label: "Humor" },
+    { value: "Terror", label: "Terror" },
+    { value: "Romance", label: "Romance" },
+    { value: "Ciencia Ficción", label: "Ciencia Ficción" },
+    { value: "Fantasía", label: "Fantasía" },
   ];
 
   const sortOptions = [
@@ -105,31 +105,6 @@ const Gallery = () => {
     { value: "liked", label: "Más gustados" },
     { value: "viewed", label: "Más vistos" },
   ];
-
-  const filteredTexts = texts
-    .filter((text) => {
-      const matchesSearch =
-        text.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        text.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        text.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" ||
-        text.category.toLowerCase() === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "popular":
-          return b.likes + b.views - (a.likes + a.views);
-        case "liked":
-          return b.likes - a.likes;
-        case "viewed":
-          return b.views - a.views;
-        case "recent":
-        default:
-          return new Date(b.publishedAt) - new Date(a.publishedAt);
-      }
-    });
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -140,6 +115,75 @@ const Gallery = () => {
     if (diffInDays === 1) return "Ayer";
     if (diffInDays < 7) return `Hace ${diffInDays} días`;
     return date.toLocaleDateString("es-ES");
+  };
+
+  const handleLikeToggle = async (storyId) => {
+    if (!isAuthenticated) {
+      alert("Debes iniciar sesión para dar like a las historias");
+      return;
+    }
+
+    // Verificar si se puede votar en esta historia
+    const votingCheck = await canVoteInStory(storyId);
+    if (!votingCheck.canVote) {
+      alert(votingCheck.reason);
+      return;
+    }
+
+    try {
+      const result = await toggleLike(storyId);
+      if (result.success) {
+        // Actualizar el estado local
+        setStories((prevStories) =>
+          prevStories.map((story) =>
+            story.id === storyId
+              ? {
+                  ...story,
+                  likes_count: result.liked
+                    ? story.likes_count + 1
+                    : story.likes_count - 1,
+                  isLiked: result.liked,
+                }
+              : story
+          )
+        );
+      } else {
+        alert(result.error || "Error al procesar el like");
+      }
+    } catch (err) {
+      console.error("Error toggling like:", err);
+      alert("Error inesperado al procesar el like");
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // La búsqueda se realiza automáticamente por el filtro local
+  };
+
+  const getBadgeColor = (category) => {
+    switch (category) {
+      case "Ficción":
+        return "bg-blue-100 text-blue-700";
+      case "Drama":
+        return "bg-purple-100 text-purple-700";
+      case "Poesía":
+        return "bg-pink-100 text-pink-700";
+      case "Terror":
+        return "bg-red-100 text-red-700";
+      case "Romance":
+        return "bg-rose-100 text-rose-700";
+      case "Ciencia Ficción":
+        return "bg-cyan-100 text-cyan-700";
+      case "Fantasía":
+        return "bg-emerald-100 text-emerald-700";
+      case "Humor":
+        return "bg-yellow-100 text-yellow-700";
+      case "Ensayo":
+        return "bg-indigo-100 text-indigo-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
   };
 
   return (
@@ -163,7 +207,7 @@ const Gallery = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="grid md:grid-cols-3 gap-4">
+        <form onSubmit={handleSearch} className="grid md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -204,98 +248,155 @@ const Gallery = () => {
               </option>
             ))}
           </select>
-        </div>
+        </form>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-12">
+          <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
+          <p className="text-gray-600">Cargando historias...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-12">
+          <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Error al cargar las historias
+          </h3>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button onClick={loadStories} className="btn-primary">
+            Intentar de nuevo
+          </button>
+        </div>
+      )}
 
       {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-gray-600">
-          {filteredTexts.length} historia{filteredTexts.length !== 1 ? "s" : ""}{" "}
-          encontrada{filteredTexts.length !== 1 ? "s" : ""}
-        </p>
-      </div>
+      {!loading && !error && (
+        <div className="mb-6">
+          <p className="text-gray-600">
+            {filteredStories.length} historia
+            {filteredStories.length !== 1 ? "s" : ""} encontrada
+            {filteredStories.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+      )}
 
       {/* Stories Grid */}
-      <div className="grid gap-6">
-        {filteredTexts.map((text) => (
-          <article
-            key={text.id}
-            className="card hover:shadow-md transition-shadow group"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    text.category === "Ficción"
-                      ? "bg-blue-100 text-blue-700"
-                      : text.category === "Drama"
-                      ? "bg-purple-100 text-purple-700"
-                      : text.category === "Poesía"
-                      ? "bg-pink-100 text-pink-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {text.category}
-                </span>
-                {text.isWinner && (
-                  <div className="flex items-center bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">
-                    <Trophy className="h-3 w-3 mr-1" />
-                    Ganador
-                  </div>
-                )}
-              </div>
-              <div className="text-sm text-gray-500">{text.readTime}</div>
-            </div>
-
-            <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
-              {text.title}
-            </h2>
-
-            <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3">
-              {text.excerpt}
-            </p>
-
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
-                  por{" "}
-                  <span className="font-medium text-gray-900">
-                    {text.author}
+      {!loading && !error && (
+        <div className="grid gap-6">
+          {filteredStories.map((story) => (
+            <article
+              key={story.id}
+              className="card hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeColor(
+                      story.contestCategory
+                    )}`}
+                  >
+                    {story.contestCategory}
                   </span>
-                </span>
-                <div className="flex items-center text-gray-500 text-sm">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  {formatDate(text.publishedAt)}
+                  <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                    {story.contestMonth}
+                  </span>
+                  {story.is_mature && (
+                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                      18+
+                    </span>
+                  )}
+                  {story.is_winner && (
+                    <div className="flex items-center bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">
+                      <Trophy className="h-3 w-3 mr-1" />
+                      Ganador
+                    </div>
+                  )}
                 </div>
+                <div className="text-sm text-gray-500">{story.readTime}</div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center text-gray-500 text-sm">
-                  <Eye className="h-4 w-4 mr-1" />
-                  {text.views}
-                </div>
-                <button className="flex items-center text-gray-500 hover:text-red-500 text-sm transition-colors">
-                  <Heart className="h-4 w-4 mr-1" />
-                  {text.likes}
-                </button>
-                <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                  Leer completa →
-                </button>
-              </div>
-            </div>
+              <Link to={`/story/${story.id}`} className="block">
+                <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                  {story.title}
+                </h2>
+              </Link>
 
-            {/* Prompt reference */}
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-500">
-                Prompt: <span className="italic">"{text.prompt}"</span>
+              <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3">
+                {story.excerpt}
               </p>
-            </div>
-          </article>
-        ))}
-      </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <Link
+                        to={`/profile/${story.authorId}`}
+                        className="text-sm font-medium text-gray-900 hover:text-primary-600"
+                      >
+                        {story.author}
+                      </Link>
+                      <div className="text-xs text-gray-500">
+                        {story.authorWins > 0 &&
+                          `${story.authorWins} victorias`}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    {formatDate(story.published_at || story.created_at)}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <Eye className="h-4 w-4 mr-1" />
+                    {story.views_count}
+                  </div>
+                  <button
+                    onClick={() => handleLikeToggle(story.id)}
+                    className={`flex items-center text-sm transition-colors ${
+                      story.isLiked
+                        ? "text-red-500 hover:text-red-600"
+                        : "text-gray-500 hover:text-red-500"
+                    }`}
+                    disabled={!isAuthenticated}
+                  >
+                    <Heart
+                      className={`h-4 w-4 mr-1 ${
+                        story.isLiked ? "fill-current" : ""
+                      }`}
+                    />
+                    {story.likes_count}
+                  </button>
+                  <Link
+                    to={`/story/${story.id}`}
+                    className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                  >
+                    Leer completa →
+                  </Link>
+                </div>
+              </div>
+
+              {/* Prompt reference */}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="text-xs text-gray-500">
+                  Prompt: <span className="italic">"{story.contestTitle}"</span>
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {/* Empty State */}
-      {filteredTexts.length === 0 && (
+      {!loading && !error && filteredStories.length === 0 && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Search className="h-16 w-16 mx-auto" />
@@ -304,8 +405,36 @@ const Gallery = () => {
             No se encontraron historias
           </h3>
           <p className="text-gray-600">
-            Intenta con otros términos de búsqueda o filtros diferentes
+            {searchTerm.trim()
+              ? "Intenta con otros términos de búsqueda o filtros diferentes"
+              : "Aún no hay historias en esta categoría"}
           </p>
+        </div>
+      )}
+
+      {/* CTA */}
+      {!loading && !error && filteredStories.length > 0 && (
+        <div className="mt-12 bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-8 text-center">
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            ¿Te inspiraste con estas historias?
+          </h3>
+          <p className="text-gray-600 mb-6">
+            ¡Únete a la comunidad y comparte tu propia historia!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/write"
+              className="btn-primary inline-flex items-center px-6 py-3"
+            >
+              Escribir mi historia
+            </Link>
+            <Link
+              to="/contest/current"
+              className="btn-secondary inline-flex items-center px-6 py-3"
+            >
+              Ver concurso actual
+            </Link>
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Heart,
@@ -13,8 +13,11 @@ import {
   Calendar,
   Award,
   MessageSquare,
+  Loader,
+  AlertCircle,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { useStories } from "../hooks/useStories";
 import AuthModal from "../components/forms/AuthModal";
 
 const StoryPage = () => {
@@ -22,92 +25,71 @@ const StoryPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
 
+  const [story, setStory] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [votingInfo, setVotingInfo] = useState({ canVote: false, reason: "" });
 
-  // Mock story data - esto vendrá de la API
-  const story = {
-    id: parseInt(id),
-    title: "El Guardián de los Secretos",
-    content: `En el silencio sepulcral de la biblioteca, solo quedaba yo y aquel libro que parecía brillar con luz propia. Sus páginas amarillentas susurraban historias que nadie más había escuchado.
+  // Hooks
+  const {
+    getStoryById,
+    toggleLike,
+    checkUserLike,
+    recordStoryView,
+    canVoteInStory,
+  } = useStories();
 
-Había sido el bibliotecario de esta institución durante treinta años, y en todo ese tiempo, jamás había visto nada igual. El libro apareció una mañana de octubre, simplemente estaba ahí, en el estante más alto de la sección de literatura clásica, como si siempre hubiera pertenecido a ese lugar.
+  // Cargar historia
+  const loadStory = useCallback(async () => {
+    if (!id) return;
 
-Pero yo sabía que no era así. Conocía cada libro de esta biblioteca como si fueran mis propios hijos. Y este... este era diferente. No tenía título en la portada, ni número de catalogación. Solo una cubierta de cuero gastado que parecía respirar bajo mis dedos.
+    setLoading(true);
+    setError(null);
 
-Los otros empleados nunca lo notaron. Los visitantes pasaban de largo sin siquiera mirarlo. Era como si fuera invisible para todos excepto para mí. Y ahora que la biblioteca cerraba sus puertas para siempre, me enfrentaba a la decisión más difícil de mi vida.
+    try {
+      console.log("🔍 Cargando historia:", id);
 
-¿Qué haría con el último libro?
+      const result = await getStoryById(id);
 
-La respuesta llegó cuando finalmente me atreví a abrirlo. Las páginas no contenían palabras escritas con tinta, sino memorias. Memorias de cada persona que había cruzado estas puertas en busca de conocimiento, aventura o simplemente refugio. Vi a la niña de ocho años que descubrió su amor por la poesía entre estos estantes. Al anciano que venía cada martes a leer el periódico porque en su casa se sentía demasiado solo. A la madre soltera que estudiaba para sus exámenes mientras su hijo jugaba en silencio en la sección infantil.
+      if (result.success) {
+        console.log("✅ Historia cargada:", result.story.title);
+        setStory(result.story);
+        setLikesCount(result.story.likes_count || 0);
 
-Todas esas vidas, todos esos momentos, estaban contenidos en aquel libro mágico. Era más que papel y tinta; era el alma de la biblioteca misma.
+        // Verificar si el usuario ya dio like
+        if (isAuthenticated) {
+          const likeResult = await checkUserLike(id);
+          if (likeResult.success) {
+            setIsLiked(likeResult.liked);
+          }
+        }
 
-Cuando llegó el momento de cerrar por última vez, tomé el libro entre mis manos y susurré: "No te preocupes, encontraré la manera de que estas historias continúen."
+        // Verificar si se puede votar en esta historia
+        const votingResult = await canVoteInStory(id);
+        setVotingInfo(votingResult);
+        console.log("🗳️ Info de votación:", votingResult);
 
-Y así fue como decidí no llevármelo a casa, sino dejarlo exactamente donde estaba. Porque comprendí que el libro no me pertenecía a mí, ni a la biblioteca, ni siquiera a la ciudad. Pertenecía a todas las almas que habían encontrado magia entre estos muros.
+        // Registrar vista
+        await recordStoryView(id);
+      } else {
+        console.error("❌ Error cargando historia:", result.error);
+        setError(result.error);
+      }
+    } catch (err) {
+      console.error("💥 Error inesperado:", err);
+      setError("Error inesperado al cargar la historia");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, isAuthenticated, getStoryById, checkUserLike, recordStoryView]);
 
-Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo encontrará. Y entonces, las memorias continuarán escribiéndose.`,
-    author: {
-      id: "maria_elena",
-      name: "María Elena",
-      avatar: null,
-      badges: ["🏆", "⭐"],
-      wins: 3,
-      bio: "Escritora apasionada por las historias que conectan con el alma humana.",
-      joinedAt: "2023-12-15",
-      totalStories: 12,
-      totalLikes: 284,
-    },
-    contest: {
-      id: 1,
-      title: "El último libro de la biblioteca",
-      month: "Julio 2025",
-      category: "Ficción",
-    },
-    metadata: {
-      likes: 24,
-      views: 156,
-      publishedAt: "2025-07-05T14:30:00Z",
-      wordCount: 487,
-      readTime: "4 min",
-      isMature: false,
-      isWinner: false, // Se determina al final del concurso
-    },
-    comments: [
-      {
-        id: 1,
-        author: "Carlos M.",
-        content:
-          "¡Qué hermosa manera de cerrar la historia! Me emocioné mucho con el final.",
-        publishedAt: "2025-07-05T16:45:00Z",
-        likes: 3,
-      },
-      {
-        id: 2,
-        author: "Ana L.",
-        content:
-          "La descripción del libro mágico es increíble. Realmente puedo imaginármelo brillando.",
-        publishedAt: "2025-07-05T18:20:00Z",
-        likes: 5,
-      },
-    ],
-  };
-
-  // Simular carga inicial
+  // Cargar historia al montar o cambiar ID
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      setLikesCount(story.metadata.likes);
-      // Simular si el usuario ya dio like (basado en localStorage para el demo)
-      const hasLiked = localStorage.getItem(`liked_story_${id}`);
-      setIsLiked(hasLiked === "true");
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [id, story.metadata.likes]);
+    loadStory();
+  }, [loadStory]);
 
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -115,25 +97,25 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
       return;
     }
 
+    // Verificar si se puede votar antes de intentar
+    if (!votingInfo.canVote) {
+      alert(votingInfo.reason);
+      return;
+    }
+
     try {
-      const newIsLiked = !isLiked;
-      setIsLiked(newIsLiked);
-      setLikesCount((prev) => (newIsLiked ? prev + 1 : prev - 1));
+      const result = await toggleLike(id);
 
-      // Guardar en localStorage para la demo
-      localStorage.setItem(`liked_story_${id}`, newIsLiked.toString());
-
-      // TODO: Enviar a la API
-      console.log("Like toggled:", {
-        storyId: id,
-        liked: newIsLiked,
-        userId: user?.id,
-      });
+      if (result.success) {
+        setIsLiked(result.liked);
+        setLikesCount((prev) => (result.liked ? prev + 1 : prev - 1));
+        console.log("✅ Like actualizado:", result.liked);
+      } else {
+        alert(result.error || "Error al procesar el like");
+      }
     } catch (error) {
-      // Revertir en caso de error
-      setIsLiked(!isLiked);
-      setLikesCount((prev) => (isLiked ? prev + 1 : prev - 1));
       console.error("Error toggling like:", error);
+      alert("Error inesperado al procesar el like");
     }
   };
 
@@ -176,17 +158,56 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
     }
   };
 
-  if (isLoading) {
+  // Loading state
+  if (loading) {
     return (
       <div className="max-w-4xl mx-auto py-12">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded"></div>
-            ))}
+        <div className="text-center">
+          <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
+          <p className="text-gray-600">Cargando historia...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto py-12">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Error al cargar la historia
+          </h2>
+          <p className="text-red-600 mb-6">{error}</p>
+          <div className="flex gap-4 justify-center">
+            <button onClick={() => navigate(-1)} className="btn-secondary">
+              Volver
+            </button>
+            <button onClick={loadStory} className="btn-primary">
+              Intentar de nuevo
+            </button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Story not found
+  if (!story) {
+    return (
+      <div className="max-w-4xl mx-auto py-12">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Historia no encontrada
+          </h2>
+          <p className="text-gray-600 mb-6">
+            La historia que buscas no existe o ha sido eliminada.
+          </p>
+          <button onClick={() => navigate("/gallery")} className="btn-primary">
+            Ver galería
+          </button>
         </div>
       </div>
     );
@@ -209,17 +230,17 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-            {story.contest.category}
+            {story.contest?.category || "Ficción"}
           </span>
           <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
-            {story.contest.month}
+            {story.contest?.month || "Mes"}
           </span>
-          {story.metadata.isMature && (
+          {story.is_mature && (
             <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
               Contenido Maduro
             </span>
           )}
-          {story.metadata.isWinner && (
+          {story.is_winner && (
             <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
               🏆 GANADOR
             </span>
@@ -244,22 +265,27 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
                   >
                     {story.author.name}
                   </Link>
-                  {story.author.badges.map((badge, i) => {
-                    const badgeInfo = getBadgeInfo(badge);
-                    return (
-                      <span
-                        key={i}
-                        className={`text-sm ${badgeInfo.color}`}
-                        title={badgeInfo.name}
-                      >
-                        {badge}
-                      </span>
-                    );
-                  })}
+                  {/* Badges dinámicos basados en estadísticas */}
+                  {story.author.wins > 0 && (
+                    <span
+                      className="text-sm text-yellow-600"
+                      title="Ganador de concursos"
+                    >
+                      🏆
+                    </span>
+                  )}
+                  {story.author.totalLikes > 50 && (
+                    <span
+                      className="text-sm text-blue-600"
+                      title="Autor popular"
+                    >
+                      ⭐
+                    </span>
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {story.author.wins} victorias • {story.author.totalStories}{" "}
-                  historias
+                  {story.author.wins} victorias • {story.author.totalLikes}{" "}
+                  likes totales
                 </div>
               </div>
             </div>
@@ -268,13 +294,13 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <div className="flex items-center">
               <Clock className="h-4 w-4 mr-1" />
-              {story.metadata.readTime}
+              {story.readTime}
             </div>
             <div className="flex items-center">
               <Eye className="h-4 w-4 mr-1" />
-              {story.metadata.views} lecturas
+              {story.views_count} lecturas
             </div>
-            <div>{formatDate(story.metadata.publishedAt)}</div>
+            <div>{formatDate(story.published_at || story.created_at)}</div>
           </div>
         </div>
 
@@ -283,11 +309,15 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
           <div className="flex items-center gap-4">
             <button
               onClick={handleLike}
+              disabled={!votingInfo.canVote}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                isLiked
-                  ? "bg-red-50 text-red-600 border border-red-200"
+                !votingInfo.canVote
+                  ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                  : isLiked
+                  ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
                   : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-600"
               }`}
+              title={!votingInfo.canVote ? votingInfo.reason : ""}
             >
               <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
               {likesCount} likes
@@ -304,13 +334,113 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              {story.metadata.wordCount} palabras
+              {story.word_count} palabras
             </span>
             <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
               <Flag className="h-4 w-4" />
             </button>
           </div>
         </div>
+
+        {/* Información de votación */}
+        {!votingInfo.canVote && (
+          <div
+            className={`mt-4 p-4 rounded-lg border ${
+              votingInfo.phase === "submission"
+                ? "bg-blue-50 border-blue-200"
+                : votingInfo.phase === "results"
+                ? "bg-yellow-50 border-yellow-200"
+                : votingInfo.reason.includes("propia")
+                ? "bg-purple-50 border-purple-200"
+                : "bg-gray-50 border-gray-200"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {votingInfo.phase === "submission" && (
+                <>
+                  <Clock className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <span className="text-blue-800 font-medium block">
+                      ⏳ Votación aún no disponible
+                    </span>
+                    <span className="text-blue-600 text-sm">
+                      La votación comenzará cuando termine la fase de envío de
+                      historias
+                    </span>
+                  </div>
+                </>
+              )}
+              {votingInfo.phase === "results" && (
+                <>
+                  <Trophy className="h-5 w-5 text-yellow-600" />
+                  <div>
+                    <span className="text-yellow-800 font-medium block">
+                      🏆 Votación finalizada
+                    </span>
+                    <span className="text-yellow-600 text-sm">
+                      Este concurso ya terminó y se están mostrando los
+                      resultados finales
+                    </span>
+                  </div>
+                </>
+              )}
+              {votingInfo.reason.includes("propia") && (
+                <>
+                  <User className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <span className="text-purple-800 font-medium block">
+                      ✍️ Esta es tu historia
+                    </span>
+                    <span className="text-purple-600 text-sm">
+                      No puedes votar por tu propia participación, pero otros
+                      usuarios sí pueden
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+            {votingInfo.votingStartsAt && (
+              <div className="mt-2 text-sm text-blue-600 bg-blue-100 rounded px-2 py-1 inline-block">
+                📅 Votación inicia:{" "}
+                {votingInfo.votingStartsAt.toLocaleDateString("es-ES", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+            )}
+            {votingInfo.votingEndsAt && votingInfo.canVote && (
+              <div className="mt-2 text-sm text-green-600 bg-green-100 rounded px-2 py-1 inline-block">
+                ⏰ Votación termina:{" "}
+                {votingInfo.votingEndsAt.toLocaleDateString("es-ES", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Información positiva cuando SÍ se puede votar */}
+        {votingInfo.canVote && isAuthenticated && (
+          <div className="mt-4 p-3 rounded-lg border bg-green-50 border-green-200">
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-green-600" />
+              <span className="text-green-800 text-sm font-medium">
+                🗳️ ¡Votación activa! Dale like si te gustó esta historia
+              </span>
+            </div>
+            {votingInfo.votingEndsAt && (
+              <div className="mt-1 text-xs text-green-600">
+                Tienes hasta el{" "}
+                {votingInfo.votingEndsAt.toLocaleDateString("es-ES")} para votar
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Story Content */}
@@ -329,7 +459,14 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
         <h3 className="font-semibold text-gray-900 mb-2">
           Prompt del concurso:
         </h3>
-        <p className="text-gray-600 italic">"{story.contest.title}"</p>
+        <p className="text-gray-600 italic">
+          "{story.contest?.title || "Concurso"}"
+        </p>
+        {story.contest?.description && (
+          <p className="text-gray-600 text-sm mt-2">
+            {story.contest.description}
+          </p>
+        )}
         <div className="mt-3">
           <Link
             to="/contest/current"
@@ -351,15 +488,17 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
               <h3 className="text-lg font-semibold text-gray-900">
                 {story.author.name}
               </h3>
-              {story.author.badges.map((badge, i) => (
-                <span
-                  key={i}
-                  className="text-lg"
-                  title={getBadgeInfo(badge).name}
-                >
-                  {badge}
+              {/* Badges dinámicos */}
+              {story.author.wins > 0 && (
+                <span className="text-lg" title="Ganador de concursos">
+                  🏆
                 </span>
-              ))}
+              )}
+              {story.author.totalLikes > 50 && (
+                <span className="text-lg" title="Autor popular">
+                  ⭐
+                </span>
+              )}
             </div>
             <p className="text-gray-600 mb-3">{story.author.bio}</p>
             <div className="flex items-center gap-6 text-sm text-gray-500">
@@ -382,11 +521,11 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
         </div>
       </div>
 
-      {/* Comments Section */}
+      {/* Comments Section Placeholder */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
           <MessageSquare className="h-5 w-5 mr-2" />
-          Comentarios ({story.comments.length})
+          Comentarios
         </h3>
 
         {!isAuthenticated && (
@@ -418,29 +557,10 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
           </div>
         )}
 
-        <div className="space-y-4">
-          {story.comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="bg-white border border-gray-200 rounded-lg p-4"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-900">
-                  {comment.author}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {formatDate(comment.publishedAt)}
-                </span>
-              </div>
-              <p className="text-gray-700 mb-2">{comment.content}</p>
-              <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-500 transition-colors">
-                  <Heart className="h-3 w-3" />
-                  {comment.likes}
-                </button>
-              </div>
-            </div>
-          ))}
+        {/* Placeholder para comentarios futuros */}
+        <div className="text-center py-8 text-gray-500">
+          <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+          <p>Los comentarios estarán disponibles próximamente</p>
         </div>
       </section>
 
@@ -450,11 +570,12 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
           ¿Te inspiró esta historia?
         </h3>
         <p className="text-gray-600 mb-6">
-          ¡Tú también puedes participar en el concurso de {story.contest.month}!
+          ¡Tú también puedes participar en el concurso de{" "}
+          {story.contest?.month || "este mes"}!
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            to={`/write/${story.contest.id}`}
+            to={`/write/${story.contest?.id || ""}`}
             className="btn-primary inline-flex items-center px-6 py-3"
           >
             Escribir mi historia
@@ -475,7 +596,8 @@ Quizás algún día, cuando construyan algo nuevo en este lugar, alguien más lo
           onClose={() => setShowAuthModal(false)}
           onSuccess={() => {
             setShowAuthModal(false);
-            // Después del login, permitir que haga like inmediatamente
+            // Recargar para obtener el estado de like del usuario
+            loadStory();
           }}
         />
       )}

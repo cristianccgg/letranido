@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Trophy,
@@ -15,12 +15,24 @@ import {
   User,
   Grid3X3,
   List,
+  Loader,
 } from "lucide-react";
+import { useContests } from "../hooks/useContests";
+import { useStories } from "../hooks/useStories";
+import { useAuthStore } from "../store/authStore";
 
 const CurrentContest = () => {
   const [sortBy, setSortBy] = useState("random");
   const [debugPhase, setDebugPhase] = useState("voting"); // Solo para desarrollo
   const [viewMode, setViewMode] = useState("compact");
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Hooks
+  const { currentContest, loading: contestLoading } = useContests();
+  const { getStoriesByContest } = useStories();
+  const { user } = useAuthStore();
 
   // Fechas reales del concurso actual (Julio 2025)
   const realContestDates = {
@@ -48,7 +60,62 @@ const CurrentContest = () => {
   const actualPhase =
     process.env.NODE_ENV === "production" ? getRealPhase() : debugPhase;
 
-  // Mock data del concurso actual
+  // Cargar historias del concurso actual
+  const loadStories = useCallback(async () => {
+    // Esperar a que el concurso se haya cargado completamente
+    if (contestLoading) {
+      console.log("⏳ Esperando a que termine de cargar el concurso...");
+      return;
+    }
+
+    if (!currentContest) {
+      console.log("ℹ️ No hay concurso actual disponible");
+      setSubmissions([]);
+      setLoadingSubmissions(false);
+      return;
+    }
+
+    setLoadingSubmissions(true);
+    setError(null);
+
+    try {
+      console.log(
+        "🔍 Cargando historias para concurso:",
+        currentContest.id,
+        currentContest.title
+      );
+
+      const result = await getStoriesByContest(currentContest.id);
+
+      if (result.success) {
+        console.log("✅ Historias cargadas:", result.stories.length);
+        setSubmissions(result.stories || []);
+      } else {
+        console.error("❌ Error cargando historias:", result.error);
+        setError(result.error);
+      }
+    } catch (err) {
+      console.error("💥 Error inesperado:", err);
+      setError("Error inesperado al cargar las historias");
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  }, [currentContest?.id, contestLoading, getStoriesByContest]);
+
+  useEffect(() => {
+    loadStories();
+  }, [loadStories]);
+
+  // Cambiar sortBy automáticamente cuando cambie la fase
+  useEffect(() => {
+    if (actualPhase === "results") {
+      setSortBy("popular"); // En resultados, mostrar por ranking
+    } else if (actualPhase === "voting") {
+      setSortBy("random"); // En votación, aleatorio para justicia
+    }
+  }, [actualPhase]);
+
+  // Obtener datos del concurso con fechas dinámicas
   const getContestDates = (phase) => {
     // En producción, usar siempre las fechas reales
     if (process.env.NODE_ENV === "production") {
@@ -82,149 +149,41 @@ const CurrentContest = () => {
 
   const contestDates = getContestDates(actualPhase);
 
-  // Cambiar sortBy automáticamente cuando cambie la fase
-  useEffect(() => {
-    if (actualPhase === "results") {
-      setSortBy("popular"); // En resultados, mostrar por ranking
-    } else if (actualPhase === "voting") {
-      setSortBy("random"); // En votación, aleatorio para justicia
-    }
-  }, [actualPhase]);
+  // Combinar datos del concurso real con fechas dinámicas
+  const contestData = currentContest
+    ? {
+        ...currentContest,
+        ...contestDates,
+      }
+    : null;
 
-  const currentContest = {
-    id: 1,
-    title: "El último libro de la biblioteca",
-    description:
-      "Eres el bibliotecario de una biblioteca que está a punto de cerrar para siempre. Solo queda un libro en los estantes. ¿Cuál es y por qué es tan especial?",
-    endDate: new Date("2025-07-31T23:59:59"),
-    month: "Julio 2025",
-    category: "Ficción",
-    participants: 127,
-    prize: "Insignia de Oro + Destacado del mes",
-    // Fechas dinámicas basadas en debugPhase
-    ...contestDates,
-  };
-
-  // Determinar en qué fase estamos
-  const now = new Date();
-  const isSubmissionPhase = now <= currentContest.submissionEndDate;
-  const isVotingPhase =
-    now >= currentContest.votingStartDate &&
-    now <= currentContest.votingEndDate;
-  const isResultsPhase = now > currentContest.votingEndDate;
-
-  const getCurrentPhase = () => {
-    if (isSubmissionPhase) return "submission";
-    if (isVotingPhase) return "voting";
-    if (isResultsPhase) return "results";
-    return "submission";
-  };
-
-  // Usar la fase calculada (real en producción, debug en desarrollo)
+  // Determinar fase actual
   const currentPhase = actualPhase;
 
-  // Mock participaciones (solo visibles en fase de voting)
-  const submissions = [
-    {
-      id: 3,
-      title: "El Último Testimonio",
-      author: "Ana Rodríguez",
-      authorId: "ana_rodriguez",
-      excerpt:
-        "No era solo un libro. Era el registro de cada alma que había encontrado refugio entre estos muros. Cada lágrima, cada sonrisa, cada sueño roto y reconstruido...",
-      likes: 52, // MÁS LIKES - Primer lugar
-      views: 203,
-      publishedAt: "2025-07-03T20:45:00Z",
-      wordCount: 756,
-      readTime: "4 min",
-      authorBadges: ["🏆", "⭐", "🔥"],
-      authorWins: 5,
-      isMature: false,
-    },
-    {
-      id: 1,
-      title: "El Guardián de los Secretos",
-      author: "María Elena",
-      authorId: "maria_elena",
-      excerpt:
-        "En el silencio sepulcral de la biblioteca, solo quedaba yo y aquel libro que parecía brillar con luz propia. Sus páginas amarillentas susurraban historias que nadie más había escuchado...",
-      likes: 38, // SEGUNDO LUGAR
-      views: 156,
-      publishedAt: "2025-07-05T14:30:00Z",
-      wordCount: 847,
-      readTime: "4 min",
-      authorBadges: ["🏆", "⭐"],
-      authorWins: 3,
-      isMature: false,
-    },
-    {
-      id: 2,
-      title: "Memorias en Papel Amarillento",
-      author: "Carlos Vega",
-      authorId: "carlos_vega",
-      excerpt:
-        "Cincuenta años cuidando estos libros me habían enseñado que las historias más importantes no estaban en las páginas, sino entre ellas. Y ese último libro... ese contenía todas nuestras memorias...",
-      likes: 31, // TERCER LUGAR
-      views: 134,
-      publishedAt: "2025-07-04T09:15:00Z",
-      wordCount: 923,
-      readTime: "5 min",
-      authorBadges: ["⭐"],
-      authorWins: 1,
-      isMature: false,
-    },
-    {
-      id: 4,
-      title: "Ecos en el Vacío",
-      author: "Miguel Santos",
-      authorId: "miguel_santos",
-      excerpt:
-        "La biblioteca moría, pero su último libro contenía algo que ningún otro había logrado: el poder de hacer que los muertos hablaran una vez más...",
-      likes: 18,
-      views: 89,
-      publishedAt: "2025-07-05T11:20:00Z",
-      wordCount: 634,
-      readTime: "3 min",
-      authorBadges: [],
-      authorWins: 0,
-      isMature: true,
-    },
-    {
-      id: 5,
-      title: "La Despedida Silenciosa",
-      author: "Laura Mendoza",
-      authorId: "laura_mendoza",
-      excerpt:
-        "Había llegado el momento de cerrar las puertas por última vez. Pero antes, tenía que leer ese libro que había estado esperando en el estante más alto durante décadas...",
-      likes: 12,
-      views: 67,
-      publishedAt: "2025-07-05T16:00:00Z",
-      wordCount: 512,
-      readTime: "3 min",
-      authorBadges: ["⭐"],
-      authorWins: 2,
-      isMature: false,
-    },
-  ];
-
-  const sortedSubmissions = submissions.sort((a, b) => {
+  const sortedSubmissions = [...submissions].sort((a, b) => {
     switch (sortBy) {
       case "popular":
         // Solo disponible en fase de resultados
         if (currentPhase === "results") {
-          return b.likes + b.views - (a.likes + a.views);
+          return (
+            (b.likes_count || 0) +
+            (b.views_count || 0) -
+            ((a.likes_count || 0) + (a.views_count || 0))
+          );
         }
         // Fallback a aleatorio si no es fase de resultados
         return Math.random() - 0.5;
       case "author":
-        return a.author.localeCompare(b.author);
+        return (a.user_profiles?.display_name || "").localeCompare(
+          b.user_profiles?.display_name || ""
+        );
       case "length":
-        return b.wordCount - a.wordCount;
+        return (b.word_count || 0) - (a.word_count || 0);
       case "random":
         return Math.random() - 0.5;
       case "recent":
       default:
-        return new Date(b.publishedAt) - new Date(a.publishedAt);
+        return new Date(b.created_at) - new Date(a.created_at);
     }
   });
 
@@ -259,18 +218,39 @@ const CurrentContest = () => {
     return `Hace ${diffInDays} días`;
   };
 
-  const getBadgeInfo = (badge) => {
-    switch (badge) {
-      case "🏆":
-        return { name: "Ganador", color: "text-yellow-600" };
-      case "⭐":
-        return { name: "Autor popular", color: "text-blue-600" };
-      case "🔥":
-        return { name: "Racha ganadora", color: "text-red-600" };
-      default:
-        return { name: "", color: "text-gray-600" };
-    }
+  // Calcular tiempo de lectura estimado
+  const calculateReadTime = (wordCount) => {
+    const wordsPerMinute = 200;
+    const minutes = Math.ceil(wordCount / wordsPerMinute);
+    return `${minutes} min`;
   };
+
+  // Loading states
+  if (contestLoading) {
+    return (
+      <div className="max-w-6xl mx-auto py-12">
+        <div className="text-center">
+          <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
+          <p className="text-gray-600">Cargando concurso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!contestData) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center">
+        <div className="text-gray-600 mb-4">
+          <AlertCircle className="h-12 w-12 mx-auto mb-4" />
+          <h2 className="text-xl font-bold">No hay concurso activo</h2>
+          <p>Actualmente no hay ningún concurso disponible.</p>
+        </div>
+        <Link to="/" className="btn-primary">
+          Volver al inicio
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -283,41 +263,41 @@ const CurrentContest = () => {
                 🏆 CONCURSO ACTIVO
               </span>
               <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-                {currentContest.month}
+                {contestData.month || "Mes actual"}
               </span>
               <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
-                {currentContest.category}
+                {contestData.category || "Ficción"}
               </span>
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              {currentContest.title}
+              {contestData.title}
             </h1>
 
             <p className="text-gray-600 leading-relaxed mb-4">
-              {currentContest.description}
+              {contestData.description}
             </p>
 
             <div className="flex items-center gap-6 text-sm text-gray-500">
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
-                {currentContest.participants} participantes
+                {submissions.length} participantes
               </div>
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
                 {currentPhase === "submission" &&
-                  `Envíos hasta ${currentContest.submissionEndDate.toLocaleDateString(
+                  `Envíos hasta ${contestData.submissionEndDate.toLocaleDateString(
                     "es-ES"
                   )}`}
                 {currentPhase === "voting" &&
-                  `Votación hasta ${currentContest.votingEndDate.toLocaleDateString(
+                  `Votación hasta ${contestData.votingEndDate.toLocaleDateString(
                     "es-ES"
                   )}`}
                 {currentPhase === "results" && "Concurso finalizado"}
               </div>
               <div className="flex items-center">
                 <Award className="h-4 w-4 mr-1" />
-                {currentContest.prize}
+                Insignia de Oro + Destacado del mes
               </div>
             </div>
           </div>
@@ -326,7 +306,7 @@ const CurrentContest = () => {
           <div className="ml-6">
             {currentPhase === "submission" && (
               <Link
-                to={`/write/${currentContest.id}`}
+                to={`/write/${contestData.id}`}
                 className="btn-primary flex items-center"
               >
                 <PenTool className="h-4 w-4 mr-2" />
@@ -339,7 +319,7 @@ const CurrentContest = () => {
                   🗳️ FASE DE VOTACIÓN
                 </div>
                 <Link
-                  to={`/write/${currentContest.id}`}
+                  to={`/write/${contestData.id}`}
                   className="btn-secondary text-sm"
                 >
                   ¿Aún quieres participar?
@@ -372,7 +352,7 @@ const CurrentContest = () => {
               Los participantes están escribiendo sus historias. Las historias
               se revelarán el{" "}
               <strong>
-                {currentContest.votingStartDate.toLocaleDateString("es-ES")}
+                {contestData.votingStartDate.toLocaleDateString("es-ES")}
               </strong>{" "}
               para comenzar la fase de votación.
             </p>
@@ -386,7 +366,7 @@ const CurrentContest = () => {
               </p>
             </div>
             <Link
-              to={`/write/${currentContest.id}`}
+              to={`/write/${contestData.id}`}
               className="btn-primary inline-flex items-center px-6 py-3"
             >
               <PenTool className="h-5 w-5 mr-2" />
@@ -404,91 +384,134 @@ const CurrentContest = () => {
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
                   Sus historias se revelarán el{" "}
-                  {currentContest.votingStartDate.toLocaleDateString("es-ES")}
+                  {contestData.votingStartDate.toLocaleDateString("es-ES")}
                 </p>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-green-600">
-                  {submissions.length}
+                  {loadingSubmissions ? "..." : submissions.length}
                 </div>
                 <div className="text-sm text-gray-500">participantes</div>
               </div>
             </div>
 
+            {/* Loading state */}
+            {loadingSubmissions && (
+              <div className="text-center py-8">
+                <Loader className="h-8 w-8 animate-spin mx-auto text-primary-600 mb-4" />
+                <p className="text-gray-600">Cargando participantes...</p>
+              </div>
+            )}
+
+            {/* Error state */}
+            {error && (
+              <div className="text-center py-8">
+                <AlertCircle className="h-8 w-8 mx-auto text-red-500 mb-4" />
+                <p className="text-red-600">{error}</p>
+              </div>
+            )}
+
             {/* Grid de participantes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {submissions.map((submission, index) => (
-                <div
-                  key={submission.id}
-                  className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+            {!loadingSubmissions && !error && submissions.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">
+                  Aún no hay participantes en este concurso.
+                </p>
+                <Link
+                  to={`/write/${contestData.id}`}
+                  className="btn-primary inline-flex items-center"
                 >
-                  <div className="flex items-center gap-3">
-                    {/* Avatar */}
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
+                  <PenTool className="h-4 w-4 mr-2" />
+                  ¡Sé el primero!
+                </Link>
+              </div>
+            )}
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-gray-900 truncate">
-                          {submission.author}
-                        </span>
-                        {/* Badges del autor */}
-                        {submission.authorBadges.map((badge, i) => (
-                          <span
-                            key={i}
-                            className="text-sm"
-                            title={getBadgeInfo(badge).name}
-                          >
-                            {badge}
+            {!loadingSubmissions && !error && submissions.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {submissions.map((submission, index) => (
+                  <div
+                    key={submission.id}
+                    className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Avatar */}
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="h-5 w-5 text-white" />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-gray-900 truncate">
+                            {submission.user_profiles?.display_name ||
+                              "Usuario"}
                           </span>
-                        ))}
+                          {/* Badges del autor */}
+                          {submission.user_profiles?.wins_count > 0 && (
+                            <span
+                              className="text-sm"
+                              title="Ganador de concursos"
+                            >
+                              🏆
+                            </span>
+                          )}
+                          {submission.user_profiles?.total_likes > 50 && (
+                            <span className="text-sm" title="Autor popular">
+                              ⭐
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                          <span>
+                            {submission.user_profiles?.wins_count || 0}{" "}
+                            victorias
+                          </span>
+                          <span>•</span>
+                          <span>{formatDate(submission.created_at)}</span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span>{submission.authorWins} victorias</span>
-                        <span>•</span>
-                        <span>{formatDate(submission.publishedAt)}</span>
+                      {/* Indicador de envío */}
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       </div>
                     </div>
 
-                    {/* Indicador de envío */}
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    {/* Preview mínimo SIN spoilers */}
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>📝 Historia enviada</span>
+                        <span>{submission.word_count || 0} palabras</span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Preview mínimo SIN spoilers */}
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <span>📝 Historia enviada</span>
-                      <span>{submission.wordCount} palabras</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {/* CTA para unirse */}
-            <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-              <p className="text-gray-600 mb-4">
-                ¿Te animas a unirte a estos escritores?
-              </p>
-              <Link
-                to={`/write/${currentContest.id}`}
-                className="btn-primary inline-flex items-center"
-              >
-                <PenTool className="h-4 w-4 mr-2" />
-                Enviar mi historia
-              </Link>
-            </div>
+            {!loadingSubmissions && !error && submissions.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+                <p className="text-gray-600 mb-4">
+                  ¿Te animas a unirte a estos escritores?
+                </p>
+                <Link
+                  to={`/write/${contestData.id}`}
+                  className="btn-primary inline-flex items-center"
+                >
+                  <PenTool className="h-4 w-4 mr-2" />
+                  Enviar mi historia
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Estadísticas motivacionales */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-blue-600 mb-2">
-                {submissions.length}
+                {loadingSubmissions ? "..." : submissions.length}
               </div>
               <div className="text-blue-800 font-medium">
                 Historias enviadas
@@ -501,7 +524,7 @@ const CurrentContest = () => {
                 {Math.max(
                   0,
                   Math.ceil(
-                    (currentContest.submissionEndDate - new Date()) /
+                    (contestData.submissionEndDate - new Date()) /
                       (1000 * 60 * 60 * 24)
                   )
                 )}
@@ -514,12 +537,15 @@ const CurrentContest = () => {
 
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-purple-600 mb-2">
-                {submissions
-                  .reduce(
-                    (total, submission) => total + submission.wordCount,
-                    0
-                  )
-                  .toLocaleString()}
+                {loadingSubmissions
+                  ? "..."
+                  : submissions
+                      .reduce(
+                        (total, submission) =>
+                          total + (submission.word_count || 0),
+                        0
+                      )
+                      .toLocaleString()}
               </div>
               <div className="text-purple-800 font-medium">
                 Palabras escritas
@@ -535,12 +561,12 @@ const CurrentContest = () => {
       {(currentPhase === "voting" || currentPhase === "results") && (
         <>
           {/* Podio de ganadores - Solo en resultados */}
-          {currentPhase === "results" && (
+          {currentPhase === "results" && sortedSubmissions.length > 0 && (
             <div className="mb-12 bg-gradient-to-br from-yellow-50 via-gray-50 to-orange-50 border border-yellow-200 rounded-2xl p-8">
               <div className="text-center mb-8">
                 <Trophy className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  🏆 Ganadores del Concurso {currentContest.month}
+                  🏆 Ganadores del Concurso {contestData.month}
                 </h2>
                 <p className="text-gray-600">
                   ¡Felicitaciones a nuestros escritores destacados!
@@ -611,27 +637,33 @@ const CurrentContest = () => {
                           <div>
                             <div className="flex items-center gap-1">
                               <span className="font-medium text-gray-900">
-                                {submission.author}
+                                {submission.user_profiles?.display_name ||
+                                  "Usuario"}
                               </span>
-                              {submission.authorBadges.map((badge, i) => (
+                              {submission.user_profiles?.wins_count > 0 && (
                                 <span
-                                  key={i}
                                   className="text-sm"
-                                  title={getBadgeInfo(badge).name}
+                                  title="Ganador de concursos"
                                 >
-                                  {badge}
+                                  🏆
                                 </span>
-                              ))}
+                              )}
+                              {submission.user_profiles?.total_likes > 50 && (
+                                <span className="text-sm" title="Autor popular">
+                                  ⭐
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {submission.authorWins} victorias
+                              {submission.user_profiles?.wins_count || 0}{" "}
+                              victorias
                             </div>
                           </div>
                         </div>
 
                         {/* Excerpt */}
                         <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
-                          {submission.excerpt}
+                          {submission.content?.substring(0, 200)}...
                         </p>
 
                         {/* Estadísticas */}
@@ -640,17 +672,17 @@ const CurrentContest = () => {
                             <span className="flex items-center gap-1">
                               <Heart className="h-4 w-4 text-red-400" />
                               <span className="font-medium text-red-600">
-                                {submission.likes}
+                                {submission.likes_count || 0}
                               </span>
                             </span>
                             <span className="flex items-center gap-1">
                               <Eye className="h-4 w-4" />
-                              {submission.views}
+                              {submission.views_count || 0}
                             </span>
                           </div>
                           <div className="text-gray-500">
-                            {submission.readTime} • {submission.wordCount}{" "}
-                            palabras
+                            {calculateReadTime(submission.word_count || 0)} •{" "}
+                            {submission.word_count || 0} palabras
                           </div>
                         </div>
 
@@ -685,339 +717,415 @@ const CurrentContest = () => {
                 </p>
                 <p className="text-sm text-gray-600">
                   Cada historia aportó algo único al concurso de{" "}
-                  {currentContest.month}
+                  {contestData.month}
                 </p>
               </div>
             </div>
           )}
 
           {/* Resto de participaciones */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              {currentPhase === "results"
-                ? `Todas las participaciones (${submissions.length})`
-                : `Participaciones (${submissions.length})`}
-            </h3>
-            {currentPhase === "voting" && (
-              <p className="text-sm text-green-600 mb-4">
-                🗳️ Votación activa - Votos ocultos para decisiones imparciales
-              </p>
-            )}
-            {currentPhase === "results" && (
-              <p className="text-sm text-yellow-600 mb-4">
-                🏆 Resultados finales - Ordenadas por número de votos recibidos
-              </p>
-            )}
-          </div>
-          {/* Filtros y controles */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              {/* View Mode Toggle */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode("compact")}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                    viewMode === "compact"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <List className="h-4 w-4" />
-                  Lista
-                </button>
-                <button
-                  onClick={() => setViewMode("expanded")}
-                  className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                    viewMode === "expanded"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                  Cards
-                </button>
+          {!loadingSubmissions && !error && submissions.length > 0 && (
+            <>
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  {currentPhase === "results"
+                    ? `Todas las participaciones (${submissions.length})`
+                    : `Participaciones (${submissions.length})`}
+                </h3>
+                {currentPhase === "voting" && (
+                  <p className="text-sm text-green-600 mb-4">
+                    🗳️ Votación activa - Votos ocultos para decisiones
+                    imparciales
+                  </p>
+                )}
+                {currentPhase === "results" && (
+                  <p className="text-sm text-yellow-600 mb-4">
+                    🏆 Resultados finales - Ordenadas por número de votos
+                    recibidos
+                  </p>
+                )}
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Ordenar:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
+              {/* Filtros y controles */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode("compact")}
+                      className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                        viewMode === "compact"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <List className="h-4 w-4" />
+                      Lista
+                    </button>
+                    <button
+                      onClick={() => setViewMode("expanded")}
+                      className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                        viewMode === "expanded"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                      Cards
+                    </button>
+                  </div>
 
-          {/* Lista de participaciones */}
-          {viewMode === "compact" ? (
-            /* Vista COMPACTA - Lista densa */
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                <div
-                  className={`grid gap-4 text-xs font-medium text-gray-500 uppercase tracking-wide ${
-                    currentPhase === "results" ? "grid-cols-12" : "grid-cols-10"
-                  }`}
-                >
-                  <div className="col-span-1">#</div>
-                  <div className="col-span-4">Historia</div>
-                  <div className="col-span-2">Autor</div>
-                  {currentPhase === "results" && (
-                    <div className="col-span-2 text-center">Estadísticas</div>
-                  )}
-                  <div className="col-span-2 text-center">Tiempo</div>
-                  <div className="col-span-1 text-center">Acción</div>
+                  {/* Sort Dropdown */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Ordenar:</span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    >
+                      {sortOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <div className="divide-y divide-gray-200">
-                {sortedSubmissions.map((submission, index) => (
-                  <div
-                    key={submission.id}
-                    className={`grid gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      currentPhase === "results"
-                        ? "grid-cols-12"
-                        : "grid-cols-10"
-                    }`}
-                  >
-                    {/* Ranking */}
-                    <div className="col-span-1">
-                      <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          currentPhase === "results"
-                            ? index === 0
-                              ? "bg-yellow-100 text-yellow-700"
-                              : index === 1
-                              ? "bg-gray-100 text-gray-700"
-                              : index === 2
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-blue-50 text-blue-600"
-                            : "bg-blue-50 text-blue-600"
-                        }`}
-                      >
-                        {currentPhase === "results" && index < 3
-                          ? index === 0
-                            ? "🥇"
-                            : index === 1
-                            ? "🥈"
-                            : "🥉"
-                          : index + 1}
-                      </div>
-                    </div>
-
-                    {/* Título + badges */}
-                    <div className="col-span-4">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-gray-900 truncate">
-                          {submission.title}
-                        </h3>
-                        {submission.isMature && (
-                          <span className="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs font-medium">
-                            18+
-                          </span>
-                        )}
-                        {currentPhase === "results" && index === 0 && (
-                          <span className="bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded text-xs font-bold">
-                            🏆
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {submission.wordCount} palabras • {submission.readTime}
-                      </div>
-                    </div>
-
-                    {/* Autor */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium text-gray-900 truncate text-sm">
-                          {submission.author}
-                        </span>
-                        {submission.authorBadges.map((badge, i) => (
-                          <span
-                            key={i}
-                            className="text-xs"
-                            title={getBadgeInfo(badge).name}
-                          >
-                            {badge}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {submission.authorWins} victorias
-                      </div>
-                    </div>
-
-                    {/* Estadísticas - Solo en resultados */}
-                    {currentPhase === "results" && (
-                      <div className="col-span-2 text-center">
-                        <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Heart className="h-3 w-3 text-red-400" />
-                            {submission.likes}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            {submission.views}
-                          </span>
+              {/* Lista de participaciones */}
+              {viewMode === "compact" ? (
+                /* Vista COMPACTA - Lista densa */
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                    <div
+                      className={`grid gap-4 text-xs font-medium text-gray-500 uppercase tracking-wide ${
+                        currentPhase === "results"
+                          ? "grid-cols-12"
+                          : "grid-cols-10"
+                      }`}
+                    >
+                      <div className="col-span-1">#</div>
+                      <div className="col-span-4">Historia</div>
+                      <div className="col-span-2">Autor</div>
+                      {currentPhase === "results" && (
+                        <div className="col-span-2 text-center">
+                          Estadísticas
                         </div>
-                      </div>
-                    )}
-
-                    {/* Tiempo */}
-                    <div className="col-span-2 text-center text-xs text-gray-500">
-                      {formatDate(submission.publishedAt)}
-                    </div>
-
-                    {/* Acción */}
-                    <div className="col-span-1 text-center">
-                      <Link
-                        to={`/story/${submission.id}`}
-                        className="text-xs px-2 py-1 rounded font-medium transition-colors bg-primary-600 text-white hover:bg-primary-700"
-                      >
-                        Leer
-                      </Link>
+                      )}
+                      <div className="col-span-2 text-center">Tiempo</div>
+                      <div className="col-span-1 text-center">Acción</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            /* Vista EXPANDIDA - Cards originales */
-            <div className="space-y-6">
-              {sortedSubmissions.map((submission, index) => (
-                <article
-                  key={submission.id}
-                  className="card hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start gap-6">
-                    {/* Posición/ranking visual */}
-                    <div className="flex-shrink-0 text-center">
+
+                  <div className="divide-y divide-gray-200">
+                    {sortedSubmissions.map((submission, index) => (
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        key={submission.id}
+                        className={`grid gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors ${
                           currentPhase === "results"
-                            ? index === 0
-                              ? "bg-yellow-100 text-yellow-700"
-                              : index === 1
-                              ? "bg-gray-100 text-gray-700"
-                              : index === 2
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-blue-50 text-blue-600"
-                            : "bg-blue-50 text-blue-600"
+                            ? "grid-cols-12"
+                            : "grid-cols-10"
                         }`}
                       >
-                        {currentPhase === "results" && index < 3
-                          ? index === 0
-                            ? "🥇"
-                            : index === 1
-                            ? "🥈"
-                            : "🥉"
-                          : index + 1}
-                      </div>
-                    </div>
+                        {/* Ranking */}
+                        <div className="col-span-1">
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                              currentPhase === "results"
+                                ? index === 0
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : index === 1
+                                  ? "bg-gray-100 text-gray-700"
+                                  : index === 2
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-blue-50 text-blue-600"
+                                : "bg-blue-50 text-blue-600"
+                            }`}
+                          >
+                            {currentPhase === "results" && index < 3
+                              ? index === 0
+                                ? "🥇"
+                                : index === 1
+                                ? "🥈"
+                                : "🥉"
+                              : index + 1}
+                          </div>
+                        </div>
 
-                    {/* Contenido principal */}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                            {submission.title}
-                            {submission.isMature && (
-                              <span className="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
-                                Contenido Maduro
+                        {/* Título + badges */}
+                        <div className="col-span-4">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900 truncate">
+                              {submission.title}
+                            </h3>
+                            {submission.is_mature && (
+                              <span className="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                                18+
                               </span>
                             )}
                             {currentPhase === "results" && index === 0 && (
-                              <span className="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
-                                🏆 GANADOR
+                              <span className="bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded text-xs font-bold">
+                                🏆
                               </span>
                             )}
-                          </h3>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {submission.word_count || 0} palabras •{" "}
+                            {calculateReadTime(submission.word_count || 0)}
+                          </div>
+                        </div>
 
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="text-gray-600">
-                              por{" "}
-                              <span className="font-medium text-gray-900">
-                                {submission.author}
-                              </span>
+                        {/* Autor */}
+                        <div className="col-span-2">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-gray-900 truncate text-sm">
+                              {submission.user_profiles?.display_name ||
+                                "Usuario"}
                             </span>
-
-                            {/* Badges del autor */}
-                            {submission.authorBadges.length > 0 && (
-                              <div className="flex items-center gap-1">
-                                {submission.authorBadges.map((badge, i) => {
-                                  const badgeInfo = getBadgeInfo(badge);
-                                  return (
-                                    <span
-                                      key={i}
-                                      className={`text-xs ${badgeInfo.color}`}
-                                      title={badgeInfo.name}
-                                    >
-                                      {badge}
-                                    </span>
-                                  );
-                                })}
-                                {submission.authorWins > 0 && (
-                                  <span className="text-xs text-gray-500">
-                                    ({submission.authorWins} victorias)
-                                  </span>
-                                )}
-                              </div>
+                            {submission.user_profiles?.wins_count > 0 && (
+                              <span
+                                className="text-xs"
+                                title="Ganador de concursos"
+                              >
+                                🏆
+                              </span>
+                            )}
+                            {submission.user_profiles?.total_likes > 50 && (
+                              <span className="text-xs" title="Autor popular">
+                                ⭐
+                              </span>
                             )}
                           </div>
-                        </div>
-
-                        <div className="text-right text-sm text-gray-500">
-                          <div>{submission.readTime}</div>
-                          <div>{submission.wordCount} palabras</div>
-                        </div>
-                      </div>
-
-                      <p className="text-gray-600 leading-relaxed mb-4 line-clamp-2">
-                        {submission.excerpt}
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        {/* Información temporal - siempre visible */}
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {formatDate(submission.publishedAt)}
+                          <div className="text-xs text-gray-500">
+                            {submission.user_profiles?.wins_count || 0}{" "}
+                            victorias
                           </div>
                         </div>
 
-                        {/* Estadísticas - solo en resultados */}
+                        {/* Estadísticas - Solo en resultados */}
                         {currentPhase === "results" && (
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Heart className="h-4 w-4 mr-1 text-red-400" />
-                              {submission.likes} likes
-                            </div>
-                            <div className="flex items-center">
-                              <Eye className="h-4 w-4 mr-1" />
-                              {submission.views} lecturas
+                          <div className="col-span-2 text-center">
+                            <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Heart className="h-3 w-3 text-red-400" />
+                                {submission.likes_count || 0}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                {submission.views_count || 0}
+                              </span>
                             </div>
                           </div>
                         )}
 
-                        <Link
-                          to={`/story/${submission.id}`}
-                          className="text-sm px-4 py-2 btn-primary"
-                        >
-                          Leer historia →
-                        </Link>
+                        {/* Tiempo */}
+                        <div className="col-span-2 text-center text-xs text-gray-500">
+                          {formatDate(submission.created_at)}
+                        </div>
+
+                        {/* Acción */}
+                        <div className="col-span-1 text-center">
+                          <Link
+                            to={`/story/${submission.id}`}
+                            className="text-xs px-2 py-1 rounded font-medium transition-colors bg-primary-600 text-white hover:bg-primary-700"
+                          >
+                            Leer
+                          </Link>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                </article>
-              ))}
+                </div>
+              ) : (
+                /* Vista EXPANDIDA - Cards originales */
+                <div className="space-y-6">
+                  {sortedSubmissions.map((submission, index) => (
+                    <article
+                      key={submission.id}
+                      className="card hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start gap-6">
+                        {/* Posición/ranking visual */}
+                        <div className="flex-shrink-0 text-center">
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                              currentPhase === "results"
+                                ? index === 0
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : index === 1
+                                  ? "bg-gray-100 text-gray-700"
+                                  : index === 2
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-blue-50 text-blue-600"
+                                : "bg-blue-50 text-blue-600"
+                            }`}
+                          >
+                            {currentPhase === "results" && index < 3
+                              ? index === 0
+                                ? "🥇"
+                                : index === 1
+                                ? "🥈"
+                                : "🥉"
+                              : index + 1}
+                          </div>
+                        </div>
+
+                        {/* Contenido principal */}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                                {submission.title}
+                                {submission.is_mature && (
+                                  <span className="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                                    Contenido Maduro
+                                  </span>
+                                )}
+                                {currentPhase === "results" && index === 0 && (
+                                  <span className="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
+                                    🏆 GANADOR
+                                  </span>
+                                )}
+                              </h3>
+
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-gray-600">
+                                  por{" "}
+                                  <span className="font-medium text-gray-900">
+                                    {submission.user_profiles?.display_name ||
+                                      "Usuario"}
+                                  </span>
+                                </span>
+
+                                {/* Badges del autor */}
+                                {(submission.user_profiles?.wins_count > 0 ||
+                                  submission.user_profiles?.total_likes >
+                                    50) && (
+                                  <div className="flex items-center gap-1">
+                                    {submission.user_profiles?.wins_count >
+                                      0 && (
+                                      <span
+                                        className="text-xs text-yellow-600"
+                                        title="Ganador de concursos"
+                                      >
+                                        🏆
+                                      </span>
+                                    )}
+                                    {submission.user_profiles?.total_likes >
+                                      50 && (
+                                      <span
+                                        className="text-xs text-blue-600"
+                                        title="Autor popular"
+                                      >
+                                        ⭐
+                                      </span>
+                                    )}
+                                    <span className="text-xs text-gray-500">
+                                      (
+                                      {submission.user_profiles?.wins_count ||
+                                        0}{" "}
+                                      victorias)
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="text-right text-sm text-gray-500">
+                              <div>
+                                {calculateReadTime(submission.word_count || 0)}
+                              </div>
+                              <div>{submission.word_count || 0} palabras</div>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 leading-relaxed mb-4 line-clamp-2">
+                            {submission.content?.substring(0, 200) ||
+                              "Sin contenido disponible"}
+                            ...
+                          </p>
+
+                          <div className="flex items-center justify-between">
+                            {/* Información temporal - siempre visible */}
+                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1" />
+                                {formatDate(submission.created_at)}
+                              </div>
+                            </div>
+
+                            {/* Estadísticas - solo en resultados */}
+                            {currentPhase === "results" && (
+                              <div className="flex items-center gap-4 text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <Heart className="h-4 w-4 mr-1 text-red-400" />
+                                  {submission.likes_count || 0} likes
+                                </div>
+                                <div className="flex items-center">
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  {submission.views_count || 0} lecturas
+                                </div>
+                              </div>
+                            )}
+
+                            <Link
+                              to={`/story/${submission.id}`}
+                              className="text-sm px-4 py-2 btn-primary"
+                            >
+                              Leer historia →
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Loading state para historias */}
+          {loadingSubmissions && (
+            <div className="text-center py-12">
+              <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
+              <p className="text-gray-600">Cargando historias...</p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-12">
+              <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
+              <p className="text-red-600 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="btn-primary"
+              >
+                Intentar de nuevo
+              </button>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loadingSubmissions && !error && submissions.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <PenTool className="h-16 w-16 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Aún no hay participaciones
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Sé el primero en enviar una historia a este concurso
+              </p>
+              <Link
+                to={`/write/${contestData.id}`}
+                className="btn-primary inline-flex items-center"
+              >
+                <PenTool className="h-4 w-4 mr-2" />
+                Escribir historia
+              </Link>
             </div>
           )}
         </>
@@ -1034,9 +1142,9 @@ const CurrentContest = () => {
               <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
                 Tienes hasta el{" "}
                 <strong>
-                  {currentContest.submissionEndDate.toLocaleDateString("es-ES")}
+                  {contestData.submissionEndDate.toLocaleDateString("es-ES")}
                 </strong>{" "}
-                para enviar tu historia al concurso de {currentContest.month}.
+                para enviar tu historia al concurso de {contestData.month}.
               </p>
             </>
           )}
@@ -1050,7 +1158,7 @@ const CurrentContest = () => {
                 Aunque ya estamos en la fase de votación, aún puedes enviar tu
                 historia hasta el{" "}
                 <strong>
-                  {currentContest.votingEndDate.toLocaleDateString("es-ES")}
+                  {contestData.votingEndDate.toLocaleDateString("es-ES")}
                 </strong>
                 .
               </p>
@@ -1059,7 +1167,7 @@ const CurrentContest = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to={`/write/${currentContest.id}`}
+              to={`/write/${contestData.id}`}
               className="btn-primary inline-flex items-center px-6 py-3"
             >
               <PenTool className="h-5 w-5 mr-2" />
@@ -1084,7 +1192,7 @@ const CurrentContest = () => {
           </h3>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
             Gracias a todos los participantes del concurso de{" "}
-            {currentContest.month}. ¡Nos vemos en el próximo mes para una nueva
+            {contestData.month}. ¡Nos vemos en el próximo mes para una nueva
             aventura literaria!
           </p>
           <Link
@@ -1095,6 +1203,7 @@ const CurrentContest = () => {
           </Link>
         </div>
       )}
+
       {/* Debug buttons - SOLO PARA TESTING */}
       {process.env.NODE_ENV === "development" && (
         <div className="fixed bottom-4 left-4 bg-black text-white p-3 rounded-lg shadow-lg">
@@ -1138,6 +1247,10 @@ const CurrentContest = () => {
             {process.env.NODE_ENV === "production" && (
               <span className="text-green-400 ml-2">(REAL)</span>
             )}
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            Historias: {submissions.length} | Cargando:{" "}
+            {loadingSubmissions ? "Sí" : "No"}
           </div>
         </div>
       )}
