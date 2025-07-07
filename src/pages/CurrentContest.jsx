@@ -40,7 +40,7 @@ const CurrentContest = () => {
   // Fechas reales del concurso actual (Julio 2025)
   const realContestDates = {
     submissionEndDate: new Date("2025-07-26T23:59:59"), // 26 de julio
-    votingStartDate: new Date("2025-07-27T00:00:00"), // 27 de julio
+    votingStartDate: new Date("2025-07-07T00:00:00"), // 27 de julio
     votingEndDate: new Date("2025-07-31T23:59:59"), // 31 de julio
   };
 
