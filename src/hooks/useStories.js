@@ -659,19 +659,19 @@ export const useStories = () => {
       }
 
       try {
-        // Usar la tabla 'votes' en lugar de 'story_likes'
         const { data, error } = await supabase
           .from("votes")
           .select("id")
           .eq("story_id", storyId)
-          .eq("user_id", user.id)
-          .single();
+          .eq("user_id", user.id); // ← SIN .single()
 
-        if (error && error.code !== "PGRST116") {
+        if (error) {
           console.warn("⚠️ Error checking vote:", error);
+          return { success: true, liked: false };
         }
 
-        return { success: true, liked: !!data };
+        // Verificar si hay al menos un voto
+        return { success: true, liked: data && data.length > 0 };
       } catch (err) {
         console.warn("⚠️ Error checking vote:", err);
         return { success: true, liked: false };
