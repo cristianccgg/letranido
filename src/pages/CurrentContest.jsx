@@ -25,7 +25,7 @@ import { useAuthStore } from "../store/authStore";
 
 const CurrentContest = () => {
   const [sortBy, setSortBy] = useState("random");
-  const [debugPhase, setDebugPhase] = useState("voting"); // Solo para desarrollo
+  const [debugPhase, setDebugPhase] = useState("voting");
   const [viewMode, setViewMode] = useState("compact");
   const [submissions, setSubmissions] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);

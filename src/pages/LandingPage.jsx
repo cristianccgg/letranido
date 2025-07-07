@@ -466,12 +466,12 @@ const LandingPage = () => {
             {featuredTexts.map((text, index) => (
               <div
                 key={text.id}
-                className="card hover:shadow-md transition-shadow relative"
+                className="card hover:shadow-md transition-shadow relative cursor-pointer p-4 rounded-2xl shadow-accent-500 bg-white border border-gray-200"
               >
                 {/* Winner badges */}
                 {index === 0 && (
                   <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full p-2 shadow-lg">
-                    <Trophy className="h-5 w-5" />
+                    <Trophy className="h-4 w-4" />
                   </div>
                 )}
                 {index === 1 && (

@@ -218,13 +218,13 @@ const Layout = ({ children }) => {
                 <div className="items-center space-x-3 hidden md:flex">
                   <button
                     onClick={() => handleAuthClick("login")}
-                    className="text-gray-600 hover:text-gray-900 font-medium"
+                    className="text-gray-600 cursor-pointer hover:text-gray-900 font-medium"
                   >
                     Iniciar sesión
                   </button>
                   <button
                     onClick={() => handleAuthClick("register")}
-                    className="btn-primary"
+                    className="btn-primary cursor-pointer"
                   >
                     Registrarse
                   </button>

@@ -293,12 +293,6 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
         {/* Footer */}
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 rounded-b-lg">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">
-              ¿Tienes más preguntas?{" "}
-              <button className="text-primary-600 hover:text-primary-700 font-medium">
-                Contáctanos
-              </button>
-            </p>
             <button onClick={onClose} className="btn-primary">
               ¡Entendido, vamos a escribir!
             </button>
