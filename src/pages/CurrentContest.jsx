@@ -37,20 +37,19 @@ const CurrentContest = () => {
   const { user } = useAuthStore();
   const { userVotesCount, currentContestVotes } = useVotingStats();
 
-  // Fechas reales del concurso actual (Julio 2025)
-  // Fechas reales del concurso actual (Julio 2025)
-  const realContestDates = {
-    submissionEndDate: new Date("2025-07-06T23:59:59"), // ← Cambiar a ayer
-    votingStartDate: new Date("2025-07-07T00:00:00"), // ← Cambiar a hoy
-    votingEndDate: new Date("2025-07-14T23:59:59"), // ← Cambiar a futuro
-  };
+  const realContestDates = currentContest
+    ? {
+        submissionEndDate: new Date(currentContest.submission_deadline),
+        votingEndDate: new Date(currentContest.voting_deadline),
+        votingStartDate: new Date(
+          new Date(currentContest.submission_deadline).getTime() + 86400000
+        ),
+      }
+    : null;
 
   // Función para detectar la fase real basada en la fecha actual
 
-  const actualPhase =
-    process.env.NODE_ENV === "production"
-      ? currentContest?.status || "submission"
-      : debugPhase;
+  const actualPhase = currentContest?.status || "submission";
 
   // Cargar historias del concurso actual
   const loadStories = useCallback(async () => {
@@ -107,50 +106,19 @@ const CurrentContest = () => {
     }
   }, [actualPhase]);
 
-  // Obtener datos del concurso con fechas dinámicas
-  const getContestDates = (phase) => {
-    // En producción, usar siempre las fechas reales
-    if (process.env.NODE_ENV === "production") {
-      return realContestDates;
-    }
-
-    // En desarrollo, usar fechas de debug
-    switch (phase) {
-      case "submission":
-        return {
-          submissionEndDate: new Date("2025-12-26T23:59:59"), // Futuro - fase de envío
-          votingStartDate: new Date("2025-12-27T00:00:00"), // Futuro
-          votingEndDate: new Date("2025-12-31T23:59:59"), // Futuro
-        };
-      case "voting":
-        return {
-          submissionEndDate: new Date("2025-06-26T23:59:59"), // Pasado - envío cerrado
-          votingStartDate: new Date("2025-06-27T00:00:00"), // Pasado - votación empezó
-          votingEndDate: new Date("2025-12-31T23:59:59"), // Futuro - votación abierta
-        };
-      case "results":
-        return {
-          submissionEndDate: new Date("2025-06-26T23:59:59"), // Pasado
-          votingStartDate: new Date("2025-06-27T00:00:00"), // Pasado
-          votingEndDate: new Date("2025-06-30T23:59:59"), // Pasado - todo cerrado
-        };
-      default:
-        return realContestDates;
-    }
-  };
-
-  const contestDates = getContestDates(actualPhase);
-
-  // Combinar datos del concurso real con fechas dinámicas
   const contestData = currentContest
     ? {
         ...currentContest,
-        ...contestDates,
+        ...realContestDates,
       }
     : null;
 
   // Determinar fase actual
   const currentPhase = actualPhase;
+
+  const votingStartDate = contestData
+    ? new Date(new Date(contestData.submission_deadline).getTime() + 86400000)
+    : null;
 
   const sortedSubmissions = [...submissions].sort((a, b) => {
     switch (sortBy) {
@@ -278,13 +246,15 @@ const CurrentContest = () => {
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
                 {currentPhase === "submission" &&
-                  `Envíos hasta ${contestData.submissionEndDate.toLocaleDateString(
-                    "es-ES"
-                  )}`}
+                  `Envíos hasta ${new Date(
+                    currentContest.submission_deadline
+                  ).toLocaleDateString("es-ES")}`}
+
                 {currentPhase === "voting" &&
-                  `Votación hasta ${contestData.votingEndDate.toLocaleDateString(
-                    "es-ES"
-                  )}`}
+                  `Votación hasta ${new Date(
+                    currentContest.voting_deadline
+                  ).toLocaleDateString("es-ES")}`}
+
                 {currentPhase === "results" && "Concurso finalizado"}
               </div>
               <div className="flex items-center">
@@ -341,13 +311,15 @@ const CurrentContest = () => {
               Fase de envío de historias
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-              Los participantes están escribiendo sus historias. Las historias
-              se revelarán el{" "}
-              <strong>
-                {contestData.votingStartDate.toLocaleDateString("es-ES")}
-              </strong>{" "}
-              para comenzar la fase de votación.
+              Los participantes están escribiendo sus historias.{" "}
+              {votingStartDate && (
+                <span className="text-sm text-gray-500 mt-1">
+                  Sus historias se revelarán el{" "}
+                  {votingStartDate.toLocaleDateString("es-ES")}
+                </span>
+              )}
             </p>
+
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto mb-6">
               <AlertCircle className="h-5 w-5 text-blue-600 mx-auto mb-2" />
               <p className="text-blue-800 text-sm">
@@ -1203,57 +1175,6 @@ const CurrentContest = () => {
           >
             Ver próximo concurso
           </Link>
-        </div>
-      )}
-
-      {/* Debug buttons - SOLO PARA TESTING */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed bottom-4 left-4 bg-black text-white p-3 rounded-lg shadow-lg">
-          <div className="text-xs mb-2 text-gray-300">
-            🔧 Debug - Cambiar fase:
-          </div>
-          <div className="space-x-2">
-            <button
-              onClick={() => setDebugPhase("submission")}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                debugPhase === "submission"
-                  ? "bg-blue-600"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
-            >
-              📝 Envío
-            </button>
-            <button
-              onClick={() => setDebugPhase("voting")}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                debugPhase === "voting"
-                  ? "bg-green-600"
-                  : "bg-green-500 hover:bg-green-600"
-              }`}
-            >
-              🗳️ Votación
-            </button>
-            <button
-              onClick={() => setDebugPhase("results")}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                debugPhase === "results"
-                  ? "bg-yellow-600"
-                  : "bg-yellow-500 hover:bg-yellow-600"
-              }`}
-            >
-              🏆 Resultados
-            </button>
-          </div>
-          <div className="text-xs mt-2 text-gray-400">
-            Fase actual: <span className="font-medium">{currentPhase}</span>
-            {process.env.NODE_ENV === "production" && (
-              <span className="text-green-400 ml-2">(REAL)</span>
-            )}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            Historias: {submissions.length} | Cargando:{" "}
-            {loadingSubmissions ? "Sí" : "No"}
-          </div>
         </div>
       )}
     </div>
