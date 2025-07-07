@@ -20,6 +20,8 @@ import { useAuthStore } from "../store/authStore";
 import { useStories } from "../hooks/useStories";
 import AuthModal from "../components/forms/AuthModal";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
+import { supabase } from "../lib/supabase";
+import SimpleComments from "../components/comments/SimpleComments";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -44,6 +46,7 @@ const StoryPage = () => {
   } = useStories();
 
   // Cargar historia
+  // Reemplaza la función loadStory en StoryPage.jsx
   const loadStory = useCallback(async () => {
     if (!id) return;
 
@@ -58,20 +61,36 @@ const StoryPage = () => {
       if (result.success) {
         console.log("✅ Historia cargada:", result.story.title);
         setStory(result.story);
-        setLikesCount(result.story.likes_count || 0);
+
+        // OBTENER CONTEO REAL DIRECTAMENTE DE LA BD
+        const { data: realCountData, error: countError } = await supabase
+          .from("stories")
+          .select("likes_count")
+          .eq("id", id)
+          .single();
+
+        const realLikesCount = realCountData?.likes_count || 0;
+        console.log("📊 Likes count real desde BD:", realLikesCount);
+        setLikesCount(realLikesCount);
 
         // Verificar si el usuario ya dio like
-        if (isAuthenticated) {
+        if (isAuthenticated && user) {
+          console.log("👤 Verificando like del usuario:", user.id);
+
           const likeResult = await checkUserLike(id);
           if (likeResult.success) {
+            console.log("❤️ Usuario ya dio like:", likeResult.liked);
             setIsLiked(likeResult.liked);
+          } else {
+            setIsLiked(false);
           }
+        } else {
+          setIsLiked(false);
         }
 
-        // Verificar si se puede votar en esta historia
+        // Verificar permisos de votación
         const votingResult = await canVoteInStory(id);
         setVotingInfo(votingResult);
-        console.log("🗳️ Info de votación:", votingResult);
 
         // Registrar vista
         await recordStoryView(id);
@@ -85,7 +104,15 @@ const StoryPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, isAuthenticated, getStoryById, checkUserLike, recordStoryView]);
+  }, [
+    id,
+    isAuthenticated,
+    user,
+    getStoryById,
+    checkUserLike,
+    recordStoryView,
+    canVoteInStory,
+  ]);
 
   // Cargar historia al montar o cambiar ID
   useEffect(() => {
@@ -105,17 +132,48 @@ const StoryPage = () => {
     }
 
     try {
+      console.log("🔄 Procesando like/unlike...", {
+        storyId: id,
+        currentLiked: isLiked,
+        currentCount: likesCount,
+      });
+
       const result = await toggleLike(id);
 
       if (result.success) {
+        console.log("✅ Toggle like exitoso:", result.liked);
+
+        // Actualizar estados locales
         setIsLiked(result.liked);
-        setLikesCount((prev) => (result.liked ? prev + 1 : prev - 1));
-        console.log("✅ Like actualizado:", result.liked);
+        setLikesCount((prev) => {
+          const newCount = result.liked ? prev + 1 : prev - 1;
+          console.log("📊 Actualizando contador:", prev, "→", newCount);
+          return Math.max(0, newCount); // Asegurar que nunca sea negativo
+        });
+
+        // OPCIONAL: Refrescar después de un delay para asegurar sincronización
+        setTimeout(async () => {
+          const freshResult = await getStoryById(id);
+          if (freshResult.success) {
+            const realCount = freshResult.story.likes_count || 0;
+            console.log("🔄 Verificación post-like:", realCount);
+            if (realCount !== likesCount) {
+              console.log(
+                "⚠️ Corrección necesaria:",
+                likesCount,
+                "→",
+                realCount
+              );
+              setLikesCount(realCount);
+            }
+          }
+        }, 1000);
       } else {
+        console.error("❌ Error en toggle like:", result.error);
         alert(result.error || "Error al procesar el like");
       }
     } catch (error) {
-      console.error("Error toggling like:", error);
+      console.error("💥 Error inesperado en handleLike:", error);
       alert("Error inesperado al procesar el like");
     }
   };
@@ -261,10 +319,10 @@ const StoryPage = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <Link
-                    to={`/profile/${story.author.id}`}
+                    to={`/profile/${story.author?.id || story.authorId || "#"}`}
                     className="font-medium text-gray-900 hover:text-primary-600"
                   >
-                    {story.author.name}
+                    {story.author?.name || story.author || "Usuario"}
                   </Link>
                   {/* Badges dinámicos basados en estadísticas */}
                   {story.author.wins > 0 && (
@@ -285,8 +343,8 @@ const StoryPage = () => {
                   )}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {story.author.wins} victorias • {story.author.totalLikes}{" "}
-                  likes totales
+                  {story.author?.wins || 0} victorias •{" "}
+                  {story.author?.totalLikes || 0} likes totales
                 </div>
               </div>
             </div>
@@ -486,13 +544,16 @@ const StoryPage = () => {
                 {story.author.name}
               </h3>
               {/* Badges dinámicos */}
-              {story.author.wins > 0 && (
-                <span className="text-lg" title="Ganador de concursos">
+              {(story.author?.wins || 0) > 0 && (
+                <span
+                  className="text-sm text-yellow-600"
+                  title="Ganador de concursos"
+                >
                   🏆
                 </span>
               )}
-              {story.author.totalLikes > 50 && (
-                <span className="text-lg" title="Autor popular">
+              {(story.author?.totalLikes || 0) > 50 && (
+                <span className="text-sm text-blue-600" title="Autor popular">
                   ⭐
                 </span>
               )}
@@ -518,48 +579,7 @@ const StoryPage = () => {
         </div>
       </div>
 
-      {/* Comments Section Placeholder */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-          <MessageSquare className="h-5 w-5 mr-2" />
-          Comentarios
-        </h3>
-
-        {!isAuthenticated && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-blue-800 text-sm">
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="font-medium text-blue-600 hover:text-blue-700"
-              >
-                Inicia sesión
-              </button>{" "}
-              para dejar un comentario y unirte a la conversación.
-            </p>
-          </div>
-        )}
-
-        {isAuthenticated && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-            <textarea
-              placeholder="Comparte tu opinión sobre esta historia..."
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-              rows={3}
-            />
-            <div className="flex justify-end mt-3">
-              <button className="btn-primary text-sm px-4 py-2">
-                Comentar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Placeholder para comentarios futuros */}
-        <div className="text-center py-8 text-gray-500">
-          <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>Los comentarios estarán disponibles próximamente</p>
-        </div>
-      </section>
+      <SimpleComments storyId={story.id} storyTitle={story.title} />
 
       {/* CTA */}
       <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-8 text-center">

@@ -655,25 +655,33 @@ export const useStories = () => {
   const checkUserLike = useCallback(
     async (storyId) => {
       if (!user || !storyId) {
+        console.log("🚫 checkUserLike: Sin usuario o storyId");
         return { success: true, liked: false };
       }
 
       try {
+        console.log("🔍 Verificando like:", { userId: user.id, storyId });
+
         const { data, error } = await supabase
           .from("votes")
           .select("id")
           .eq("story_id", storyId)
-          .eq("user_id", user.id); // ← SIN .single()
+          .eq("user_id", user.id);
 
         if (error) {
           console.warn("⚠️ Error checking vote:", error);
           return { success: true, liked: false };
         }
 
-        // Verificar si hay al menos un voto
-        return { success: true, liked: data && data.length > 0 };
+        const hasLiked = data && data.length > 0;
+        console.log("❤️ Resultado verificación like:", {
+          hasLiked,
+          votesFound: data?.length,
+        });
+
+        return { success: true, liked: hasLiked };
       } catch (err) {
-        console.warn("⚠️ Error checking vote:", err);
+        console.warn("💥 Error inesperado checking vote:", err);
         return { success: true, liked: false };
       }
     },
