@@ -541,7 +541,7 @@ export const useStories = () => {
         // Primero obtener la historia para saber a qué concurso pertenece
         const { data: story, error: storyError } = await supabase
           .from("stories")
-          .select("contest_id")
+          .select("contest_id, user_id")
           .eq("id", storyId)
           .single();
 
@@ -607,54 +607,38 @@ export const useStories = () => {
         // Proceder con el toggle de like si estamos en fase de votación
         console.log("✅ Votación permitida, procesando like...");
 
-        // Verificar si la tabla story_likes existe
-        const { data: existingLike, error: checkError } = await supabase
-          .from("story_likes")
+        // Usar la tabla 'votes' en lugar de 'story_likes'
+        const { data: existingVote, error: checkError } = await supabase
+          .from("votes")
           .select("id")
           .eq("story_id", storyId)
           .eq("user_id", user.id)
           .single();
 
-        if (checkError) {
-          if (checkError.code === "42P01") {
-            // Tabla no existe, usar localStorage como fallback (silencioso)
-            const likeKey = `like_${storyId}_${user.id}`;
-            const currentLike = localStorage.getItem(likeKey);
-            const newLikeState = !currentLike;
-
-            if (newLikeState) {
-              localStorage.setItem(likeKey, "true");
-            } else {
-              localStorage.removeItem(likeKey);
-            }
-
-            return { success: true, liked: newLikeState };
-          }
-          if (checkError.code !== "PGRST116") {
-            throw checkError;
-          }
+        if (checkError && checkError.code !== "PGRST116") {
+          throw checkError;
         }
 
-        if (existingLike) {
-          // Remover like
+        if (existingVote) {
+          // Remover voto
           const { error: deleteError } = await supabase
-            .from("story_likes")
+            .from("votes")
             .delete()
-            .eq("id", existingLike.id);
+            .eq("id", existingVote.id);
 
           if (deleteError) throw deleteError;
 
-          console.log("✅ Like removido");
+          console.log("✅ Voto removido");
           return { success: true, liked: false };
         } else {
-          // Agregar like
+          // Agregar voto
           const { error: insertError } = await supabase
-            .from("story_likes")
+            .from("votes")
             .insert([{ story_id: storyId, user_id: user.id }]);
 
           if (insertError) throw insertError;
 
-          console.log("✅ Like agregado");
+          console.log("✅ Voto agregado");
           return { success: true, liked: true };
         }
       } catch (err) {
@@ -675,31 +659,21 @@ export const useStories = () => {
       }
 
       try {
+        // Usar la tabla 'votes' en lugar de 'story_likes'
         const { data, error } = await supabase
-          .from("story_likes")
+          .from("votes")
           .select("id")
           .eq("story_id", storyId)
           .eq("user_id", user.id)
           .single();
 
-        if (error) {
-          if (error.code === "42P01") {
-            // Tabla no existe, usar localStorage como fallback (silencioso)
-            const likeKey = `like_${storyId}_${user.id}`;
-            const liked = localStorage.getItem(likeKey) === "true";
-            return { success: true, liked };
-          }
-          if (error.code !== "PGRST116") {
-            console.warn("⚠️ Error checking like:", error);
-          }
+        if (error && error.code !== "PGRST116") {
+          console.warn("⚠️ Error checking vote:", error);
         }
 
         return { success: true, liked: !!data };
       } catch (err) {
-        // Silenciar errores de tabla no encontrada
-        if (err.code !== "42P01") {
-          console.warn("⚠️ Error checking like:", err);
-        }
+        console.warn("⚠️ Error checking vote:", err);
         return { success: true, liked: false };
       }
     },
