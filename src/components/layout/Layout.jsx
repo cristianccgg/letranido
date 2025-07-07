@@ -110,7 +110,7 @@ const Layout = ({ children }) => {
 
   // Navegación para usuarios no autenticados
   const publicNavigation = [
-    { name: "Galería", href: "/gallery", icon: BookOpen },
+    { name: "Concurso actual", href: "/contest/current", icon: BookOpen },
   ];
 
   const navigation = isAuthenticated
@@ -196,17 +196,20 @@ const Layout = ({ children }) => {
             {/* Auth Section */}
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                  <Link
-                    to="/profile"
-                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    <User className="h-5 w-5" />
-                    <span className="hidden sm:block">{user?.name}</span>
-                  </Link>
+                <div className="relative group">
+                  <div className="flex items-center space-x-3 cursor-pointer">
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900"
+                    >
+                      <User className="h-5 w-5" />
+                      <span className="hidden sm:block">{user?.name}</span>
+                    </Link>
+                  </div>
+
                   <button
                     onClick={logout}
-                    className="hidden sm:block text-gray-600 hover:text-gray-900 font-medium text-sm"
+                    className="absolute w-fit text-nowrap cursor-pointer left-0 mt-2 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                   >
                     Cerrar sesión
                   </button>
