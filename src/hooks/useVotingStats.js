@@ -1,5 +1,5 @@
-// hooks/useVotingStats.js
-import { useState, useEffect, useCallback } from "react";
+// hooks/useVotingStats.js - ARREGLADO sin loops
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
@@ -14,11 +14,27 @@ export const useVotingStats = () => {
 
   const { user } = useAuthStore();
 
+  // ✅ useRef para evitar cargas múltiples
+  const hasLoaded = useRef(false);
+  const currentUserId = useRef(null);
+  const isLoading = useRef(false);
+
   const loadUserVotingStats = useCallback(async () => {
-    if (!user) {
+    if (!user?.id) {
       setStats((prev) => ({ ...prev, loading: false }));
       return;
     }
+
+    // Evitar cargas múltiples para el mismo usuario
+    if (
+      isLoading.current ||
+      (hasLoaded.current && currentUserId.current === user.id)
+    ) {
+      console.log("⏳ Stats ya cargadas para este usuario, saltando...");
+      return;
+    }
+
+    isLoading.current = true;
 
     try {
       console.log(
@@ -86,6 +102,9 @@ export const useVotingStats = () => {
         loading: false,
       });
 
+      hasLoaded.current = true;
+      currentUserId.current = user.id;
+
       console.log("✅ Estadísticas de votación cargadas:", {
         total: allVotes?.length || 0,
         currentContest: currentContestVotes,
@@ -93,16 +112,30 @@ export const useVotingStats = () => {
     } catch (err) {
       console.error("💥 Error cargando estadísticas de votación:", err);
       setStats((prev) => ({ ...prev, loading: false }));
+    } finally {
+      isLoading.current = false;
     }
   }, [user?.id]);
 
+  // ✅ Solo cargar cuando cambie el usuario
   useEffect(() => {
+    // Reset si cambió el usuario
+    if (currentUserId.current !== user?.id) {
+      hasLoaded.current = false;
+      currentUserId.current = user?.id;
+    }
+
+    // Solo cargar si no se ha cargado para este usuario
+    if (!hasLoaded.current && !isLoading.current) {
+      loadUserVotingStats();
+    }
+  }, [user?.id, loadUserVotingStats]);
+
+  const refreshStats = useCallback(() => {
+    console.log("🔄 Refresh manual de estadísticas de votación");
+    hasLoaded.current = false;
     loadUserVotingStats();
   }, [loadUserVotingStats]);
-
-  const refreshStats = () => {
-    loadUserVotingStats();
-  };
 
   return {
     ...stats,
