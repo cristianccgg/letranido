@@ -14,17 +14,28 @@ import { useAuthStore } from "../../store/authStore";
 import { useContests } from "../../hooks/useContests";
 import { supabase } from "../../lib/supabase";
 import AuthModal from "../forms/AuthModal";
+import BadgeDisplay from "../BadgeDisplay";
+import FounderWelcome from "../FounderWelcome";
+import BadgeNotification from "../BadgeNotification";
+import { useBadgeNotifications } from "../../hooks/useBadgeNotifications";
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" o "register"
+  const [authMode, setAuthMode] = useState("login");
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
   const [loadingParticipation, setLoadingParticipation] = useState(false);
 
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    logout,
+    showFounderWelcome,
+    closeFounderWelcome,
+  } = useAuthStore();
   const { currentContest, getContestPhase } = useContests();
+  const { notifications, hideBadgeNotification } = useBadgeNotifications();
 
   const isLanding = location.pathname === "/";
   const currentPhase = currentContest ? getContestPhase(currentContest) : null;
@@ -132,6 +143,50 @@ const Layout = ({ children }) => {
     }
   };
 
+  // Renderizar badges del usuario (excluyendo fundador que se muestra aparte)
+  const renderUserBadges = () => {
+    if (!user?.badges || user.badges.length === 0) return null;
+
+    // Filtrar badge de fundador para evitar duplicados
+    const otherBadges = user.badges.filter((badge) => badge.id !== "founder");
+
+    if (otherBadges.length === 0) return null;
+
+    return (
+      <>
+        {otherBadges.slice(0, 2).map((badge, index) => (
+          <div key={badge.id || index} className="relative group">
+            <BadgeDisplay badge={badge} size="xs" showTooltip={false} />
+            {/* Tooltip debajo del badge */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
+              <div className="bg-gray-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap shadow-lg">
+                <div className="font-bold">
+                  {badge.icon} {badge.name}
+                </div>
+                <div className="text-gray-300">{badge.description}</div>
+                {badge.earnedAt && (
+                  <div className="text-gray-400 text-xs mt-1">
+                    {new Date(badge.earnedAt).toLocaleDateString("es-ES")}
+                  </div>
+                )}
+                {/* Flecha del tooltip hacia arriba */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {otherBadges.length > 2 && (
+          <span
+            className="text-xs text-gray-500 ml-1"
+            title={`${otherBadges.length - 2} badges más`}
+          >
+            +{otherBadges.length - 2}
+          </span>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -196,23 +251,68 @@ const Layout = ({ children }) => {
             {/* Auth Section */}
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div className="relative group">
-                  <div className="flex items-center space-x-3 cursor-pointer">
+                <div className="relative">
+                  <div className="flex items-center space-x-3">
+                    {/* Link del usuario - SIN el badge */}
                     <Link
                       to="/profile"
-                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900"
+                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 group"
                     >
                       <User className="h-5 w-5" />
-                      <span className="hidden sm:block">{user?.name}</span>
-                    </Link>
-                  </div>
+                      <div className="hidden sm:block">
+                        <span>{user?.name}</span>
+                      </div>
 
-                  <button
-                    onClick={logout}
-                    className="absolute w-fit text-nowrap cursor-pointer left-0 mt-2 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
-                  >
-                    Cerrar sesión
-                  </button>
+                      {/* Dropdown de logout - solo para el usuario */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          logout();
+                        }}
+                        className="absolute cursor-pointer w-fit text-nowrap left-0 mt-14 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                      >
+                        Cerrar sesión
+                      </button>
+                    </Link>
+
+                    {/* Badges SEPARADOS - sin heredar el Link */}
+                    <div className="hidden sm:flex items-center gap-1">
+                      {/* Badge de fundador especial */}
+                      {user?.is_founder && (
+                        <div className="relative group">
+                          <BadgeDisplay
+                            badge={{
+                              id: "founder",
+                              name: "Fundador",
+                              description: "Miembro fundador de LiteraLab",
+                              icon: "🚀",
+                              rarity: "legendary",
+                              isSpecial: true,
+                            }}
+                            size="xs"
+                            showTooltip={false}
+                          />
+                          {/* Tooltip debajo del badge */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
+                            <div className="bg-gray-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap shadow-lg">
+                              <div className="font-bold">🚀 Fundador</div>
+                              <div className="text-gray-300">
+                                Miembro fundador de LiteraLab
+                              </div>
+                              <div className="text-gray-400 text-xs mt-1">
+                                Insignia exclusiva
+                              </div>
+                              {/* Flecha del tooltip hacia arriba */}
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Otros badges */}
+                      {renderUserBadges()}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="items-center space-x-3 hidden md:flex">
@@ -307,6 +407,20 @@ const Layout = ({ children }) => {
                   >
                     <User className="h-5 w-5" />
                     <span>Mi perfil</span>
+                    {/* Badges en móvil */}
+                    {user?.is_founder && (
+                      <BadgeDisplay
+                        badge={{
+                          id: "founder",
+                          name: "Fundador",
+                          description: "Miembro fundador de LiteraLab",
+                          icon: "🚀",
+                          rarity: "legendary",
+                          isSpecial: true,
+                        }}
+                        size="xs"
+                      />
+                    )}
                   </Link>
 
                   {/* Logout Button */}
@@ -336,8 +450,15 @@ const Layout = ({ children }) => {
                   {/* User Info */}
                   <div className="px-3 py-2 border-t border-gray-200 mt-2">
                     <div className="text-sm text-gray-500">Conectado como:</div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {user?.name}
+                    <div className="flex items-center">
+                      <div className="text-sm font-medium text-gray-900">
+                        {user?.name}
+                      </div>
+                      {user?.is_founder && (
+                        <span className="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                          🚀 Fundador
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-gray-400">{user?.email}</div>
                     {hasUserParticipated && (
@@ -397,6 +518,9 @@ const Layout = ({ children }) => {
                       Regístrate para participar en concursos y votar por tus
                       historias favoritas.
                     </div>
+                    <div className="mt-2 text-xs text-yellow-600 font-medium">
+                      🚀 ¡Únete ahora y obtén la insignia de Fundador!
+                    </div>
                   </div>
                 </>
               )}
@@ -420,9 +544,33 @@ const Layout = ({ children }) => {
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
           onSuccess={() => setShowAuthModal(false)}
-          initialMode={authMode} // Nuevo prop para el modo inicial
+          initialMode={authMode}
         />
       )}
+
+      {/* Founder Welcome Modal */}
+      <FounderWelcome
+        isOpen={showFounderWelcome}
+        onClose={closeFounderWelcome}
+        badge={{
+          id: "founder",
+          name: "Fundador",
+          description: "Miembro fundador de LiteraLab",
+          icon: "🚀",
+          rarity: "legendary",
+          isSpecial: true,
+        }}
+      />
+
+      {/* Badge Notifications */}
+      {notifications.map((notification) => (
+        <BadgeNotification
+          key={notification.id}
+          badge={notification.badge}
+          isVisible={notification.isVisible}
+          onClose={() => hideBadgeNotification(notification.id)}
+        />
+      ))}
     </div>
   );
 };
