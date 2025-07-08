@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Send, Save, AlertCircle, PenTool } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
@@ -30,53 +30,99 @@ const WritePrompt = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar prompt/concurso
+  // ✅ useRef para evitar loops - solo carga UNA VEZ
+  const hasLoadedPrompt = useRef(false);
+  const currentPromptId = useRef(null);
+
+  // ✅ Cargar prompt/concurso - VERSIÓN SIMPLE sin loops
   useEffect(() => {
     const loadPrompt = async () => {
-      if (promptId && promptId !== "1") {
-        // Solo intentar cargar por ID si es un UUID válido
-        const isValidUUID =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-            promptId
-          );
-
-        if (isValidUUID) {
-          const contest = await getContestById(promptId);
-          if (contest) {
-            setPrompt(contest);
-            return;
-          }
-        }
+      // Solo ejecutar si cambió el promptId o nunca se ha cargado
+      if (hasLoadedPrompt.current && currentPromptId.current === promptId) {
+        console.log("⏳ Prompt ya cargado, saltando...");
+        return;
       }
 
-      // Fallback: usar concurso actual
-      if (currentContest) {
-        setPrompt(currentContest);
-      } else {
-        setError("No hay concursos disponibles");
+      // Si estamos cargando concursos, esperar
+      if (contestLoading) {
+        console.log("⏳ Esperando a que terminen de cargar los concursos...");
+        return;
+      }
+
+      console.log("🔍 Cargando prompt para ID:", promptId);
+
+      try {
+        setError(null);
+
+        if (promptId && promptId !== "1") {
+          // Solo intentar cargar por ID si es un UUID válido
+          const isValidUUID =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+              promptId
+            );
+
+          if (isValidUUID) {
+            console.log("🎯 Cargando concurso por UUID...");
+            const contest = await getContestById(promptId);
+            if (contest) {
+              console.log("✅ Concurso cargado por ID:", contest.title);
+              setPrompt(contest);
+              hasLoadedPrompt.current = true;
+              currentPromptId.current = promptId;
+              return;
+            }
+          }
+        }
+
+        // Fallback: usar concurso actual
+        if (currentContest) {
+          console.log("✅ Usando concurso actual:", currentContest.title);
+          setPrompt(currentContest);
+          hasLoadedPrompt.current = true;
+          currentPromptId.current = promptId;
+        } else {
+          console.error("❌ No hay concursos disponibles");
+          setError("No hay concursos disponibles");
+        }
+      } catch (err) {
+        console.error("💥 Error cargando prompt:", err);
+        setError(err.message || "Error al cargar el concurso");
       }
     };
 
-    if (!contestLoading) {
-      loadPrompt();
-    }
-  }, [promptId, currentContest, contestLoading, getContestById]);
+    loadPrompt();
+  }, [promptId, currentContest?.id, contestLoading, getContestById]);
 
-  // Auto-guardar en localStorage
+  // ✅ Reset when promptId changes
   useEffect(() => {
-    if (prompt) {
+    if (currentPromptId.current !== promptId) {
+      console.log("🔄 PromptId cambió, reseteando...");
+      hasLoadedPrompt.current = false;
+      setPrompt(null);
+      setError(null);
+    }
+  }, [promptId]);
+
+  // ✅ Auto-guardar en localStorage
+  useEffect(() => {
+    if (prompt?.id) {
       const savedData = localStorage.getItem(`story-draft-${prompt.id}`);
       if (savedData) {
-        const { title: savedTitle, text: savedText } = JSON.parse(savedData);
-        setTitle(savedTitle || "");
-        setText(savedText || "");
+        try {
+          const { title: savedTitle, text: savedText } = JSON.parse(savedData);
+          setTitle(savedTitle || "");
+          setText(savedText || "");
+          console.log("📖 Borrador cargado desde localStorage");
+        } catch (err) {
+          console.warn("⚠️ Error parsing saved data:", err);
+        }
       }
     }
-  }, [prompt]);
+  }, [prompt?.id]);
 
-  // Actualizar contador de palabras y auto-guardar
+  // ✅ Actualizar contador de palabras y auto-guardar
   useEffect(() => {
-    if (!prompt) return;
+    if (!prompt?.id) return;
 
     // Contar palabras
     const words = text
@@ -85,14 +131,19 @@ const WritePrompt = () => {
       .filter((word) => word.length > 0);
     setWordCount(words.length);
 
-    // Auto-guardar
-    const saveData = { title, text };
-    localStorage.setItem(`story-draft-${prompt.id}`, JSON.stringify(saveData));
-    setIsSaved(true);
+    // Auto-guardar solo si hay contenido
+    if (title.trim() || text.trim()) {
+      const saveData = { title, text };
+      localStorage.setItem(
+        `story-draft-${prompt.id}`,
+        JSON.stringify(saveData)
+      );
+      setIsSaved(true);
 
-    const timer = setTimeout(() => setIsSaved(false), 2000);
-    return () => clearTimeout(timer);
-  }, [text, title, prompt]);
+      const timer = setTimeout(() => setIsSaved(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [text, title, prompt?.id]);
 
   const handleSubmit = () => {
     // Validaciones básicas
@@ -155,7 +206,6 @@ const WritePrompt = () => {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    // Después del login, el usuario puede continuar
   };
 
   const getWordCountColor = () => {

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { useAuthStore } from "./store/authStore"; // Importar el store
+import { useAuthStore } from "./store/authStore";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
@@ -9,6 +9,7 @@ import Gallery from "./pages/Gallery";
 import UnifiedProfile from "./pages/UnifiedProfile";
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
+import ContestAdminPanel from "./components/admin/ContestAdminPanel";
 
 function App() {
   const { initialize, isLoading } = useAuthStore();
@@ -41,7 +42,10 @@ function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contest/current" element={<CurrentContest />} />
           <Route path="/story/:id" element={<StoryPage />} />
+          <Route path="/admin" element={<ContestAdminPanel />} />
         </Routes>
+
+        {/* Layout.jsx ya maneja las notificaciones de badges */}
       </Layout>
     </Router>
   );

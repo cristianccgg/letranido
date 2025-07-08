@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
+import { useBadgeSystem } from "./useBadgeSystem";
 
 export const useStories = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useAuthStore();
+  const { checkAndNotifyBadges } = useBadgeSystem();
 
   const submitStory = useCallback(
     async (storyData) => {
@@ -73,6 +75,15 @@ export const useStories = () => {
 
         console.log("✅ Historia insertada exitosamente:", newStory);
 
+        // 🎯 VERIFICAR BADGES DESPUÉS DE ENVIAR HISTORIA
+        try {
+          console.log("🔍 Verificando badges después de enviar historia...");
+          await checkAndNotifyBadges(user.id, "story_submitted");
+        } catch (badgeError) {
+          console.error("⚠️ Error verificando badges:", badgeError);
+          // No fallar la historia por un error de badges
+        }
+
         return {
           success: true,
           story: newStory,
@@ -92,7 +103,7 @@ export const useStories = () => {
         setLoading(false);
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id en lugar de user completo
+    [user?.id, checkAndNotifyBadges]
   );
 
   const getStoriesByContest = useCallback(async (contestId) => {
@@ -212,7 +223,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar las historias",
       };
     }
-  }, []); // 🔧 CAMBIO: Sin dependencias para evitar re-renders
+  }, []);
 
   const getStoriesForGallery = useCallback(async (filters = {}) => {
     try {
@@ -326,7 +337,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar las historias",
       };
     }
-  }, []); // 🔧 CAMBIO: Sin dependencias
+  }, []);
 
   const getUserStories = useCallback(
     async (userId = user?.id) => {
@@ -401,7 +412,7 @@ export const useStories = () => {
         };
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id
+    [user?.id]
   );
 
   const getStoryById = useCallback(async (storyId) => {
@@ -479,7 +490,7 @@ export const useStories = () => {
         error: err.message || "Error al cargar la historia",
       };
     }
-  }, []); // 🔧 CAMBIO: Sin dependencias
+  }, []);
 
   const recordStoryView = useCallback(
     async (storyId) => {
@@ -522,7 +533,7 @@ export const useStories = () => {
         return { success: false, error: err.message };
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id
+    [user?.id]
   );
 
   const toggleLike = useCallback(
@@ -639,6 +650,10 @@ export const useStories = () => {
           if (insertError) throw insertError;
 
           console.log("✅ Voto agregado");
+
+          // Los badges de likes se activarán más adelante
+          // Por ahora solo tenemos: Fundador, Primera Historia, y Ganadores de concursos
+
           return { success: true, liked: true };
         }
       } catch (err) {
@@ -649,7 +664,7 @@ export const useStories = () => {
         };
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id
+    [user?.id, checkAndNotifyBadges]
   );
 
   const checkUserLike = useCallback(
@@ -685,7 +700,7 @@ export const useStories = () => {
         return { success: true, liked: false };
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id
+    [user?.id]
   );
 
   // Nueva función para verificar si se puede votar en un concurso
@@ -770,7 +785,7 @@ export const useStories = () => {
         return { canVote: false, reason: "Error al verificar permisos" };
       }
     },
-    [user?.id] // 🔧 CAMBIO: Solo user.id
+    [user?.id]
   );
 
   return {
@@ -784,6 +799,6 @@ export const useStories = () => {
     toggleLike,
     checkUserLike,
     getStoriesForGallery,
-    canVoteInStory, // Nueva función
+    canVoteInStory,
   };
 };

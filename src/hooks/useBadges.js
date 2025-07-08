@@ -7,9 +7,9 @@ export const useBadges = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuthStore();
 
-  // Definición de todos los badges disponibles
+  // Definición de badges esenciales para el lanzamiento
   const BADGE_DEFINITIONS = {
-    // Badges de inicio/comunidad
+    // Badge de comunidad
     founder: {
       id: "founder",
       name: "Fundador",
@@ -19,6 +19,8 @@ export const useBadges = () => {
       isSpecial: true,
       category: "community",
     },
+
+    // Badge de primera participación
     first_story: {
       id: "first_story",
       name: "Primera Historia",
@@ -27,16 +29,8 @@ export const useBadges = () => {
       rarity: "common",
       category: "writing",
     },
-    early_adopter: {
-      id: "early_adopter",
-      name: "Adoptador Temprano",
-      description: "Se unió en los primeros 100 usuarios",
-      icon: "🌟",
-      rarity: "rare",
-      category: "community",
-    },
 
-    // Badges de concursos - Ganadores
+    // Badges de concursos
     contest_winner: {
       id: "contest_winner",
       name: "Ganador",
@@ -60,78 +54,6 @@ export const useBadges = () => {
       icon: "🥉",
       rarity: "rare",
       category: "contest",
-    },
-
-    // Badges de logros múltiples
-    triple_winner: {
-      id: "triple_winner",
-      name: "Triple Campeón",
-      description: "Ganó 3 concursos",
-      icon: "👑",
-      rarity: "legendary",
-      category: "achievement",
-    },
-    serial_winner: {
-      id: "serial_winner",
-      name: "Campeón Serial",
-      description: "Ganó 5 concursos",
-      icon: "🎖️",
-      rarity: "legendary",
-      category: "achievement",
-    },
-
-    // Badges de popularidad
-    popular_author: {
-      id: "popular_author",
-      name: "Autor Popular",
-      description: "Recibió más de 100 likes en total",
-      icon: "⭐",
-      rarity: "rare",
-      category: "popularity",
-    },
-    viral_story: {
-      id: "viral_story",
-      name: "Historia Viral",
-      description: "Una historia recibió más de 50 likes",
-      icon: "🔥",
-      rarity: "epic",
-      category: "popularity",
-    },
-
-    // Badges de participación
-    consistent_writer: {
-      id: "consistent_writer",
-      name: "Escritor Consistente",
-      description: "Participó en 5 concursos consecutivos",
-      icon: "📚",
-      rarity: "rare",
-      category: "participation",
-    },
-    prolific_writer: {
-      id: "prolific_writer",
-      name: "Escritor Prolífico",
-      description: "Escribió más de 10 historias",
-      icon: "📝",
-      rarity: "rare",
-      category: "writing",
-    },
-
-    // Badges de comunidad
-    helpful_voter: {
-      id: "helpful_voter",
-      name: "Votante Activo",
-      description: "Dio más de 100 likes a otras historias",
-      icon: "👍",
-      rarity: "common",
-      category: "community",
-    },
-    critic: {
-      id: "critic",
-      name: "Crítico",
-      description: "Dejó comentarios útiles en historias",
-      icon: "💬",
-      rarity: "common",
-      category: "community",
     },
   };
 
@@ -222,7 +144,7 @@ export const useBadges = () => {
   // 2. Badge por primera historia
   const checkFirstStoryBadge = useCallback(
     async (userId = user?.id) => {
-      if (!userId) return;
+      if (!userId) return { success: false, error: "Usuario no encontrado" };
 
       try {
         // Verificar si es la primera historia del usuario
@@ -232,10 +154,15 @@ export const useBadges = () => {
           .eq("user_id", userId);
 
         if (count === 1) {
-          await awardBadge("first_story", userId);
+          console.log("🎯 ¡Primera historia detectada! Otorgando badge...");
+          const result = await awardBadge("first_story", userId);
+          return result;
         }
+
+        return { success: true, alreadyExists: false };
       } catch (err) {
         console.error("Error checking first story badge:", err);
+        return { success: false, error: err.message };
       }
     },
     [awardBadge, user?.id]
@@ -244,7 +171,7 @@ export const useBadges = () => {
   // 3. Badges de popularidad
   const checkPopularityBadges = useCallback(
     async (userId = user?.id) => {
-      if (!userId) return;
+      if (!userId) return { success: false, error: "Usuario no encontrado" };
 
       try {
         // Obtener total de likes del usuario
@@ -253,16 +180,20 @@ export const useBadges = () => {
           .select("likes_count")
           .eq("user_id", userId);
 
-        if (!stories) return;
+        if (!stories) return { success: true, badges: [] };
 
         const totalLikes = stories.reduce(
           (sum, story) => sum + (story.likes_count || 0),
           0
         );
+        const newBadges = [];
 
         // Badge de autor popular (100+ likes totales)
         if (totalLikes >= 100) {
-          await awardBadge("popular_author", userId);
+          const result = await awardBadge("popular_author", userId);
+          if (result.success && result.isNew) {
+            newBadges.push(result.badge);
+          }
         }
 
         // Badge de historia viral (50+ likes en una historia)
@@ -270,10 +201,16 @@ export const useBadges = () => {
           (story) => (story.likes_count || 0) >= 50
         );
         if (hasViralStory) {
-          await awardBadge("viral_story", userId);
+          const result = await awardBadge("viral_story", userId);
+          if (result.success && result.isNew) {
+            newBadges.push(result.badge);
+          }
         }
+
+        return { success: true, badges: newBadges };
       } catch (err) {
         console.error("Error checking popularity badges:", err);
+        return { success: false, error: err.message };
       }
     },
     [awardBadge, user?.id]

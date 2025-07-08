@@ -1,37 +1,31 @@
-// hooks/useBadgeNotifications.js
-import { useState, useCallback } from "react";
+// hooks/useBadgeNotifications.js - Conectado con authStore
+import { useAuthStore } from "../store/authStore";
 
 export const useBadgeNotifications = () => {
-  const [notifications, setNotifications] = useState([]);
+  const {
+    badgeNotificationQueue,
+    queueBadgeNotification,
+    removeBadgeNotification,
+  } = useAuthStore();
 
-  const showBadgeNotification = useCallback((badge) => {
-    const id = Date.now() + Math.random(); // ID único
-    const notification = { id, badge, isVisible: true };
+  const showBadgeNotification = (badge) => {
+    console.log("🎉 Agregando notificación de badge a la cola:", badge.name);
+    queueBadgeNotification(badge);
+  };
 
-    setNotifications((prev) => [...prev, notification]);
+  const hideBadgeNotification = (id) => {
+    removeBadgeNotification(id);
+  };
 
-    console.log("🎉 Mostrando notificación de badge:", badge.name);
-  }, []);
-
-  const hideBadgeNotification = useCallback((id) => {
-    setNotifications((prev) =>
-      prev.map((notif) =>
-        notif.id === id ? { ...notif, isVisible: false } : notif
-      )
-    );
-
-    // Remover de la lista después de la animación
-    setTimeout(() => {
-      setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-    }, 500);
-  }, []);
-
-  const clearAllNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
+  const clearAllNotifications = () => {
+    // Limpiar todas las notificaciones
+    badgeNotificationQueue.forEach((notification) => {
+      removeBadgeNotification(notification.id);
+    });
+  };
 
   return {
-    notifications,
+    notifications: badgeNotificationQueue,
     showBadgeNotification,
     hideBadgeNotification,
     clearAllNotifications,

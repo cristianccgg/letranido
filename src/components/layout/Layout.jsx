@@ -18,6 +18,7 @@ import BadgeDisplay from "../BadgeDisplay";
 import FounderWelcome from "../FounderWelcome";
 import BadgeNotification from "../BadgeNotification";
 import { useBadgeNotifications } from "../../hooks/useBadgeNotifications";
+import { Shield } from "lucide-react";
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,6 +26,8 @@ const Layout = ({ children }) => {
   const [authMode, setAuthMode] = useState("login");
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
   const [loadingParticipation, setLoadingParticipation] = useState(false);
+  const [currentBadgeNotification, setCurrentBadgeNotification] =
+    useState(null);
 
   const location = useLocation();
   const {
@@ -36,6 +39,21 @@ const Layout = ({ children }) => {
   } = useAuthStore();
   const { currentContest, getContestPhase } = useContests();
   const { notifications, hideBadgeNotification } = useBadgeNotifications();
+
+  // Manejar cola de notificaciones de badges - mostrar una a la vez
+  useEffect(() => {
+    if (notifications.length > 0 && !currentBadgeNotification) {
+      const nextNotification = notifications[0];
+      setCurrentBadgeNotification(nextNotification);
+    }
+  }, [notifications, currentBadgeNotification]);
+
+  const handleCloseBadgeNotification = () => {
+    if (currentBadgeNotification) {
+      hideBadgeNotification(currentBadgeNotification.id);
+      setCurrentBadgeNotification(null);
+    }
+  };
 
   const isLanding = location.pathname === "/";
   const currentPhase = currentContest ? getContestPhase(currentContest) : null;
@@ -117,6 +135,16 @@ const Layout = ({ children }) => {
     },
     { name: getGalleryText(), href: "/contest/current", icon: BookOpen },
     { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+    ...(user?.is_admin || user?.email === "admin@literalab.com"
+      ? [
+          {
+            name: "Admin",
+            href: "/admin",
+            icon: Shield,
+            className: "text-red-600 hover:text-red-700",
+          },
+        ]
+      : []),
   ];
 
   // Navegación para usuarios no autenticados
@@ -269,7 +297,7 @@ const Layout = ({ children }) => {
                           e.preventDefault();
                           logout();
                         }}
-                        className="absolute cursor-pointer w-fit text-nowrap left-0 mt-14 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                        className="absolute w-fit cursor-pointer text-nowrap left-0 mt-15 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                       >
                         Cerrar sesión
                       </button>
@@ -562,15 +590,14 @@ const Layout = ({ children }) => {
         }}
       />
 
-      {/* Badge Notifications */}
-      {notifications.map((notification) => (
+      {/* Badge Notification Modal - Una a la vez */}
+      {currentBadgeNotification && (
         <BadgeNotification
-          key={notification.id}
-          badge={notification.badge}
-          isVisible={notification.isVisible}
-          onClose={() => hideBadgeNotification(notification.id)}
+          badge={currentBadgeNotification.badge}
+          isOpen={true}
+          onClose={handleCloseBadgeNotification}
         />
-      ))}
+      )}
     </div>
   );
 };
