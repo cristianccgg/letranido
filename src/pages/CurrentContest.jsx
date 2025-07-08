@@ -216,9 +216,9 @@ const CurrentContest = () => {
     <div className="max-w-6xl mx-auto">
       {/* Header del concurso */}
       <div className="card mb-8">
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex items-start justify-between  mb-6">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center flex-wrap gap-3 mb-3">
               <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-bold">
                 🏆 CONCURSO ACTIVO
               </span>
@@ -228,6 +228,37 @@ const CurrentContest = () => {
               <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
                 {contestData.category || "Ficción"}
               </span>
+              <div className="ml-6">
+                {currentPhase === "submission" && (
+                  <Link
+                    to={`/write/${contestData.id}`}
+                    className="btn-primary flex items-center"
+                  >
+                    <PenTool className="h-4 w-4 mr-2" />
+                    ¡Participar ahora!
+                  </Link>
+                )}
+                {currentPhase === "voting" && (
+                  <div className="text-center">
+                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium mb-2">
+                      🗳️ FASE DE VOTACIÓN
+                    </div>
+                    <Link
+                      to={`/write/${contestData.id}`}
+                      className="btn-secondary text-sm"
+                    >
+                      ¿Aún quieres participar?
+                    </Link>
+                  </div>
+                )}
+                {currentPhase === "results" && (
+                  <div className="text-center">
+                    <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+                      🏆 RESULTADOS FINALES
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
@@ -238,7 +269,7 @@ const CurrentContest = () => {
               {contestData.description}
             </p>
 
-            <div className="flex items-center gap-6 text-sm text-gray-500">
+            <div className="flex items-start gap-6 text-sm text-gray-500">
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
                 {submissions.length} participantes
@@ -265,37 +296,6 @@ const CurrentContest = () => {
           </div>
 
           {/* Botón dinámico según la fase */}
-          <div className="ml-6">
-            {currentPhase === "submission" && (
-              <Link
-                to={`/write/${contestData.id}`}
-                className="btn-primary flex items-center"
-              >
-                <PenTool className="h-4 w-4 mr-2" />
-                ¡Participar ahora!
-              </Link>
-            )}
-            {currentPhase === "voting" && (
-              <div className="text-center">
-                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium mb-2">
-                  🗳️ FASE DE VOTACIÓN
-                </div>
-                <Link
-                  to={`/write/${contestData.id}`}
-                  className="btn-secondary text-sm"
-                >
-                  ¿Aún quieres participar?
-                </Link>
-              </div>
-            )}
-            {currentPhase === "results" && (
-              <div className="text-center">
-                <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-                  🏆 RESULTADOS FINALES
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
