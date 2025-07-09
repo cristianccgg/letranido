@@ -17,9 +17,9 @@ import {
   List,
   Loader,
 } from "lucide-react";
-import { useVotingStats } from "../hooks/useVotingStats";
+import { useVotingStats } from "../hooks/compatibilityHooks";
 import VotingGuidance from "../components/voting/VotingGuidance";
-import { useContests } from "../hooks/useContests";
+import { useAppState } from "../contexts/AppStateContext";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
 
@@ -32,7 +32,7 @@ const CurrentContest = () => {
   const [error, setError] = useState(null);
 
   // Hooks
-  const { currentContest, loading: contestLoading } = useContests();
+  const { currentContest, loading: contestLoading } = useAppState();
   const { getStoriesByContest } = useStories();
   const { user } = useAuthStore();
   const { userVotesCount, currentContestVotes } = useVotingStats();

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Send, Save, AlertCircle, PenTool } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
-import { useContests } from "../hooks/useContests";
+import { useAppState } from "../contexts/AppStateContext";
 import { useStories } from "../hooks/useStories";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
@@ -17,7 +17,7 @@ const WritePrompt = () => {
     currentContest,
     getContestById,
     loading: contestLoading,
-  } = useContests();
+  } = useAppState();
   const { submitStory, loading: submissionLoading } = useStories();
 
   // Estado local

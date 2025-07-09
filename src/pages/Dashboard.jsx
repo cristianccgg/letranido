@@ -13,9 +13,9 @@ import {
   Users,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
-import { useContests } from "../hooks/useContests";
+import { useContests } from "../hooks/compatibilityHooks";
 import { useStories } from "../hooks/useStories";
-import { useVotingStats } from "../hooks/useVotingStats";
+import { useVotingStats } from "../hooks/compatibilityHooks";
 
 const Dashboard = () => {
   const { user } = useAuthStore();

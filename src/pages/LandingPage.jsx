@@ -11,7 +11,7 @@ import {
   Loader,
 } from "lucide-react";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
-import { useContests } from "../hooks/useContests";
+import { useContests } from "../hooks/compatibilityHooks";
 import { useStories } from "../hooks/useStories";
 
 const LandingPage = () => {

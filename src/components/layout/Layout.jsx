@@ -12,7 +12,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
-import { useContests } from "../../hooks/useContests";
+import { useContests } from "../../hooks/compatibilityHooks";
 import { supabase } from "../../lib/supabase";
 import AuthModal from "../forms/AuthModal";
 import BadgeDisplay from "../BadgeDisplay";
@@ -287,7 +287,7 @@ const Layout = ({ children }) => {
                         <div className="relative group">
                           <button
                             type="button"
-                            onClick={() => setShowFounderWelcome(true)} // <-- Cambia esto si quieres abrir el modal manualmente
+                            onClick={showFounderWelcome}
                             className="focus:outline-none"
                             style={{
                               background: "none",

@@ -1,5 +1,5 @@
-// pages/UnifiedProfile.jsx - Dashboard y Perfil combinados
-import { useRef, useEffect, useState } from "react";
+// pages/UnifiedProfile.jsx - USANDO AppStateContext
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -18,46 +18,34 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
-import { useContests } from "../hooks/useContests";
-import { useStories } from "../hooks/useStories";
-import { useVotingStats } from "../hooks/useVotingStats";
+import { useAppState } from "../contexts/AppStateContext"; // ✅ Usar contexto unificado
 import { supabase } from "../lib/supabase";
 
 const UnifiedProfile = () => {
   const { user } = useAuthStore();
-  const { currentContest, getContestPhase } = useContests();
-  const { getUserStories } = useStories();
-  const {
-    userVotesCount,
-    currentContestVotes,
-    loading: votingStatsLoading,
-  } = useVotingStats();
 
-  const [userStories, setUserStories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // ✅ Usar el contexto unificado en lugar de múltiples hooks
+  const {
+    currentContest,
+    currentContestPhase,
+    userStories,
+    userStoriesLoading,
+    votingStats,
+    votingStatsLoading,
+  } = useAppState();
+
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
   const [loadingParticipation, setLoadingParticipation] = useState(false);
 
-  const currentPhase = currentContest ? getContestPhase(currentContest) : null;
-
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   // Verificar si el usuario ya participó en el concurso actual
   useEffect(() => {
-    setLoadingParticipation(true);
     const checkParticipation = async () => {
       if (!currentContest || !user) {
         setHasUserParticipated(false);
         return;
       }
 
+      setLoadingParticipation(true);
       try {
         const { data, error } = await supabase
           .from("stories")
@@ -66,45 +54,24 @@ const UnifiedProfile = () => {
           .eq("user_id", user.id)
           .single();
 
-        if (isMounted.current) setHasUserParticipated(!!data && !error);
+        setHasUserParticipated(!!data && !error);
       } catch (err) {
         console.error("Error checking participation:", err);
-        if (isMounted.current) setHasUserParticipated(false);
+        setHasUserParticipated(false);
       } finally {
-        if (isMounted.current) setLoadingParticipation(false);
+        setLoadingParticipation(false);
       }
     };
 
     checkParticipation();
   }, [currentContest, user]);
 
-  useEffect(() => {
-    setLoading(true);
-    const loadStories = async () => {
-      if (user) {
-        const result = await getUserStories(user.id);
-        if (isMounted.current) {
-          if (result.success) {
-            setUserStories(result.stories);
-          } else {
-            console.error("Error loading stories:", result.error);
-          }
-          setLoading(false);
-        }
-      } else {
-        if (isMounted.current) setLoading(false);
-      }
-    };
-
-    loadStories();
-  }, [user, getUserStories]);
-
   // Función para obtener las acciones disponibles
   const getAvailableActions = () => {
     const actions = [];
 
     // Escribir historia (condicionado)
-    if (!hasUserParticipated && currentPhase !== "results") {
+    if (!hasUserParticipated && currentContestPhase !== "results") {
       actions.push({
         icon: <PenTool className="h-5 w-5" />,
         title: "Escribir nueva historia",
@@ -122,7 +89,9 @@ const UnifiedProfile = () => {
       actions.push({
         icon: <Trophy className="h-5 w-5" />,
         title:
-          currentPhase === "results" ? "Ver resultados" : "Ver concurso actual",
+          currentContestPhase === "results"
+            ? "Ver resultados"
+            : "Ver concurso actual",
         description: `${currentContest.participants_count} participantes`,
         href: "/contest/current",
         color: "text-yellow-600 hover:text-yellow-700",
@@ -135,7 +104,8 @@ const UnifiedProfile = () => {
 
   const availableActions = getAvailableActions();
 
-  if (loading) {
+  // ✅ Ya no necesitamos loading separado - el contexto maneja todo
+  if (userStoriesLoading) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="animate-pulse">
@@ -190,7 +160,7 @@ const UnifiedProfile = () => {
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-green-600">
                   {userStories.reduce(
-                    (total, story) => total + story.likes_count,
+                    (total, story) => total + (story.likes_count || 0),
                     0
                   )}
                 </div>
@@ -199,7 +169,7 @@ const UnifiedProfile = () => {
 
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-red-600">
-                  {votingStatsLoading ? "..." : userVotesCount}
+                  {votingStatsLoading ? "..." : votingStats.userVotesCount}
                 </div>
                 <div className="text-sm text-gray-600">Votos dados</div>
               </div>
@@ -207,7 +177,7 @@ const UnifiedProfile = () => {
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-yellow-600">
                   {userStories.reduce(
-                    (total, story) => total + story.views_count,
+                    (total, story) => total + (story.views_count || 0),
                     0
                   )}
                 </div>
@@ -231,9 +201,9 @@ const UnifiedProfile = () => {
                 </h2>
                 <div className="flex items-center text-gray-500 text-sm">
                   <Clock className="h-4 w-4 mr-1" />
-                  {currentPhase === "submission"
+                  {currentContestPhase === "submission"
                     ? "Envíos abiertos"
-                    : currentPhase === "voting"
+                    : currentContestPhase === "voting"
                     ? "En votación"
                     : "Finalizado"}
                 </div>
@@ -261,9 +231,9 @@ const UnifiedProfile = () => {
                   </div>
                   <p className="text-green-700 text-sm mt-1">
                     Tu historia fue enviada exitosamente.
-                    {currentPhase === "voting" &&
+                    {currentContestPhase === "voting" &&
                       " ¡Ahora puedes votar por otras historias!"}
-                    {currentPhase === "results" &&
+                    {currentContestPhase === "results" &&
                       " Puedes ver los resultados finales."}
                   </p>
                 </div>
@@ -272,12 +242,12 @@ const UnifiedProfile = () => {
                   <div className="flex items-center text-blue-800">
                     <AlertCircle className="h-5 w-5 mr-2" />
                     <span className="font-medium">
-                      {currentPhase === "results"
+                      {currentContestPhase === "results"
                         ? "Este concurso ya terminó"
                         : "Aún no participaste en este concurso"}
                     </span>
                   </div>
-                  {currentPhase !== "results" && (
+                  {currentContestPhase !== "results" && (
                     <p className="text-blue-700 text-sm mt-1">
                       ¡Es tu oportunidad de brillar! Escribe una historia
                       increíble.
@@ -315,7 +285,7 @@ const UnifiedProfile = () => {
                 <p className="text-gray-600 mb-4">
                   ¡Es el momento perfecto para empezar tu aventura literaria!
                 </p>
-                {!hasUserParticipated && currentPhase !== "results" && (
+                {!hasUserParticipated && currentContestPhase !== "results" && (
                   <Link to="/write" className="btn-primary">
                     Escribir mi primera historia
                   </Link>
@@ -357,13 +327,13 @@ const UnifiedProfile = () => {
                         </span>
                         <span className="flex items-center">
                           <Star className="h-4 w-4 mr-1" />
-                          {story.likes_count}
+                          {story.likes_count || 0}
                         </span>
                         <span className="flex items-center">
                           <Eye className="h-4 w-4 mr-1" />
-                          {story.views_count}
+                          {story.views_count || 0}
                         </span>
-                        <span>{story.word_count} palabras</span>
+                        <span>{story.word_count || 0} palabras</span>
                       </div>
 
                       <Link
@@ -414,7 +384,7 @@ const UnifiedProfile = () => {
             )}
 
             {/* Participation blocker */}
-            {hasUserParticipated && currentPhase !== "results" && (
+            {hasUserParticipated && currentContestPhase !== "results" && (
               <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                 <div className="flex items-center text-gray-600 text-sm">
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
@@ -425,7 +395,7 @@ const UnifiedProfile = () => {
           </div>
 
           {/* Voting Activity */}
-          {!votingStatsLoading && userVotesCount > 0 && (
+          {!votingStatsLoading && votingStats.userVotesCount > 0 && (
             <div className="card">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                 <Heart className="h-5 w-5 mr-2 text-red-500" />
@@ -435,17 +405,17 @@ const UnifiedProfile = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total votos dados:</span>
                   <span className="font-medium text-red-600">
-                    {userVotesCount}
+                    {votingStats.userVotesCount}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">En concurso actual:</span>
                   <span className="font-medium text-blue-600">
-                    {currentContestVotes}
+                    {votingStats.currentContestVotes}
                   </span>
                 </div>
                 {currentContest?.status === "voting" &&
-                  currentContestVotes === 0 && (
+                  votingStats.currentContestVotes === 0 && (
                     <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
                       <p className="text-xs text-yellow-800">
                         💡 ¡Aún no has votado en el concurso actual!

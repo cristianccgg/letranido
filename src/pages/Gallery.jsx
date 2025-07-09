@@ -18,7 +18,7 @@ import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import AuthModal from "../components/forms/AuthModal";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
-import { useContests } from "../hooks/useContests";
+import { useContests } from "../hooks/compatibilityHooks";
 
 const Gallery = () => {
   const location = useLocation();
