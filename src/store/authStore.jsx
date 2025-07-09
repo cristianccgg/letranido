@@ -1,10 +1,12 @@
-// store/authStore.js - LIMPIO SIN LÓGICA DE BADGES
+// store/authStore.js - VERSIÓN CORREGIDA SIN RACE CONDITIONS
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 
+// Variables globales para controlar la inicialización
 let authListenerUnsubscribe = null;
 let isInitializing = false;
 let hasInitialized = false;
+let initPromise = null; // ✅ NUEVO: Promise para evitar múltiples inicializaciones
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -12,151 +14,45 @@ export const useAuthStore = create((set, get) => ({
   isLoading: false,
   initialized: false,
 
-  // Initialize auth state from Supabase session
+  // ✅ NUEVA FUNCIÓN: Inicialización centralizada y segura
   initialize: async () => {
     const state = get();
 
-    if (isInitializing || hasInitialized || state.initialized) {
-      console.log(
-        "🚫 AuthStore inicialización saltada - ya en progreso o completada"
-      );
+    // ✅ Si ya hay una inicialización en progreso, esperar a que termine
+    if (initPromise) {
+      console.log("⏳ Esperando inicialización en progreso...");
+      return await initPromise;
+    }
+
+    // ✅ Si ya está inicializado, no hacer nada
+    if (hasInitialized && state.initialized) {
+      console.log("✅ AuthStore ya inicializado");
       return;
     }
 
-    isInitializing = true;
-    console.log("🚀 Inicializando AuthStore (ÚNICA VEZ)...");
-    set({ isLoading: true });
+    // ✅ Crear y guardar el promise de inicialización
+    initPromise = performInitialization();
 
     try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (error) {
-        console.error("Error getting session:", error);
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          initialized: true,
-        });
-        return;
-      }
-
-      if (session?.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-
-        if (profileError && profileError.code === "PGRST116") {
-          console.warn("User profile not found, clearing session");
-          await supabase.auth.signOut();
-          set({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-            initialized: true,
-          });
-          return;
-        }
-
-        const userData = {
-          id: session.user.id,
-          email: session.user.email,
-          name:
-            profile?.display_name ||
-            session.user.user_metadata?.display_name ||
-            session.user.email?.split("@")[0],
-          display_name:
-            profile?.display_name || session.user.user_metadata?.display_name,
-          avatar: profile?.avatar_url,
-          ...profile,
-        };
-
-        set({
-          user: userData,
-          isAuthenticated: true,
-          isLoading: false,
-          initialized: true,
-        });
-      } else {
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          initialized: true,
-        });
-      }
-
-      if (!authListenerUnsubscribe) {
-        console.log("🎧 Configurando auth listener (SOLO UNA VEZ)...");
-
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
-            console.log("🔄 Auth state changed:", event);
-
-            if (event === "SIGNED_IN" && session?.user) {
-              const { data: profile } = await supabase
-                .from("user_profiles")
-                .select("*")
-                .eq("id", session.user.id)
-                .single();
-
-              const userData = {
-                id: session.user.id,
-                email: session.user.email,
-                name:
-                  profile?.display_name ||
-                  session.user.user_metadata?.display_name ||
-                  session.user.email?.split("@")[0],
-                display_name:
-                  profile?.display_name ||
-                  session.user.user_metadata?.display_name,
-                avatar: profile?.avatar_url,
-                ...profile,
-              };
-
-              set({
-                user: userData,
-                isAuthenticated: true,
-              });
-            } else if (event === "SIGNED_OUT") {
-              set({
-                user: null,
-                isAuthenticated: false,
-              });
-            }
-          }
-        );
-
-        authListenerUnsubscribe = authListener.subscription.unsubscribe;
-      }
-
-      hasInitialized = true;
-    } catch (error) {
-      console.error("Error initializing auth:", error);
-      set({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        initialized: true,
-      });
+      await initPromise;
     } finally {
-      isInitializing = false;
+      initPromise = null; // Limpiar el promise al finalizar
     }
   },
 
   cleanup: () => {
+    console.log("🧹 Limpiando AuthStore...");
+
     if (authListenerUnsubscribe) {
-      console.log("🧹 Limpiando auth listener...");
       authListenerUnsubscribe();
       authListenerUnsubscribe = null;
     }
+
+    // Reset de todas las variables globales
     isInitializing = false;
     hasInitialized = false;
+    initPromise = null;
+
     set({
       user: null,
       isAuthenticated: false,
@@ -319,7 +215,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Función para actualizar usuario (usada por el contexto de badges)
   updateUser: (newUserData) => {
     const currentUser = get().user;
     if (currentUser) {
@@ -414,24 +309,158 @@ export const useAuthStore = create((set, get) => ({
   },
 }));
 
-// ✅ INICIALIZACIÓN ÚNICA Y CONTROLADA
-if (typeof window !== "undefined") {
-  const initOnce = () => {
-    if (!hasInitialized && !isInitializing) {
-      console.log("🎬 Inicializando AuthStore por primera vez...");
-      useAuthStore.getState().initialize();
-    } else {
-      console.log("🚫 AuthStore ya inicializado o en progreso, saltando...");
-    }
-  };
+// ✅ FUNCIÓN DE INICIALIZACIÓN INTERNA (NO EXPORTADA)
+async function performInitialization() {
+  if (isInitializing || hasInitialized) {
+    console.log("🚫 Inicialización ya en progreso o completada");
+    return;
+  }
 
+  isInitializing = true;
+  console.log("🚀 Iniciando AuthStore (ÚNICA VEZ)...");
+
+  const { getState, setState } = useAuthStore;
+  setState({ isLoading: true });
+
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error("Error getting session:", error);
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        initialized: true,
+      });
+      return;
+    }
+
+    if (session?.user) {
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profileError && profileError.code === "PGRST116") {
+        console.warn("User profile not found, clearing session");
+        await supabase.auth.signOut();
+        setState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          initialized: true,
+        });
+        return;
+      }
+
+      const userData = {
+        id: session.user.id,
+        email: session.user.email,
+        name:
+          profile?.display_name ||
+          session.user.user_metadata?.display_name ||
+          session.user.email?.split("@")[0],
+        display_name:
+          profile?.display_name || session.user.user_metadata?.display_name,
+        avatar: profile?.avatar_url,
+        ...profile,
+      };
+
+      setState({
+        user: userData,
+        isAuthenticated: true,
+        isLoading: false,
+        initialized: true,
+      });
+    } else {
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        initialized: true,
+      });
+    }
+
+    // ✅ Configurar listener SOLO una vez
+    if (!authListenerUnsubscribe) {
+      console.log("🎧 Configurando auth listener...");
+
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log("🔄 Auth state changed:", event);
+
+          if (event === "SIGNED_IN" && session?.user) {
+            const { data: profile } = await supabase
+              .from("user_profiles")
+              .select("*")
+              .eq("id", session.user.id)
+              .single();
+
+            const userData = {
+              id: session.user.id,
+              email: session.user.email,
+              name:
+                profile?.display_name ||
+                session.user.user_metadata?.display_name ||
+                session.user.email?.split("@")[0],
+              display_name:
+                profile?.display_name ||
+                session.user.user_metadata?.display_name,
+              avatar: profile?.avatar_url,
+              ...profile,
+            };
+
+            setState({
+              user: userData,
+              isAuthenticated: true,
+            });
+          } else if (event === "SIGNED_OUT") {
+            setState({
+              user: null,
+              isAuthenticated: false,
+            });
+          }
+        }
+      );
+
+      authListenerUnsubscribe = authListener.subscription.unsubscribe;
+    }
+
+    hasInitialized = true;
+    console.log("✅ AuthStore inicializado exitosamente");
+  } catch (error) {
+    console.error("Error initializing auth:", error);
+    setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      initialized: true,
+    });
+  } finally {
+    isInitializing = false;
+  }
+}
+
+// ✅ INICIALIZACIÓN AUTOMÁTICA SOLO EN BROWSER
+if (typeof window !== "undefined") {
+  // ✅ Cleanup para desarrollo
   if (import.meta.env.DEV) {
     window.__authStoreCleanup = () => {
-      hasInitialized = false;
-      isInitializing = false;
+      console.log("🧹 Manual cleanup desde DevTools");
       useAuthStore.getState().cleanup();
     };
   }
 
-  initOnce();
+  // ✅ Inicializar automáticamente SOLO si no está inicializado
+  setTimeout(() => {
+    if (!hasInitialized && !isInitializing) {
+      console.log("🎬 Auto-inicializando AuthStore...");
+      useAuthStore.getState().initialize();
+    }
+  }, 100); // Pequeño delay para evitar conflictos
 }

@@ -17,3 +17,5 @@ if (!supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// ✅ REMOVED: Ya no inicializamos aquí para evitar race conditions
