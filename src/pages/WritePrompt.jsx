@@ -116,6 +116,40 @@ const WritePrompt = () => {
     }
   }, [promptId]);
 
+  useEffect(() => {
+    if (!prompt?.id) return;
+
+    // Cargar borrador normal
+    const savedDraft = localStorage.getItem(`story-draft-${prompt.id}`);
+    if (savedDraft) {
+      try {
+        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
+        if (savedTitle) setTitle(savedTitle);
+        if (savedText) setText(savedText);
+      } catch (err) {
+        console.error("Error cargando borrador:", err);
+      }
+    }
+
+    // Si no hay borrador normal, verificar si hay uno temporal (después de registro)
+    if (!savedDraft) {
+      const tempDraft = localStorage.getItem(`story-draft-temp-${prompt.id}`);
+      if (tempDraft) {
+        try {
+          const { title: savedTitle, text: savedText } = JSON.parse(tempDraft);
+          if (savedTitle) setTitle(savedTitle);
+          if (savedText) setText(savedText);
+
+          // Mover a borrador normal y limpiar temporal
+          localStorage.setItem(`story-draft-${prompt.id}`, tempDraft);
+          localStorage.removeItem(`story-draft-temp-${prompt.id}`);
+        } catch (err) {
+          console.error("Error cargando borrador temporal:", err);
+        }
+      }
+    }
+  }, [prompt?.id]);
+
   // ✅ Auto-guardar en localStorage
   useEffect(() => {
     if (!prompt?.id) return;
@@ -137,7 +171,7 @@ const WritePrompt = () => {
       setIsSaved(true);
 
       const timer = setTimeout(() => {
-        if (isMounted.current) setIsSaved(false); // <--- Añadido
+        if (isMounted.current) setIsSaved(false);
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -162,11 +196,20 @@ const WritePrompt = () => {
 
     // Verificar autenticación
     if (!isAuthenticated) {
+      // Guardar el contenido actual antes de abrir modal de auth
+      if (prompt?.id && (title.trim() || text.trim())) {
+        const tempDraft = { title, text };
+        localStorage.setItem(
+          `story-draft-temp-${prompt.id}`,
+          JSON.stringify(tempDraft)
+        );
+      }
+
       setShowAuthModal(true);
       return;
     }
 
-    // Mostrar modal de confirmación
+    // Si está autenticado, proceder normal
     setShowConfirmationModal(true);
   };
 
@@ -193,7 +236,7 @@ const WritePrompt = () => {
       setShowConfirmationModal(false);
 
       // Redirigir con mensaje de éxito
-      navigate("/gallery", {
+      navigate("/contest/current", {
         state: {
           message: result.message,
         },
@@ -206,6 +249,21 @@ const WritePrompt = () => {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
+
+    // Restaurar el contenido guardado después del registro
+    const savedDraft = localStorage.getItem(`story-draft-temp-${prompt?.id}`);
+    if (savedDraft) {
+      try {
+        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
+        if (savedTitle) setTitle(savedTitle);
+        if (savedText) setText(savedText);
+
+        // Limpiar el borrador temporal
+        localStorage.removeItem(`story-draft-temp-${prompt?.id}`);
+      } catch (err) {
+        console.error("Error restaurando borrador:", err);
+      }
+    }
   };
 
   const getWordCountColor = () => {

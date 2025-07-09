@@ -1,13 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
-import { useBadgeSystem } from "./useBadgeSystem";
+import { useBadgeNotifications } from "../contexts/BadgeNotificationContext";
 
 export const useStories = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useAuthStore();
-  const { checkAndNotifyBadges } = useBadgeSystem();
+  const { checkFirstStoryBadge } = useBadgeNotifications(); // ✅ Usar contexto
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -83,10 +83,12 @@ export const useStories = () => {
 
         console.log("✅ Historia insertada exitosamente:", newStory);
 
-        // 🎯 VERIFICAR BADGES DESPUÉS DE ENVIAR HISTORIA
+        // 🎯 VERIFICAR BADGES DESPUÉS DE ENVIAR HISTORIA - USANDO CONTEXTO
         try {
-          console.log("🔍 Verificando badges después de enviar historia...");
-          await checkAndNotifyBadges(user.id, "story_submitted");
+          console.log(
+            "🔍 [useStories] Verificando badge de primera historia..."
+          );
+          await checkFirstStoryBadge(user.id);
         } catch (badgeError) {
           console.error("⚠️ Error verificando badges:", badgeError);
           // No fallar la historia por un error de badges
@@ -111,7 +113,7 @@ export const useStories = () => {
         if (isMounted.current) setLoading(false);
       }
     },
-    [user?.id, checkAndNotifyBadges]
+    [user?.id, checkFirstStoryBadge] // ✅ Dependencia del contexto
   );
 
   const getStoriesByContest = useCallback(async (contestId) => {
@@ -658,10 +660,6 @@ export const useStories = () => {
           if (insertError) throw insertError;
 
           console.log("✅ Voto agregado");
-
-          // Los badges de likes se activarán más adelante
-          // Por ahora solo tenemos: Fundador, Primera Historia, y Ganadores de concursos
-
           return { success: true, liked: true };
         }
       } catch (err) {
@@ -672,7 +670,7 @@ export const useStories = () => {
         };
       }
     },
-    [user?.id, checkAndNotifyBadges]
+    [user?.id] // ✅ Removida dependencia de checkAndNotifyBadges
   );
 
   const checkUserLike = useCallback(

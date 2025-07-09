@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "./store/authStore";
+import { BadgeNotificationProvider } from "./contexts/BadgeNotificationContext";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
@@ -12,15 +13,24 @@ import StoryPage from "./pages/StoryPage";
 import ContestAdminPanel from "./components/admin/ContestAdminPanel";
 
 function App() {
-  const { initialize, isLoading } = useAuthStore();
+  const { initialize, isLoading, initialized } = useAuthStore();
+
+  // ✅ useRef para evitar múltiples inicializaciones
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Initialize auth state
-    initialize();
-  }, [initialize]);
+    // ✅ Solo inicializar UNA VEZ
+    if (!hasInitialized.current && !initialized) {
+      console.log("🚀 [APP] Inicializando auth por primera vez...");
+      hasInitialized.current = true;
+      initialize();
+    } else {
+      console.log("🚫 [APP] Auth ya inicializado, saltando...");
+    }
+  }, []); // ✅ Array vacío - solo al montar el componente
 
   // Show loading while initializing auth
-  if (isLoading) {
+  if (isLoading || !initialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -33,20 +43,20 @@ function App() {
 
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/profile" element={<UnifiedProfile />} />
-          <Route path="/dashboard" element={<UnifiedProfile />} />
-          <Route path="/write/:promptId?" element={<WritePrompt />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/contest/current" element={<CurrentContest />} />
-          <Route path="/story/:id" element={<StoryPage />} />
-          <Route path="/admin" element={<ContestAdminPanel />} />
-        </Routes>
-
-        {/* Layout.jsx ya maneja las notificaciones de badges */}
-      </Layout>
+      <BadgeNotificationProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/profile" element={<UnifiedProfile />} />
+            <Route path="/dashboard" element={<UnifiedProfile />} />
+            <Route path="/write/:promptId?" element={<WritePrompt />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/contest/current" element={<CurrentContest />} />
+            <Route path="/story/:id" element={<StoryPage />} />
+            <Route path="/admin" element={<ContestAdminPanel />} />
+          </Routes>
+        </Layout>
+      </BadgeNotificationProvider>
     </Router>
   );
 }

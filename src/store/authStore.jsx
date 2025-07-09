@@ -1,26 +1,30 @@
-// store/authStore.js - ARREGLADO sin múltiples listeners
+// store/authStore.js - LIMPIO SIN LÓGICA DE BADGES
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 
-let authListenerUnsubscribe = null; // Variable global para evitar múltiples listeners
+let authListenerUnsubscribe = null;
+let isInitializing = false;
+let hasInitialized = false;
 
 export const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
   initialized: false,
-  showFounderWelcome: false,
-  badgeNotificationQueue: [],
 
   // Initialize auth state from Supabase session
   initialize: async () => {
     const state = get();
-    if (state.initialized) {
-      console.log("🚫 AuthStore ya inicializado, saltando...");
+
+    if (isInitializing || hasInitialized || state.initialized) {
+      console.log(
+        "🚫 AuthStore inicialización saltada - ya en progreso o completada"
+      );
       return;
     }
 
-    console.log("🚀 Inicializando AuthStore...");
+    isInitializing = true;
+    console.log("🚀 Inicializando AuthStore (ÚNICA VEZ)...");
     set({ isLoading: true });
 
     try {
@@ -41,14 +45,12 @@ export const useAuthStore = create((set, get) => ({
       }
 
       if (session?.user) {
-        // Verificar que el usuario realmente existe en Supabase
         const { data: profile, error: profileError } = await supabase
           .from("user_profiles")
           .select("*")
           .eq("id", session.user.id)
           .single();
 
-        // Si el perfil no existe, el usuario fue borrado
         if (profileError && profileError.code === "PGRST116") {
           console.warn("User profile not found, clearing session");
           await supabase.auth.signOut();
@@ -80,12 +82,6 @@ export const useAuthStore = create((set, get) => ({
           isLoading: false,
           initialized: true,
         });
-
-        // Verificar y otorgar badges automáticamente
-        await get().checkAndGrantAutomaticBadges(userData.id);
-        setTimeout(() => {
-          get().checkForNewBadges(userData.id);
-        }, 2000);
       } else {
         set({
           user: null,
@@ -95,9 +91,8 @@ export const useAuthStore = create((set, get) => ({
         });
       }
 
-      // ⚠️ CRÍTICO: Solo setup listener UNA VEZ
       if (!authListenerUnsubscribe) {
-        console.log("🎧 Configurando auth listener (solo una vez)...");
+        console.log("🎧 Configurando auth listener (SOLO UNA VEZ)...");
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
           async (event, session) => {
@@ -128,12 +123,6 @@ export const useAuthStore = create((set, get) => ({
                 user: userData,
                 isAuthenticated: true,
               });
-
-              // Verificar badges para usuarios existentes
-              await get().checkAndGrantAutomaticBadges(userData.id);
-              setTimeout(() => {
-                get().checkForNewBadges(userData.id);
-              }, 2000);
             } else if (event === "SIGNED_OUT") {
               set({
                 user: null,
@@ -143,9 +132,10 @@ export const useAuthStore = create((set, get) => ({
           }
         );
 
-        // Guardar función para cleanup
         authListenerUnsubscribe = authListener.subscription.unsubscribe;
       }
+
+      hasInitialized = true;
     } catch (error) {
       console.error("Error initializing auth:", error);
       set({
@@ -154,27 +144,27 @@ export const useAuthStore = create((set, get) => ({
         isLoading: false,
         initialized: true,
       });
+    } finally {
+      isInitializing = false;
     }
   },
 
-  // Función para cleanup manual (usar en desarrollo)
   cleanup: () => {
     if (authListenerUnsubscribe) {
       console.log("🧹 Limpiando auth listener...");
       authListenerUnsubscribe();
       authListenerUnsubscribe = null;
     }
+    isInitializing = false;
+    hasInitialized = false;
     set({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       initialized: false,
-      showFounderWelcome: false,
-      badgeNotificationQueue: [],
     });
   },
 
-  // Login function (sin cambios)
   login: async (email, password) => {
     set({ isLoading: true });
 
@@ -192,7 +182,6 @@ export const useAuthStore = create((set, get) => ({
         };
       }
 
-      // El estado se actualizará automáticamente por onAuthStateChange
       set({ isLoading: false });
       return { success: true };
     } catch (error) {
@@ -205,7 +194,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Register function - Actualizada para otorgar badge de fundador
   register: async (email, name, password) => {
     set({ isLoading: true });
 
@@ -228,25 +216,83 @@ export const useAuthStore = create((set, get) => ({
         };
       }
 
-      if (data.user && !data.session) {
+      // Crear perfil en user_profiles si no existe
+      let userId = data.user?.id || data.session?.user?.id;
+      if (userId) {
+        // Verificar si ya existe el perfil
+        let existingProfile = null;
+        let retries = 0;
+        const maxRetries = 5;
+        while (retries < maxRetries) {
+          const { data: profile } = await supabase
+            .from("user_profiles")
+            .select("id")
+            .eq("id", userId)
+            .single();
+          if (profile) {
+            existingProfile = profile;
+            break;
+          }
+          // Si no existe, intentar crear
+          if (retries === 0) {
+            const { error: profileError } = await supabase
+              .from("user_profiles")
+              .insert([
+                {
+                  id: userId,
+                  email: email.trim().toLowerCase(),
+                  display_name: name.trim(),
+                  created_at: new Date().toISOString(),
+                },
+              ]);
+            if (profileError && profileError.code !== "23505") {
+              set({ isLoading: false });
+              return {
+                success: false,
+                error:
+                  "Error creando perfil de usuario: " + profileError.message,
+              };
+            }
+          }
+          // Esperar 500ms antes de reintentar
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          retries++;
+        }
+        if (!existingProfile) {
+          set({ isLoading: false });
+          return {
+            success: false,
+            error: "No se pudo crear el perfil de usuario. Intenta nuevamente.",
+          };
+        }
+      }
+
+      // Si la sesión existe, el usuario ya está autenticado
+      if (data.session) {
         set({ isLoading: false });
+        await get().initialize();
+        return { success: true };
+      }
+
+      // Si no hay sesión, intentar login automático con retry
+      if (data.user && !data.session) {
+        let loginResult = await get().login(email, password);
+        if (!loginResult.success) {
+          // Esperar 1 segundo y reintentar login
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          loginResult = await get().login(email, password);
+        }
+        set({ isLoading: false });
+        if (loginResult.success) {
+          return { success: true };
+        }
+        // Si el login automático falla, pedir recargar
         return {
           success: true,
           message:
-            "✅ Registro exitoso! Revisa tu email para confirmar tu cuenta.",
-          requiresConfirmation: true,
+            "✅ Registro exitoso, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión.",
+          requiresConfirmation: false,
         };
-      }
-
-      // Si el registro fue exitoso y hay sesión inmediata
-      if (data.user && data.session) {
-        // Otorgar badge de fundador automáticamente
-        setTimeout(async () => {
-          const result = await get().grantFounderBadge(data.user.id);
-          if (result.success && result.newFounder) {
-            set({ showFounderWelcome: true });
-          }
-        }, 1000); // Esperar un poco para que se cree el perfil
       }
 
       set({ isLoading: false });
@@ -261,14 +307,11 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Logout function (sin cambios)
   logout: async () => {
     try {
       await supabase.auth.signOut();
-      // El estado se limpiará automáticamente por onAuthStateChange
     } catch (error) {
       console.error("Logout error:", error);
-      // Force logout locally even if API fails
       set({
         user: null,
         isAuthenticated: false,
@@ -276,230 +319,19 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Función para verificar y otorgar badges automáticamente
-  checkAndGrantAutomaticBadges: async (userId) => {
-    try {
-      console.log("🎯 Verificando badges automáticos para:", userId);
-
-      // Definir período de fundadores (primeros 30 días desde el lanzamiento)
-      const LAUNCH_DATE = new Date("2025-07-08"); // ⚠️ AJUSTAR A TU FECHA REAL DE LANZAMIENTO
-      const FOUNDER_PERIOD_DAYS = 30;
-      const founderDeadline = new Date(
-        LAUNCH_DATE.getTime() + FOUNDER_PERIOD_DAYS * 24 * 60 * 60 * 1000
-      );
-      const now = new Date();
-
-      // Solo otorgar badge de fundador si estamos dentro del período
-      if (now <= founderDeadline) {
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("created_at, is_founder")
-          .eq("id", userId)
-          .single();
-
-        if (profile && !profile.is_founder) {
-          console.log("🚀 Otorgando badge de fundador automáticamente");
-          const result = await get().grantFounderBadge(userId);
-
-          if (result.success && result.newFounder) {
-            // Mostrar modal de bienvenida para nuevos fundadores
-            setTimeout(() => {
-              set({ showFounderWelcome: true });
-            }, 500);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Error checking automatic badges:", err);
-    }
-  },
-
-  // Función para otorgar badge de fundador
-  grantFounderBadge: async (userId) => {
-    try {
-      console.log("🏆 Otorgando insignia de fundador a:", userId);
-
-      // Verificar si ya es fundador
-      const { data: currentProfile } = await supabase
-        .from("user_profiles")
-        .select("is_founder, badges")
-        .eq("id", userId)
-        .single();
-
-      if (currentProfile?.is_founder) {
-        console.log("✅ Usuario ya es fundador");
-        return { success: true, alreadyFounder: true };
-      }
-
-      // Crear badge de fundador
-      const founderBadge = {
-        id: "founder",
-        name: "Fundador",
-        description: "Miembro fundador de LiteraLab",
-        icon: "🚀",
-        rarity: "legendary",
-        earnedAt: new Date().toISOString(),
-        isSpecial: true,
-      };
-
-      // Obtener badges actuales
-      const currentBadges = currentProfile?.badges || [];
-      const updatedBadges = [founderBadge, ...currentBadges];
-
-      // Actualizar perfil del usuario
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .update({
-          is_founder: true,
-          founded_at: new Date().toISOString(),
-          badges: updatedBadges,
-        })
-        .eq("id", userId)
-        .select()
-        .single();
-
-      if (error) {
-        console.error("❌ Error otorgando badge de fundador:", error);
-        throw error;
-      }
-
-      console.log("✅ Badge de fundador otorgado exitosamente");
-
-      // Actualizar usuario en el estado si es el usuario actual
-      const currentUser = get().user;
-      if (currentUser && currentUser.id === userId) {
-        set({
-          user: {
-            ...currentUser,
-            is_founder: true,
-            founded_at: data.founded_at,
-            badges: data.badges,
-          },
-        });
-      }
-
-      return {
-        success: true,
-        newFounder: true,
-        badge: founderBadge,
-        profile: data,
-      };
-    } catch (err) {
-      console.error("💥 Error otorgando badge de fundador:", err);
-      return {
-        success: false,
-        error: err.message || "Error al otorgar insignia de fundador",
-      };
-    }
-  },
-
-  // Función para cerrar modal de bienvenida
-  closeFounderWelcome: () => {
-    set({ showFounderWelcome: false });
-  },
-
-  // Función para verificar badges nuevos al hacer login
-  checkForNewBadges: async (userId) => {
-    if (!userId) return;
-
-    try {
-      console.log("🔍 Verificando badges nuevos para usuario:", userId);
-
-      const { data: userProfile, error } = await supabase
-        .from("user_profiles")
-        .select("badges, last_badge_check, display_name")
-        .eq("id", userId)
-        .single();
-
-      if (error) {
-        console.error("Error obteniendo badges:", error);
-        return;
-      }
-
-      const badges = userProfile?.badges || [];
-      const lastCheck = userProfile?.last_badge_check;
-      const userName = userProfile?.display_name || "Usuario";
-
-      console.log(`📋 ${userName} tiene ${badges.length} badges`);
-
-      if (badges.length === 0) return;
-
-      // Encontrar badges que no han sido mostrados
-      const newBadges = badges.filter((badge) => {
-        if (!lastCheck) {
-          // Si nunca se ha verificado, mostrar badges de las últimas 2 horas
-          // (más corto para evitar mostrar badges viejos)
-          const badgeDate = new Date(badge.earnedAt);
-          const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-          return badgeDate >= twoHoursAgo;
-        }
-
-        // Mostrar badges posteriores al último check
-        const badgeDate = new Date(badge.earnedAt);
-        const lastCheckDate = new Date(lastCheck);
-        return badgeDate > lastCheckDate;
-      });
-
-      console.log(
-        `🆕 ${userName}: ${newBadges.length} badges nuevos encontrados`
-      );
-
-      if (newBadges.length > 0) {
-        console.log(
-          `🎯 Badges a mostrar para ${userName}:`,
-          newBadges.map((b) => b.name)
-        );
-
-        // Mostrar badges con delay entre cada uno
-        newBadges.forEach((badge, index) => {
-          setTimeout(() => {
-            console.log(
-              `🎉 ${userName}: Mostrando notificación de badge:`,
-              badge.name
-            );
-            get().queueBadgeNotification(badge);
-          }, (index + 1) * 1500); // 1.5 segundos entre cada badge, empezando en 1.5s
-        });
-
-        // Actualizar last_badge_check
-        await supabase
-          .from("user_profiles")
-          .update({ last_badge_check: new Date().toISOString() })
-          .eq("id", userId);
-
-        console.log(`✅ ${userName}: last_badge_check actualizado`);
-      } else {
-        console.log(`ℹ️ ${userName}: No hay badges nuevos que mostrar`);
-      }
-    } catch (err) {
-      console.error("💥 Error verificando badges nuevos:", err);
-    }
-  },
-
-  // Función para agregar notificación de badge a la cola
-  queueBadgeNotification: (badge) => {
-    set((state) => ({
-      badgeNotificationQueue: [
-        ...state.badgeNotificationQueue,
-        {
-          id: Date.now() + Math.random(),
-          badge,
-          isVisible: true,
+  // ✅ Función para actualizar usuario (usada por el contexto de badges)
+  updateUser: (newUserData) => {
+    const currentUser = get().user;
+    if (currentUser) {
+      set({
+        user: {
+          ...currentUser,
+          ...newUserData,
         },
-      ],
-    }));
+      });
+    }
   },
 
-  // Función para remover notificación de badge de la cola
-  removeBadgeNotification: (id) => {
-    set((state) => ({
-      badgeNotificationQueue: state.badgeNotificationQueue.filter(
-        (notification) => notification.id !== id
-      ),
-    }));
-  },
-
-  // Helper function to get user-friendly error messages (sin cambios)
   getErrorMessage: (errorMessage) => {
     const errorMap = {
       "Invalid login credentials": "Email o contraseña incorrectos",
@@ -515,7 +347,6 @@ export const useAuthStore = create((set, get) => ({
     return errorMap[errorMessage] || errorMessage || "Error desconocido";
   },
 
-  // Check if user has voted for a story (sin cambios)
   hasVoted: async (storyId) => {
     const user = get().user;
     if (!user) return false;
@@ -540,7 +371,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Toggle vote for a story (sin cambios)
   toggleVote: async (storyId) => {
     const user = get().user;
     if (!user)
@@ -584,21 +414,21 @@ export const useAuthStore = create((set, get) => ({
   },
 }));
 
-// Initialize auth when the store is created - SOLO UNA VEZ
+// ✅ INICIALIZACIÓN ÚNICA Y CONTROLADA
 if (typeof window !== "undefined") {
-  // Evitar inicialización múltiple en desarrollo
   const initOnce = () => {
-    if (!authListenerUnsubscribe) {
+    if (!hasInitialized && !isInitializing) {
       console.log("🎬 Inicializando AuthStore por primera vez...");
       useAuthStore.getState().initialize();
     } else {
-      console.log("🚫 AuthStore ya inicializado, saltando...");
+      console.log("🚫 AuthStore ya inicializado o en progreso, saltando...");
     }
   };
 
-  // En desarrollo, añadir función de cleanup al window para debugging
   if (import.meta.env.DEV) {
     window.__authStoreCleanup = () => {
+      hasInitialized = false;
+      isInitializing = false;
       useAuthStore.getState().cleanup();
     };
   }

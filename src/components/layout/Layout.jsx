@@ -9,16 +9,15 @@ import {
   X,
   BarChart3,
   CheckCircle,
+  Shield,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useContests } from "../../hooks/useContests";
 import { supabase } from "../../lib/supabase";
 import AuthModal from "../forms/AuthModal";
 import BadgeDisplay from "../BadgeDisplay";
-import FounderWelcome from "../FounderWelcome";
-import BadgeNotification from "../BadgeNotification";
-import { useBadgeNotifications } from "../../hooks/useBadgeNotifications";
-import { Shield } from "lucide-react";
+// Cambiar importación al contexto correcto
+import { useBadgeNotifications } from "../../contexts/BadgeNotificationContext";
 
 const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,34 +25,12 @@ const Layout = ({ children }) => {
   const [authMode, setAuthMode] = useState("login");
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
   const [loadingParticipation, setLoadingParticipation] = useState(false);
-  const [currentBadgeNotification, setCurrentBadgeNotification] =
-    useState(null);
 
   const location = useLocation();
-  const {
-    user,
-    isAuthenticated,
-    logout,
-    showFounderWelcome,
-    closeFounderWelcome,
-  } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const { currentContest, getContestPhase } = useContests();
-  const { notifications, hideBadgeNotification } = useBadgeNotifications();
-
-  // Manejar cola de notificaciones de badges - mostrar una a la vez
-  useEffect(() => {
-    if (notifications.length > 0 && !currentBadgeNotification) {
-      const nextNotification = notifications[0];
-      setCurrentBadgeNotification(nextNotification);
-    }
-  }, [notifications, currentBadgeNotification]);
-
-  const handleCloseBadgeNotification = () => {
-    if (currentBadgeNotification) {
-      hideBadgeNotification(currentBadgeNotification.id);
-      setCurrentBadgeNotification(null);
-    }
-  };
+  // Usar el método del contexto correcto
+  const { showFounderWelcome, closeFounderWelcome } = useBadgeNotifications();
 
   const isLanding = location.pathname === "/";
   const currentPhase = currentContest ? getContestPhase(currentContest) : null;
@@ -308,18 +285,31 @@ const Layout = ({ children }) => {
                       {/* Badge de fundador especial */}
                       {user?.is_founder && (
                         <div className="relative group">
-                          <BadgeDisplay
-                            badge={{
-                              id: "founder",
-                              name: "Fundador",
-                              description: "Miembro fundador de LiteraLab",
-                              icon: "🚀",
-                              rarity: "legendary",
-                              isSpecial: true,
+                          <button
+                            type="button"
+                            onClick={() => setShowFounderWelcome(true)} // <-- Cambia esto si quieres abrir el modal manualmente
+                            className="focus:outline-none"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
                             }}
-                            size="xs"
-                            showTooltip={false}
-                          />
+                            tabIndex={0}
+                          >
+                            <BadgeDisplay
+                              badge={{
+                                id: "founder",
+                                name: "Fundador",
+                                description: "Miembro fundador de LiteraLab",
+                                icon: "🚀",
+                                rarity: "legendary",
+                                isSpecial: true,
+                              }}
+                              size="xs"
+                              showTooltip={false}
+                            />
+                          </button>
                           {/* Tooltip debajo del badge */}
                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
                             <div className="bg-gray-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap shadow-lg">
@@ -374,7 +364,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Simplificado */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
@@ -419,15 +409,10 @@ const Layout = ({ children }) => {
                 );
               })}
 
-              {/* Separador si hay items de navegación */}
-              {isAuthenticated && (
-                <div className="border-t border-gray-200 my-2"></div>
-              )}
-
-              {/* Auth Options */}
+              {/* Auth Options - Simplificado */}
               {isAuthenticated ? (
                 <>
-                  {/* Profile Link */}
+                  <div className="border-t border-gray-200 my-2"></div>
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -435,23 +420,37 @@ const Layout = ({ children }) => {
                   >
                     <User className="h-5 w-5" />
                     <span>Mi perfil</span>
-                    {/* Badges en móvil */}
                     {user?.is_founder && (
-                      <BadgeDisplay
-                        badge={{
-                          id: "founder",
-                          name: "Fundador",
-                          description: "Miembro fundador de LiteraLab",
-                          icon: "🚀",
-                          rarity: "legendary",
-                          isSpecial: true,
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          showFounderWelcome();
                         }}
-                        size="xs"
-                      />
+                        className="focus:outline-none"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          margin: 0,
+                        }}
+                        tabIndex={0}
+                      >
+                        <BadgeDisplay
+                          badge={{
+                            id: "founder",
+                            name: "Fundador",
+                            description: "Miembro fundador de LiteraLab",
+                            icon: "🚀",
+                            rarity: "legendary",
+                            isSpecial: true,
+                          }}
+                          size="xs"
+                        />
+                      </button>
                     )}
                   </Link>
 
-                  {/* Logout Button */}
                   <button
                     onClick={() => {
                       logout();
@@ -475,7 +474,6 @@ const Layout = ({ children }) => {
                     <span>Cerrar sesión</span>
                   </button>
 
-                  {/* User Info */}
                   <div className="px-3 py-2 border-t border-gray-200 mt-2">
                     <div className="text-sm text-gray-500">Conectado como:</div>
                     <div className="flex items-center">
@@ -498,7 +496,6 @@ const Layout = ({ children }) => {
                 </>
               ) : (
                 <>
-                  {/* Login Button */}
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
@@ -528,7 +525,6 @@ const Layout = ({ children }) => {
                     <span>Iniciar sesión</span>
                   </button>
 
-                  {/* Register Button */}
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
@@ -540,7 +536,6 @@ const Layout = ({ children }) => {
                     <span>Registrarse gratis</span>
                   </button>
 
-                  {/* Guest Info */}
                   <div className="px-3 py-2 border-t border-gray-200 mt-2">
                     <div className="text-sm text-gray-500">
                       Regístrate para participar en concursos y votar por tus
@@ -576,28 +571,7 @@ const Layout = ({ children }) => {
         />
       )}
 
-      {/* Founder Welcome Modal */}
-      <FounderWelcome
-        isOpen={showFounderWelcome}
-        onClose={closeFounderWelcome}
-        badge={{
-          id: "founder",
-          name: "Fundador",
-          description: "Miembro fundador de LiteraLab",
-          icon: "🚀",
-          rarity: "legendary",
-          isSpecial: true,
-        }}
-      />
-
-      {/* Badge Notification Modal - Una a la vez */}
-      {currentBadgeNotification && (
-        <BadgeNotification
-          badge={currentBadgeNotification.badge}
-          isOpen={true}
-          onClose={handleCloseBadgeNotification}
-        />
-      )}
+      {/* ✅ TODAS LAS NOTIFICACIONES DE BADGES AHORA LAS MANEJA EL CONTEXTO */}
     </div>
   );
 };
