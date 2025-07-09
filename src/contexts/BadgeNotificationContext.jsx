@@ -247,7 +247,10 @@ export const BadgeNotificationProvider = ({ children }) => {
     let timeoutId;
 
     const initializeUser = async () => {
-      if (!isAuthenticated || !user?.id) return;
+      if (!isAuthenticated || !user?.id) {
+        console.log("🚫 [CONTEXT] No hay usuario autenticado");
+        return;
+      }
 
       // Solo ejecutar si cambió el usuario
       if (lastCheckedUser.current === user.id) {
@@ -266,7 +269,7 @@ export const BadgeNotificationProvider = ({ children }) => {
       // Limpiar localStorage
       localStorage.removeItem("queued_badges");
 
-      // ✅ Ejecutar verificación después de 2 segundos
+      // ✅ Ejecutar verificación después de 5 segundos para evitar conflictos con otros hooks
       timeoutId = setTimeout(async () => {
         if (!isMounted.current || !user?.id) return;
 
@@ -346,7 +349,7 @@ export const BadgeNotificationProvider = ({ children }) => {
         } catch (err) {
           console.error("💥 [CONTEXT] Error verificando badges:", err);
         }
-      }, 2000);
+      }, 5000);
     };
 
     initializeUser();

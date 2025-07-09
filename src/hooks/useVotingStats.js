@@ -1,7 +1,8 @@
-// hooks/useVotingStats.js - ARREGLADO sin loops
+// hooks/useVotingStats.js - VERSIÓN SIMPLIFICADA SIN DEPENDENCIAS
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
+import { useContestsStore } from "../store/contestsStore";
 
 export const useVotingStats = () => {
   const [stats, setStats] = useState({
@@ -13,8 +14,9 @@ export const useVotingStats = () => {
   });
 
   const { user } = useAuthStore();
+  const { currentContest } = useContestsStore(); // ✅ Usar el store directamente
 
-  // ✅ useRef para evitar cargas múltiples
+  // ✅ Referencias para control de ejecución
   const hasLoaded = useRef(false);
   const currentUserId = useRef(null);
   const isLoading = useRef(false);
@@ -27,13 +29,22 @@ export const useVotingStats = () => {
     };
   }, []);
 
+  // ✅ Función principal SIN dependencias de otros hooks
   const loadUserVotingStats = useCallback(async () => {
     if (!user?.id) {
-      if (isMounted.current) setStats((prev) => ({ ...prev, loading: false }));
+      if (isMounted.current) {
+        setStats({
+          userVotesCount: 0,
+          userVotedStories: [],
+          currentContestVotes: 0,
+          totalVotesGiven: 0,
+          loading: false,
+        });
+      }
       return;
     }
 
-    // Evitar cargas múltiples para el mismo usuario
+    // ✅ Evitar cargas múltiples
     if (
       isLoading.current ||
       (hasLoaded.current && currentUserId.current === user.id)
@@ -41,6 +52,8 @@ export const useVotingStats = () => {
       console.log("⏳ Stats ya cargadas para este usuario, saltando...");
       return;
     }
+
+    if (!isMounted.current) return;
 
     isLoading.current = true;
 
@@ -50,7 +63,7 @@ export const useVotingStats = () => {
         user.id
       );
 
-      // Obtener todos los votos del usuario
+      // ✅ Obtener todos los votos del usuario
       const { data: allVotes, error: votesError } = await supabase
         .from("votes")
         .select(
@@ -74,36 +87,34 @@ export const useVotingStats = () => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (votesError) throw votesError;
+      if (votesError) {
+        console.error("❌ Error obteniendo votos:", votesError);
+        throw votesError;
+      }
 
-      // Procesar estadísticas
+      if (!isMounted.current) return;
+
+      // ✅ Procesar estadísticas básicas
       const userVotedStories =
         allVotes?.map((vote) => ({
           storyId: vote.story_id,
-          storyTitle: vote.stories.title,
-          contestTitle: vote.stories.contests.title,
-          contestMonth: vote.stories.contests.month,
+          storyTitle: vote.stories?.title || "Historia sin título",
+          contestTitle: vote.stories?.contests?.title || "Concurso",
+          contestMonth: vote.stories?.contests?.month || "Mes",
           votedAt: vote.created_at,
         })) || [];
 
-      // Contar votos en concurso actual (buscar concurso activo)
-      const { data: currentContest } = await supabase
-        .from("contests")
-        .select("id")
-        .in("status", ["submission", "voting"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
+      // ✅ Usar concurso del store en lugar de búsqueda directa
       let currentContestVotes = 0;
       if (currentContest && allVotes) {
         currentContestVotes = allVotes.filter(
-          (vote) => vote.stories.contest_id === currentContest.id
+          (vote) => vote.stories?.contest_id === currentContest.id
         ).length;
       }
 
-      if (!isMounted.current) return; // <--- Añadido
+      if (!isMounted.current) return;
 
+      // ✅ Actualizar estado
       setStats({
         userVotesCount: allVotes?.length || 0,
         userVotedStories,
@@ -112,6 +123,7 @@ export const useVotingStats = () => {
         loading: false,
       });
 
+      // ✅ Marcar como cargado
       hasLoaded.current = true;
       currentUserId.current = user.id;
 
@@ -121,29 +133,65 @@ export const useVotingStats = () => {
       });
     } catch (err) {
       console.error("💥 Error cargando estadísticas de votación:", err);
-      if (isMounted.current) setStats((prev) => ({ ...prev, loading: false }));
+      if (isMounted.current) {
+        setStats({
+          userVotesCount: 0,
+          userVotedStories: [],
+          currentContestVotes: 0,
+          totalVotesGiven: 0,
+          loading: false,
+        });
+      }
     } finally {
       isLoading.current = false;
     }
-  }, [user?.id]);
+  }, [user?.id, currentContest?.id]); // ✅ También depender del currentContest
 
-  // ✅ Solo cargar cuando cambie el usuario
+  // ✅ Effect simple que solo se ejecuta cuando cambia el usuario
   useEffect(() => {
-    // Reset si cambió el usuario
+    // ✅ Reset si cambió el usuario
     if (currentUserId.current !== user?.id) {
+      console.log("🔄 Usuario cambió, reseteando stats...");
       hasLoaded.current = false;
       currentUserId.current = user?.id;
+
+      if (isMounted.current) {
+        setStats({
+          userVotesCount: 0,
+          userVotedStories: [],
+          currentContestVotes: 0,
+          totalVotesGiven: 0,
+          loading: true,
+        });
+      }
     }
 
-    // Solo cargar si no se ha cargado para este usuario
-    if (!hasLoaded.current && !isLoading.current) {
+    // ✅ Cargar si no está cargado
+    if (!hasLoaded.current && !isLoading.current && user?.id) {
+      // ✅ Solo cargar si también tenemos el concurso o no lo necesitamos
       loadUserVotingStats();
+    } else if (!user?.id) {
+      // ✅ Limpiar si no hay usuario
+      if (isMounted.current) {
+        setStats({
+          userVotesCount: 0,
+          userVotedStories: [],
+          currentContestVotes: 0,
+          totalVotesGiven: 0,
+          loading: false,
+        });
+      }
+      hasLoaded.current = true; // Evitar loops
     }
-  }, [user?.id, loadUserVotingStats]);
+  }, [user?.id, currentContest?.id, loadUserVotingStats]);
 
+  // ✅ Función de refresh manual
   const refreshStats = useCallback(() => {
+    if (!isMounted.current) return;
+
     console.log("🔄 Refresh manual de estadísticas de votación");
     hasLoaded.current = false;
+    isLoading.current = false;
     loadUserVotingStats();
   }, [loadUserVotingStats]);
 
