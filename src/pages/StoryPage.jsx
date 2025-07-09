@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Heart,
@@ -35,6 +35,7 @@ const StoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [votingInfo, setVotingInfo] = useState({ canVote: false, reason: "" });
+  const isMounted = useRef(true);
 
   // Hooks
   const {
@@ -45,13 +46,20 @@ const StoryPage = () => {
     canVoteInStory,
   } = useStories();
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Cargar historia
   // Reemplaza la función loadStory en StoryPage.jsx
   const loadStory = useCallback(async () => {
     if (!id) return;
 
-    setLoading(true);
-    setError(null);
+    if (isMounted.current) setLoading(true);
+    if (isMounted.current) setError(null);
 
     try {
       console.log("🔍 Cargando historia:", id);
@@ -71,7 +79,7 @@ const StoryPage = () => {
 
         const realLikesCount = realCountData?.likes_count || 0;
         console.log("📊 Likes count real desde BD:", realLikesCount);
-        setLikesCount(realLikesCount);
+        if (isMounted.current) setLikesCount(realLikesCount);
 
         // Verificar si el usuario ya dio like
         if (isAuthenticated && user) {
@@ -80,29 +88,29 @@ const StoryPage = () => {
           const likeResult = await checkUserLike(id);
           if (likeResult.success) {
             console.log("❤️ Usuario ya dio like:", likeResult.liked);
-            setIsLiked(likeResult.liked);
+            if (isMounted.current) setIsLiked(likeResult.liked);
           } else {
-            setIsLiked(false);
+            if (isMounted.current) setIsLiked(false);
           }
         } else {
-          setIsLiked(false);
+          if (isMounted.current) setIsLiked(false);
         }
 
         // Verificar permisos de votación
         const votingResult = await canVoteInStory(id);
-        setVotingInfo(votingResult);
+        if (isMounted.current) setVotingInfo(votingResult);
 
         // Registrar vista
         await recordStoryView(id);
       } else {
-        console.error("❌ Error cargando historia:", result.error);
-        setError(result.error);
+        if (isMounted.current) {
+          setError(result.error);
+        }
       }
     } catch (err) {
-      console.error("💥 Error inesperado:", err);
-      setError("Error inesperado al cargar la historia");
+      if (isMounted.current) setError("Error inesperado al cargar la historia");
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
   }, [
     id,

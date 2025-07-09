@@ -1,5 +1,5 @@
 // pages/UnifiedProfile.jsx - Dashboard y Perfil combinados
-import { useState, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -40,15 +40,24 @@ const UnifiedProfile = () => {
 
   const currentPhase = currentContest ? getContestPhase(currentContest) : null;
 
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Verificar si el usuario ya participó en el concurso actual
   useEffect(() => {
-    const checkUserParticipation = async () => {
+    setLoadingParticipation(true);
+    const checkParticipation = async () => {
       if (!currentContest || !user) {
         setHasUserParticipated(false);
         return;
       }
 
-      setLoadingParticipation(true);
       try {
         const { data, error } = await supabase
           .from("stories")
@@ -57,32 +66,37 @@ const UnifiedProfile = () => {
           .eq("user_id", user.id)
           .single();
 
-        setHasUserParticipated(!!data && !error);
+        if (isMounted.current) setHasUserParticipated(!!data && !error);
       } catch (err) {
         console.error("Error checking participation:", err);
-        setHasUserParticipated(false);
+        if (isMounted.current) setHasUserParticipated(false);
       } finally {
-        setLoadingParticipation(false);
+        if (isMounted.current) setLoadingParticipation(false);
       }
     };
 
-    checkUserParticipation();
+    checkParticipation();
   }, [currentContest, user]);
 
   useEffect(() => {
-    const loadUserData = async () => {
+    setLoading(true);
+    const loadStories = async () => {
       if (user) {
         const result = await getUserStories(user.id);
-        if (result.success) {
-          setUserStories(result.stories);
-        } else {
-          console.error("Error loading stories:", result.error);
+        if (isMounted.current) {
+          if (result.success) {
+            setUserStories(result.stories);
+          } else {
+            console.error("Error loading stories:", result.error);
+          }
+          setLoading(false);
         }
+      } else {
+        if (isMounted.current) setLoading(false);
       }
-      setLoading(false);
     };
 
-    loadUserData();
+    loadStories();
   }, [user, getUserStories]);
 
   // Función para obtener las acciones disponibles

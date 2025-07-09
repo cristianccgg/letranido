@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Search,
@@ -30,6 +30,7 @@ const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const isMounted = useRef(true);
 
   // Hooks
   const { getStoriesForGallery, toggleLike, canVoteInStory } = useStories();
@@ -47,10 +48,17 @@ const Gallery = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Función memoizada para cargar historias
   const loadStories = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    if (isMounted.current) setLoading(true);
+    if (isMounted.current) setError(null);
 
     try {
       const filters = {
@@ -63,20 +71,21 @@ const Gallery = () => {
 
       const result = await getStoriesForGallery(filters);
 
-      if (result.success) {
-        console.log("✅ Historias cargadas:", result.stories.length);
-        setStories(result.stories || []);
-      } else {
-        console.error("❌ Error cargando historias:", result.error);
-        setError(result.error);
+      if (isMounted.current) {
+        if (result.success) {
+          setStories(result.stories || []);
+        } else {
+          setError(result.error);
+        }
       }
     } catch (err) {
-      console.error("💥 Error inesperado:", err);
-      setError("Error inesperado al cargar las historias");
+      if (isMounted.current) {
+        setError("Error inesperado al cargar las historias");
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) setLoading(false);
     }
-  }, [selectedCategory, sortBy, getStoriesForGallery]); // Solo estas dependencias
+  }, [selectedCategory, sortBy, getStoriesForGallery, searchTerm]);
 
   // Cargar historias cuando cambien los filtros
   useEffect(() => {

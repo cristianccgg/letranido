@@ -18,10 +18,18 @@ export const useVotingStats = () => {
   const hasLoaded = useRef(false);
   const currentUserId = useRef(null);
   const isLoading = useRef(false);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const loadUserVotingStats = useCallback(async () => {
     if (!user?.id) {
-      setStats((prev) => ({ ...prev, loading: false }));
+      if (isMounted.current) setStats((prev) => ({ ...prev, loading: false }));
       return;
     }
 
@@ -94,6 +102,8 @@ export const useVotingStats = () => {
         ).length;
       }
 
+      if (!isMounted.current) return; // <--- Añadido
+
       setStats({
         userVotesCount: allVotes?.length || 0,
         userVotedStories,
@@ -111,7 +121,7 @@ export const useVotingStats = () => {
       });
     } catch (err) {
       console.error("💥 Error cargando estadísticas de votación:", err);
-      setStats((prev) => ({ ...prev, loading: false }));
+      if (isMounted.current) setStats((prev) => ({ ...prev, loading: false }));
     } finally {
       isLoading.current = false;
     }

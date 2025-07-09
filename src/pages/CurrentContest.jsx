@@ -53,6 +53,8 @@ const CurrentContest = () => {
 
   // Cargar historias del concurso actual
   const loadStories = useCallback(async () => {
+    let isMounted = true; // <--- Añadido
+
     // Esperar a que el concurso se haya cargado completamente
     if (contestLoading) {
       console.log("⏳ Esperando a que termine de cargar el concurso...");
@@ -61,13 +63,15 @@ const CurrentContest = () => {
 
     if (!currentContest) {
       console.log("ℹ️ No hay concurso actual disponible");
-      setSubmissions([]);
-      setLoadingSubmissions(false);
+      if (isMounted) {
+        setSubmissions([]);
+        setLoadingSubmissions(false);
+      }
       return;
     }
 
-    setLoadingSubmissions(true);
-    setError(null);
+    if (isMounted) setLoadingSubmissions(true);
+    if (isMounted) setError(null);
 
     try {
       console.log(
@@ -78,6 +82,8 @@ const CurrentContest = () => {
 
       const result = await getStoriesByContest(currentContest.id);
 
+      if (!isMounted) return; // <--- Añadido
+
       if (result.success) {
         console.log("✅ Historias cargadas:", result.stories.length);
         setSubmissions(result.stories || []);
@@ -86,15 +92,25 @@ const CurrentContest = () => {
         setError(result.error);
       }
     } catch (err) {
-      console.error("💥 Error inesperado:", err);
-      setError("Error inesperado al cargar las historias");
+      if (isMounted) {
+        console.error("💥 Error inesperado:", err);
+        setError("Error inesperado al cargar las historias");
+      }
     } finally {
-      setLoadingSubmissions(false);
+      if (isMounted) setLoadingSubmissions(false);
     }
+
+    return () => {
+      isMounted = false; // <--- Limpieza al desmontar
+    };
   }, [currentContest?.id, contestLoading]);
 
   useEffect(() => {
+    let isMounted = true;
     loadStories();
+    return () => {
+      isMounted = false;
+    };
   }, [loadStories]);
 
   // Cambiar sortBy automáticamente cuando cambie la fase

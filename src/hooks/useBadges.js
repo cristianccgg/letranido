@@ -1,11 +1,19 @@
 // hooks/useBadges.js
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
 export const useBadges = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuthStore();
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Definición de badges esenciales para el lanzamiento
   const BADGE_DEFINITIONS = {
@@ -68,7 +76,7 @@ export const useBadges = () => {
         return { success: false, error: "Badge no válido" };
       }
 
-      setLoading(true);
+      if (isMounted.current) setLoading(true);
       try {
         console.log(`🏆 Otorgando badge ${badgeId} a usuario ${userId}`);
 
@@ -115,6 +123,7 @@ export const useBadges = () => {
         }
 
         console.log(`✅ Badge ${badgeId} otorgado exitosamente`);
+        if (isMounted.current) setLoading(false);
         return {
           success: true,
           badge: newBadge,
@@ -122,12 +131,13 @@ export const useBadges = () => {
         };
       } catch (err) {
         console.error(`💥 Error otorgando badge ${badgeId}:`, err);
+        if (isMounted.current) setLoading(false);
         return {
           success: false,
           error: err.message || "Error al otorgar badge",
         };
       } finally {
-        setLoading(false);
+        if (isMounted.current) setLoading(false);
       }
     },
     [user?.id]

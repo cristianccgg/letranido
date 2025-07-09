@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -29,6 +29,7 @@ const LandingPage = () => {
     contests: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const isMounted = useRef(true);
 
   // Hooks
   const {
@@ -83,6 +84,13 @@ const LandingPage = () => {
     return () => clearInterval(timer);
   }, [currentContest, currentPhase]);
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Cargar historias ganadoras del mes anterior
   useEffect(() => {
     const loadFeaturedTexts = async () => {
@@ -117,18 +125,22 @@ const LandingPage = () => {
                 contestMonth: story.contests?.month || "Concurso anterior",
               }));
 
-            setFeaturedTexts(topStories);
+            if (isMounted.current) {
+              setFeaturedTexts(topStories);
+            }
           }
         } else {
           // Si no hay concursos terminados, no mostrar historias
           console.log(
             "ℹ️ No hay concursos terminados para mostrar historias destacadas"
           );
-          setFeaturedTexts([]);
+          if (isMounted.current) {
+            setFeaturedTexts([]);
+          }
         }
       } catch (error) {
         console.error("Error loading featured texts:", error);
-        setFeaturedTexts([]);
+        if (isMounted.current) setFeaturedTexts([]);
       }
     };
 
@@ -141,7 +153,7 @@ const LandingPage = () => {
   useEffect(() => {
     const loadTotalStats = async () => {
       try {
-        setLoadingStats(true);
+        if (isMounted.current) setLoadingStats(true);
 
         // Obtener todas las historias para contar escritores únicos y total de historias
         const result = await getStoriesForGallery({});
@@ -151,22 +163,25 @@ const LandingPage = () => {
           const uniqueWriters = new Set(stories.map((story) => story.authorId))
             .size;
 
-          setTotalStats({
-            writers: uniqueWriters,
-            texts: stories.length,
-            contests: contests.length,
-          });
+          if (isMounted.current) {
+            setTotalStats({
+              writers: uniqueWriters,
+              texts: stories.length,
+              contests: contests.length,
+            });
+          }
         }
       } catch (error) {
         console.error("Error loading stats:", error);
-        // Mantener estadísticas por defecto en caso de error
-        setTotalStats({
-          writers: 0,
-          texts: 0,
-          contests: contests.length,
-        });
+        if (isMounted.current) {
+          setTotalStats({
+            writers: 0,
+            texts: 0,
+            contests: contests.length,
+          });
+        }
       } finally {
-        setLoadingStats(false);
+        if (isMounted.current) setLoadingStats(false);
       }
     };
 
@@ -583,34 +598,33 @@ const LandingPage = () => {
                 Ganadores del concurso anterior
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Descubre las historias ganadoras de concursos pasados y
-                encuentra inspiración para tu próxima creación
+                Estas son las historias más votadas del último concurso.
               </p>
             </div>
-
             <div className="grid md:grid-cols-3 gap-8">
               {featuredTexts.map((text, index) => (
                 <div
                   key={text.id}
-                  className="card hover:shadow-md transition-shadow relative cursor-pointer p-4 rounded-2xl shadow-accent-500 bg-white border border-gray-200"
+                  className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 relative"
                 >
-                  {/* Winner badges */}
-                  {index === 0 && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full p-2 shadow-lg">
-                      <Trophy className="h-4 w-4" />
-                    </div>
-                  )}
-                  {index === 1 && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-full p-2 shadow-lg">
-                      <Star className="h-4 w-4" />
-                    </div>
-                  )}
-                  {index === 2 && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-full p-2 shadow-lg">
-                      <Star className="h-4 w-4" />
-                    </div>
-                  )}
-
+                  {/* Medallas para los 3 primeros */}
+                  <>
+                    {index === 0 && (
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full p-2 shadow-lg">
+                        <Star className="h-4 w-4" />
+                      </div>
+                    )}
+                    {index === 1 && (
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-full p-2 shadow-lg">
+                        <Star className="h-4 w-4" />
+                      </div>
+                    )}
+                    {index === 2 && (
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-full p-2 shadow-lg">
+                        <Star className="h-4 w-4" />
+                      </div>
+                    )}
+                  </>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">
@@ -637,15 +651,12 @@ const LandingPage = () => {
                       {text.likes}
                     </div>
                   </div>
-
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {text.title}
                   </h3>
-
                   <p className="text-gray-600 mb-4 leading-relaxed">
                     {text.excerpt}
                   </p>
-
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
                       por <span className="font-medium">{text.author}</span>

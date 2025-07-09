@@ -33,6 +33,14 @@ const WritePrompt = () => {
   // ✅ useRef para evitar loops - solo carga UNA VEZ
   const hasLoadedPrompt = useRef(false);
   const currentPromptId = useRef(null);
+  const isMounted = useRef(true); // <--- Añadido
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // ✅ Cargar prompt/concurso - VERSIÓN SIMPLE sin loops
   useEffect(() => {
@@ -52,6 +60,7 @@ const WritePrompt = () => {
       console.log("🔍 Cargando prompt para ID:", promptId);
 
       try {
+        if (!isMounted.current) return; // <--- Añadido
         setError(null);
 
         if (promptId && promptId !== "1") {
@@ -64,6 +73,7 @@ const WritePrompt = () => {
           if (isValidUUID) {
             console.log("🎯 Cargando concurso por UUID...");
             const contest = await getContestById(promptId);
+            if (!isMounted.current) return; // <--- Añadido
             if (contest) {
               console.log("✅ Concurso cargado por ID:", contest.title);
               setPrompt(contest);
@@ -76,15 +86,18 @@ const WritePrompt = () => {
 
         // Fallback: usar concurso actual
         if (currentContest) {
+          if (!isMounted.current) return; // <--- Añadido
           console.log("✅ Usando concurso actual:", currentContest.title);
           setPrompt(currentContest);
           hasLoadedPrompt.current = true;
           currentPromptId.current = promptId;
         } else {
+          if (!isMounted.current) return; // <--- Añadido
           console.error("❌ No hay concursos disponibles");
           setError("No hay concursos disponibles");
         }
       } catch (err) {
+        if (!isMounted.current) return; // <--- Añadido
         console.error("💥 Error cargando prompt:", err);
         setError(err.message || "Error al cargar el concurso");
       }
@@ -105,23 +118,6 @@ const WritePrompt = () => {
 
   // ✅ Auto-guardar en localStorage
   useEffect(() => {
-    if (prompt?.id) {
-      const savedData = localStorage.getItem(`story-draft-${prompt.id}`);
-      if (savedData) {
-        try {
-          const { title: savedTitle, text: savedText } = JSON.parse(savedData);
-          setTitle(savedTitle || "");
-          setText(savedText || "");
-          console.log("📖 Borrador cargado desde localStorage");
-        } catch (err) {
-          console.warn("⚠️ Error parsing saved data:", err);
-        }
-      }
-    }
-  }, [prompt?.id]);
-
-  // ✅ Actualizar contador de palabras y auto-guardar
-  useEffect(() => {
     if (!prompt?.id) return;
 
     // Contar palabras
@@ -140,7 +136,9 @@ const WritePrompt = () => {
       );
       setIsSaved(true);
 
-      const timer = setTimeout(() => setIsSaved(false), 2000);
+      const timer = setTimeout(() => {
+        if (isMounted.current) setIsSaved(false); // <--- Añadido
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [text, title, prompt?.id]);
@@ -184,6 +182,8 @@ const WritePrompt = () => {
     console.log("📝 Enviando historia:", storyData);
 
     const result = await submitStory(storyData);
+
+    if (!isMounted.current) return; // <--- Añadido
 
     if (result.success) {
       // Limpiar borrador

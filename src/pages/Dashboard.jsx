@@ -1,5 +1,5 @@
 // pages/Dashboard.jsx - Versión con datos reales y estadísticas de votación
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -29,18 +29,30 @@ const Dashboard = () => {
 
   const [userStories, setUserStories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const loadUserData = async () => {
       if (user) {
         const result = await getUserStories(user.id); // Pasar el ID explícitamente
-        if (result.success) {
-          setUserStories(result.stories);
-        } else {
-          console.error("Error loading stories:", result.error);
+        if (isMounted.current) {
+          if (result.success) {
+            setUserStories(result.stories);
+          } else {
+            console.error("Error loading stories:", result.error);
+          }
+          setLoading(false);
         }
+      } else {
+        if (isMounted.current) setLoading(false);
       }
-      setLoading(false);
     };
 
     loadUserData();

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 import { useBadgeSystem } from "./useBadgeSystem";
@@ -8,6 +8,14 @@ export const useStories = () => {
   const [error, setError] = useState(null);
   const { user } = useAuthStore();
   const { checkAndNotifyBadges } = useBadgeSystem();
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const submitStory = useCallback(
     async (storyData) => {
@@ -18,8 +26,8 @@ export const useStories = () => {
         };
       }
 
-      setLoading(true);
-      setError(null);
+      if (isMounted.current) setLoading(true);
+      if (isMounted.current) setError(null);
 
       try {
         // Verificar que el concurso existe
@@ -93,14 +101,14 @@ export const useStories = () => {
         console.error("Error submitting story:", err);
         const errorMessage =
           err.message || "Error inesperado al enviar la historia";
-        setError(errorMessage);
+        if (isMounted.current) setError(errorMessage);
 
         return {
           success: false,
           error: errorMessage,
         };
       } finally {
-        setLoading(false);
+        if (isMounted.current) setLoading(false);
       }
     },
     [user?.id, checkAndNotifyBadges]

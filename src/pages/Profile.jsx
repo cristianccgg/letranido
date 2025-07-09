@@ -1,5 +1,5 @@
 // pages/Profile.jsx - Versión simplificada
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { User, Edit3, Trophy, Star, Calendar } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
@@ -12,20 +12,32 @@ const Profile = () => {
 
   const [userStories, setUserStories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(true);
 
   const isOwnProfile = !userId || userId === currentUser?.id;
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const loadUserData = async () => {
       if (currentUser) {
         const result = await getUserStories(currentUser.id); // Pasar el ID explícitamente
-        if (result.success) {
-          setUserStories(result.stories);
-        } else {
-          console.error("Error loading stories:", result.error);
+        if (isMounted.current) {
+          if (result.success) {
+            setUserStories(result.stories);
+          } else {
+            console.error("Error loading stories:", result.error);
+          }
+          setLoading(false);
         }
+      } else {
+        if (isMounted.current) setLoading(false);
       }
-      setLoading(false);
     };
 
     loadUserData();
