@@ -267,52 +267,47 @@ const LandingPage = () => {
               literarios.
             </p>
 
+            {/* Current Contest Card */}
             {currentContest ? (
-              <div className="max-w-3xl mx-auto mb-12">
-                <div className="relative bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden p-8">
-                  {/* Badge superior */}
-                  <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-bl-2xl font-semibold text-sm tracking-wide shadow-md">
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 relative overflow-hidden">
+                  {/* Contest badge */}
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-bl-lg font-bold text-sm">
                     🏆 CONCURSO MENSUAL
                   </div>
 
-                  {/* Tags: Mes y categoría */}
-                  <div className="flex items-center justify-between mb-5 mt-2">
-                    <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center justify-between mb-4 mt-4">
+                    <div className="flex items-center gap-2">
                       <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
                         {currentContest.month}
                       </span>
-                      <span className="bg-accent-100 text-accent-700 px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
                         {currentContest.category}
                       </span>
                     </div>
-
-                    {/* Premio */}
                     <div className="text-right">
-                      <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
-                        Premio
-                      </div>
-                      <div className="text-sm font-semibold text-yellow-600">
+                      <div className="text-xs text-gray-500 mb-1">Premio</div>
+                      <div className="text-sm font-medium text-yellow-600">
                         {currentContest.prize ||
                           "Insignia de Oro + Destacado del mes"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Título y descripción */}
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 leading-tight">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">
                     {currentContest.title}
                   </h2>
 
-                  <p className="text-gray-600 mb-8 leading-relaxed">
+                  <p className="text-gray-600 mb-6 leading-relaxed">
                     {currentContest.description}
                   </p>
 
-                  {/* Temporizador si está activo */}
+                  {/* Countdown Timer - Solo en fases activas */}
                   {currentPhase !== "results" && (
-                    <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-4 mb-8 shadow-sm">
+                    <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4 mb-6">
                       <div className="flex items-center justify-center mb-2">
                         <Clock className="h-5 w-5 text-red-600 mr-2" />
-                        <span className="font-semibold text-red-800 text-sm">
+                        <span className="font-semibold text-red-800">
                           {currentPhase === "submission"
                             ? "¡El concurso cierra en:"
                             : "¡La votación cierra en:"}
@@ -320,46 +315,53 @@ const LandingPage = () => {
                       </div>
 
                       <div className="grid grid-cols-4 gap-2 text-center">
-                        {["days", "hours", "minutes", "seconds"].map(
-                          (unit, idx) => (
-                            <div
-                              key={unit}
-                              className="bg-white rounded-xl p-2 border shadow-sm"
-                            >
-                              <div className="text-2xl font-bold text-red-600">
-                                {timeLeft[unit]}
-                              </div>
-                              <div className="text-xs text-gray-600 capitalize">
-                                {["Días", "Horas", "Min", "Seg"][idx]}
-                              </div>
-                            </div>
-                          )
-                        )}
+                        <div className="bg-white rounded-lg p-2 border">
+                          <div className="text-2xl font-bold text-red-600">
+                            {timeLeft.days}
+                          </div>
+                          <div className="text-xs text-gray-600">Días</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-2 border">
+                          <div className="text-2xl font-bold text-red-600">
+                            {timeLeft.hours}
+                          </div>
+                          <div className="text-xs text-gray-600">Horas</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-2 border">
+                          <div className="text-2xl font-bold text-red-600">
+                            {timeLeft.minutes}
+                          </div>
+                          <div className="text-xs text-gray-600">Min</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-2 border">
+                          <div className="text-2xl font-bold text-red-600">
+                            {timeLeft.seconds}
+                          </div>
+                          <div className="text-xs text-gray-600">Seg</div>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Meta: participantes y fecha */}
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-8">
-                    <div className="flex items-center">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center text-gray-500 text-sm">
                       <Users className="h-4 w-4 mr-1" />
                       {currentContest.participants_count || 0} participantes
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center text-gray-500 text-sm">
                       <Calendar className="h-4 w-4 mr-1" />
                       Hasta{" "}
                       {new Date(
-                        currentContest.submission_deadline ||
+                        currentContest.voting_deadline ||
                           currentContest.end_date
                       ).toLocaleDateString("es-ES")}
                     </div>
                   </div>
 
-                  {/* Botones */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Link
                       to={getMainButtonHref()}
-                      className={`bg-gradient-to-r from-primary-500 to-primary-700 text-white font-bold py-3 px-6 rounded-2xl shadow-md hover:scale-[1.03] transform transition-all duration-300 flex items-center justify-center text-lg focus:outline-none focus:ring-4 focus:ring-accent-300 ${
+                      className={`btn-primary flex items-center justify-center text-lg py-3 ${
                         currentPhase === "submission" ? "animate-pulse" : ""
                       }`}
                     >
@@ -370,7 +372,7 @@ const LandingPage = () => {
 
                     <Link
                       to="/contest/current"
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-2xl transition-colors duration-200 flex items-center justify-center text-lg border border-gray-300"
+                      className="btn-secondary flex items-center justify-center text-lg py-3 bg-gray-100 hover:bg-gray-200 text-gray-700"
                     >
                       <Users className="h-5 w-5 mr-2" />
                       Ver participaciones
@@ -379,8 +381,8 @@ const LandingPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="max-w-2xl mx-auto mb-12">
-                <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 text-center">
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
                   <h2 className="text-2xl font-bold text-gray-900 mb-3">
                     No hay concurso activo
                   </h2>
@@ -389,7 +391,7 @@ const LandingPage = () => {
                   </p>
                   <Link
                     to="/contest/current"
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-xl inline-flex items-center border border-gray-300 transition-colors"
+                    className="btn-secondary inline-flex items-center"
                   >
                     Ver concursos anteriores
                   </Link>
@@ -837,23 +839,22 @@ const LandingPage = () => {
                     currentPhase === "submission" ? "participar en" : "votar en"
                   } el concurso de ${currentContest.month}?`}
             </h2>
-
-            <p className="text-xl text-primary-100 mb-10">
-              {currentPhase === "results" &&
-                "Gracias por hacer de este concurso un éxito. ¡Nos vemos en el próximo!"}
-              {currentPhase === "voting" &&
-                "Lee las historias y vota por tus favoritas. Tu voto puede marcar la diferencia."}
-              {currentPhase === "submission" &&
-                `Únete a ${
-                  currentContest.participants_count || 0
-                } escritores que ya están compitiendo por la gloria literaria.`}
+            <p className="text-xl text-primary-100 mb-8">
+              {currentPhase === "results"
+                ? "Gracias por hacer de este concurso un éxito. ¡Nos vemos en el próximo!"
+                : `${
+                    currentPhase === "voting"
+                      ? "Lee las historias y vota por tus favoritas"
+                      : `Únete a ${
+                          currentContest.participants_count || 0
+                        } escritores que ya están compitiendo por la gloria literaria`
+                  }`}
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {currentPhase !== "results" && (
                 <Link
                   to={getMainButtonHref()}
-                  className="bg-gradient-to-r from-primary-500 to-primary-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out inline-flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-accent-300"
+                  className="bg-white text-primary-600 hover:bg-gray-50 font-bold py-3 px-8 rounded-lg transition-colors inline-flex items-center justify-center"
                 >
                   <PenTool className="h-5 w-5 mr-2" />
                   {currentPhase === "submission"
@@ -861,10 +862,9 @@ const LandingPage = () => {
                     : "Ver y votar"}
                 </Link>
               )}
-
               <button
                 onClick={() => setShowRulesModal(true)}
-                className="border-2 border-white/70 text-white hover:bg-white hover:text-primary-700 font-bold py-3 px-8 rounded-2xl transition-all duration-300 ease-in-out backdrop-blur-sm focus:outline-none focus:ring-4 focus:ring-accent-300"
+                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-bold py-3 px-8 rounded-lg transition-colors"
               >
                 Ver las reglas
               </button>

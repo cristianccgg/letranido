@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   Search,
@@ -16,9 +16,10 @@ import {
 } from "lucide-react";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import AuthModal from "../components/forms/AuthModal";
-import { useStories } from "../hooks/useStories";
+import { useStories } from "../hooks/useStories"; // Solo para toggleLike y canVoteInStory
 import { useAuthStore } from "../store/authStore";
 import { useContests } from "../hooks/compatibilityHooks";
+import { useAppState } from "../contexts/AppStateContext"; // ✅ Usar contexto para getStoriesForGallery
 
 const Gallery = () => {
   const location = useLocation();
@@ -30,10 +31,15 @@ const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // ✅ Refs para control de ejecución
   const isMounted = useRef(true);
+  const loadingStories = useRef(false);
+  const lastFilters = useRef({});
 
   // Hooks
-  const { getStoriesForGallery, toggleLike, canVoteInStory } = useStories();
+  const { getStoriesForGallery } = useAppState(); // ✅ Usar contexto
+  const { toggleLike, canVoteInStory } = useStories(); // Solo para funciones específicas
   const { isAuthenticated } = useAuthStore();
   const { currentContest, getContestPhase } = useContests();
 
@@ -55,54 +61,63 @@ const Gallery = () => {
     };
   }, []);
 
-  // Función memoizada para cargar historias
-  const loadStories = useCallback(async () => {
-    if (isMounted.current) setLoading(true);
-    if (isMounted.current) setError(null);
-
-    try {
+  // ✅ NUEVA ESTRATEGIA: useEffect directo con control estricto
+  useEffect(() => {
+    const loadStories = async () => {
       const filters = {
         category: selectedCategory,
         sortBy: sortBy,
         search: searchTerm.trim() || undefined,
       };
 
-      console.log("🔍 Cargando historias con filtros:", filters);
+      // ✅ Verificar si los filtros han cambiado realmente
+      const filtersChanged =
+        JSON.stringify(filters) !== JSON.stringify(lastFilters.current);
 
-      const result = await getStoriesForGallery(filters);
+      if (!filtersChanged || loadingStories.current || !isMounted.current) {
+        return;
+      }
+
+      loadingStories.current = true;
+      lastFilters.current = filters;
 
       if (isMounted.current) {
-        if (result.success) {
-          setStories(result.stories || []);
-        } else {
-          setError(result.error);
+        setLoading(true);
+        setError(null);
+      }
+
+      try {
+        console.log("🔍 [Gallery] Cargando historias con filtros:", filters);
+
+        // ✅ Usar función del contexto
+        const result = await getStoriesForGallery(filters);
+
+        if (isMounted.current) {
+          if (result.success) {
+            setStories(result.stories || []);
+          } else {
+            setError(result.error);
+          }
         }
+      } catch (err) {
+        console.error("❌ [Gallery] Error cargando historias:", err);
+        if (isMounted.current) {
+          setError("Error inesperado al cargar las historias");
+        }
+      } finally {
+        if (isMounted.current) {
+          setLoading(false);
+        }
+        loadingStories.current = false;
       }
-    } catch (err) {
-      if (isMounted.current) {
-        setError("Error inesperado al cargar las historias");
-      }
-    } finally {
-      if (isMounted.current) setLoading(false);
-    }
-  }, [selectedCategory, sortBy, getStoriesForGallery, searchTerm]);
+    };
 
-  // Cargar historias cuando cambien los filtros
-  useEffect(() => {
+    // ✅ Solo ejecutar cuando cambien los filtros
     loadStories();
-  }, [loadStories]); // Solo loadStories como dependencia
+  }, [selectedCategory, sortBy, searchTerm]); // ✅ Solo dependencias primitivas
 
-  // Filtrar historias por búsqueda (local)
-  const filteredStories = stories.filter((story) => {
-    if (!searchTerm.trim()) return true;
-
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      story.title.toLowerCase().includes(searchLower) ||
-      story.author.toLowerCase().includes(searchLower) ||
-      story.excerpt.toLowerCase().includes(searchLower)
-    );
-  });
+  // Filtrar historias por búsqueda (local) - Esto ya se hace en el contexto ahora
+  const filteredStories = stories; // El contexto ya maneja el filtrado
 
   const categories = [
     { value: "all", label: "Todas las categorías" },
@@ -176,7 +191,18 @@ const Gallery = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // La búsqueda se realiza automáticamente por el filtro local
+    // La búsqueda se realiza automáticamente por useEffect
+  };
+
+  // ✅ Función manual de recarga sin useCallback
+  const manualLoadStories = () => {
+    // Reset refs para forzar recarga
+    loadingStories.current = false;
+    lastFilters.current = {};
+
+    // Trigger useEffect
+    const event = new Event("forceReload");
+    window.dispatchEvent(event);
   };
 
   const getBadgeColor = (category) => {
@@ -327,7 +353,7 @@ const Gallery = () => {
             Error al cargar las historias
           </h3>
           <p className="text-red-600 mb-4">{error}</p>
-          <button onClick={loadStories} className="btn-primary">
+          <button onClick={manualLoadStories} className="btn-primary">
             Intentar de nuevo
           </button>
         </div>
@@ -498,7 +524,7 @@ const Gallery = () => {
           onSuccess={() => {
             setShowAuthModal(false);
             // Recargar para obtener el estado de likes del usuario
-            loadStories();
+            manualLoadStories();
           }}
         />
       )}

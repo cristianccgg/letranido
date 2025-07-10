@@ -158,26 +158,22 @@ export const BadgeNotificationProvider = ({ children }) => {
   const queueNotification = React.useCallback((badge) => {
     if (!isMounted.current) return;
 
-    // ✅ Verificar que no se haya agregado recientemente (debounce)
     const now = Date.now();
-    const recentThreshold = 1000; // 1 segundo
+    const recentThreshold = 10000; // ✅ 10 segundos para badge de primera historia
 
     setNotificationQueue((prev) => {
-      // ✅ Verificar duplicados más estrictos
-      const exists = prev.some(
+      // ✅ Verificar si ya existe exactamente el mismo badge
+      const existsExact = prev.some(
         (item) =>
           item.badge.id === badge.id && item.badge.earnedAt === badge.earnedAt
       );
 
-      if (exists) {
-        console.log(
-          "⚠️ [CONTEXT] Badge duplicado en cola, saltando:",
-          badge.name
-        );
+      if (existsExact) {
+        console.log("⚠️ [CONTEXT] Badge exacto duplicado:", badge.name);
         return prev;
       }
 
-      // ✅ Verificar duplicados recientes por timestamp
+      // ✅ Verificar si el mismo tipo de badge fue agregado recientemente
       const recentSimilar = prev.some(
         (item) =>
           item.badge.id === badge.id && now - item.timestamp < recentThreshold
@@ -185,7 +181,7 @@ export const BadgeNotificationProvider = ({ children }) => {
 
       if (recentSimilar) {
         console.log(
-          "⚠️ [CONTEXT] Badge agregado recientemente, saltando:",
+          "⚠️ [CONTEXT] Badge del mismo tipo agregado recientemente:",
           badge.name
         );
         return prev;
@@ -195,7 +191,7 @@ export const BadgeNotificationProvider = ({ children }) => {
       return [
         ...prev,
         {
-          id: `${badge.id}-${badge.earnedAt}-${now}`, // ID único con timestamp
+          id: `${badge.id}-${badge.earnedAt}-${now}`,
           badge,
           timestamp: now,
         },
@@ -366,6 +362,16 @@ export const BadgeNotificationProvider = ({ children }) => {
     async (userId = user?.id) => {
       if (!userId || !isMounted.current)
         return { success: false, error: "Usuario no encontrado" };
+
+      // ✅ Verificar si ya está en la cola para evitar duplicados
+      const alreadyQueued = notificationQueue.some(
+        (item) => item.badge.id === "first_story"
+      );
+
+      if (alreadyQueued) {
+        console.log("⚠️ [CONTEXT] Badge de primera historia ya en cola");
+        return { success: false, error: "Ya en cola" };
+      }
 
       try {
         console.log(

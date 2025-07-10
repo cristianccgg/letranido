@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   PenTool,
   BookOpen,
@@ -20,6 +20,7 @@ import BadgeDisplay from "../BadgeDisplay";
 import { useBadgeNotifications } from "../../contexts/BadgeNotificationContext";
 
 const Layout = ({ children }) => {
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState("login");
@@ -388,11 +389,16 @@ const Layout = ({ children }) => {
                 }
 
                 return (
-                  <Link
+                  <button
                     key={item.name}
-                    to={item.href}
-                    onClick={() => {
-                      if (item.name.includes("Escribir")) handleWriteClick;
+                    onClick={(e) => {
+                      e.preventDefault(); // Evitar cualquier comportamiento por defecto
+
+                      if (item.name.includes("Escribir")) {
+                        handleWriteClick(e);
+                      } else {
+                        navigate(item.href);
+                      }
                       setIsMobileMenuOpen(false);
                     }}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
@@ -405,7 +411,7 @@ const Layout = ({ children }) => {
                   >
                     <Icon className="h-5 w-5" />
                     <span>{item.name}</span>
-                  </Link>
+                  </button>
                 );
               })}
 
