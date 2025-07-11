@@ -491,31 +491,6 @@ const Gallery = () => {
         </div>
       )}
 
-      {/* CTA */}
-      {!loading && !error && filteredStories.length > 0 && (
-        <div className="mt-12 bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-8 text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            ¿Te inspiraste con estas historias?
-          </h3>
-          <p className="text-gray-600 mb-6">
-            ¡Únete a la comunidad y comparte tu propia historia!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/write"
-              className="btn-primary inline-flex items-center px-6 py-3"
-            >
-              Escribir mi historia
-            </Link>
-            <Link
-              to="/contest/current"
-              className="btn-secondary inline-flex items-center px-6 py-3"
-            >
-              Ver concurso actual
-            </Link>
-          </div>
-        </div>
-      )}
       {/* Auth Modal */}
       {showAuthModal && (
         <AuthModal

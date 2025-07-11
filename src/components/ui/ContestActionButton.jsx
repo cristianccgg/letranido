@@ -1,0 +1,318 @@
+// components/ui/ContestActionButton.jsx - BOTÓN DINÁMICO UNIVERSAL
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  PenTool,
+  Vote,
+  Trophy,
+  Eye,
+  User,
+  CheckCircle,
+  Loader,
+  Clock,
+  Heart,
+} from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
+import { useAppState } from "../../contexts/AppStateContext";
+import { supabase } from "../../lib/supabase";
+import AuthModal from "../forms/AuthModal";
+
+const ContestActionButton = ({
+  variant = "primary", // "primary", "secondary", "outline"
+  size = "default", // "small", "default", "large"
+  showDescription = true,
+  className = "",
+  onAuthRequired,
+  customText,
+  disabled = false,
+  forceWhiteStyle = false, // ✅ NUEVO: Para forzar estilo blanco en footer
+}) => {
+  const { isAuthenticated, user } = useAuthStore();
+  const { currentContest, currentContestPhase } = useAppState();
+
+  const [hasUserParticipated, setHasUserParticipated] = useState(false);
+  const [loadingParticipation, setLoadingParticipation] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // ✅ Verificar si el usuario ya participó en el concurso actual
+  useEffect(() => {
+    const checkParticipation = async () => {
+      // ✅ SOLO verificar participación si el usuario está autenticado
+      if (!currentContest || !user || !isAuthenticated) {
+        setHasUserParticipated(false);
+        return;
+      }
+
+      setLoadingParticipation(true);
+      try {
+        const { data, error } = await supabase
+          .from("stories")
+          .select("id")
+          .eq("contest_id", currentContest.id)
+          .eq("user_id", user.id)
+          .single();
+
+        setHasUserParticipated(!!data && !error);
+      } catch (err) {
+        console.error("Error checking participation:", err);
+        setHasUserParticipated(false);
+      } finally {
+        setLoadingParticipation(false);
+      }
+    };
+
+    checkParticipation();
+
+    // ✅ NUEVO: Listener para refrescar cuando cambien los datos del usuario
+    const handleUserDataUpdate = () => {
+      console.log("🔄 Datos de usuario actualizados, rechecking participation");
+      checkParticipation();
+    };
+
+    window.addEventListener("userDataUpdated", handleUserDataUpdate);
+
+    return () => {
+      window.removeEventListener("userDataUpdated", handleUserDataUpdate);
+    };
+  }, [currentContest, user, isAuthenticated]);
+
+  // ✅ Función para obtener la configuración del botón
+  const getButtonConfig = () => {
+    if (disabled) {
+      return {
+        text: customText || "No disponible",
+        description: "",
+        href: "#",
+        onClick: null,
+        icon: Clock,
+        disabled: true,
+        variant: "secondary",
+      };
+    }
+
+    if (!currentContest) {
+      return {
+        text: "Ver concursos",
+        description: "Explora los concursos anteriores",
+        href: "/contest/current",
+        onClick: null,
+        icon: Eye,
+        disabled: false,
+        variant: "secondary",
+      };
+    }
+
+    if (loadingParticipation) {
+      return {
+        text: "Verificando...",
+        description: "",
+        href: "#",
+        onClick: null,
+        icon: Loader,
+        disabled: true,
+        variant: "secondary",
+      };
+    }
+
+    // ✅ Lógica según la fase del concurso y participación
+    switch (currentContestPhase) {
+      case "submission":
+        // ✅ SOLO para usuarios autenticados verificamos participación
+        if (isAuthenticated && hasUserParticipated) {
+          return {
+            text: customText || "Ya participaste ✓",
+            description: "Tu historia fue enviada exitosamente",
+            href: "/contest/current",
+            onClick: null,
+            icon: CheckCircle,
+            disabled: true,
+            variant: "success",
+          };
+        }
+
+        // ✅ Para todos los demás (no autenticados + autenticados sin participar)
+        return {
+          text: customText || "Escribir mi historia",
+          description: isAuthenticated
+            ? `Participa en el concurso de ${currentContest.month}`
+            : "Comienza a escribir (registro al enviar)",
+          href: `/write/${currentContest.id}`,
+          onClick: null,
+          icon: PenTool,
+          disabled: false,
+          variant: "primary",
+        };
+
+      case "voting":
+        if (!isAuthenticated) {
+          return {
+            text: customText || "Registrarse para votar",
+            description: "Únete para votar por tus historias favoritas",
+            href: "#",
+            onClick: "auth",
+            icon: User,
+            disabled: false,
+            variant: "primary",
+          };
+        }
+
+        if (isAuthenticated && hasUserParticipated) {
+          return {
+            text: customText || "Votar por historias",
+            description: "Lee y vota por tus favoritas",
+            href: "/contest/current",
+            onClick: "scroll",
+            icon: Vote,
+            disabled: false,
+            variant: "primary",
+          };
+        }
+        return {
+          text: customText || "Leer y votar",
+          description: isAuthenticated
+            ? "Explora las historias y vota"
+            : "Regístrate para votar por las historias",
+          href: isAuthenticated ? "/contest/current" : "#",
+          onClick: isAuthenticated ? "scroll" : "auth",
+          icon: isAuthenticated ? Heart : User,
+          disabled: false,
+          variant: "primary",
+        };
+
+      case "results":
+        return {
+          text: customText || "Ver resultados",
+          description: "Descubre a los ganadores",
+          href: "/contest/current",
+          onClick: "scroll",
+          icon: Trophy,
+          disabled: false,
+          variant: "secondary",
+        };
+
+      default:
+        return {
+          text: customText || "Ver concurso",
+          description: "",
+          href: "/contest/current",
+          onClick: null,
+          icon: Eye,
+          disabled: false,
+          variant: "secondary",
+        };
+    }
+  };
+
+  // ✅ Handler para clics especiales
+  const handleClick = (e, onClick, href) => {
+    if (onClick === "auth") {
+      e.preventDefault();
+      if (onAuthRequired) {
+        onAuthRequired();
+      } else {
+        setShowAuthModal(true);
+      }
+    } else if (onClick === "scroll") {
+      e.preventDefault();
+      // Ir a la página y hacer scroll
+      if (href) {
+        window.location.href = href + "#stories-section";
+      }
+    }
+    // Para otros casos, dejar que el Link maneje la navegación normal
+  };
+
+  const config = getButtonConfig();
+  const Icon = config.icon;
+
+  // ✅ Clases CSS según el variant y size
+  const getButtonClasses = () => {
+    const baseClasses =
+      "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg";
+
+    // Size classes
+    const sizeClasses = {
+      small: "px-3 py-2 text-sm",
+      default: "px-4 py-2 text-sm",
+      large: "px-6 py-3 text-base",
+    };
+
+    // Variant classes
+    const variantClasses = {
+      primary: config.disabled
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
+      secondary: config.disabled
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+        : "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
+      outline: config.disabled
+        ? "border border-gray-200 text-gray-400 cursor-not-allowed"
+        : "border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
+      success: "bg-green-100 text-green-700 cursor-not-allowed",
+    };
+
+    return `${baseClasses} ${sizeClasses[size]} ${
+      variantClasses[config.variant]
+    } ${className}`;
+  };
+
+  // ✅ Render del botón
+  const ButtonContent = () => (
+    <>
+      {config.icon === Loader ? (
+        <Icon
+          className={`animate-spin ${
+            size === "small" ? "h-4 w-4" : "h-5 w-5"
+          } ${config.text ? "mr-2" : ""}`}
+        />
+      ) : (
+        <Icon
+          className={`${size === "small" ? "h-4 w-4" : "h-5 w-5"} ${
+            config.text ? "mr-2" : ""
+          }`}
+        />
+      )}
+      {config.text && <span>{config.text}</span>}
+    </>
+  );
+
+  return (
+    <>
+      {config.disabled || config.onClick ? (
+        <button
+          onClick={(e) => handleClick(e, config.onClick, config.href)}
+          disabled={config.disabled}
+          className={getButtonClasses()}
+          title={config.description}
+        >
+          <ButtonContent />
+        </button>
+      ) : (
+        <Link
+          to={config.href}
+          className={getButtonClasses()}
+          title={config.description}
+        >
+          <ButtonContent />
+        </Link>
+      )}
+
+      {showDescription && config.description && !config.disabled && (
+        <p className="text-xs text-gray-500 mt-1 text-center max-w-xs">
+          {config.description}
+        </p>
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => setShowAuthModal(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default ContestActionButton;

@@ -13,6 +13,7 @@ import {
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import { useContests } from "../hooks/compatibilityHooks";
 import { useStories } from "../hooks/useStories";
+import ContestActionButton from "../components/ui/ContestActionButton";
 
 const LandingPage = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -359,24 +360,25 @@ const LandingPage = () => {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Link
-                      to={getMainButtonHref()}
-                      className={`btn-primary flex items-center justify-center text-lg py-3 ${
-                        currentPhase === "submission" ? "animate-pulse" : ""
-                      }`}
-                    >
-                      <PenTool className="h-5 w-5 mr-2" />
-                      {getMainButtonText()}
-                      <ArrowRight className="h-5 w-5 ml-2" />
-                    </Link>
-
+                    <ContestActionButton
+                      size="large"
+                      variant="primary"
+                      className="animate-pulse"
+                      showDescription={false}
+                    />
                     <Link
                       to="/contest/current"
-                      className="btn-secondary flex items-center justify-center text-lg py-3 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                      className="btn-secondary flex items-center justify-center text-lg py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg"
                     >
                       <Users className="h-5 w-5 mr-2" />
                       Ver participaciones
                     </Link>
+                    <button
+                      onClick={() => setShowRulesModal(true)}
+                      className="col-span-1 cursor-pointer sm:col-span-2 btn-outline flex items-center justify-center text-lg py-3 bg-primary-200 text-primary-600 rounded-lg"
+                    >
+                      Ver las reglas
+                    </button>
                   </div>
                 </div>
               </div>
@@ -823,51 +825,6 @@ const LandingPage = () => {
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* CTA Section */}
-      {currentContest && (
-        <section className="py-20 bg-gradient-to-r from-primary-600 to-accent-600">
-          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              {currentPhase === "results"
-                ? `¡Felicitaciones a todos los participantes de ${currentContest.month}!`
-                : `¿Listo para ${
-                    currentPhase === "submission" ? "participar en" : "votar en"
-                  } el concurso de ${currentContest.month}?`}
-            </h2>
-            <p className="text-xl text-primary-100 mb-8">
-              {currentPhase === "results"
-                ? "Gracias por hacer de este concurso un éxito. ¡Nos vemos en el próximo!"
-                : `${
-                    currentPhase === "voting"
-                      ? "Lee las historias y vota por tus favoritas"
-                      : `Únete a ${
-                          currentContest.participants_count || 0
-                        } escritores que ya están compitiendo por la gloria literaria`
-                  }`}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {currentPhase !== "results" && (
-                <Link
-                  to={getMainButtonHref()}
-                  className="bg-white text-primary-600 hover:bg-gray-50 font-bold py-3 px-8 rounded-lg transition-colors inline-flex items-center justify-center"
-                >
-                  <PenTool className="h-5 w-5 mr-2" />
-                  {currentPhase === "submission"
-                    ? "Participar ahora"
-                    : "Ver y votar"}
-                </Link>
-              )}
-              <button
-                onClick={() => setShowRulesModal(true)}
-                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-bold py-3 px-8 rounded-lg transition-colors"
-              >
-                Ver las reglas
-              </button>
             </div>
           </div>
         </section>

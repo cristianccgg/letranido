@@ -542,31 +542,6 @@ const StoryPage = () => {
 
       <SimpleComments storyId={story.id} storyTitle={story.title} />
 
-      {/* CTA */}
-      <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-8 text-center">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4">
-          ¿Te inspiró esta historia?
-        </h3>
-        <p className="text-gray-600 mb-6">
-          ¡Tú también puedes participar en el concurso de{" "}
-          {story.contest?.month || "este mes"}!
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            to={`/write/${story.contest?.id || ""}`}
-            className="btn-primary inline-flex items-center px-6 py-3"
-          >
-            Escribir mi historia
-          </Link>
-          <Link
-            to="/contest/current"
-            className="btn-secondary inline-flex items-center px-6 py-3"
-          >
-            Ver más participaciones
-          </Link>
-        </div>
-      </div>
-
       {/* Auth Modal */}
       {showAuthModal && (
         <AuthModal

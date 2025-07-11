@@ -12,6 +12,9 @@ import UnifiedProfile from "./pages/UnifiedProfile";
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
 import ContestAdminPanel from "./components/admin/ContestAdminPanel";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CommunityGuidelines from "./pages/CommunityGuidelines";
 
 // ✅ Componente interno que usa el contexto
 function AppContent() {
@@ -48,6 +51,12 @@ function AppContent() {
             <Route path="/contest/current" element={<CurrentContest />} />
             <Route path="/story/:id" element={<StoryPage />} />
             <Route path="/admin" element={<ContestAdminPanel />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route
+              path="/community-guidelines"
+              element={<CommunityGuidelines />}
+            />
           </Routes>
         </Layout>
       </BadgeNotificationProvider>

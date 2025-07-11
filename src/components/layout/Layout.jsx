@@ -16,7 +16,7 @@ import { useContests } from "../../hooks/compatibilityHooks";
 import { supabase } from "../../lib/supabase";
 import AuthModal from "../forms/AuthModal";
 import BadgeDisplay from "../BadgeDisplay";
-// Cambiar importación al contexto correcto
+import GlobalFooter from "../layout/GlobalFooter";
 import { useBadgeNotifications } from "../../contexts/BadgeNotificationContext";
 
 const Layout = ({ children }) => {
@@ -566,7 +566,7 @@ const Layout = ({ children }) => {
       >
         {children}
       </main>
-
+      <GlobalFooter />
       {/* Auth Modal */}
       {showAuthModal && (
         <AuthModal
@@ -576,8 +576,6 @@ const Layout = ({ children }) => {
           initialMode={authMode}
         />
       )}
-
-      {/* ✅ TODAS LAS NOTIFICACIONES DE BADGES AHORA LAS MANEJA EL CONTEXTO */}
     </div>
   );
 };

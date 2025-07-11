@@ -22,6 +22,7 @@ import VotingGuidance from "../components/voting/VotingGuidance";
 import { useContests } from "../hooks/compatibilityHooks";
 import { useStories } from "../hooks/useStories";
 import { useAuthStore } from "../store/authStore";
+import ContestActionButton from "../components/ui/ContestActionButton";
 
 const CurrentContest = () => {
   const [sortBy, setSortBy] = useState("random");
@@ -244,37 +245,6 @@ const CurrentContest = () => {
               <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
                 {contestData.category || "Ficción"}
               </span>
-              <div className="ml-6">
-                {currentPhase === "submission" && (
-                  <Link
-                    to={`/write/${contestData.id}`}
-                    className="btn-primary flex items-center"
-                  >
-                    <PenTool className="h-4 w-4 mr-2" />
-                    ¡Participar ahora!
-                  </Link>
-                )}
-                {currentPhase === "voting" && (
-                  <div className="text-center">
-                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium mb-2">
-                      🗳️ FASE DE VOTACIÓN
-                    </div>
-                    <Link
-                      to={`/write/${contestData.id}`}
-                      className="btn-secondary text-sm"
-                    >
-                      ¿Aún quieres participar?
-                    </Link>
-                  </div>
-                )}
-                {currentPhase === "results" && (
-                  <div className="text-center">
-                    <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-                      🏆 RESULTADOS FINALES
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
@@ -326,6 +296,7 @@ const CurrentContest = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Fase de envío de historias
             </h2>
+
             <p className="text-gray-600 max-w-2xl mx-auto mb-6">
               Los participantes están escribiendo sus historias.{" "}
               {votingStartDate && (
@@ -345,13 +316,14 @@ const CurrentContest = () => {
                 de recibir votos, sin importar cuándo envíen su historia.
               </p>
             </div>
-            <Link
-              to={`/write/${contestData.id}`}
-              className="btn-primary inline-flex items-center px-6 py-3"
-            >
-              <PenTool className="h-5 w-5 mr-2" />
-              Escribir mi historia
-            </Link>
+            <div className="flex-shrink-0">
+              <ContestActionButton
+                variant="primary"
+                size="large"
+                customText="Comenzar a escribir"
+                showDescription={true}
+              />
+            </div>
           </div>
 
           {/* Lista de participantes que ya enviaron */}
@@ -467,22 +439,6 @@ const CurrentContest = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-
-            {/* CTA para unirse */}
-            {!loadingSubmissions && !error && submissions.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                <p className="text-gray-600 mb-4">
-                  ¿Te animas a unirte a estos escritores?
-                </p>
-                <Link
-                  to={`/write/${contestData.id}`}
-                  className="btn-primary inline-flex items-center"
-                >
-                  <PenTool className="h-4 w-4 mr-2" />
-                  Enviar mi historia
-                </Link>
               </div>
             )}
           </div>
@@ -1139,30 +1095,13 @@ const CurrentContest = () => {
             </>
           )}
 
-          {currentPhase === "voting" && (
-            <>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                ¿Te inspiraste leyendo estas historias?
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                Aunque ya estamos en la fase de votación, aún puedes enviar tu
-                historia hasta el{" "}
-                <strong>
-                  {contestData.votingEndDate.toLocaleDateString("es-ES")}
-                </strong>
-                .
-              </p>
-            </>
-          )}
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to={`/write/${contestData.id}`}
-              className="btn-primary inline-flex items-center px-6 py-3"
-            >
-              <PenTool className="h-5 w-5 mr-2" />
-              Escribir mi historia
-            </Link>
+            <ContestActionButton
+              variant="primary"
+              size="large"
+              customText="Comenzar a escribir"
+              showDescription={true}
+            />
             <Link
               to="/"
               className="btn-secondary inline-flex items-center px-6 py-3"
@@ -1170,27 +1109,6 @@ const CurrentContest = () => {
               Ver reglas del concurso
             </Link>
           </div>
-        </div>
-      )}
-
-      {/* Mensaje de resultados finales */}
-      {currentPhase === "results" && (
-        <div className="mt-12 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-8 text-center">
-          <Trophy className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            ¡Concurso finalizado!
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Gracias a todos los participantes del concurso de{" "}
-            {contestData.month}. ¡Nos vemos en el próximo mes para una nueva
-            aventura literaria!
-          </p>
-          <Link
-            to="/"
-            className="btn-primary inline-flex items-center px-6 py-3"
-          >
-            Ver próximo concurso
-          </Link>
         </div>
       )}
     </div>

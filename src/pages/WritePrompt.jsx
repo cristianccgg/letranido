@@ -355,23 +355,6 @@ const WritePrompt = () => {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-          <div className="text-sm text-gray-500">
-            Límite: {prompt.min_words} - {prompt.max_words} palabras
-          </div>
-          <div className="flex items-center gap-4">
-            {isSaved && (
-              <div className="flex items-center text-green-600 text-sm">
-                <Save className="h-4 w-4 mr-1" />
-                Guardado automáticamente
-              </div>
-            )}
-            <div className="text-sm text-gray-500">
-              {prompt.participants_count} participantes
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Área de escritura */}
@@ -407,7 +390,7 @@ const WritePrompt = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Comienza a escribir tu historia aquí..."
-            className="writing-area w-full"
+            className="writing-area w-full py-2 px-4"
             rows={20}
             disabled={isSubmissionClosed()}
           />

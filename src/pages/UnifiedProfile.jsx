@@ -20,6 +20,7 @@ import {
 import { useAuthStore } from "../store/authStore";
 import { useAppState } from "../contexts/AppStateContext"; // ✅ Usar contexto unificado
 import { supabase } from "../lib/supabase";
+import ContestActionButton from "../components/ui/ContestActionButton";
 
 const UnifiedProfile = () => {
   const { user } = useAuthStore();
@@ -358,40 +359,27 @@ const UnifiedProfile = () => {
               Acciones disponibles
             </h3>
 
-            {availableActions.length === 0 ? (
-              <div className="text-center py-4 text-gray-500">
-                <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No hay acciones disponibles</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {availableActions.map((action, index) => (
-                  <Link
-                    key={index}
-                    to={action.href}
-                    className={`flex items-center p-3 rounded-lg transition-colors ${action.color} ${action.bgColor} group`}
-                  >
-                    <div className="mr-3">{action.icon}</div>
-                    <div className="flex-1">
-                      <div className="font-medium">{action.title}</div>
-                      <div className="text-xs opacity-75">
-                        {action.description}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div className="space-y-3">
+              <ContestActionButton
+                variant="outline"
+                size="default"
+                className="w-full"
+                showDescription={true}
+              />
 
-            {/* Participation blocker */}
-            {hasUserParticipated && currentContestPhase !== "results" && (
-              <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                <div className="flex items-center text-gray-600 text-sm">
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                  <span>Ya participaste en el concurso actual</span>
+              <Link
+                to="/contest/current"
+                className="w-full flex items-center p-3 rounded-lg transition-colors text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+              >
+                <Trophy className="h-5 w-5 mr-3" />
+                <div className="flex-1">
+                  <div className="font-medium">Ver concurso actual</div>
+                  <div className="text-xs opacity-75">
+                    {currentContest?.participants_count || 0} participantes
+                  </div>
                 </div>
-              </div>
-            )}
+              </Link>
+            </div>
           </div>
 
           {/* Voting Activity */}

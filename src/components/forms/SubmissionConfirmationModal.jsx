@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  X,
-  AlertTriangle,
-  Send,
-  FileText,
-  Clock,
-  Users,
-  CheckCircle,
-} from "lucide-react";
+import { X, Send, AlertCircle, Shield, FileText } from "lucide-react";
 
 const SubmissionConfirmationModal = ({
   isOpen,
@@ -20,15 +12,25 @@ const SubmissionConfirmationModal = ({
   isSubmitting,
 }) => {
   const [hasMatureContent, setHasMatureContent] = useState(false);
-  const [hasConfirmed, setHasConfirmed] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [confirmOriginal, setConfirmOriginal] = useState(false);
+  const [confirmNoAI, setConfirmNoAI] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
-    onConfirm({ hasMatureContent });
-  };
+  const canSubmit =
+    acceptTerms && confirmOriginal && confirmNoAI && !isSubmitting;
 
-  const canSubmit = hasConfirmed && !isSubmitting;
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+
+    onConfirm({
+      hasMatureContent,
+      termsAccepted: true,
+      originalConfirmed: true,
+      noAIConfirmed: true,
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -36,215 +38,197 @@ const SubmissionConfirmationModal = ({
         {/* Header */}
         <div className="border-b border-gray-200 p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Send className="h-6 w-6 text-primary-600 mr-3" />
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Confirmar envío
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Revisa tu historia antes de enviarla al concurso
-                </p>
-              </div>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 flex items-center">
+              <Send className="h-5 w-5 mr-2 text-primary-600" />
+              Confirmar envío de historia
+            </h2>
             <button
               onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
               disabled={isSubmitting}
-              className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Story Summary */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-              <FileText className="h-5 w-5 mr-2 text-blue-600" />
-              Resumen de tu historia
+          {/* Story Preview */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 mb-2">Vista previa:</h3>
+            <div className="mb-2">
+              <span className="text-sm text-gray-600">Título: </span>
+              <span className="font-medium">{title}</span>
+            </div>
+            <div className="mb-2">
+              <span className="text-sm text-gray-600">Palabras: </span>
+              <span className="font-medium">{wordCount}</span>
+            </div>
+            <div className="mb-2">
+              <span className="text-sm text-gray-600">Concurso: </span>
+              <span className="font-medium">{prompt.title}</span>
+            </div>
+            <div className="mt-3 p-3 bg-white border border-gray-200 rounded text-sm text-gray-700 max-h-32 overflow-y-auto">
+              {text.substring(0, 200)}...
+            </div>
+          </div>
+
+          {/* Legal Confirmations - REQUIRED */}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 className="font-semibold text-red-900 mb-4 flex items-center">
+              <Shield className="h-5 w-5 mr-2" />
+              ⚖️ Confirmaciones Legales Obligatorias
             </h3>
 
             <div className="space-y-3">
-              <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Título:
+              {/* Original Work Confirmation */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmOriginal}
+                  onChange={(e) => setConfirmOriginal(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                  required
+                />
+                <span className="text-sm text-red-800">
+                  <strong>
+                    Confirmo que esta historia es 100% original y de mi autoría.
+                  </strong>
+                  <br />
+                  No he copiado, parafraseado o adaptado contenido de otras
+                  obras existentes.
                 </span>
-                <p className="text-gray-900 font-medium">{title}</p>
-              </div>
+              </label>
 
-              <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Prompt:
+              {/* No AI Confirmation */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={confirmNoAI}
+                  onChange={(e) => setConfirmNoAI(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                  required
+                />
+                <span className="text-sm text-red-800">
+                  <strong>
+                    Confirmo que NO he usado Inteligencia Artificial para
+                    escribir esta historia.
+                  </strong>
+                  <br />
+                  Ni ChatGPT, Claude, GPT-4, Copilot, ni ninguna otra IA fue
+                  usada para generar el contenido.
                 </span>
-                <p className="text-gray-600 text-sm italic">"{prompt.title}"</p>
-              </div>
+              </label>
 
-              <div className="grid grid-cols-3 gap-4 pt-2">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-primary-600">
-                    {wordCount}
-                  </div>
-                  <div className="text-xs text-gray-500">Palabras</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-green-600">
-                    {prompt.category}
-                  </div>
-                  <div className="text-xs text-gray-500">Categoría</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">
-                    {Math.ceil(wordCount / 200)}min
-                  </div>
-                  <div className="text-xs text-gray-500">Lectura aprox.</div>
-                </div>
-              </div>
+              {/* Terms Acceptance */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                  required
+                />
+                <span className="text-sm text-red-800">
+                  <strong>
+                    Acepto los términos y condiciones del concurso.
+                  </strong>
+                  <br />
+                  He leído las reglas y entiendo que LiteraLab puede mostrar mi
+                  historia en la plataforma.
+                </span>
+              </label>
             </div>
-          </div>
 
-          {/* Story Preview */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">
-              Vista previa del texto:
-            </h4>
-            <div className="max-h-32 overflow-y-auto bg-gray-50 p-3 rounded text-sm text-gray-700 leading-relaxed">
-              {text.substring(0, 300)}
-              {text.length > 300 && "..."}
-            </div>
+            {(!confirmOriginal || !confirmNoAI || !acceptTerms) && (
+              <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded">
+                <p className="text-red-800 text-sm flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  <strong>
+                    Debes aceptar todas las confirmaciones para continuar.
+                  </strong>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Content Rating */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-start">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-900 mb-3 flex items-center">
+              <FileText className="h-5 w-5 mr-2" />
+              Clasificación de Contenido
+            </h3>
+
+            <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                id="matureContent"
                 checked={hasMatureContent}
                 onChange={(e) => setHasMatureContent(e.target.checked)}
-                className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="mt-1 w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
               />
-              <div className="ml-3">
-                <label
-                  htmlFor="matureContent"
-                  className="font-medium text-amber-800 cursor-pointer"
-                >
-                  Mi historia contiene contenido para adultos
-                </label>
-                <p className="text-amber-700 text-sm mt-1">
-                  Marca esta casilla si tu historia incluye lenguaje fuerte,
-                  violencia, contenido sexual o temas que podrían no ser
-                  apropiados para menores de edad.
-                </p>
-                {hasMatureContent && (
-                  <div className="mt-2 bg-amber-100 border border-amber-300 rounded p-2">
-                    <p className="text-amber-800 text-xs flex items-center">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Tu historia será marcada como "Contenido Maduro" en la
-                      galería
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+              <span className="text-sm text-blue-800">
+                <strong>Mi historia contiene contenido maduro (18+)</strong>
+                <br />
+                Marcar si incluye: violencia intensa, lenguaje fuerte, temas
+                adultos, situaciones perturbadoras, etc.
+                <br />
+                <em>Nota: Contenido sexual explícito no está permitido.</em>
+              </span>
+            </label>
           </div>
 
-          {/* Important Notice */}
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-              <div className="ml-3">
-                <h4 className="font-medium text-red-800 mb-1">
-                  ⚠️ Importante - Lee antes de enviar
-                </h4>
-                <ul className="text-red-700 text-sm space-y-1">
-                  <li>
-                    • Una vez enviada, <strong>no podrás editar</strong> tu
-                    historia
-                  </li>
-                  <li>
-                    • Tu historia será <strong>pública</strong> y otros usuarios
-                    podrán leerla
-                  </li>
-                  <li>
-                    • Solo puedes enviar{" "}
-                    <strong>una historia por concurso</strong>
-                  </li>
-                  <li>
-                    • El texto debe ser <strong>original</strong> y de tu
-                    autoría
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Final Confirmation */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <input
-                type="checkbox"
-                id="finalConfirmation"
-                checked={hasConfirmed}
-                onChange={(e) => setHasConfirmed(e.target.checked)}
-                className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <div className="ml-3">
-                <label
-                  htmlFor="finalConfirmation"
-                  className="font-medium text-blue-800 cursor-pointer"
-                >
-                  He revisado mi historia y confirmo que quiero enviarla al
-                  concurso
-                </label>
-                <p className="text-blue-700 text-sm mt-1">
-                  Al marcar esta casilla, confirmas que has leído las reglas del
-                  concurso y que tu historia cumple con todos los requisitos.
-                </p>
+          {/* Warning */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+              <div className="text-sm text-yellow-800">
+                <strong>⚠️ Importante:</strong>
+                <br />
+                • Una vez enviada, no podrás editar tu historia
+                <br />
+                • Las violaciones a las reglas pueden resultar en
+                descalificación
+                <br />
+                • El contenido inapropiado será removido sin previo aviso
+                <br />• Al enviar, confirmas que cumples con todas las reglas
+                del concurso
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-6 bg-gray-50">
+        <div className="border-t border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <button
               onClick={onClose}
+              className="btn-secondary"
               disabled={isSubmitting}
-              className="btn-secondary disabled:opacity-50"
             >
-              Volver a editar
+              Cancelar
             </button>
 
-            <div className="flex items-center gap-3">
-              {canSubmit && (
-                <div className="flex items-center text-green-600 text-sm">
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  Listo para enviar
-                </div>
+            <button
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              className={`btn-primary flex items-center ${
+                !canSubmit ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isSubmitting && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               )}
-
-              <button
-                onClick={handleSubmit}
-                disabled={!canSubmit}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center px-6"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Enviar al concurso
-                  </>
-                )}
-              </button>
-            </div>
+              <Send className="h-4 w-4 mr-2" />
+              {isSubmitting ? "Enviando..." : "Confirmar y enviar historia"}
+            </button>
           </div>
+
+          {!canSubmit && !isSubmitting && (
+            <p className="text-sm text-red-600 mt-2 text-center">
+              Debes aceptar todas las confirmaciones legales para continuar
+            </p>
+          )}
         </div>
       </div>
     </div>

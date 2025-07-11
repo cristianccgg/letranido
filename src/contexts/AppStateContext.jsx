@@ -496,6 +496,7 @@ export function AppStateProvider({ children }) {
     if (!user?.id) return;
     console.log("🔄 [APP_CONTEXT] Refresh user data solicitado");
     await Promise.all([loadUserStories(user.id), loadVotingStats(user.id)]);
+    window.dispatchEvent(new CustomEvent("userDataUpdated"));
   }, [user?.id, loadUserStories, loadVotingStats]);
 
   // ✅ FUNCIÓN: Obtener contest por ID
