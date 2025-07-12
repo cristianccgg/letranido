@@ -1,364 +1,346 @@
-// hooks/useBadges.js
-import { useState, useCallback, useRef, useEffect } from "react";
+// hooks/useBadges.js - ACTUALIZADO PARA CONTEXTO GLOBAL
+import { useGlobalApp } from "../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import { supabase } from "../lib/supabase";
-import { useAuthStore } from "../store/authStore";
+
+// Definición de badges disponibles
+const BADGE_DEFINITIONS = {
+  first_story: {
+    id: "first_story",
+    name: "Primera Historia",
+    description: "Escribiste tu primera historia en LiteraLab",
+    icon: "🎯",
+    rarity: "common",
+    points: 10,
+  },
+  contest_winner: {
+    id: "contest_winner",
+    name: "Ganador de Concurso",
+    description: "Ganaste un concurso mensual",
+    icon: "🏆",
+    rarity: "rare",
+    points: 100,
+  },
+  participation_streak_3: {
+    id: "participation_streak_3",
+    name: "Racha de Participación",
+    description: "Participaste en 3 concursos consecutivos",
+    icon: "🔥",
+    rarity: "uncommon",
+    points: 25,
+  },
+  participation_streak_5: {
+    id: "participation_streak_5",
+    name: "Escritor Consistente",
+    description: "Participaste en 5 concursos consecutivos",
+    icon: "⚡",
+    rarity: "rare",
+    points: 50,
+  },
+  participation_streak_10: {
+    id: "participation_streak_10",
+    name: "Leyenda Literaria",
+    description: "Participaste en 10 concursos consecutivos",
+    icon: "👑",
+    rarity: "legendary",
+    points: 100,
+  },
+  popular_author_50: {
+    id: "popular_author_50",
+    name: "Autor Popular",
+    description: "Recibiste 50 likes en total",
+    icon: "⭐",
+    rarity: "uncommon",
+    points: 30,
+  },
+  popular_author_100: {
+    id: "popular_author_100",
+    name: "Autor Querido",
+    description: "Recibiste 100 likes en total",
+    icon: "💫",
+    rarity: "rare",
+    points: 60,
+  },
+  popular_author_500: {
+    id: "popular_author_500",
+    name: "Fenómeno Literario",
+    description: "Recibiste 500 likes en total",
+    icon: "🌟",
+    rarity: "legendary",
+    points: 150,
+  },
+  early_adopter: {
+    id: "early_adopter",
+    name: "Adoptador Temprano",
+    description: "Te uniste a LiteraLab en sus primeros días",
+    icon: "🚀",
+    rarity: "epic",
+    points: 75,
+  },
+  community_supporter: {
+    id: "community_supporter",
+    name: "Soporte de la Comunidad",
+    description: "Votaste por 50 historias diferentes",
+    icon: "❤️",
+    rarity: "uncommon",
+    points: 40,
+  },
+  prolific_writer: {
+    id: "prolific_writer",
+    name: "Escritor Prolífico",
+    description: "Publicaste 10 historias",
+    icon: "📝",
+    rarity: "rare",
+    points: 80,
+  },
+};
 
 export const useBadges = () => {
-  const [loading, setLoading] = useState(false);
-  const { user } = useAuthStore();
-  const isMounted = useRef(true);
+  // ✅ USO DEL CONTEXTO GLOBAL EN LUGAR DE AUTHSTORE
+  const { user, isAuthenticated, updateUser } = useGlobalApp();
 
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  // Definición de badges esenciales para el lanzamiento
-  const BADGE_DEFINITIONS = {
-    // Badge de comunidad
-    founder: {
-      id: "founder",
-      name: "Fundador",
-      description: "Miembro fundador de LiteraLab",
-      icon: "🚀",
-      rarity: "legendary",
-      isSpecial: true,
-      category: "community",
-    },
-
-    // Badge de primera participación
-    first_story: {
-      id: "first_story",
-      name: "Primera Historia",
-      description: "Escribió su primera historia",
-      icon: "✍️",
-      rarity: "common",
-      category: "writing",
-    },
-
-    // Badges de concursos
-    contest_winner: {
-      id: "contest_winner",
-      name: "Ganador",
-      description: "Ganó un concurso mensual",
-      icon: "🏆",
-      rarity: "epic",
-      category: "contest",
-    },
-    contest_second: {
-      id: "contest_second",
-      name: "Segundo Lugar",
-      description: "Obtuvo el segundo lugar en un concurso",
-      icon: "🥈",
-      rarity: "rare",
-      category: "contest",
-    },
-    contest_third: {
-      id: "contest_third",
-      name: "Tercer Lugar",
-      description: "Obtuvo el tercer lugar en un concurso",
-      icon: "🥉",
-      rarity: "rare",
-      category: "contest",
-    },
+  const getBadgeDefinition = (badgeId) => {
+    return BADGE_DEFINITIONS[badgeId] || null;
   };
 
-  // Función genérica para otorgar badges
-  const awardBadge = useCallback(
-    async (badgeId, userId = user?.id, extraData = {}) => {
-      if (!userId) {
-        return { success: false, error: "Usuario no encontrado" };
+  const getAllBadgeDefinitions = () => {
+    return Object.values(BADGE_DEFINITIONS);
+  };
+
+  const getUserBadges = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_badges")
+        .select(
+          `
+          badge_id,
+          earned_at,
+          metadata
+        `
+        )
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      return data.map((badge) => ({
+        ...getBadgeDefinition(badge.badge_id),
+        earned_at: badge.earned_at,
+        metadata: badge.metadata,
+      }));
+    } catch (error) {
+      console.error("Error fetching user badges:", error);
+      return [];
+    }
+  };
+
+  const hasUserBadge = async (userId, badgeId) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_badges")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("badge_id", badgeId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return !!data;
+    } catch (error) {
+      console.error("Error checking user badge:", error);
+      return false;
+    }
+  };
+
+  const awardBadge = async (userId, badgeId, metadata = {}) => {
+    if (!isAuthenticated) {
+      return { success: false, error: "No authenticated" };
+    }
+
+    try {
+      // Verificar si el usuario ya tiene este badge
+      const alreadyHas = await hasUserBadge(userId, badgeId);
+      if (alreadyHas) {
+        return { success: true, newBadge: false };
       }
 
-      if (!BADGE_DEFINITIONS[badgeId]) {
-        return { success: false, error: "Badge no válido" };
+      const badgeDefinition = getBadgeDefinition(badgeId);
+      if (!badgeDefinition) {
+        return { success: false, error: "Badge definition not found" };
       }
 
-      if (isMounted.current) setLoading(true);
-      try {
-        console.log(`🏆 Otorgando badge ${badgeId} a usuario ${userId}`);
+      // Otorgar el badge
+      const { error: insertError } = await supabase.from("user_badges").insert([
+        {
+          user_id: userId,
+          badge_id: badgeId,
+          metadata: metadata,
+          earned_at: new Date().toISOString(),
+        },
+      ]);
 
-        // Obtener badges actuales del usuario
-        const { data: currentProfile, error: fetchError } = await supabase
-          .from("user_profiles")
-          .select("badges")
-          .eq("id", userId)
-          .single();
+      if (insertError) throw insertError;
 
-        if (fetchError) {
-          console.error("Error fetching user profile:", fetchError);
-          throw fetchError;
-        }
+      // Actualizar puntos del usuario
+      const { error: updateError } = await supabase
+        .from("user_profiles")
+        .update({
+          total_points: supabase.raw(
+            `total_points + ${badgeDefinition.points}`
+          ),
+        })
+        .eq("id", userId);
 
-        const currentBadges = currentProfile?.badges || [];
+      if (updateError) throw updateError;
 
-        // Verificar si el badge ya existe
-        const badgeExists = currentBadges.some((badge) => badge.id === badgeId);
-        if (badgeExists) {
-          console.log(`✅ Usuario ya tiene el badge ${badgeId}`);
-          return { success: true, alreadyExists: true };
-        }
-
-        // Crear el nuevo badge
-        const badgeDefinition = BADGE_DEFINITIONS[badgeId];
-        const newBadge = {
-          ...badgeDefinition,
-          earnedAt: new Date().toISOString(),
-          ...extraData, // Para datos específicos como contestId, etc.
-        };
-
-        const updatedBadges = [...currentBadges, newBadge];
-
-        // Actualizar la base de datos
-        const { error: updateError } = await supabase
-          .from("user_profiles")
-          .update({ badges: updatedBadges })
-          .eq("id", userId);
-
-        if (updateError) {
-          console.error("Error updating badges:", updateError);
-          throw updateError;
-        }
-
-        console.log(`✅ Badge ${badgeId} otorgado exitosamente`);
-        if (isMounted.current) setLoading(false);
-        return {
-          success: true,
-          badge: newBadge,
-          isNew: true,
-        };
-      } catch (err) {
-        console.error(`💥 Error otorgando badge ${badgeId}:`, err);
-        if (isMounted.current) setLoading(false);
-        return {
-          success: false,
-          error: err.message || "Error al otorgar badge",
-        };
-      } finally {
-        if (isMounted.current) setLoading(false);
+      // Actualizar el contexto del usuario si es el usuario actual
+      if (user && user.id === userId) {
+        const updatedBadges = await getUserBadges(userId);
+        updateUser({
+          badges: updatedBadges,
+          total_points: (user.total_points || 0) + badgeDefinition.points,
+        });
       }
-    },
-    [user?.id]
-  );
 
-  // 1. Badge de fundador
-  const grantFounderBadge = useCallback(
-    async (userId = user?.id) => {
-      return await awardBadge("founder", userId);
-    },
-    [awardBadge, user?.id]
-  );
+      console.log(
+        `🎖️ Badge awarded: ${badgeDefinition.name} to user ${userId}`
+      );
 
-  // 2. Badge por primera historia
-  const checkFirstStoryBadge = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return { success: false, error: "Usuario no encontrado" };
+      return {
+        success: true,
+        newBadge: true,
+        badge: badgeDefinition,
+      };
+    } catch (error) {
+      console.error("Error awarding badge:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
-      try {
-        // Verificar si es la primera historia del usuario
-        const { count } = await supabase
-          .from("stories")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId);
+  const removeBadge = async (userId, badgeId) => {
+    if (!isAuthenticated) {
+      return { success: false, error: "No authenticated" };
+    }
 
-        if (count === 1) {
-          console.log("🎯 ¡Primera historia detectada! Otorgando badge...");
-          const result = await awardBadge("first_story", userId);
-          return result;
-        }
-
-        return { success: true, alreadyExists: false };
-      } catch (err) {
-        console.error("Error checking first story badge:", err);
-        return { success: false, error: err.message };
+    try {
+      const badgeDefinition = getBadgeDefinition(badgeId);
+      if (!badgeDefinition) {
+        return { success: false, error: "Badge definition not found" };
       }
-    },
-    [awardBadge, user?.id]
-  );
 
-  // 3. Badges de popularidad
-  const checkPopularityBadges = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return { success: false, error: "Usuario no encontrado" };
+      // Remover el badge
+      const { error: deleteError } = await supabase
+        .from("user_badges")
+        .delete()
+        .eq("user_id", userId)
+        .eq("badge_id", badgeId);
 
-      try {
-        // Obtener total de likes del usuario
-        const { data: stories } = await supabase
-          .from("stories")
-          .select("likes_count")
-          .eq("user_id", userId);
+      if (deleteError) throw deleteError;
 
-        if (!stories) return { success: true, badges: [] };
+      // Actualizar puntos del usuario (restar)
+      const { error: updateError } = await supabase
+        .from("user_profiles")
+        .update({
+          total_points: supabase.raw(
+            `GREATEST(total_points - ${badgeDefinition.points}, 0)`
+          ),
+        })
+        .eq("id", userId);
 
-        const totalLikes = stories.reduce(
-          (sum, story) => sum + (story.likes_count || 0),
-          0
-        );
-        const newBadges = [];
+      if (updateError) throw updateError;
 
-        // Badge de autor popular (100+ likes totales)
-        if (totalLikes >= 100) {
-          const result = await awardBadge("popular_author", userId);
-          if (result.success && result.isNew) {
-            newBadges.push(result.badge);
-          }
-        }
-
-        // Badge de historia viral (50+ likes en una historia)
-        const hasViralStory = stories.some(
-          (story) => (story.likes_count || 0) >= 50
-        );
-        if (hasViralStory) {
-          const result = await awardBadge("viral_story", userId);
-          if (result.success && result.isNew) {
-            newBadges.push(result.badge);
-          }
-        }
-
-        return { success: true, badges: newBadges };
-      } catch (err) {
-        console.error("Error checking popularity badges:", err);
-        return { success: false, error: err.message };
+      // Actualizar el contexto del usuario si es el usuario actual
+      if (user && user.id === userId) {
+        const updatedBadges = await getUserBadges(userId);
+        updateUser({
+          badges: updatedBadges,
+          total_points: Math.max(
+            0,
+            (user.total_points || 0) - badgeDefinition.points
+          ),
+        });
       }
-    },
-    [awardBadge, user?.id]
-  );
 
-  // 4. Badges de participación
-  const checkParticipationBadges = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return;
+      console.log(
+        `🗑️ Badge removed: ${badgeDefinition.name} from user ${userId}`
+      );
 
-      try {
-        // Contar historias totales
-        const { count: totalStories } = await supabase
-          .from("stories")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId);
+      return { success: true };
+    } catch (error) {
+      console.error("Error removing badge:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
-        // Badge de escritor prolífico
-        if (totalStories >= 10) {
-          await awardBadge("prolific_writer", userId);
-        }
+  const checkAndAwardAutomaticBadges = async (userId) => {
+    if (!isAuthenticated) return;
 
-        // Contar participaciones en concursos únicos
-        const { data: contests } = await supabase
-          .from("stories")
-          .select("contest_id")
-          .eq("user_id", userId);
+    try {
+      // Obtener estadísticas del usuario
+      const { data: userStats, error: statsError } = await supabase
+        .from("user_profiles")
+        .select(
+          `
+          total_stories,
+          total_likes,
+          wins_count,
+          created_at
+        `
+        )
+        .eq("id", userId)
+        .single();
 
-        if (contests) {
-          const uniqueContests = new Set(contests.map((s) => s.contest_id))
-            .size;
+      if (statsError) throw statsError;
 
-          // Badge de escritor consistente (5+ concursos)
-          if (uniqueContests >= 5) {
-            await awardBadge("consistent_writer", userId);
-          }
-        }
-      } catch (err) {
-        console.error("Error checking participation badges:", err);
+      const results = [];
+
+      // Badge de primera historia
+      if (userStats.total_stories >= 1) {
+        const result = await awardBadge(userId, "first_story");
+        if (result.newBadge) results.push(result);
       }
-    },
-    [awardBadge, user?.id]
-  );
 
-  // 5. Badges de comunidad
-  const checkCommunityBadges = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return;
-
-      try {
-        // Contar votos dados por el usuario
-        const { count: votesGiven } = await supabase
-          .from("votes")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId);
-
-        // Badge de votante activo
-        if (votesGiven >= 100) {
-          await awardBadge("helpful_voter", userId);
-        }
-      } catch (err) {
-        console.error("Error checking community badges:", err);
+      // Badge de autor prolífico
+      if (userStats.total_stories >= 10) {
+        const result = await awardBadge(userId, "prolific_writer");
+        if (result.newBadge) results.push(result);
       }
-    },
-    [awardBadge, user?.id]
-  );
 
-  // Función principal para verificar TODOS los badges automáticos
-  const checkAllAutomaticBadges = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return;
-
-      console.log("🔍 Verificando todos los badges automáticos para:", userId);
-
-      try {
-        await Promise.all([
-          checkFirstStoryBadge(userId),
-          checkPopularityBadges(userId),
-          checkParticipationBadges(userId),
-          checkCommunityBadges(userId),
-        ]);
-      } catch (err) {
-        console.error("Error checking automatic badges:", err);
+      // Badges de popularidad
+      if (userStats.total_likes >= 50) {
+        const result = await awardBadge(userId, "popular_author_50");
+        if (result.newBadge) results.push(result);
       }
-    },
-    [
-      checkFirstStoryBadge,
-      checkPopularityBadges,
-      checkParticipationBadges,
-      checkCommunityBadges,
-      user?.id,
-    ]
-  );
-
-  // Función para verificar status de fundador
-  const checkFounderStatus = useCallback(
-    async (userId = user?.id) => {
-      if (!userId) return false;
-
-      try {
-        const { data, error } = await supabase
-          .from("user_profiles")
-          .select("is_founder, founded_at, badges")
-          .eq("id", userId)
-          .single();
-
-        if (error) {
-          console.error("Error checking founder status:", error);
-          return false;
-        }
-
-        return {
-          isFounder: data?.is_founder || false,
-          foundedAt: data?.founded_at,
-          badges: data?.badges || [],
-        };
-      } catch (err) {
-        console.error("Error checking founder status:", err);
-        return false;
+      if (userStats.total_likes >= 100) {
+        const result = await awardBadge(userId, "popular_author_100");
+        if (result.newBadge) results.push(result);
       }
-    },
-    [user?.id]
-  );
+      if (userStats.total_likes >= 500) {
+        const result = await awardBadge(userId, "popular_author_500");
+        if (result.newBadge) results.push(result);
+      }
+
+      // Badge de adoptador temprano (registrado en los primeros 30 días)
+      const accountAge = new Date() - new Date(userStats.created_at);
+      const daysSinceJoin = accountAge / (1000 * 60 * 60 * 24);
+
+      // Solo otorgar si la cuenta tiene menos de 30 días y la plataforma existe hace más de 30 días
+      if (daysSinceJoin <= 30) {
+        const result = await awardBadge(userId, "early_adopter");
+        if (result.newBadge) results.push(result);
+      }
+
+      return results;
+    } catch (error) {
+      console.error("Error checking automatic badges:", error);
+      return [];
+    }
+  };
 
   return {
-    loading,
-    BADGE_DEFINITIONS,
-
-    // Funciones generales
+    getBadgeDefinition,
+    getAllBadgeDefinitions,
+    getUserBadges,
+    hasUserBadge,
     awardBadge,
-    checkAllAutomaticBadges,
-
-    // Funciones específicas
-    grantFounderBadge,
-    checkFirstStoryBadge,
-    checkPopularityBadges,
-    checkParticipationBadges,
-    checkCommunityBadges,
-    checkFounderStatus,
+    removeBadge,
+    checkAndAwardAutomaticBadges,
   };
 };

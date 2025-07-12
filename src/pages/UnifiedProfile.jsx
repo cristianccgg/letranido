@@ -1,5 +1,3 @@
-// pages/UnifiedProfile.jsx - USANDO AppStateContext
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -17,101 +15,83 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
-import { useAppState } from "../contexts/AppStateContext"; // ✅ Usar contexto unificado
-import { supabase } from "../lib/supabase";
+import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
 
 const UnifiedProfile = () => {
-  const { user } = useAuthStore();
-
-  // ✅ Usar el contexto unificado en lugar de múltiples hooks
+  // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
   const {
+    user,
     currentContest,
     currentContestPhase,
     userStories,
     userStoriesLoading,
     votingStats,
     votingStatsLoading,
-  } = useAppState();
+  } = useGlobalApp();
 
-  const [hasUserParticipated, setHasUserParticipated] = useState(false);
-  const [loadingParticipation, setLoadingParticipation] = useState(false);
+  // 🔍 Log para verificar datos en cada render
+  console.log("🔍 UnifiedProfile render:", {
+    user,
+    userStories,
+    userStoriesLoading,
+    votingStats,
+    votingStatsLoading,
+    currentContest,
+    currentContestPhase,
+  });
 
-  // Verificar si el usuario ya participó en el concurso actual
-  useEffect(() => {
-    const checkParticipation = async () => {
-      if (!currentContest || !user) {
-        setHasUserParticipated(false);
-        return;
-      }
+  // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local
+  const hasUserParticipated =
+    currentContest && userStories.length > 0
+      ? userStories.some((story) => story.contest_id === currentContest.id)
+      : false;
 
-      setLoadingParticipation(true);
-      try {
-        const { data, error } = await supabase
-          .from("stories")
-          .select("id, title, created_at")
-          .eq("contest_id", currentContest.id)
-          .eq("user_id", user.id)
-          .single();
+  // ✅ ESTADÍSTICAS CALCULADAS - sin cargas separadas
+  const totalLikes = userStories.reduce(
+    (total, story) => total + (story.likes_count || 0),
+    0
+  );
+  const totalViews = userStories.reduce(
+    (total, story) => total + (story.views_count || 0),
+    0
+  );
+  const totalWins = userStories.filter((story) => story.is_winner).length;
 
-        setHasUserParticipated(!!data && !error);
-      } catch (err) {
-        console.error("Error checking participation:", err);
-        setHasUserParticipated(false);
-      } finally {
-        setLoadingParticipation(false);
-      }
-    };
+  // ✅ LOADING SIMPLIFICADO - Solo mostrar loading si realmente está cargando Y hay usuario
+  const showLoading = userStoriesLoading && user;
 
-    checkParticipation();
-  }, [currentContest, user]);
-
-  // Función para obtener las acciones disponibles
-  const getAvailableActions = () => {
-    const actions = [];
-
-    // Escribir historia (condicionado)
-    if (!hasUserParticipated && currentContestPhase !== "results") {
-      actions.push({
-        icon: <PenTool className="h-5 w-5" />,
-        title: "Escribir nueva historia",
-        description: `Participa en el concurso de ${
-          currentContest?.month || "este mes"
-        }`,
-        href: "/write",
-        color: "text-blue-600 hover:text-blue-700",
-        bgColor: "hover:bg-blue-50",
-      });
-    }
-
-    // Ver concurso actual
-    if (currentContest) {
-      actions.push({
-        icon: <Trophy className="h-5 w-5" />,
-        title:
-          currentContestPhase === "results"
-            ? "Ver resultados"
-            : "Ver concurso actual",
-        description: `${currentContest.participants_count} participantes`,
-        href: "/contest/current",
-        color: "text-yellow-600 hover:text-yellow-700",
-        bgColor: "hover:bg-yellow-50",
-      });
-    }
-
-    return actions;
-  };
-
-  const availableActions = getAvailableActions();
-
-  // ✅ Ya no necesitamos loading separado - el contexto maneja todo
-  if (userStoriesLoading) {
+  if (showLoading) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="animate-pulse">
           <div className="h-32 bg-gray-200 rounded mb-8"></div>
           <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Si no hay usuario, mostrar mensaje de login
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-8">
+          <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Inicia sesión para ver tu perfil
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Accede a tu cuenta para ver tus historias, estadísticas y
+            participación en concursos.
+          </p>
+          <ContestActionButton
+            variant="primary"
+            customText="Iniciar sesión"
+            onAuthRequired={() => {
+              /* El botón manejará esto */
+            }}
+          />
         </div>
       </div>
     );
@@ -149,7 +129,7 @@ const UnifiedProfile = () => {
               )}
             </div>
 
-            {/* Quick Stats */}
+            {/* Quick Stats - Datos en tiempo real */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-blue-600">
@@ -160,10 +140,7 @@ const UnifiedProfile = () => {
 
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-green-600">
-                  {userStories.reduce(
-                    (total, story) => total + (story.likes_count || 0),
-                    0
-                  )}
+                  {totalLikes}
                 </div>
                 <div className="text-sm text-gray-600">Likes recibidos</div>
               </div>
@@ -177,10 +154,7 @@ const UnifiedProfile = () => {
 
               <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-yellow-600">
-                  {userStories.reduce(
-                    (total, story) => total + (story.views_count || 0),
-                    0
-                  )}
+                  {totalViews}
                 </div>
                 <div className="text-sm text-gray-600">Lecturas</div>
               </div>
@@ -214,8 +188,8 @@ const UnifiedProfile = () => {
                 {currentContest.title}
               </h3>
 
-              {/* Participation Status */}
-              {loadingParticipation ? (
+              {/* Participation Status - En tiempo real */}
+              {userStoriesLoading ? (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="animate-pulse flex items-center">
                     <div className="h-4 w-4 bg-gray-300 rounded mr-2"></div>
@@ -358,7 +332,6 @@ const UnifiedProfile = () => {
             <h3 className="font-semibold text-gray-900 mb-4">
               Acciones disponibles
             </h3>
-
             <div className="space-y-3">
               <ContestActionButton
                 variant="outline"
@@ -451,3 +424,4 @@ const UnifiedProfile = () => {
 };
 
 export default UnifiedProfile;
+// El componente usa el contexto correctamente y no causa el bug.

@@ -51,4 +51,6 @@ const BadgeDisplay = ({ badge, size = "sm", showTooltip = true }) => {
   );
 };
 
+// El componente solo recibe props y no interactúa con el contexto directamente.
+
 export default BadgeDisplay;

@@ -1,4 +1,4 @@
-// components/ui/ContestActionButton.jsx - BOTÓN DINÁMICO UNIVERSAL
+// components/ui/ContestActionButton.jsx - ACTUALIZADO PARA CONTEXTO UNIFICADO
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -12,13 +12,10 @@ import {
   Clock,
   Heart,
 } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
-import { useAppState } from "../../contexts/AppStateContext";
-import { supabase } from "../../lib/supabase";
+import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 
 const ContestActionButton = ({
-  variant = "primary", // "primary", "secondary", "outline"
   size = "default", // "small", "default", "large"
   showDescription = true,
   className = "",
@@ -27,54 +24,60 @@ const ContestActionButton = ({
   disabled = false,
   forceWhiteStyle = false, // ✅ NUEVO: Para forzar estilo blanco en footer
 }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  const { currentContest, currentContestPhase } = useAppState();
+  // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
+  const {
+    isAuthenticated,
+    user,
+    currentContest,
+    currentContestPhase,
+    userStories, // ✅ Podemos usar directamente las historias del usuario
+    userStoriesLoading,
+  } = useGlobalApp(); // ✅ Cambiado de useAuthStore + useAppState
 
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
   const [loadingParticipation, setLoadingParticipation] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // ✅ Verificar si el usuario ya participó en el concurso actual
+  // ✅ Verificar participación usando los datos ya cargados del contexto (OPTIMIZADO)
   useEffect(() => {
-    const checkParticipation = async () => {
-      // ✅ SOLO verificar participación si el usuario está autenticado
-      if (!currentContest || !user || !isAuthenticated) {
-        setHasUserParticipated(false);
-        return;
-      }
+    // ✅ Si no hay usuario o concurso, no hay participación
+    if (!currentContest || !user || !isAuthenticated) {
+      setHasUserParticipated(false);
+      setLoadingParticipation(false);
+      return;
+    }
 
+    // ✅ Si aún está cargando las historias del usuario, mostrar loading
+    if (userStoriesLoading) {
       setLoadingParticipation(true);
-      try {
-        const { data, error } = await supabase
-          .from("stories")
-          .select("id")
-          .eq("contest_id", currentContest.id)
-          .eq("user_id", user.id)
-          .single();
+      return;
+    }
 
-        setHasUserParticipated(!!data && !error);
-      } catch (err) {
-        console.error("Error checking participation:", err);
-        setHasUserParticipated(false);
-      } finally {
-        setLoadingParticipation(false);
-      }
-    };
+    setLoadingParticipation(false);
 
-    checkParticipation();
+    // ✅ Verificar directamente en las historias ya cargadas
+    const hasParticipated = userStories.some(
+      (story) => story.contest_id === currentContest.id
+    );
 
-    // ✅ NUEVO: Listener para refrescar cuando cambien los datos del usuario
-    const handleUserDataUpdate = () => {
-      console.log("🔄 Datos de usuario actualizados, rechecking participation");
-      checkParticipation();
-    };
-
-    window.addEventListener("userDataUpdated", handleUserDataUpdate);
-
-    return () => {
-      window.removeEventListener("userDataUpdated", handleUserDataUpdate);
-    };
-  }, [currentContest, user, isAuthenticated]);
+    // Solo actualizar y loggear si realmente cambió
+    if (hasParticipated !== hasUserParticipated) {
+      console.log("🔍 Verificación de participación:", {
+        contestId: currentContest.id,
+        userId: user.id,
+        hasParticipated,
+        userStoriesCount: userStories.length,
+        previousState: hasUserParticipated,
+      });
+      setHasUserParticipated(hasParticipated);
+    }
+  }, [
+    currentContest?.id,
+    user?.id,
+    isAuthenticated,
+    userStories.length, // Solo longitud para evitar renders innecesarios
+    userStoriesLoading,
+  ]); // Removido hasUserParticipated para evitar loops
 
   // ✅ Función para obtener la configuración del botón
   const getButtonConfig = () => {
@@ -237,18 +240,26 @@ const ContestActionButton = ({
       large: "px-6 py-3 text-base",
     };
 
-    // Variant classes
+    // Variant classes - ✅ Mejorado con soporte para forceWhiteStyle
     const variantClasses = {
       primary: config.disabled
         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : forceWhiteStyle
+        ? "bg-white text-primary-600 hover:bg-primary-50 focus:ring-white"
         : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
       secondary: config.disabled
         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+        : forceWhiteStyle
+        ? "bg-white/20 text-white border border-white hover:bg-white/30 focus:ring-white"
         : "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
       outline: config.disabled
         ? "border border-gray-200 text-gray-400 cursor-not-allowed"
+        : forceWhiteStyle
+        ? "border-2 border-white text-white hover:bg-white/10 focus:ring-white"
         : "border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
-      success: "bg-green-100 text-green-700 cursor-not-allowed",
+      success: forceWhiteStyle
+        ? "bg-white/20 text-white cursor-not-allowed"
+        : "bg-green-100 text-green-700 cursor-not-allowed",
     };
 
     return `${baseClasses} ${sizeClasses[size]} ${
@@ -298,7 +309,11 @@ const ContestActionButton = ({
       )}
 
       {showDescription && config.description && !config.disabled && (
-        <p className="text-xs text-gray-500 mt-1 text-center max-w-xs">
+        <p
+          className={`text-xs mt-1 text-center max-w-xs ${
+            forceWhiteStyle ? "text-white/80" : "text-gray-500"
+          }`}
+        >
           {config.description}
         </p>
       )}
@@ -316,3 +331,5 @@ const ContestActionButton = ({
 };
 
 export default ContestActionButton;
+
+// El componente usa el contexto correctamente y no causa el bug.

@@ -1,13 +1,14 @@
-// components/ui/ContestPhaseBadge.jsx - BADGE DINÁMICO DE LA FASE
+// components/ui/ContestPhaseBadge.jsx - BADGE DINÁMICO DE LA FASE (REFACTORIZADO)
+// El componente solo muestra la fase, no modifica el estado.
 import { Clock, Vote, Trophy, PenTool, AlertCircle } from "lucide-react";
-import { useAppState } from "../../contexts/AppStateContext";
+import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
 const ContestPhaseBadge = ({
   showDescription = false,
   size = "default", // "small", "default", "large"
   className = "",
 }) => {
-  const { currentContest, currentContestPhase } = useAppState();
+  const { currentContest, currentContestPhase } = useGlobalApp();
 
   // ✅ Función para obtener la configuración del badge
   const getBadgeConfig = () => {

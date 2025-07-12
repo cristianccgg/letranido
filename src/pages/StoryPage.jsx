@@ -1,557 +1,652 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+// pages/StoryPage.jsx - COMPLETAMENTE REFACTORIZADO
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Heart,
   Eye,
   Clock,
   User,
-  ArrowLeft,
-  Share2,
-  Flag,
+  Calendar,
+  PenTool,
   Trophy,
   Star,
-  Calendar,
+  ChevronLeft,
+  Share2,
+  Flag,
+  BookOpen,
   Award,
-  MessageSquare,
   Loader,
   AlertCircle,
+  ExternalLink,
+  MessageSquare,
 } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
-import { useStories } from "../hooks/useStories";
+import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { useBadgeNotifications } from "../contexts/BadgeNotificationContext";
 import AuthModal from "../components/forms/AuthModal";
-import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
-import { supabase } from "../lib/supabase";
 import SimpleComments from "../components/comments/SimpleComments";
+import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
+import BadgeDisplay from "../components/BadgeDisplay";
 
 const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuthStore();
 
+  // ✅ TODO DESDE EL CONTEXTO GLOBAL
+  const {
+    // Auth state
+    user,
+    isAuthenticated,
+
+    // App state
+    initialized,
+    globalLoading,
+
+    // Functions
+    getStoryById,
+    recordStoryView,
+    checkUserLike,
+    canVoteInStory,
+    toggleLike,
+    getContestPhase,
+  } = useGlobalApp();
+
+  const { checkFirstStoryBadge } = useBadgeNotifications();
+
+  // ✅ LOCAL STATE SIMPLIFICADO
   const [story, setStory] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [votingInfo, setVotingInfo] = useState({ canVote: false, reason: "" });
-  const isMounted = useRef(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [votingInfo, setVotingInfo] = useState({});
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [viewRecorded, setViewRecorded] = useState(false);
 
-  // Hooks
-  const {
-    getStoryById,
-    toggleLike,
-    checkUserLike,
-    recordStoryView,
-    canVoteInStory,
-  } = useStories();
+  // Refs para control
+  const loadingRef = useRef(false);
+  const storyContentRef = useRef(null);
 
+  // ✅ CARGAR HISTORIA Y DATOS RELACIONADOS
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    const loadStoryData = async () => {
+      if (!id || !initialized || loadingRef.current) return;
 
-  // Cargar historia
-  // Reemplaza la función loadStory en StoryPage.jsx
-  const loadStory = useCallback(async () => {
-    if (!id) return;
+      loadingRef.current = true;
+      setLoading(true);
+      setError(null);
 
-    if (isMounted.current) setLoading(true);
-    if (isMounted.current) setError(null);
+      try {
+        console.log("📖 Cargando historia:", id);
 
-    try {
-      console.log("🔍 Cargando historia:", id);
+        // 1. Obtener la historia
+        const storyResult = await getStoryById(id);
 
-      const result = await getStoryById(id);
+        if (!storyResult.success) {
+          setError(storyResult.error);
+          setStory(null);
+          return;
+        }
 
-      if (result.success) {
-        console.log("✅ Historia cargada:", result.story.title);
-        setStory(result.story);
+        const storyData = storyResult.story;
+        setStory(storyData);
+        setLikesCount(storyData.likes_count || 0);
 
-        // OBTENER CONTEO REAL DIRECTAMENTE DE LA BD
-        const { data: realCountData, error: countError } = await supabase
-          .from("stories")
-          .select("likes_count")
-          .eq("id", id)
-          .single();
+        console.log("✅ Historia cargada:", storyData.title);
 
-        const realLikesCount = realCountData?.likes_count || 0;
-        console.log("📊 Likes count real desde BD:", realLikesCount);
-        if (isMounted.current) setLikesCount(realLikesCount);
-
-        // Verificar si el usuario ya dio like
-        if (isAuthenticated && user) {
-          console.log("👤 Verificando like del usuario:", user.id);
-
-          const likeResult = await checkUserLike(id);
-          if (likeResult.success) {
-            console.log("❤️ Usuario ya dio like:", likeResult.liked);
-            if (isMounted.current) setIsLiked(likeResult.liked);
-          } else {
-            if (isMounted.current) setIsLiked(false);
+        // 2. Verificar si el usuario ya votó por esta historia (solo si está autenticado)
+        if (isAuthenticated && user?.id) {
+          try {
+            const likeResult = await checkUserLike(id);
+            if (likeResult.success) {
+              setIsLiked(likeResult.liked);
+            }
+          } catch (err) {
+            console.warn("⚠️ Error verificando like:", err);
           }
-        } else {
-          if (isMounted.current) setIsLiked(false);
         }
 
-        // Verificar permisos de votación
-        const votingResult = await canVoteInStory(id);
-        if (isMounted.current) setVotingInfo(votingResult);
-
-        // Registrar vista
-        await recordStoryView(id);
-      } else {
-        if (isMounted.current) {
-          setError(result.error);
+        // 3. Obtener información de votación (permisos)
+        try {
+          const votingResult = await canVoteInStory(id);
+          setVotingInfo(votingResult);
+        } catch (err) {
+          console.warn("⚠️ Error verificando permisos de votación:", err);
+          setVotingInfo({
+            canVote: false,
+            reason: "Error verificando permisos",
+          });
         }
+
+        // 4. Registrar vista (después de un momento para asegurar que se cargó)
+        if (!viewRecorded) {
+          setTimeout(async () => {
+            try {
+              await recordStoryView(id);
+              setViewRecorded(true);
+              console.log("👁️ Vista registrada para historia:", id);
+            } catch (err) {
+              console.warn("⚠️ Error registrando vista:", err);
+            }
+          }, 2000); // 2 segundos para asegurar que leyó algo
+        }
+      } catch (err) {
+        console.error("💥 Error general cargando historia:", err);
+        setError("Error inesperado: " + err.message);
+        setStory(null);
+      } finally {
+        setLoading(false);
+        loadingRef.current = false;
       }
-    } catch (err) {
-      if (isMounted.current) setError("Error inesperado al cargar la historia");
-    } finally {
-      if (isMounted.current) setLoading(false);
-    }
+    };
+
+    loadStoryData();
   }, [
     id,
+    initialized,
     isAuthenticated,
-    user,
+    user?.id,
     getStoryById,
     checkUserLike,
-    recordStoryView,
     canVoteInStory,
+    recordStoryView,
+    // ✅ REMOVED viewRecorded - CAUSABA LOOP INFINITO
   ]);
 
-  // Cargar historia al montar o cambiar ID
-  useEffect(() => {
-    loadStory();
-  }, [loadStory]);
-
-  const handleLike = async () => {
+  // ✅ HANDLE VOTE
+  const handleVote = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
 
-    // Verificar si se puede votar antes de intentar
     if (!votingInfo.canVote) {
-      alert(votingInfo.reason);
+      console.log("❌ No se puede votar:", votingInfo.reason);
       return;
     }
 
     try {
-      console.log("🔄 Procesando like/unlike...", {
-        storyId: id,
-        currentLiked: isLiked,
-        currentCount: likesCount,
-      });
-
       const result = await toggleLike(id);
 
       if (result.success) {
-        console.log("✅ Toggle like exitoso:", result.liked);
-
-        // Actualizar estados locales
+        // Actualizar estado local inmediatamente
         setIsLiked(result.liked);
         setLikesCount((prev) => {
-          const newCount = result.liked ? prev + 1 : prev - 1;
-          console.log("📊 Actualizando contador:", prev, "→", newCount);
-          return Math.max(0, newCount); // Asegurar que nunca sea negativo
+          const newCount = prev + (result.liked ? 1 : -1);
+          return Math.max(0, newCount);
         });
 
-        // OPCIONAL: Refrescar después de un delay para asegurar sincronización
-        setTimeout(async () => {
-          const freshResult = await getStoryById(id);
-          if (freshResult.success) {
-            const realCount = freshResult.story.likes_count || 0;
-            console.log("🔄 Verificación post-like:", realCount);
-            if (realCount !== likesCount) {
-              console.log(
-                "⚠️ Corrección necesaria:",
-                likesCount,
-                "→",
-                realCount
-              );
-              setLikesCount(realCount);
-            }
-          }
-        }, 1000);
+        console.log(
+          `${result.liked ? "❤️" : "💔"} Like ${
+            result.liked ? "agregado" : "removido"
+          }`
+        );
+
+        // Verificar badge de primera historia si es necesario
+        if (result.liked && user?.id) {
+          setTimeout(() => {
+            checkFirstStoryBadge(user.id);
+          }, 1000);
+        }
       } else {
-        console.error("❌ Error en toggle like:", result.error);
-        alert(result.error || "Error al procesar el like");
+        console.error("❌ Error voting:", result.error);
+        alert("Error al procesar el voto: " + result.error);
       }
-    } catch (error) {
-      console.error("💥 Error inesperado en handleLike:", error);
-      alert("Error inesperado al procesar el like");
+    } catch (err) {
+      console.error("💥 Error inesperado al votar:", err);
+      alert("Error inesperado al votar");
     }
   };
 
+  // ✅ SHARE FUNCTIONALITY
   const handleShare = async () => {
+    const shareData = {
+      title: `"${story.title}" por ${story.author.name}`,
+      text: story.title,
+      url: window.location.href,
+    };
+
     try {
-      await navigator.share({
-        title: story.title,
-        text: `Lee "${story.title}" por ${story.author.name} en LiteraLab`,
-        url: window.location.href,
-      });
-    } catch (error) {
-      // Fallback: copiar al clipboard
-      navigator.clipboard.writeText(window.location.href);
+      if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare(shareData)
+      ) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback - copiar al clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert("¡Enlace copiado al portapapeles!");
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+      // Fallback manual
+      const textArea = document.createElement("textarea");
+      textArea.value = window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
       alert("¡Enlace copiado al portapapeles!");
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+  // ✅ REPORT FUNCTIONALITY
+  const handleReport = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
 
-    if (diffInHours < 1) return "Hace menos de una hora";
-    if (diffInHours < 24) return `Hace ${diffInHours} horas`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return "Hace 1 día";
-    return `Hace ${diffInDays} días`;
-  };
+    const reason = prompt(
+      "¿Por qué quieres reportar esta historia?\n\n" +
+        "Razones válidas:\n" +
+        "- Contenido ofensivo o inapropiado\n" +
+        "- Spam o contenido irrelevante\n" +
+        "- Violación de las reglas de la comunidad\n" +
+        "- Plagio o contenido copiado\n\n" +
+        "Escribe tu razón:"
+    );
 
-  const getBadgeInfo = (badge) => {
-    switch (badge) {
-      case "🏆":
-        return { name: "Ganador de concursos", color: "text-yellow-600" };
-      case "⭐":
-        return { name: "Autor popular", color: "text-blue-600" };
-      case "🔥":
-        return { name: "Racha ganadora", color: "text-red-600" };
-      default:
-        return { name: "", color: "text-gray-600" };
+    if (reason && reason.trim()) {
+      console.log("🚨 Historia reportada:", id, "Razón:", reason);
+      alert("Gracias por tu reporte. Nuestro equipo lo revisará pronto.");
+      // TODO: Implementar sistema de reportes real
     }
   };
 
-  // Loading state
-  if (loading) {
+  // ✅ UTILITY FUNCTIONS
+  const getReadingTime = (wordCount) => {
+    const wordsPerMinute = 200;
+    const minutes = Math.ceil(wordCount / wordsPerMinute);
+    return minutes;
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // ✅ LOADING STATE
+  if (!initialized || globalLoading || loading) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
-          <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
+          <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
           <p className="text-gray-600">Cargando historia...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
+  // ✅ ERROR STATE
   if (error) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 mx-auto text-red-500 mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Error al cargar la historia
+          <AlertCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Historia no encontrada
           </h2>
-          <p className="text-red-600 mb-6">{error}</p>
-          <div className="flex gap-4 justify-center">
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="space-x-4">
             <button onClick={() => navigate(-1)} className="btn-secondary">
+              <ChevronLeft className="h-4 w-4 mr-2" />
               Volver
             </button>
-            <button onClick={loadStory} className="btn-primary">
-              Intentar de nuevo
-            </button>
+            <Link to="/gallery" className="btn-primary">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Explorar historias
+            </Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // Story not found
+  // ✅ NO STORY STATE
   if (!story) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Historia no encontrada
+          <BookOpen className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Historia no disponible
           </h2>
           <p className="text-gray-600 mb-6">
-            La historia que buscas no existe o ha sido eliminada.
+            Esta historia puede haber sido eliminada o no está disponible.
           </p>
-          <button onClick={() => navigate("/gallery")} className="btn-primary">
-            Ver galería
-          </button>
+          <Link to="/gallery" className="btn-primary">
+            Explorar otras historias
+          </Link>
         </div>
       </div>
     );
   }
 
+  // ✅ RENDER PRINCIPAL
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Navigation */}
-      <div className="mb-6">
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Back Navigation */}
+      <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ChevronLeft className="h-5 w-5 mr-1" />
           Volver
         </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShare}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Compartir historia"
+          >
+            <Share2 className="h-5 w-5" />
+          </button>
+
+          <button
+            onClick={handleReport}
+            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Reportar historia"
+          >
+            <Flag className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Story Header */}
-      <header className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-            {story.contest?.category || "Ficción"}
-          </span>
-          <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
-            {story.contest?.month || "Mes"}
-          </span>
-          {story.is_mature && (
-            <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
-              Contenido Maduro
-            </span>
-          )}
-          {story.is_winner && (
-            <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
-              🏆 GANADOR
-            </span>
-          )}
-        </div>
-
-        <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-          {story.title}
-        </h1>
-
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    to={`/profile/${story.author?.id || story.authorId || "#"}`}
-                    className="font-medium text-gray-900 hover:text-primary-600"
-                  >
-                    {story.author?.name || story.author || "Usuario"}
-                  </Link>
-                  {/* Badges dinámicos basados en estadísticas */}
-                  {story.author.wins > 0 && (
-                    <span
-                      className="text-sm text-yellow-600"
-                      title="Ganador de concursos"
-                    >
-                      🏆
-                    </span>
-                  )}
-                  {story.author.totalLikes > 50 && (
-                    <span
-                      className="text-sm text-blue-600"
-                      title="Autor popular"
-                    >
-                      ⭐
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-gray-500">
-                  {story.author?.wins || 0} victorias •{" "}
-                  {story.author?.totalLikes || 0} likes totales
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Contest Banner */}
+        <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-4">
+          <div className="flex items-center justify-between text-white">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-1" />
-              {story.readTime}
-            </div>
-            <div className="flex items-center">
-              <Eye className="h-4 w-4 mr-1" />
-              {story.views_count} lecturas
-            </div>
-            <div>{formatDate(story.published_at || story.created_at)}</div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-between py-4 border-t border-b border-gray-200">
-          <div className="flex items-center gap-4">
-            <EnhancedVoteButton
-              isLiked={isLiked}
-              likesCount={likesCount}
-              canVote={votingInfo.canVote}
-              votingInfo={votingInfo}
-              isAuthenticated={isAuthenticated}
-              onVote={handleLike}
-              onAuthRequired={() => setShowAuthModal(true)}
-              size="default"
-              showTooltip={true}
-            />
-
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-            >
-              <Share2 className="h-5 w-5" />
-              Compartir
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">
-              {story.word_count} palabras
-            </span>
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-              <Flag className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Información de votación */}
-        {!votingInfo.canVote && (
-          <div
-            className={`mt-4 p-4 rounded-lg border ${
-              votingInfo.phase === "submission"
-                ? "bg-blue-50 border-blue-200"
-                : votingInfo.phase === "results"
-                ? "bg-yellow-50 border-yellow-200"
-                : votingInfo.reason.includes("propia")
-                ? "bg-purple-50 border-purple-200"
-                : "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {votingInfo.phase === "submission" && (
-                <>
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <div>
-                    <span className="text-blue-800 font-medium block">
-                      ⏳ Votación aún no disponible
-                    </span>
-                    <span className="text-blue-600 text-sm">
-                      La votación comenzará cuando termine la fase de envío de
-                      historias
-                    </span>
-                  </div>
-                </>
-              )}
-              {votingInfo.phase === "results" && (
-                <>
-                  <Trophy className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <span className="text-yellow-800 font-medium block">
-                      🏆 Votación finalizada
-                    </span>
-                    <span className="text-yellow-600 text-sm">
-                      Este concurso ya terminó y se están mostrando los
-                      resultados finales
-                    </span>
-                  </div>
-                </>
-              )}
-              {votingInfo.reason.includes("propia") && (
-                <>
-                  <User className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <span className="text-purple-800 font-medium block">
-                      ✍️ Esta es tu historia
-                    </span>
-                    <span className="text-purple-600 text-sm">
-                      No puedes votar por tu propia participación, pero otros
-                      usuarios sí pueden
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-            {votingInfo.votingStartsAt && (
-              <div className="mt-2 text-sm text-blue-600 bg-blue-100 rounded px-2 py-1 inline-block">
-                📅 Votación inicia:{" "}
-                {votingInfo.votingStartsAt.toLocaleDateString("es-ES", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
-            )}
-            {votingInfo.votingEndsAt && votingInfo.canVote && (
-              <div className="mt-2 text-sm text-green-600 bg-green-100 rounded px-2 py-1 inline-block">
-                ⏰ Votación termina:{" "}
-                {votingInfo.votingEndsAt.toLocaleDateString("es-ES", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Información positiva cuando SÍ se puede votar */}
-        {votingInfo.canVote && isAuthenticated && (
-          <div className="mt-4 p-3 rounded-lg border bg-green-50 border-green-200">
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-green-600" />
-              <span className="text-green-800 text-sm font-medium">
-                🗳️ ¡Votación activa! Dale like si te gustó esta historia
+              <Trophy className="h-5 w-5 mr-2" />
+              <span className="font-medium">
+                Concurso de {story.contest.month} - {story.contest.category}
               </span>
             </div>
-            {votingInfo.votingEndsAt && (
-              <div className="mt-1 text-xs text-green-600">
-                Tienes hasta el{" "}
-                {votingInfo.votingEndsAt.toLocaleDateString("es-ES")} para votar
+
+            <Link
+              to="/contest/current"
+              className="text-primary-100 hover:text-white text-sm flex items-center"
+            >
+              Ver concurso
+              <ExternalLink className="h-4 w-4 ml-1" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Main Header */}
+        <div className="p-8">
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+            {story.title}
+          </h1>
+
+          {/* Author Info */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center mr-4">
+                <User className="h-6 w-6 text-white" />
               </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 text-lg">
+                  {story.author.name}
+                </h3>
+                <div className="flex items-center text-sm text-gray-600">
+                  <Award className="h-4 w-4 mr-1" />
+                  <span>{story.author.wins} victorias</span>
+                  <span className="mx-2">•</span>
+                  <Heart className="h-4 w-4 mr-1" />
+                  <span>{story.author.totalLikes} likes totales</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Story Stats */}
+            <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                <span>{getReadingTime(story.word_count)} min de lectura</span>
+              </div>
+              <div className="flex items-center">
+                <PenTool className="h-4 w-4 mr-1" />
+                <span>{story.word_count} palabras</span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span>{formatDate(story.created_at)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mature Content Warning */}
+          {story.is_mature && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium text-red-800 mb-1">
+                    Contenido para adultos (18+)
+                  </h4>
+                  <p className="text-red-700 text-sm">
+                    Esta historia contiene temas maduros. La discreción del
+                    lector es aconsejada.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Voting Section */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-4">
+              <EnhancedVoteButton
+                isLiked={isLiked}
+                likesCount={likesCount}
+                canVote={votingInfo.canVote}
+                votingInfo={votingInfo}
+                isAuthenticated={isAuthenticated}
+                onVote={handleVote}
+                onAuthRequired={() => setShowAuthModal(true)}
+                size="default"
+                showTooltip={true}
+              />
+
+              <div className="flex items-center text-gray-600">
+                <Eye className="h-5 w-5 mr-2" />
+                <span>{story.views_count || 0} vistas</span>
+              </div>
+            </div>
+
+            {/* Contest Phase Info */}
+            {story.contest.status && (
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  story.contest.status === "submission"
+                    ? "bg-blue-100 text-blue-800"
+                    : story.contest.status === "voting"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-gray-100 text-gray-800"
+                }`}
+              >
+                {story.contest.status === "submission" && "📝 Período de envío"}
+                {story.contest.status === "voting" && "🗳️ Votación activa"}
+                {story.contest.status === "results" && "🏆 Resultados"}
+              </span>
             )}
           </div>
-        )}
-      </header>
-
-      {/* Story Content */}
-      <article className="prose prose-lg max-w-none mb-12">
-        <div className="bg-white rounded-lg p-8 font-writing text-lg leading-relaxed text-gray-800">
-          {story.content.split("\n\n").map((paragraph, index) => (
-            <p key={index} className="mb-6 last:mb-0">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-      </article>
-
-      {/* Contest Reference */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
-        <h3 className="font-semibold text-gray-900 mb-2">
-          Prompt del concurso:
-        </h3>
-        <p className="text-gray-600 italic">
-          "{story.contest?.title || "Concurso"}"
-        </p>
-        {story.contest?.description && (
-          <p className="text-gray-600 text-sm mt-2">
-            {story.contest.description}
-          </p>
-        )}
-        <div className="mt-3">
-          <Link
-            to="/contest/current"
-            className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-          >
-            Ver todas las participaciones del concurso →
-          </Link>
         </div>
       </div>
 
-      <SimpleComments storyId={story.id} storyTitle={story.title} />
+      {/* Story Content */}
+      <div className="bg-white rounded-xl shadow-lg p-8">
+        <div
+          ref={storyContentRef}
+          className="prose prose-lg max-w-none"
+          style={{
+            fontSize: "18px",
+            lineHeight: "1.7",
+            fontFamily: "Georgia, serif",
+          }}
+        >
+          {story.content.split("\n").map((paragraph, index) => (
+            <p key={index} className="mb-4 text-gray-800 leading-relaxed">
+              {paragraph.trim() || "\u00A0"}
+            </p>
+          ))}
+        </div>
+
+        {/* Story Footer */}
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="mb-4 md:mb-0">
+              <p className="text-gray-600 text-sm mb-2">
+                Esta historia participó en el concurso{" "}
+                <strong>"{story.contest.title}"</strong>
+              </p>
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <span>Publicada el {formatDate(story.created_at)}</span>
+                <span>•</span>
+                <span>{story.word_count} palabras</span>
+                <span>•</span>
+                <span>
+                  {getReadingTime(story.word_count)} minutos de lectura
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <EnhancedVoteButton
+                isLiked={isLiked}
+                likesCount={likesCount}
+                canVote={votingInfo.canVote}
+                votingInfo={votingInfo}
+                isAuthenticated={isAuthenticated}
+                onVote={handleVote}
+                onAuthRequired={() => setShowAuthModal(true)}
+                size="large"
+                showTooltip={false}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Author Bio */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Sobre el autor</h3>
+
+        <div className="flex items-start gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <User className="h-8 w-8 text-white" />
+          </div>
+
+          <div className="flex-1">
+            <h4 className="font-semibold text-gray-900 text-lg mb-2">
+              {story.author.name}
+            </h4>
+
+            <p className="text-gray-700 mb-4">
+              {story.author.bio ||
+                "Este autor prefiere dejar que sus historias hablen por sí mismas."}
+            </p>
+
+            <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center">
+                <Trophy className="h-4 w-4 mr-1 text-yellow-500" />
+                <span>{story.author.wins} victorias en concursos</span>
+              </div>
+              <div className="flex items-center">
+                <Heart className="h-4 w-4 mr-1 text-red-500" />
+                <span>{story.author.totalLikes} likes totales</span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span>
+                  Miembro desde{" "}
+                  {formatDate(story.author.joinedAt).split(",")[0]}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <SimpleComments storyId={story.id} storyTitle={story.title} />
+      </div>
+
+      {/* Related Actions */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">
+          ¿Qué hacer ahora?
+        </h3>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <Link
+            to="/contest/current"
+            className="bg-primary-50 border border-primary-200 rounded-lg p-4 hover:bg-primary-100 transition-colors group"
+          >
+            <div className="flex items-center mb-2">
+              <Trophy className="h-5 w-5 text-primary-600 mr-2" />
+              <span className="font-medium text-primary-900">
+                Ver concurso actual
+              </span>
+            </div>
+            <p className="text-primary-700 text-sm">
+              Descubre más historias del concurso de {story.contest.month}
+            </p>
+          </Link>
+
+          <Link
+            to="/gallery"
+            className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors group"
+          >
+            <div className="flex items-center mb-2">
+              <BookOpen className="h-5 w-5 text-green-600 mr-2" />
+              <span className="font-medium text-green-900">
+                Explorar galería
+              </span>
+            </div>
+            <p className="text-green-700 text-sm">
+              Lee más historias increíbles de nuestra comunidad
+            </p>
+          </Link>
+
+          {isAuthenticated && (
+            <Link
+              to="/write"
+              className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors group"
+            >
+              <div className="flex items-center mb-2">
+                <PenTool className="h-5 w-5 text-blue-600 mr-2" />
+                <span className="font-medium text-blue-900">
+                  Escribir mi historia
+                </span>
+              </div>
+              <p className="text-blue-700 text-sm">
+                ¿Te inspiraste? Crea tu propia historia
+              </p>
+            </Link>
+          )}
+        </div>
+      </div>
 
       {/* Auth Modal */}
       {showAuthModal && (
         <AuthModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
-          onSuccess={() => {
-            setShowAuthModal(false);
-            // Recargar para obtener el estado de like del usuario
-            loadStory();
-          }}
+          onSuccess={() => setShowAuthModal(false)}
+          initialMode="register"
         />
       )}
     </div>

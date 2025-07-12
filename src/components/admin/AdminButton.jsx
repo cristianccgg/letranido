@@ -1,9 +1,14 @@
 import React from "react";
 import { Settings, Shield } from "lucide-react";
+import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
-const AdminButton = ({ user, currentPath = "" }) => {
-  // Solo mostrar a administradores
-  const isAdmin = user?.is_admin || user?.email === "admin@literalab.com";
+const AdminButton = ({ currentPath = "" }) => {
+  const { user, isAuthenticated } = useGlobalApp();
+
+  // Solo mostrar a administradores autenticados
+  const isAdmin =
+    isAuthenticated &&
+    (user?.is_admin || user?.email === "admin@literalab.com");
 
   if (!isAdmin) return null;
 
@@ -24,5 +29,7 @@ const AdminButton = ({ user, currentPath = "" }) => {
     </a>
   );
 };
+
+// El componente solo muestra el botón si el usuario es admin, no modifica el estado.
 
 export default AdminButton;

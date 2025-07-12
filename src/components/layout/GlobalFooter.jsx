@@ -1,15 +1,16 @@
-// components/layout/GlobalFooter.jsx - FOOTER UNIVERSAL CON CTA DINÁMICO
+// components/layout/GlobalFooter.jsx - ACTUALIZADO PARA CONTEXTO UNIFICADO
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppState } from "../../contexts/AppStateContext";
-import { useAuthStore } from "../../store/authStore";
+import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ Cambiado
 import ContestActionButton from "../ui/ContestActionButton";
 import ContestPhaseBadge from "../ui/ContestPhaseBadge";
 import ContestRulesModal from "../forms/ContestRulesModal";
 
 const GlobalFooter = () => {
-  const { currentContest, currentContestPhase } = useAppState();
-  const { isAuthenticated } = useAuthStore();
+  // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
+  const { currentContest, currentContestPhase, isAuthenticated } =
+    useGlobalApp(); // ✅ Cambiado de useAppState + useAuthStore
+
   const [showRulesModal, setShowRulesModal] = useState(false);
 
   // ✅ Función para obtener el contenido del CTA según la fase
@@ -120,7 +121,7 @@ const GlobalFooter = () => {
                 <span className="font-bold">
                   {Math.max(
                     0,
-                    Math.ceil(
+                    Math.floor(
                       (new Date(currentContest.submission_deadline) -
                         new Date()) /
                         (1000 * 60 * 60 * 24)
@@ -139,7 +140,7 @@ const GlobalFooter = () => {
                 <span className="font-bold">
                   {Math.max(
                     0,
-                    Math.ceil(
+                    Math.floor(
                       (new Date(currentContest.voting_deadline) - new Date()) /
                         (1000 * 60 * 60 * 24)
                     )
@@ -153,7 +154,7 @@ const GlobalFooter = () => {
       </div>
 
       {/* Footer Links */}
-      <div className="border-t border-primary-500">
+      <div className="border-t bg-black border-primary-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
@@ -178,14 +179,6 @@ const GlobalFooter = () => {
               <ul className="space-y-2 text-primary-200">
                 <li>
                   <Link
-                    to="/gallery"
-                    className="hover:text-white transition-colors"
-                  >
-                    Galería de historias
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     to="/contest/current"
                     className="hover:text-white transition-colors"
                   >
@@ -194,7 +187,15 @@ const GlobalFooter = () => {
                 </li>
                 <li>
                   <Link
-                    to="/profile"
+                    to="/history"
+                    className="hover:text-white transition-colors"
+                  >
+                    Concursos pasados
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/profile/:userId"
                     className="hover:text-white transition-colors"
                   >
                     Mi perfil
@@ -208,19 +209,28 @@ const GlobalFooter = () => {
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-primary-200">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Reglas de la comunidad
-                  </a>
+                  <Link
+                    to="/community-guidelines"
+                    className="hover:text-white transition-colors"
+                  >
+                    Guía de la comunidad
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Preguntas frecuentes
-                  </a>
+                  <Link
+                    to="/terms"
+                    className="hover:text-white transition-colors"
+                  >
+                    Terminos y condiciones
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Contacto
-                  </a>
+                  <Link
+                    to="/privacy"
+                    className="hover:text-white transition-colors"
+                  >
+                    Politica de privacidad
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -253,3 +263,4 @@ const GlobalFooter = () => {
 };
 
 export default GlobalFooter;
+// El componente usa el contexto correctamente y no causa el bug.

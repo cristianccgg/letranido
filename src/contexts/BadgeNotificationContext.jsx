@@ -1,479 +1,145 @@
-// contexts/BadgeNotificationContext.jsx - VERSIÓN SIMPLIFICADA SIN LOOPS
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { useAuthStore } from "../store/authStore";
+// contexts/BadgeNotificationContext.jsx - ACTUALIZADO PARA CONTEXTO GLOBAL
+import { createContext, useContext, useState } from "react";
+import { useGlobalApp } from "./GlobalAppContext"; // ✅ CAMBIADO
 import { useBadges } from "../hooks/useBadges";
-import { supabase } from "../lib/supabase";
-import BadgeNotification from "../components/BadgeNotification";
-import FounderWelcome from "../components/FounderWelcome";
 
 const BadgeNotificationContext = createContext();
 
-function useBadgeNotifications() {
-  const context = useContext(BadgeNotificationContext);
-  if (!context) {
-    throw new Error(
-      "useBadgeNotifications debe usarse dentro de BadgeNotificationProvider"
-    );
-  }
-  return context;
-}
-
 export const BadgeNotificationProvider = ({ children }) => {
-  const { user, isAuthenticated, updateUser } = useAuthStore();
-  const { checkFirstStoryBadge } = useBadges();
+  const [notifications, setNotifications] = useState([]);
 
-  // Estado de notificaciones
-  const [notificationQueue, setNotificationQueue] = useState([]);
-  const [currentNotification, setCurrentNotification] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showFounderWelcome, setShowFounderWelcome] = useState(false); // ✅ Movido aquí
+  // ✅ USO DEL CONTEXTO GLOBAL EN LUGAR DE AUTHSTORE
+  const { user, isAuthenticated } = useGlobalApp();
+  const { awardBadge } = useBadges();
 
-  // Referencias para evitar múltiples ejecuciones
-  const hasCheckedOnLogin = useRef(false);
-  const hasCheckedFounder = useRef(false);
-  const lastCheckedUser = useRef(null);
-  const processingTimeout = useRef(null);
-  const isMounted = useRef(true);
-  const isCheckingBadges = useRef(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
+  const showBadgeNotification = (badge) => {
+    const notification = {
+      id: Date.now(),
+      badge,
+      timestamp: Date.now(),
     };
-  }, []);
 
-  // ✅ VERIFICAR Y OTORGAR BADGE DE FUNDADOR
-  const checkAndGrantFounderBadge = async (userId) => {
-    if (!userId || hasCheckedFounder.current) return;
+    setNotifications((prev) => [...prev, notification]);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+    }, 5000);
+  };
+
+  const removeBadgeNotification = (notificationId) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+  };
+
+  const checkFirstStoryBadge = async (userId) => {
+    if (!isAuthenticated || !user) return;
 
     try {
-      console.log("🎯 [CONTEXT] Verificando badge de fundador para:", userId);
-      hasCheckedFounder.current = true;
-
-      const LAUNCH_DATE = new Date("2025-07-08");
-      const FOUNDER_PERIOD_DAYS = 30;
-      const founderDeadline = new Date(
-        LAUNCH_DATE.getTime() + FOUNDER_PERIOD_DAYS * 24 * 60 * 60 * 1000
-      );
-      const now = new Date();
-
-      if (now > founderDeadline) {
-        console.log("⏰ [CONTEXT] Período de fundadores expirado");
-        return;
+      const result = await awardBadge(userId, "first_story");
+      if (result.success && result.newBadge) {
+        showBadgeNotification(result.badge);
       }
-
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("is_founder, badges, founded_at")
-        .eq("id", userId)
-        .single();
-
-      const founderBadge = {
-        id: "founder",
-        name: "Fundador",
-        description: "Miembro fundador de LiteraLab",
-        icon: "🚀",
-        rarity: "legendary",
-        earnedAt: profile?.founded_at || new Date().toISOString(),
-        isSpecial: true,
-      };
-
-      const currentBadges = profile?.badges || [];
-      const hasFounderBadge = currentBadges.some((b) => b.id === "founder");
-
-      // Si ya es fundador pero NO tiene el badge, agregarlo (no mostrar modal)
-      if (profile?.is_founder && !hasFounderBadge) {
-        const updatedBadges = [founderBadge, ...currentBadges];
-        await supabase
-          .from("user_profiles")
-          .update({ badges: updatedBadges })
-          .eq("id", userId);
-
-        if (isMounted.current && user?.id === userId) {
-          updateUser({
-            is_founder: true,
-            founded_at: profile.founded_at,
-            badges: updatedBadges,
-          });
-        }
-        // NO mostrar modal aquí
-        return;
-      }
-
-      // Si ya es fundador y ya tiene el badge, no hacer nada
-      if (profile?.is_founder && hasFounderBadge) {
-        console.log("✅ [CONTEXT] Usuario ya es fundador y tiene el badge");
-        return;
-      }
-
-      // Si NO es fundador, otorgar badge y marcar como fundador (mostrar modal SOLO aquí)
-      if (!profile?.is_founder) {
-        const updatedBadges = [founderBadge, ...currentBadges];
-        const { data: updatedProfile, error } = await supabase
-          .from("user_profiles")
-          .update({
-            is_founder: true,
-            founded_at: new Date().toISOString(),
-            badges: updatedBadges,
-          })
-          .eq("id", userId)
-          .select()
-          .single();
-
-        if (error) {
-          console.error(
-            "❌ [CONTEXT] Error otorgando badge de fundador:",
-            error
-          );
-          return;
-        }
-
-        console.log("✅ [CONTEXT] Badge de fundador otorgado exitosamente");
-
-        if (isMounted.current && user?.id === userId) {
-          updateUser({
-            is_founder: true,
-            founded_at: updatedProfile.founded_at,
-            badges: updatedProfile.badges,
-          });
-          // Mostrar modal SOLO la primera vez que se otorga el badge
-          setTimeout(() => {
-            if (isMounted.current) setShowFounderWelcome(true);
-          }, 500);
-        }
-      }
-    } catch (err) {
-      console.error("💥 [CONTEXT] Error verificando badge de fundador:", err);
+    } catch (error) {
+      console.error("Error checking first story badge:", error);
     }
   };
 
-  // ✅ Agregar notificación a la cola (evitando duplicados estrictos)
-  const queueNotification = React.useCallback((badge) => {
-    if (!isMounted.current) return;
+  const checkWinnerBadge = async (userId, contestTitle) => {
+    if (!isAuthenticated || !user) return;
 
-    const now = Date.now();
-    const recentThreshold = 10000; // ✅ 10 segundos para badge de primera historia
-
-    setNotificationQueue((prev) => {
-      // ✅ Verificar si ya existe exactamente el mismo badge
-      const existsExact = prev.some(
-        (item) =>
-          item.badge.id === badge.id && item.badge.earnedAt === badge.earnedAt
-      );
-
-      if (existsExact) {
-        console.log("⚠️ [CONTEXT] Badge exacto duplicado:", badge.name);
-        return prev;
+    try {
+      const result = await awardBadge(userId, "contest_winner", {
+        contestTitle,
+      });
+      if (result.success && result.newBadge) {
+        showBadgeNotification(result.badge);
       }
-
-      // ✅ Verificar si el mismo tipo de badge fue agregado recientemente
-      const recentSimilar = prev.some(
-        (item) =>
-          item.badge.id === badge.id && now - item.timestamp < recentThreshold
-      );
-
-      if (recentSimilar) {
-        console.log(
-          "⚠️ [CONTEXT] Badge del mismo tipo agregado recientemente:",
-          badge.name
-        );
-        return prev;
-      }
-
-      console.log("📥 [CONTEXT] Agregando a cola:", badge.name);
-      return [
-        ...prev,
-        {
-          id: `${badge.id}-${badge.earnedAt}-${now}`,
-          badge,
-          timestamp: now,
-        },
-      ];
-    });
-  }, []);
-
-  // ✅ Procesar cola de notificaciones (una a la vez)
-  useEffect(() => {
-    if (notificationQueue.length > 0 && !currentNotification && !isProcessing) {
-      const nextNotification = notificationQueue[0];
-      setCurrentNotification(nextNotification);
-      setIsProcessing(true);
-
-      // Remover de la cola inmediatamente
-      setNotificationQueue((prev) => prev.slice(1));
-
-      console.log(
-        "🎉 [CONTEXT] Mostrando notificación:",
-        nextNotification.badge.name
-      );
+    } catch (error) {
+      console.error("Error checking winner badge:", error);
     }
-  }, [notificationQueue, currentNotification, isProcessing]);
-
-  // ✅ Cerrar modal de fundador
-  const closeFounderWelcome = () => {
-    setShowFounderWelcome(false);
   };
 
-  // ✅ Cerrar notificación actual
-  const closeCurrentNotification = () => {
-    console.log("❌ [CONTEXT] Cerrando notificación actual");
-    setCurrentNotification(null);
+  const checkStreakBadge = async (userId, streakCount) => {
+    if (!isAuthenticated || !user) return;
 
-    // Delay antes de mostrar la siguiente
-    if (processingTimeout.current) {
-      clearTimeout(processingTimeout.current);
-    }
+    try {
+      let badgeType = null;
+      if (streakCount >= 3) badgeType = "participation_streak_3";
+      if (streakCount >= 5) badgeType = "participation_streak_5";
+      if (streakCount >= 10) badgeType = "participation_streak_10";
 
-    processingTimeout.current = setTimeout(() => {
-      if (isMounted.current) {
-        setIsProcessing(false);
+      if (badgeType) {
+        const result = await awardBadge(userId, badgeType, { streakCount });
+        if (result.success && result.newBadge) {
+          showBadgeNotification(result.badge);
+        }
       }
-    }, 500);
+    } catch (error) {
+      console.error("Error checking streak badge:", error);
+    }
   };
 
-  // ✅ INICIALIZACIÓN ÚNICA POR USUARIO - SIN setState en useEffect
-  useEffect(() => {
-    let timeoutId;
+  const checkPopularityBadge = async (userId, totalLikes) => {
+    if (!isAuthenticated || !user) return;
 
-    const initializeUser = async () => {
-      if (!isAuthenticated || !user?.id) {
-        console.log("🚫 [CONTEXT] No hay usuario autenticado");
-        return;
-      }
+    try {
+      let badgeType = null;
+      if (totalLikes >= 50) badgeType = "popular_author_50";
+      if (totalLikes >= 100) badgeType = "popular_author_100";
+      if (totalLikes >= 500) badgeType = "popular_author_500";
 
-      // Solo ejecutar si cambió el usuario
-      if (lastCheckedUser.current === user.id) {
-        console.log("🚫 [CONTEXT] Ya inicializado para este usuario");
-        return;
-      }
-
-      console.log("🔄 [CONTEXT] Inicializando para usuario:", user.id);
-
-      // Reset flags para nuevo usuario
-      hasCheckedOnLogin.current = false;
-      hasCheckedFounder.current = false;
-      isCheckingBadges.current = false;
-      lastCheckedUser.current = user.id;
-
-      // Limpiar localStorage
-      localStorage.removeItem("queued_badges");
-
-      // ✅ Ejecutar verificación después de 5 segundos para evitar conflictos con otros hooks
-      timeoutId = setTimeout(async () => {
-        if (!isMounted.current || !user?.id) return;
-
-        console.log("🎯 [CONTEXT] Verificando badges para:", user.id);
-
-        try {
-          // 1. Verificar badge de fundador
-          await checkAndGrantFounderBadge(user.id);
-
-          // 2. Verificar badges nuevos
-          const { data: userProfile, error } = await supabase
-            .from("user_profiles")
-            .select("badges, last_badge_check, display_name")
-            .eq("id", user.id)
-            .single();
-
-          if (error) {
-            console.error("[CONTEXT] Error obteniendo perfil:", error);
-            return;
-          }
-
-          const badges = userProfile?.badges || [];
-          const lastCheck = userProfile?.last_badge_check;
-
-          console.log(
-            `📋 [CONTEXT] ${userProfile?.display_name || "Usuario"} tiene ${
-              badges.length
-            } badges`
-          );
-
-          if (badges.length === 0) return;
-
-          // Encontrar badges nuevos (últimos 5 minutos si no hay last_check)
-          const newBadges = badges.filter((badge) => {
-            // Excluir badge de fundador
-            if (badge.id === "founder") {
-              console.log(
-                "🚫 [CONTEXT] Saltando badge de fundador - ya tiene modal especial"
-              );
-              return false;
-            }
-
-            if (!lastCheck) {
-              const badgeDate = new Date(badge.earnedAt);
-              const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-              return badgeDate >= fiveMinutesAgo;
-            }
-
-            const badgeDate = new Date(badge.earnedAt);
-            const lastCheckDate = new Date(lastCheck);
-            return badgeDate > lastCheckDate;
-          });
-
-          console.log(
-            `🆕 [CONTEXT] ${newBadges.length} badges nuevos encontrados`
-          );
-
-          if (newBadges.length > 0) {
-            // Actualizar last_badge_check
-            await supabase
-              .from("user_profiles")
-              .update({ last_badge_check: new Date().toISOString() })
-              .eq("id", user.id);
-
-            console.log("✅ [CONTEXT] last_badge_check actualizado");
-
-            // Agregar badges a la cola
-            newBadges.forEach((badge) => {
-              if (isMounted.current) {
-                console.log("🎉 [CONTEXT] Agregando a cola:", badge.name);
-                queueNotification(badge);
-              }
-            });
-          }
-
-          hasCheckedOnLogin.current = true;
-        } catch (err) {
-          console.error("💥 [CONTEXT] Error verificando badges:", err);
+      if (badgeType) {
+        const result = await awardBadge(userId, badgeType, { totalLikes });
+        if (result.success && result.newBadge) {
+          showBadgeNotification(result.badge);
         }
-      }, 5000);
+      }
+    } catch (error) {
+      console.error("Error checking popularity badge:", error);
+    }
+  };
+
+  const showFounderWelcome = () => {
+    if (!user?.is_founder) return;
+
+    const founderBadge = {
+      id: "founder",
+      name: "Miembro Fundador",
+      description: "Parte de los primeros usuarios de LiteraLab",
+      icon: "🚀",
+      rarity: "legendary",
+      isSpecial: true,
     };
 
-    initializeUser();
+    showBadgeNotification(founderBadge);
+  };
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [user?.id, isAuthenticated]); // ✅ Solo estas dependencias básicas
-
-  // ✅ Funciones específicas para tipos de badges
-  const checkAndAwardFirstStoryBadge = React.useCallback(
-    async (userId = user?.id) => {
-      if (!userId || !isMounted.current)
-        return { success: false, error: "Usuario no encontrado" };
-
-      // ✅ Verificar si ya está en la cola para evitar duplicados
-      const alreadyQueued = notificationQueue.some(
-        (item) => item.badge.id === "first_story"
-      );
-
-      if (alreadyQueued) {
-        console.log("⚠️ [CONTEXT] Badge de primera historia ya en cola");
-        return { success: false, error: "Ya en cola" };
-      }
-
-      try {
-        console.log(
-          "🎯 [CONTEXT] Verificando badge de primera historia para:",
-          userId
-        );
-
-        const result = await checkFirstStoryBadge(userId);
-
-        if (result?.success && result?.isNew && result?.badge) {
-          console.log(
-            "🎉 [CONTEXT] Badge de primera historia otorgado, agregando a cola"
-          );
-
-          // Actualizar usuario en el store con el nuevo badge
-          if (user?.id === userId) {
-            const currentBadges = user.badges || [];
-            const updatedBadges = [...currentBadges, result.badge];
-            updateUser({ badges: updatedBadges });
-          }
-
-          // ✅ Usar setTimeout para evitar que se ejecute múltiples veces
-          setTimeout(() => {
-            if (isMounted.current) {
-              queueNotification(result.badge);
-            }
-          }, 100);
-        }
-
-        return result;
-      } catch (err) {
-        console.error("[CONTEXT] Error checking first story badge:", err);
-        return { success: false, error: err.message };
-      }
-    },
-    [user?.id, checkFirstStoryBadge, updateUser, queueNotification]
-  );
-
-  // ✅ Cleanup
-  useEffect(() => {
-    return () => {
-      if (processingTimeout.current) {
-        clearTimeout(processingTimeout.current);
-      }
-      isMounted.current = false;
-    };
-  }, []);
-
-  const contextValue = {
-    // Estado
-    notificationQueue,
-    currentNotification,
-    isProcessing,
-    showFounderWelcome, // ✅ Exponer estado de fundador
-
-    // Funciones principales
-    queueNotification,
-    closeCurrentNotification,
-    closeFounderWelcome, // ✅ Exponer función para cerrar fundador
-
-    // Funciones específicas
-    checkFirstStoryBadge: checkAndAwardFirstStoryBadge,
-
-    // Utilidades
-    clearAllNotifications: () => {
-      if (isMounted.current) {
-        setNotificationQueue([]);
-        setCurrentNotification(null);
-        setIsProcessing(false);
-        setShowFounderWelcome(false); // ✅ También limpiar modal de fundador
-      }
-    },
+  const value = {
+    notifications,
+    showBadgeNotification,
+    removeBadgeNotification,
+    checkFirstStoryBadge,
+    checkWinnerBadge,
+    checkStreakBadge,
+    checkPopularityBadge,
+    showFounderWelcome,
   };
 
   return (
-    <BadgeNotificationContext.Provider value={contextValue}>
+    <BadgeNotificationContext.Provider value={value}>
       {children}
-
-      {/* ✅ MODAL ESPECIAL DE FUNDADOR - Solo este para badge de fundador */}
-      <FounderWelcome
-        isOpen={showFounderWelcome}
-        onClose={closeFounderWelcome}
-        badge={{
-          id: "founder",
-          name: "Fundador",
-          description: "Miembro fundador de LiteraLab",
-          icon: "🚀",
-          rarity: "legendary",
-          isSpecial: true,
-        }}
-      />
-
-      {/* ✅ MODAL GENÉRICO DE BADGES - Para todos los otros badges */}
-      {currentNotification && (
-        <BadgeNotification
-          badge={currentNotification.badge}
-          isOpen={true}
-          onClose={closeCurrentNotification}
-        />
-      )}
     </BadgeNotificationContext.Provider>
   );
 };
 
-export { useBadgeNotifications };
+export const useBadgeNotifications = () => {
+  const context = useContext(BadgeNotificationContext);
+  if (!context) {
+    throw new Error(
+      "useBadgeNotifications must be used within BadgeNotificationProvider"
+    );
+  }
+  return context;
+};
+
+// El componente solo gestiona notificaciones, no afecta el estado principal.

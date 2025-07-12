@@ -1,57 +1,68 @@
+// components/forms/AuthModal.jsx - ACTUALIZADO PARA CONTEXTO GLOBAL
 import { useState, useEffect } from "react";
-import { X, Mail, Lock, User, Loader } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
+import { X, Eye, EyeOff, User, Mail, Lock, Loader } from "lucide-react";
+import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 
-const AuthModal = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  initialMode = "register",
-}) => {
+const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const [mode, setMode] = useState(initialMode);
   const [formData, setFormData] = useState({
     email: "",
-    name: "",
     password: "",
+    name: "",
+    confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // ✅ USO DEL CONTEXTO GLOBAL EN LUGAR DE AUTHSTORE
+  const { login, register, isLoading } = useGlobalApp();
+
+  // Reset form when modal opens/closes or mode changes
   useEffect(() => {
     if (isOpen) {
-      setMode(initialMode);
+      setFormData({
+        email: "",
+        password: "",
+        name: "",
+        confirmPassword: "",
+      });
+      setErrors({});
+      setShowPassword(false);
+      setShowConfirmPassword(false);
     }
-  }, [isOpen, initialMode]);
-
-  const { login, register, isLoading } = useAuthStore();
-
-  if (!isOpen) return null;
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+  }, [isOpen, mode]);
 
   const validateForm = () => {
     const newErrors = {};
 
+    // Email validation
     if (!formData.email) {
       newErrors.email = "El email es requerido";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email inválido";
+      newErrors.email = "El email no es válido";
     }
 
-    if (mode === "register" && !formData.name) {
-      newErrors.name = "El nombre es requerido";
-    }
-
+    // Password validation
     if (!formData.password) {
       newErrors.password = "La contraseña es requerida";
-    } else if (mode === "register" && formData.password.length < 6) {
+    } else if (formData.password.length < 6) {
       newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+    }
+
+    // Registration-specific validations
+    if (mode === "register") {
+      if (!formData.name) {
+        newErrors.name = "El nombre es requerido";
+      } else if (formData.name.length < 2) {
+        newErrors.name = "El nombre debe tener al menos 2 caracteres";
+      }
+
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = "Confirma tu contraseña";
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Las contraseñas no coinciden";
+      }
     }
 
     setErrors(newErrors);
@@ -61,188 +72,253 @@ const AuthModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       let result;
-      if (mode === "register") {
+
+      if (mode === "login") {
+        result = await login(formData.email, formData.password);
+      } else {
         result = await register(
           formData.email,
           formData.name,
           formData.password
         );
-      } else {
-        result = await login(formData.email, formData.password);
       }
 
       if (result.success) {
-        onSuccess();
+        onSuccess?.();
+        onClose();
       } else {
-        setErrors({ submit: result.error });
+        setErrors({ general: result.error });
       }
     } catch (error) {
-      setErrors({ submit: "Error inesperado. Intenta nuevamente." });
+      console.error("Auth error:", error);
+      setErrors({ general: "Error inesperado. Intenta nuevamente." });
     }
   };
 
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear field-specific error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+
+    // Clear general error when user makes changes
+    if (errors.general) {
+      setErrors((prev) => ({ ...prev, general: "" }));
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {mode === "register" ? "Crear cuenta" : "Iniciar sesión"}
+          <h2 className="text-2xl font-bold text-gray-900">
+            {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <p className="text-gray-600 mb-6">
-            {mode === "register"
-              ? "Únete a nuestra comunidad de escritores y comparte tus historias"
-              : "Bienvenido de vuelta. Ingresa para continuar escribiendo"}
-          </p>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* General Error */}
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-red-800 text-sm">{errors.general}</p>
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+          {/* Name field (only for register) */}
+          {mode === "register" && (
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nombre completo
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
-                    errors.email ? "border-red-300" : "border-gray-300"
+                    errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
                   }`}
-                  placeholder="tu@email.com"
+                  placeholder="Tu nombre completo"
+                  disabled={isLoading}
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              {errors.name && (
+                <p className="text-red-600 text-sm mt-1">{errors.name}</p>
               )}
             </div>
+          )}
 
-            {/* Name (only for register) */}
-            {mode === "register" && (
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Nombre de escritor
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
-                      errors.name ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder="Tu nombre público"
-                  />
-                </div>
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
+          {/* Email field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Correo electrónico
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                  errors.email ? "border-red-300 bg-red-50" : "border-gray-300"
+                }`}
+                placeholder="tu@email.com"
+                disabled={isLoading}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-red-600 text-sm mt-1">{errors.email}</p>
             )}
+          </div>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+          {/* Password field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Contraseña
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                  errors.password
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-300"
+                }`}
+                placeholder="••••••••"
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                Contraseña
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          {/* Confirm Password field (only for register) */}
+          {mode === "register" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirmar contraseña
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
-                    errors.password ? "border-red-300" : "border-gray-300"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    handleInputChange("confirmPassword", e.target.value)
+                  }
+                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                    errors.confirmPassword
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
                   }`}
                   placeholder="••••••••"
+                  disabled={isLoading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              {errors.confirmPassword && (
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
+          )}
 
-            {/* Submit Error */}
-            {errors.submit && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-600">{errors.submit}</p>
-              </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+          >
+            {isLoading ? (
+              <>
+                <Loader className="h-5 w-5 animate-spin mr-2" />
+                {mode === "login" ? "Iniciando sesión..." : "Creando cuenta..."}
+              </>
+            ) : mode === "login" ? (
+              "Iniciar Sesión"
+            ) : (
+              "Crear Cuenta"
             )}
+          </button>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full btn-primary py-3 flex items-center justify-center disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <Loader className="animate-spin h-5 w-5 mr-2" />
-                  {mode === "register"
-                    ? "Creando cuenta..."
-                    : "Iniciando sesión..."}
-                </>
-              ) : mode === "register" ? (
-                "Crear cuenta"
-              ) : (
-                "Iniciar sesión"
-              )}
-            </button>
-          </form>
-
-          {/* Mode Switch */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              {mode === "register"
-                ? "¿Ya tienes cuenta?"
-                : "¿No tienes cuenta?"}{" "}
+          {/* Mode Toggle */}
+          <div className="text-center pt-4 border-t border-gray-200">
+            <p className="text-gray-600 text-sm">
+              {mode === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}
               <button
-                onClick={() => {
-                  setMode(mode === "register" ? "login" : "register");
-                  setErrors({});
-                  setFormData({ email: "", name: "", password: "" });
-                }}
-                className="text-primary-600 hover:text-primary-700 font-medium"
+                type="button"
+                onClick={() => setMode(mode === "login" ? "register" : "login")}
+                className="text-primary-600 hover:text-primary-700 font-medium ml-1"
+                disabled={isLoading}
               >
-                {mode === "register" ? "Inicia sesión" : "Regístrate gratis"}
+                {mode === "login" ? "Créala aquí" : "Inicia sesión"}
               </button>
             </p>
           </div>
-        </div>
+
+          {/* Terms Notice (only for register) */}
+          {mode === "register" && (
+            <div className="text-xs text-gray-500 text-center">
+              Al crear una cuenta, aceptas nuestros{" "}
+              <a href="/terms" className="text-primary-600 hover:underline">
+                Términos de Servicio
+              </a>{" "}
+              y{" "}
+              <a href="/privacy" className="text-primary-600 hover:underline">
+                Política de Privacidad
+              </a>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
 };
 
 export default AuthModal;
+// El componente usa login/register del contexto, no limpia datos.

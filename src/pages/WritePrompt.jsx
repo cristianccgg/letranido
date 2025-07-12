@@ -1,160 +1,42 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, Send, Save, AlertCircle, PenTool } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
-import { useAppState } from "../contexts/AppStateContext";
-import { useStories } from "../hooks/useStories";
+import { Clock, Send, AlertCircle, PenTool } from "lucide-react";
+import { useGlobalApp } from "../contexts/GlobalAppContext";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 
 const WritePrompt = () => {
   const { promptId } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
-
-  // Hooks para datos
-  const {
-    currentContest,
-    getContestById,
-    loading: contestLoading,
-  } = useAppState();
-  const { submitStory, loading: submissionLoading } = useStories();
-
-  // Estado local
-  const [prompt, setPrompt] = useState(null);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [wordCount, setWordCount] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
-  const [error, setError] = useState(null);
 
-  // ✅ useRef para evitar loops - solo carga UNA VEZ
-  const hasLoadedPrompt = useRef(false);
-  const currentPromptId = useRef(null);
-  const isMounted = useRef(true); // <--- Añadido
+  // ✅ TODO DESDE EL CONTEXTO UNIFICADO
+  const {
+    currentContest,
+    contestsLoading,
+    isAuthenticated,
+    user,
+    submitStory, // ✅ Función integrada en el contexto
+    userStories,
+  } = useGlobalApp();
 
+  // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA
+  const hasUserParticipated =
+    isAuthenticated && currentContest && userStories.length > 0
+      ? userStories.some((story) => story.contest_id === currentContest.id)
+      : false;
+
+  // ✅ DETERMINAR CONCURSO A USAR
+  const contestToUse = currentContest; // Simplificado: siempre usar el actual
+
+  // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS
   useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    if (!contestToUse?.id) return;
 
-  // ✅ Cargar prompt/concurso - VERSIÓN SIMPLE sin loops
-  useEffect(() => {
-    const loadPrompt = async () => {
-      // Solo ejecutar si cambió el promptId o nunca se ha cargado
-      if (hasLoadedPrompt.current && currentPromptId.current === promptId) {
-        console.log("⏳ Prompt ya cargado, saltando...");
-        return;
-      }
-
-      // Si estamos cargando concursos, esperar
-      if (contestLoading) {
-        console.log("⏳ Esperando a que terminen de cargar los concursos...");
-        return;
-      }
-
-      console.log("🔍 Cargando prompt para ID:", promptId);
-
-      try {
-        if (!isMounted.current) return; // <--- Añadido
-        setError(null);
-
-        if (promptId && promptId !== "1") {
-          // Solo intentar cargar por ID si es un UUID válido
-          const isValidUUID =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-              promptId
-            );
-
-          if (isValidUUID) {
-            console.log("🎯 Cargando concurso por UUID...");
-            const contest = await getContestById(promptId);
-            if (!isMounted.current) return; // <--- Añadido
-            if (contest) {
-              console.log("✅ Concurso cargado por ID:", contest.title);
-              setPrompt(contest);
-              hasLoadedPrompt.current = true;
-              currentPromptId.current = promptId;
-              return;
-            }
-          }
-        }
-
-        // Fallback: usar concurso actual
-        if (currentContest) {
-          if (!isMounted.current) return; // <--- Añadido
-          console.log("✅ Usando concurso actual:", currentContest.title);
-          setPrompt(currentContest);
-          hasLoadedPrompt.current = true;
-          currentPromptId.current = promptId;
-        } else {
-          if (!isMounted.current) return; // <--- Añadido
-          console.error("❌ No hay concursos disponibles");
-          setError("No hay concursos disponibles");
-        }
-      } catch (err) {
-        if (!isMounted.current) return; // <--- Añadido
-        console.error("💥 Error cargando prompt:", err);
-        setError(err.message || "Error al cargar el concurso");
-      }
-    };
-
-    loadPrompt();
-  }, [promptId, currentContest?.id, contestLoading, getContestById]);
-
-  // ✅ Reset when promptId changes
-  useEffect(() => {
-    if (currentPromptId.current !== promptId) {
-      console.log("🔄 PromptId cambió, reseteando...");
-      hasLoadedPrompt.current = false;
-      setPrompt(null);
-      setError(null);
-    }
-  }, [promptId]);
-
-  useEffect(() => {
-    if (!prompt?.id) return;
-
-    // Cargar borrador normal
-    const savedDraft = localStorage.getItem(`story-draft-${prompt.id}`);
-    if (savedDraft) {
-      try {
-        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
-        if (savedTitle) setTitle(savedTitle);
-        if (savedText) setText(savedText);
-      } catch (err) {
-        console.error("Error cargando borrador:", err);
-      }
-    }
-
-    // Si no hay borrador normal, verificar si hay uno temporal (después de registro)
-    if (!savedDraft) {
-      const tempDraft = localStorage.getItem(`story-draft-temp-${prompt.id}`);
-      if (tempDraft) {
-        try {
-          const { title: savedTitle, text: savedText } = JSON.parse(tempDraft);
-          if (savedTitle) setTitle(savedTitle);
-          if (savedText) setText(savedText);
-
-          // Mover a borrador normal y limpiar temporal
-          localStorage.setItem(`story-draft-${prompt.id}`, tempDraft);
-          localStorage.removeItem(`story-draft-temp-${prompt.id}`);
-        } catch (err) {
-          console.error("Error cargando borrador temporal:", err);
-        }
-      }
-    }
-  }, [prompt?.id]);
-
-  // ✅ Auto-guardar en localStorage
-  useEffect(() => {
-    if (!prompt?.id) return;
-
-    // Contar palabras
     const words = text
       .trim()
       .split(/\s+/)
@@ -165,51 +47,92 @@ const WritePrompt = () => {
     if (title.trim() || text.trim()) {
       const saveData = { title, text };
       localStorage.setItem(
-        `story-draft-${prompt.id}`,
+        `story-draft-${contestToUse.id}`,
         JSON.stringify(saveData)
       );
-      setIsSaved(true);
-
-      const timer = setTimeout(() => {
-        if (isMounted.current) setIsSaved(false);
-      }, 2000);
-      return () => clearTimeout(timer);
     }
-  }, [text, title, prompt?.id]);
+  }, [text, title, contestToUse?.id]);
+
+  // ✅ CARGAR BORRADOR
+  useEffect(() => {
+    if (!contestToUse?.id) return;
+
+    const savedDraft = localStorage.getItem(`story-draft-${contestToUse.id}`);
+    if (savedDraft) {
+      try {
+        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
+        if (savedTitle) setTitle(savedTitle);
+        if (savedText) setText(savedText);
+      } catch (err) {
+        console.error("Error cargando borrador:", err);
+      }
+    }
+
+    // Verificar borrador temporal (después de registro)
+    const tempDraft = localStorage.getItem(
+      `story-draft-temp-${contestToUse.id}`
+    );
+    if (tempDraft && !savedDraft) {
+      try {
+        const { title: savedTitle, text: savedText } = JSON.parse(tempDraft);
+        if (savedTitle) setTitle(savedTitle);
+        if (savedText) setText(savedText);
+
+        // Mover a borrador normal y limpiar temporal
+        localStorage.setItem(`story-draft-${contestToUse.id}`, tempDraft);
+        localStorage.removeItem(`story-draft-temp-${contestToUse.id}`);
+      } catch (err) {
+        console.error("Error cargando borrador temporal:", err);
+      }
+    }
+  }, [contestToUse?.id]);
 
   const handleSubmit = () => {
-    // Validaciones básicas
+    // ✅ VALIDACIONES BÁSICAS
     if (!title.trim()) {
       alert("Debes escribir un título para tu historia");
       return;
     }
 
-    if (wordCount < prompt.min_words) {
-      alert(`Tu texto debe tener al menos ${prompt.min_words} palabras`);
+    if (wordCount < (contestToUse?.min_words || 100)) {
+      alert(
+        `Tu texto debe tener al menos ${
+          contestToUse?.min_words || 100
+        } palabras`
+      );
       return;
     }
 
-    if (wordCount > prompt.max_words) {
-      alert(`Tu texto no puede superar las ${prompt.max_words} palabras`);
+    if (wordCount > (contestToUse?.max_words || 1000)) {
+      alert(
+        `Tu texto no puede superar las ${
+          contestToUse?.max_words || 1000
+        } palabras`
+      );
       return;
     }
 
-    // Verificar autenticación
+    // ✅ VERIFICAR PARTICIPACIÓN PREVIA
+    if (hasUserParticipated) {
+      alert("Ya has enviado una historia para este concurso");
+      return;
+    }
+
+    // ✅ VERIFICAR AUTENTICACIÓN
     if (!isAuthenticated) {
-      // Guardar el contenido actual antes de abrir modal de auth
-      if (prompt?.id && (title.trim() || text.trim())) {
+      // Guardar contenido antes de auth
+      if (contestToUse?.id && (title.trim() || text.trim())) {
         const tempDraft = { title, text };
         localStorage.setItem(
-          `story-draft-temp-${prompt.id}`,
+          `story-draft-temp-${contestToUse.id}`,
           JSON.stringify(tempDraft)
         );
       }
-
       setShowAuthModal(true);
       return;
     }
 
-    // Si está autenticado, proceder normal
+    // ✅ PROCEDER CON CONFIRMACIÓN
     setShowConfirmationModal(true);
   };
 
@@ -218,31 +141,25 @@ const WritePrompt = () => {
       title: title.trim(),
       content: text.trim(),
       wordCount,
-      contestId: prompt.id,
+      contestId: contestToUse.id,
       hasMatureContent,
     };
 
-    console.log("📝 Enviando historia:", storyData);
-
+    // ✅ submitStory del contexto actualiza automáticamente userStories
     const result = await submitStory(storyData);
-
-    if (!isMounted.current) return; // <--- Añadido
 
     if (result.success) {
       // Limpiar borrador
-      localStorage.removeItem(`story-draft-${prompt.id}`);
+      localStorage.removeItem(`story-draft-${contestToUse.id}`);
 
       // Cerrar modal
       setShowConfirmationModal(false);
 
-      // Redirigir con mensaje de éxito
+      // Redirigir con mensaje
       navigate("/contest/current", {
-        state: {
-          message: result.message,
-        },
+        state: { message: result.message },
       });
     } else {
-      // Mostrar error pero mantener modal abierto
       alert(result.error);
     }
   };
@@ -250,16 +167,16 @@ const WritePrompt = () => {
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
 
-    // Restaurar el contenido guardado después del registro
-    const savedDraft = localStorage.getItem(`story-draft-temp-${prompt?.id}`);
+    // Restaurar contenido guardado después del registro
+    const savedDraft = localStorage.getItem(
+      `story-draft-temp-${contestToUse?.id}`
+    );
     if (savedDraft) {
       try {
         const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
         if (savedTitle) setTitle(savedTitle);
         if (savedText) setText(savedText);
-
-        // Limpiar el borrador temporal
-        localStorage.removeItem(`story-draft-temp-${prompt?.id}`);
+        localStorage.removeItem(`story-draft-temp-${contestToUse?.id}`);
       } catch (err) {
         console.error("Error restaurando borrador:", err);
       }
@@ -267,18 +184,18 @@ const WritePrompt = () => {
   };
 
   const getWordCountColor = () => {
-    if (!prompt) return "text-gray-500";
-    if (wordCount < prompt.min_words) return "text-red-500";
-    if (wordCount > prompt.max_words) return "text-red-500";
-    if (wordCount > prompt.max_words * 0.9) return "text-yellow-500";
+    if (!contestToUse) return "text-gray-500";
+    if (wordCount < contestToUse.min_words) return "text-red-500";
+    if (wordCount > contestToUse.max_words) return "text-red-500";
+    if (wordCount > contestToUse.max_words * 0.9) return "text-yellow-500";
     return "text-green-500";
   };
 
   const getTimeLeft = () => {
-    if (!prompt?.submission_deadline) return "Cargando...";
+    if (!contestToUse?.submission_deadline) return "Cargando...";
 
     const now = new Date();
-    const deadline = new Date(prompt.submission_deadline);
+    const deadline = new Date(contestToUse.submission_deadline);
     const diff = deadline - now;
 
     if (diff <= 0) return "Concurso cerrado";
@@ -291,12 +208,12 @@ const WritePrompt = () => {
   };
 
   const isSubmissionClosed = () => {
-    if (!prompt?.submission_deadline) return false;
-    return new Date() > new Date(prompt.submission_deadline);
+    if (!contestToUse?.submission_deadline) return false;
+    return new Date() > new Date(contestToUse.submission_deadline);
   };
 
-  // Loading state
-  if (contestLoading || !prompt) {
+  // ✅ LOADING SIMPLIFICADO
+  if (contestsLoading || !contestToUse) {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="animate-pulse">
@@ -308,17 +225,38 @@ const WritePrompt = () => {
     );
   }
 
-  // Error state
-  if (error) {
+  // ✅ ERROR SIMPLIFICADO
+  if (!contestToUse) {
     return (
       <div className="max-w-4xl mx-auto py-12 text-center">
         <div className="text-red-600 mb-4">
           <AlertCircle className="h-12 w-12 mx-auto mb-4" />
-          <h2 className="text-xl font-bold">Error</h2>
-          <p>{error}</p>
+          <h2 className="text-xl font-bold">No hay concurso disponible</h2>
+          <p>Actualmente no hay concursos abiertos para participar.</p>
         </div>
         <button onClick={() => navigate("/")} className="btn-primary">
           Volver al inicio
+        </button>
+      </div>
+    );
+  }
+
+  // ✅ VERIFICAR SI YA PARTICIPÓ
+  if (hasUserParticipated) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center">
+        <div className="text-green-600 mb-4">
+          <PenTool className="h-12 w-12 mx-auto mb-4" />
+          <h2 className="text-xl font-bold">
+            ¡Ya participaste en este concurso!
+          </h2>
+          <p>Tu historia fue enviada exitosamente.</p>
+        </div>
+        <button
+          onClick={() => navigate("/contest/current")}
+          className="btn-primary"
+        >
+          Ver participaciones
         </button>
       </div>
     );
@@ -332,10 +270,10 @@ const WritePrompt = () => {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-                {prompt.category}
+                {contestToUse.category}
               </span>
               <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
-                {prompt.month}
+                {contestToUse.month}
               </span>
               <div className="flex items-center text-gray-500 text-sm">
                 <Clock className="h-4 w-4 mr-1" />
@@ -348,10 +286,10 @@ const WritePrompt = () => {
               )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
-              {prompt.title}
+              {contestToUse.title}
             </h1>
             <p className="text-gray-600 leading-relaxed">
-              {prompt.description}
+              {contestToUse.description}
             </p>
           </div>
         </div>
@@ -400,18 +338,19 @@ const WritePrompt = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className={`text-sm font-medium ${getWordCountColor()}`}>
-              {wordCount} / {prompt.max_words} palabras
+              {wordCount} / {contestToUse.max_words} palabras
             </div>
-            {wordCount < prompt.min_words && (
+            {wordCount < contestToUse.min_words && (
               <div className="flex items-center text-amber-600 text-sm">
                 <AlertCircle className="h-4 w-4 mr-1" />
-                Mínimo {prompt.min_words} palabras
+                Mínimo {contestToUse.min_words} palabras
               </div>
             )}
-            {wordCount > prompt.max_words && (
+            {wordCount > contestToUse.max_words && (
               <div className="flex items-center text-red-600 text-sm">
                 <AlertCircle className="h-4 w-4 mr-1" />
-                Excede el límite por {wordCount - prompt.max_words} palabras
+                Excede el límite por {wordCount - contestToUse.max_words}{" "}
+                palabras
               </div>
             )}
           </div>
@@ -423,18 +362,15 @@ const WritePrompt = () => {
             <button
               onClick={handleSubmit}
               disabled={
-                submissionLoading ||
                 isSubmissionClosed() ||
                 !title.trim() ||
                 !text.trim() ||
-                wordCount < prompt.min_words ||
-                wordCount > prompt.max_words
+                wordCount < contestToUse.min_words ||
+                wordCount > contestToUse.max_words ||
+                hasUserParticipated
               }
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
-              {submissionLoading && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              )}
               <Send className="h-4 w-4 mr-2" />
               {isAuthenticated ? "Enviar historia" : "Registrarse y continuar"}
             </button>
@@ -464,6 +400,7 @@ const WritePrompt = () => {
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
           onSuccess={handleAuthSuccess}
+          initialMode="register"
         />
       )}
 
@@ -475,8 +412,8 @@ const WritePrompt = () => {
           title={title}
           text={text}
           wordCount={wordCount}
-          prompt={prompt}
-          isSubmitting={submissionLoading}
+          prompt={contestToUse}
+          isSubmitting={false}
         />
       )}
     </div>

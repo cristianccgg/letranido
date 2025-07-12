@@ -191,4 +191,5 @@ const VotingGuidance = ({
   );
 };
 
+// El componente solo recibe props y no interactúa con el contexto directamente.
 export default VotingGuidance;

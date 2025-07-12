@@ -170,4 +170,5 @@ const BadgeNotification = ({ badge, isOpen, onClose }) => {
   );
 };
 
+// El componente solo recibe props y no interactúa con el contexto directamente.
 export default BadgeNotification;

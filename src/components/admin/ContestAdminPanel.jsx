@@ -17,31 +17,41 @@ import {
   Calendar,
   Save,
   RefreshCw,
+  Play,
+  Pause,
+  RotateCcw,
+  TestTube,
+  Zap,
+  Shield,
+  Trash2,
 } from "lucide-react";
-import { useContests } from "../../hooks/useContests";
+import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
-import { useAuthStore } from "../../store/authStore";
+import { supabase } from "../../lib/supabase";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
   const [showFinalizationModal, setShowFinalizationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [winners, setWinners] = useState(null);
   const [finalizationResult, setFinalizationResult] = useState(null);
   const [editingContest, setEditingContest] = useState(null);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [simulatedWinners, setSimulatedWinners] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(null); // ID del concurso que se está eliminando
+  const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
 
-  const { user } = useAuthStore();
-  const {
-    contests,
-    loading: contestsLoading,
-    refetch,
-    createContest,
-    updateContest,
-  } = useContests();
+  // Usar el contexto global unificado
+  const { user, isAuthenticated, contests, contestsLoading, refreshContests } =
+    useGlobalApp();
+
   const {
     finalizeContest,
     previewWinners,
+    revertFinalization,
     loading: finalizationLoading,
   } = useContestFinalization();
 
@@ -103,6 +113,275 @@ const ContestAdminPanel = () => {
     });
   };
 
+  // Crear nuevo concurso usando Supabase directamente
+  const createContest = async (contestData) => {
+    try {
+      const { data, error } = await supabase
+        .from("contests")
+        .insert([contestData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return { success: true, contest: data };
+    } catch (err) {
+      console.error("Error creating contest:", err);
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Actualizar concurso usando Supabase directamente
+  const updateContest = async (contestId, updates) => {
+    try {
+      const { data, error } = await supabase
+        .from("contests")
+        .update(updates)
+        .eq("id", contestId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return { success: true, contest: data };
+    } catch (err) {
+      console.error("Error updating contest:", err);
+      return { success: false, error: err.message };
+    }
+  };
+
+  // 🆕 FUNCIONES PARA CONTROL DE ESTADOS DE PRUEBA
+
+  // Revertir finalización (deshacer badges y puntos)
+  const handleRevertFinalization = async (contest) => {
+    if (contest.status !== "results") {
+      alert("❌ Solo se pueden revertir concursos finalizados");
+      return;
+    }
+
+    const isTestContest =
+      contest.title.toLowerCase().includes("test") ||
+      contest.title.toLowerCase().includes("prueba");
+
+    let confirmMessage = `¿Revertir la finalización de "${contest.title}"?`;
+
+    if (!isTestContest) {
+      confirmMessage +=
+        "\n\n⚠️ ADVERTENCIA: Esto eliminará:\n• Badges otorgados a los ganadores\n• Puntos asignados\n• Marcas de ganador en historias\n\n¿Continuar?";
+    } else {
+      confirmMessage +=
+        "\n\nEsto revertirá:\n• Badges de prueba\n• Puntos de prueba\n• Estado del concurso";
+    }
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    const result = await revertFinalization(contest.id);
+    if (result.success) {
+      alert("✅ Finalización revertida exitosamente");
+    } else {
+      alert("❌ Error revirtiendo: " + result.error);
+    }
+  };
+
+  // Eliminar concurso completamente
+  const deleteContest = async (contest) => {
+    const isTestContest =
+      contest.title.toLowerCase().includes("test") ||
+      contest.title.toLowerCase().includes("prueba");
+
+    let confirmMessage = `¿Estás seguro de que quieres ELIMINAR PERMANENTEMENTE el concurso "${contest.title}"?`;
+
+    if (!isTestContest) {
+      confirmMessage +=
+        "\n\n⚠️ ADVERTENCIA: Este no parece ser un concurso de prueba. Esta acción eliminará:\n• El concurso\n• Todas sus historias\n• Todos los votos asociados\n\n¿Continuar?";
+    } else {
+      confirmMessage +=
+        "\n\nEsto eliminará:\n• El concurso\n• Todas sus historias\n• Todos los votos asociados";
+    }
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setDeleteLoading(contest.id);
+
+    try {
+      console.log("🗑️ Iniciando eliminación del concurso:", contest.title);
+
+      // 1. Eliminar todos los votos de las historias del concurso
+      const { data: contestStories, error: storiesError } = await supabase
+        .from("stories")
+        .select("id")
+        .eq("contest_id", contest.id);
+
+      if (storiesError) {
+        console.warn(
+          "⚠️ Error obteniendo historias para eliminar votos:",
+          storiesError
+        );
+      }
+
+      if (contestStories && contestStories.length > 0) {
+        const storyIds = contestStories.map((s) => s.id);
+
+        // Eliminar votos
+        const { error: votesError } = await supabase
+          .from("votes")
+          .delete()
+          .in("story_id", storyIds);
+
+        if (votesError) {
+          console.warn("⚠️ Error eliminando votos:", votesError);
+        } else {
+          console.log("✅ Votos eliminados:", storyIds.length, "historias");
+        }
+      }
+
+      // 2. Eliminar todas las historias del concurso
+      const { error: deleteStoriesError } = await supabase
+        .from("stories")
+        .delete()
+        .eq("contest_id", contest.id);
+
+      if (deleteStoriesError) {
+        throw new Error(
+          "Error eliminando historias: " + deleteStoriesError.message
+        );
+      }
+
+      console.log("✅ Historias del concurso eliminadas");
+
+      // 3. Eliminar el concurso
+      const { error: deleteContestError } = await supabase
+        .from("contests")
+        .delete()
+        .eq("id", contest.id);
+
+      if (deleteContestError) {
+        throw new Error(
+          "Error eliminando concurso: " + deleteContestError.message
+        );
+      }
+
+      console.log("✅ Concurso eliminado exitosamente");
+
+      // 4. Refrescar la lista
+      await refreshContests();
+
+      alert(`✅ Concurso "${contest.title}" eliminado completamente`);
+    } catch (error) {
+      console.error("❌ Error eliminando concurso:", error);
+      alert("❌ Error eliminando concurso: " + error.message);
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
+
+  // Cambio de estado simple (sin badges)
+  const changeContestStatus = async (contest, newStatus) => {
+    const now = new Date();
+    let updates = { status: newStatus };
+
+    // Ajustar fechas según el nuevo estado
+    if (newStatus === "submission") {
+      const submissionEnd = new Date(now);
+      submissionEnd.setDate(now.getDate() + 7);
+      const votingEnd = new Date(submissionEnd);
+      votingEnd.setDate(votingEnd.getDate() + 5);
+
+      updates.submission_deadline = submissionEnd.toISOString();
+      updates.voting_deadline = votingEnd.toISOString();
+    } else if (newStatus === "voting") {
+      updates.submission_deadline = now.toISOString(); // ya no se puede enviar
+      const votingEnd = new Date(now);
+      votingEnd.setDate(now.getDate() + 5);
+      updates.voting_deadline = votingEnd.toISOString();
+    }
+
+    const result = await updateContest(contest.id, updates);
+    if (result.success) {
+      alert(`✅ Estado cambiado a "${newStatus}"`);
+      await refreshContests();
+    } else {
+      alert("❌ Error: " + result.error);
+    }
+  };
+
+  // Simular ganadores (sin badges)
+  const simulateWinners = async (contest) => {
+    try {
+      console.log("🎭 Simulando ganadores para:", contest.title);
+
+      const { data: stories, error } = await supabase
+        .from("stories")
+        .select(
+          `
+          *,
+          user_profiles(id, display_name, email)
+        `
+        )
+        .eq("contest_id", contest.id)
+        .order("likes_count", { ascending: false });
+
+      if (error) throw error;
+
+      if (!stories || stories.length === 0) {
+        alert("⚠️ No hay historias para simular ganadores");
+        return;
+      }
+
+      const mockWinners = stories.slice(0, 3).map((story, index) => ({
+        ...story,
+        position: index + 1,
+        simulatedPoints: index === 0 ? 100 : index === 1 ? 50 : 25,
+      }));
+
+      setSimulatedWinners(mockWinners);
+      setSelectedContest(contest);
+      setShowPreviewModal(true);
+
+      console.log(
+        "🎭 Ganadores simulados:",
+        mockWinners.map((w) => w.title)
+      );
+    } catch (error) {
+      console.error("❌ Error simulando ganadores:", error);
+      alert("Error simulando ganadores: " + error.message);
+    }
+  };
+
+  // Finalización REAL con badges
+  const handlePreviewWinners = async (contest) => {
+    setFinalizingContestId(contest.id);
+    const result = await previewWinners(contest.id);
+    if (result.success) {
+      setWinners(result.winners);
+      setSelectedContest(contest);
+      setShowFinalizationModal(true);
+    } else {
+      alert("Error al obtener vista previa: " + result.error);
+    }
+    setFinalizingContestId(null);
+  };
+
+  const handleFinalizeContest = async () => {
+    if (!selectedContest) return;
+
+    setFinalizingContestId(selectedContest.id);
+    const result = await finalizeContest(selectedContest.id);
+    setFinalizationResult(result);
+
+    if (result.success) {
+      await refreshContests();
+      setShowFinalizationModal(false);
+      setSelectedContest(null);
+      setWinners(null);
+    }
+    setFinalizingContestId(null);
+  };
+
   // Crear nuevo concurso
   const handleCreateContest = async (e) => {
     e.preventDefault();
@@ -112,23 +391,37 @@ const ContestAdminPanel = () => {
       return;
     }
 
+    setCreateLoading(true);
     try {
-      const result = await createContest({
-        ...contestForm,
-        start_date: new Date().toISOString(),
-        end_date: contestForm.voting_deadline,
-      });
+      // ✅ CORREGIDO: Solo usar columnas que existen en la tabla
+      const contestData = {
+        title: contestForm.title.trim(),
+        description: contestForm.description.trim(),
+        category: contestForm.category,
+        month: contestForm.month,
+        min_words: contestForm.min_words,
+        max_words: contestForm.max_words,
+        submission_deadline: contestForm.submission_deadline,
+        voting_deadline: contestForm.voting_deadline,
+        prize: contestForm.prize,
+        status: contestForm.status,
+        // created_at y updated_at se manejan automáticamente por la BD
+      };
+
+      const result = await createContest(contestData);
 
       if (result.success) {
         alert("¡Concurso creado exitosamente!");
         setShowCreateModal(false);
         resetForm();
-        await refetch();
+        await refreshContests();
       } else {
         alert("Error al crear concurso: " + result.error);
       }
     } catch (error) {
       alert("Error inesperado: " + error.message);
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -160,65 +453,38 @@ const ContestAdminPanel = () => {
 
     if (!editingContest) return;
 
+    setUpdateLoading(true);
     try {
-      const result = await updateContest(editingContest.id, {
-        ...contestForm,
-        end_date: contestForm.voting_deadline,
-      });
+      // ✅ CORREGIDO: Solo usar columnas que existen en la tabla
+      const updateData = {
+        title: contestForm.title.trim(),
+        description: contestForm.description.trim(),
+        category: contestForm.category,
+        month: contestForm.month,
+        min_words: contestForm.min_words,
+        max_words: contestForm.max_words,
+        submission_deadline: contestForm.submission_deadline,
+        voting_deadline: contestForm.voting_deadline,
+        prize: contestForm.prize,
+        status: contestForm.status,
+        // updated_at se maneja automáticamente por la BD
+      };
+
+      const result = await updateContest(editingContest.id, updateData);
 
       if (result.success) {
         alert("¡Concurso actualizado exitosamente!");
         setShowEditModal(false);
         setEditingContest(null);
         resetForm();
-        await refetch();
+        await refreshContests();
       } else {
         alert("Error al actualizar concurso: " + result.error);
       }
     } catch (error) {
       alert("Error inesperado: " + error.message);
-    }
-  };
-
-  // Cambiar status rápidamente
-  const handleQuickStatusChange = async (contest, newStatus) => {
-    if (confirm(`¿Cambiar status de "${contest.title}" a "${newStatus}"?`)) {
-      try {
-        const result = await updateContest(contest.id, { status: newStatus });
-        if (result.success) {
-          alert("Status actualizado exitosamente");
-          await refetch();
-        } else {
-          alert("Error: " + result.error);
-        }
-      } catch (error) {
-        alert("Error inesperado: " + error.message);
-      }
-    }
-  };
-
-  const handlePreviewWinners = async (contest) => {
-    const result = await previewWinners(contest.id);
-    if (result.success) {
-      setWinners(result.winners);
-      setSelectedContest(contest);
-      setShowFinalizationModal(true);
-    } else {
-      alert("Error al obtener vista previa: " + result.error);
-    }
-  };
-
-  const handleFinalizeContest = async () => {
-    if (!selectedContest) return;
-
-    const result = await finalizeContest(selectedContest.id);
-    setFinalizationResult(result);
-
-    if (result.success) {
-      await refetch();
-      setShowFinalizationModal(false);
-      setSelectedContest(null);
-      setWinners(null);
+    } finally {
+      setUpdateLoading(false);
     }
   };
 
@@ -240,6 +506,18 @@ const ContestAdminPanel = () => {
     { value: "voting", label: "En votación", color: "green" },
     { value: "results", label: "Finalizado", color: "gray" },
   ];
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center">
+        <div className="text-gray-500 mb-4">
+          <Settings className="h-16 w-16 mx-auto mb-4 opacity-50" />
+          <h2 className="text-xl font-bold">Acceso requerido</h2>
+          <p>Debes iniciar sesión para acceder a este panel.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
@@ -277,7 +555,7 @@ const ContestAdminPanel = () => {
             Panel de Administración
           </h1>
           <p className="text-gray-600 mt-2">
-            Gestión de concursos y asignación de badges
+            Gestión completa de concursos con controles de prueba
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -374,7 +652,7 @@ const ContestAdminPanel = () => {
             Concursos ({contests.length})
           </h2>
           <button
-            onClick={() => refetch()}
+            onClick={() => refreshContests()}
             className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 flex items-center text-sm"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -434,6 +712,18 @@ const ContestAdminPanel = () => {
                     >
                       <Edit className="h-4 w-4" />
                     </button>
+                    <button
+                      onClick={() => deleteContest(contest)}
+                      disabled={deleteLoading === contest.id}
+                      className="text-gray-400 hover:text-red-600 p-1 disabled:opacity-50"
+                      title="Eliminar concurso"
+                    >
+                      {deleteLoading === contest.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
                     {contest.status === "results" && (
                       <Trophy className="h-5 w-5 text-yellow-500" />
                     )}
@@ -463,6 +753,47 @@ const ContestAdminPanel = () => {
                   </div>
                 </div>
 
+                {/* 🆕 CONTROLES DE PRUEBA */}
+                {contest.status !== "results" && (
+                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <TestTube className="h-4 w-4 text-yellow-600 mr-2" />
+                      <span className="text-sm font-medium text-yellow-800">
+                        Controles de Prueba
+                      </span>
+                    </div>
+                    <div className="flex gap-2 text-xs">
+                      {contest.status === "submission" && (
+                        <button
+                          onClick={() => changeContestStatus(contest, "voting")}
+                          className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                        >
+                          <Play className="h-3 w-3 inline mr-1" />
+                          Test Votación
+                        </button>
+                      )}
+                      {contest.status === "voting" && (
+                        <button
+                          onClick={() =>
+                            changeContestStatus(contest, "submission")
+                          }
+                          className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                        >
+                          <RotateCcw className="h-3 w-3 inline mr-1" />
+                          Volver Envíos
+                        </button>
+                      )}
+                      <button
+                        onClick={() => simulateWinners(contest)}
+                        className="px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                      >
+                        <Eye className="h-3 w-3 inline mr-1" />
+                        Simular Ganadores
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Fechas importantes */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                   <div className="text-xs text-gray-500 space-y-1">
@@ -485,43 +816,18 @@ const ContestAdminPanel = () => {
                   </div>
                 </div>
 
-                {/* Botones de acción rápida */}
-                {contest.status !== "results" && (
-                  <div className="mb-3 flex gap-2">
-                    {contest.status === "submission" && (
-                      <button
-                        onClick={() =>
-                          handleQuickStatusChange(contest, "voting")
-                        }
-                        className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
-                      >
-                        → Iniciar votación
-                      </button>
-                    )}
-                    {contest.status === "voting" && (
-                      <button
-                        onClick={() =>
-                          handleQuickStatusChange(contest, "submission")
-                        }
-                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                      >
-                        ← Volver a envíos
-                      </button>
-                    )}
-                  </div>
-                )}
-
                 <div className="space-y-2">
+                  {/* 🆕 FINALIZACIÓN REAL CON BADGES */}
                   {contest.status !== "results" && (
                     <button
                       onClick={() => handlePreviewWinners(contest)}
-                      disabled={finalizationLoading}
-                      className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center"
+                      disabled={finalizingContestId === contest.id}
+                      className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
                     >
-                      <Trophy className="h-4 w-4 mr-2" />
-                      {finalizationLoading
+                      <Shield className="h-4 w-4 mr-2" />
+                      {finalizingContestId === contest.id
                         ? "Cargando..."
-                        : "Finalizar concurso"}
+                        : "🏆 FINALIZAR REAL (Con Badges)"}
                     </button>
                   )}
 
@@ -538,9 +844,20 @@ const ContestAdminPanel = () => {
 
                 {contest.status === "results" && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center text-sm text-green-600">
-                      <Check className="h-4 w-4 mr-1" />
-                      <span>Concurso finalizado</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-green-600">
+                        <Check className="h-4 w-4 mr-1" />
+                        <span>Concurso finalizado</span>
+                      </div>
+                      <button
+                        onClick={() => handleRevertFinalization(contest)}
+                        disabled={finalizingContestId === contest.id}
+                        className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 disabled:opacity-50"
+                        title="Revertir finalización"
+                      >
+                        <RotateCcw className="h-3 w-3 inline mr-1" />
+                        Revertir
+                      </button>
                     </div>
                   </div>
                 )}
@@ -549,6 +866,123 @@ const ContestAdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de simulación de ganadores */}
+      {showPreviewModal && selectedContest && simulatedWinners && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <TestTube className="h-6 w-6 mr-2 text-purple-600" />
+                  Simulación - "{selectedContest.title}"
+                </h2>
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <TestTube className="h-5 w-5 text-purple-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium text-purple-800 mb-1">
+                      Solo Simulación - Sin Badges
+                    </h3>
+                    <p className="text-purple-700 text-sm">
+                      Esta es una vista previa para pruebas. Los ganadores
+                      mostrados no recibirán badges ni se registrarán puntos
+                      reales.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vista previa de ganadores simulados */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Ganadores simulados:
+                </h3>
+                <div className="space-y-3">
+                  {simulatedWinners.map((story, index) => (
+                    <div
+                      key={story.id}
+                      className={`flex items-center p-4 rounded-lg border-2 ${
+                        index === 0
+                          ? "border-yellow-300 bg-yellow-50"
+                          : index === 1
+                          ? "border-gray-300 bg-gray-50"
+                          : "border-orange-300 bg-orange-50"
+                      }`}
+                    >
+                      <div className="mr-4">
+                        {index === 0 ? (
+                          <Crown className="h-8 w-8 text-yellow-600" />
+                        ) : index === 1 ? (
+                          <Medal className="h-8 w-8 text-gray-600" />
+                        ) : (
+                          <Star className="h-8 w-8 text-orange-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-lg">
+                            {index === 0 ? "1º" : index === 1 ? "2º" : "3º"}{" "}
+                            Lugar
+                          </span>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              index === 0
+                                ? "bg-yellow-200 text-yellow-800"
+                                : index === 1
+                                ? "bg-gray-200 text-gray-800"
+                                : "bg-orange-200 text-orange-800"
+                            }`}
+                          >
+                            {story.likes_count || 0} likes
+                          </span>
+                        </div>
+                        <h4 className="font-medium text-gray-900 mb-1">
+                          {story.title}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          por {story.user_profiles?.display_name || "Usuario"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Simularía:</div>
+                        <div
+                          className={`font-medium ${
+                            index === 0
+                              ? "text-yellow-700"
+                              : index === 1
+                              ? "text-gray-700"
+                              : "text-orange-700"
+                          }`}
+                        >
+                          +{story.simulatedPoints} puntos
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal crear concurso */}
       {showCreateModal && (
@@ -581,6 +1015,253 @@ const ContestAdminPanel = () => {
                     onChange={(e) =>
                       setContestForm({ ...contestForm, title: e.target.value })
                     }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción *
+                  </label>
+                  <textarea
+                    required
+                    value={contestForm.description}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        description: e.target.value,
+                      })
+                    }
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Categoría
+                  </label>
+                  <select
+                    value={contestForm.category}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        category: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mes
+                  </label>
+                  <input
+                    type="text"
+                    value={contestForm.month}
+                    onChange={(e) =>
+                      setContestForm({ ...contestForm, month: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Palabras mínimas
+                  </label>
+                  <input
+                    type="number"
+                    min="50"
+                    max="1000"
+                    value={contestForm.min_words}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        min_words: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Palabras máximas
+                  </label>
+                  <input
+                    type="number"
+                    min="100"
+                    max="5000"
+                    value={contestForm.max_words}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        max_words: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fin de envíos
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={contestForm.submission_deadline}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        submission_deadline: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fin de votación
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={contestForm.voting_deadline}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        voting_deadline: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Premio
+                  </label>
+                  <input
+                    type="text"
+                    value={contestForm.prize}
+                    onChange={(e) =>
+                      setContestForm({ ...contestForm, prize: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status inicial
+                  </label>
+                  <select
+                    value={contestForm.status}
+                    onChange={(e) =>
+                      setContestForm({ ...contestForm, status: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {statusOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-end mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  disabled={createLoading}
+                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center"
+                >
+                  {createLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Crear Concurso
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal editar concurso */}
+      {showEditModal && editingContest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <form onSubmit={handleSaveEdit} className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <Edit className="h-6 w-6 mr-2 text-blue-600" />
+                  Editar Concurso
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Título del concurso *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={contestForm.title}
+                    onChange={(e) =>
+                      setContestForm({ ...contestForm, title: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción *
+                  </label>
+                  <textarea
+                    required
+                    value={contestForm.description}
+                    onChange={(e) =>
+                      setContestForm({
+                        ...contestForm,
+                        description: e.target.value,
+                      })
+                    }
+                    rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
@@ -733,16 +1414,27 @@ const ContestAdminPanel = () => {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  disabled={updateLoading}
+                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 flex items-center"
+                  disabled={updateLoading}
+                  className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar Cambios
+                  {updateLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Guardar Cambios
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -750,15 +1442,15 @@ const ContestAdminPanel = () => {
         </div>
       )}
 
-      {/* Modal de confirmación de finalización */}
+      {/* Modal de confirmación de finalización REAL */}
       {showFinalizationModal && selectedContest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Trophy className="h-6 w-6 mr-2 text-yellow-600" />
-                  Finalizar "{selectedContest.title}"
+                  <Shield className="h-6 w-6 mr-2 text-red-600" />
+                  FINALIZACIÓN REAL - "{selectedContest.title}"
                 </h2>
                 <button
                   onClick={() => setShowFinalizationModal(false)}
@@ -768,16 +1460,17 @@ const ContestAdminPanel = () => {
                 </button>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
                   <div>
-                    <h3 className="font-medium text-yellow-800 mb-1">
-                      ¿Estás seguro?
+                    <h3 className="font-medium text-red-800 mb-1">
+                      ⚠️ ATENCIÓN: Finalización Real
                     </h3>
-                    <p className="text-yellow-700 text-sm">
-                      Esta acción finalizará el concurso, otorgará badges
-                      automáticamente a los ganadores y no se puede deshacer.
+                    <p className="text-red-700 text-sm">
+                      Esta acción finalizará el concurso DEFINITIVAMENTE,
+                      otorgará badges reales a los ganadores, actualizará
+                      estadísticas permanentes y NO se puede deshacer.
                     </p>
                   </div>
                 </div>
@@ -787,7 +1480,7 @@ const ContestAdminPanel = () => {
               {winners && winners.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Vista previa de ganadores:
+                    Ganadores que recibirán badges:
                   </h3>
                   <div className="space-y-3">
                     {winners.slice(0, 3).map((story, index) => (
@@ -847,10 +1540,10 @@ const ContestAdminPanel = () => {
                             }`}
                           >
                             {index === 0
-                              ? "🏆 Badge Ganador"
+                              ? "🏆 Badge Ganador + 100pts"
                               : index === 1
-                              ? "🥈 Badge Segundo"
-                              : "🥉 Badge Tercero"}
+                              ? "🥈 Badge Segundo + 50pts"
+                              : "🥉 Badge Tercero + 25pts"}
                           </div>
                         </div>
                       </div>
@@ -871,7 +1564,7 @@ const ContestAdminPanel = () => {
                 <button
                   onClick={() => setShowFinalizationModal(false)}
                   disabled={finalizationLoading}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
                 >
                   Cancelar
                 </button>
@@ -880,7 +1573,7 @@ const ContestAdminPanel = () => {
                   disabled={
                     finalizationLoading || !winners || winners.length === 0
                   }
-                  className="bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center"
+                  className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center"
                 >
                   {finalizationLoading ? (
                     <>
@@ -889,8 +1582,8 @@ const ContestAdminPanel = () => {
                     </>
                   ) : (
                     <>
-                      <Trophy className="h-4 w-4 mr-2" />
-                      Sí, finalizar concurso
+                      <Shield className="h-4 w-4 mr-2" />
+                      SÍ, FINALIZAR CON BADGES
                     </>
                   )}
                 </button>
@@ -906,26 +1599,29 @@ const ContestAdminPanel = () => {
           <h4 className="text-red-800 font-bold mb-2">
             🚨 DEBUG - Solo desarrollo
           </h4>
-          <button
-            onClick={() => {
-              if (window.__authStoreCleanup) {
-                window.__authStoreCleanup();
-                window.location.reload();
-              }
-            }}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mr-4"
-          >
-            Limpiar AuthStore y recargar
-          </button>
-          <button
-            onClick={() => {
-              localStorage.clear();
-              alert("LocalStorage limpiado");
-            }}
-            className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
-          >
-            Limpiar LocalStorage
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                localStorage.clear();
+                alert("LocalStorage limpiado");
+              }}
+              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
+            >
+              Limpiar LocalStorage
+            </button>
+            <button
+              onClick={() => {
+                console.log("🔍 Estado actual del contexto:", {
+                  contests,
+                  user,
+                  isAuthenticated,
+                });
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Log Estado
+            </button>
+          </div>
         </div>
       )}
     </div>

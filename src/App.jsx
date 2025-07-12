@@ -1,14 +1,12 @@
+// App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
-import { useAuthStore } from "./store/authStore";
-import { AppStateProvider, useAppState } from "./contexts/AppStateContext";
+import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import { BadgeNotificationProvider } from "./contexts/BadgeNotificationContext";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
-import Dashboard from "./pages/Dashboard";
-import WritePrompt from "./pages/WritePrompt";
-import Gallery from "./pages/Gallery";
 import UnifiedProfile from "./pages/UnifiedProfile";
+import WritePrompt from "./pages/WritePrompt";
+import ContestHistory from "./pages/ContestHistory"; // ✅ CAMBIADO DE Gallery
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
 import ContestAdminPanel from "./components/admin/ContestAdminPanel";
@@ -16,23 +14,62 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
 
-// ✅ Componente interno que usa el contexto
+// ✅ Componente interno que usa el contexto unificado
 function AppContent() {
-  const { globalLoading, isAuthReady, contestsInitialized } = useAppState();
+  const { initialized, authInitialized } = useGlobalApp();
 
-  // ✅ Mostrar loading hasta que auth Y contests estén listos
-  if (globalLoading || !isAuthReady || !contestsInitialized) {
+  // 🔧 DEBUG: Agregar logs para entender el estado
+  console.log("🔍 AppContent render:", {
+    authInitialized,
+    initialized,
+    showingLoading: !authInitialized || !initialized,
+  });
+
+  // ✅ LOADING SIMPLIFICADO - Un solo estado global
+  // Solo mostrar loading si auth no está inicializado o si no está inicializado completamente
+  if (!authInitialized || !initialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-accent-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {!isAuthReady
-              ? "Inicializando autenticación..."
-              : !contestsInitialized
-              ? "Cargando concursos..."
-              : "Cargando LiteraLab..."}
-          </p>
+          <div className="relative">
+            {/* Spinner más elegante */}
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-6"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-accent-400 animate-ping"></div>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Cargando LiteraLab
+            </h2>
+            <p className="text-gray-600">
+              {!authInitialized
+                ? "Verificando sesión..."
+                : !initialized
+                ? "Preparando tu experiencia..."
+                : "Casi listo..."}
+            </p>
+
+            {/* Barra de progreso simple */}
+            <div className="w-64 mx-auto mt-4">
+              <div className="bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full animate-pulse"
+                  style={{
+                    width: !authInitialized
+                      ? "50%"
+                      : !initialized
+                      ? "75%"
+                      : "100%",
+                    transition: "width 0.5s ease-in-out",
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="text-xs text-gray-500 mt-4">
+              ✨ Una comunidad donde la creatividad no tiene límites
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -44,19 +81,31 @@ function AppContent() {
         <Layout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+
+            {/* ✅ RUTAS SIMPLIFICADAS - Menos componentes diferentes */}
             <Route path="/profile" element={<UnifiedProfile />} />
             <Route path="/dashboard" element={<UnifiedProfile />} />
+            <Route path="/profile/:userId" element={<UnifiedProfile />} />
+
             <Route path="/write/:promptId?" element={<WritePrompt />} />
-            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/history" element={<ContestHistory />} />
             <Route path="/contest/current" element={<CurrentContest />} />
+            <Route path="/contest/:id" element={<CurrentContest />} />
             <Route path="/story/:id" element={<StoryPage />} />
+
+            {/* Admin */}
             <Route path="/admin" element={<ContestAdminPanel />} />
+
+            {/* Legal */}
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route
               path="/community-guidelines"
               element={<CommunityGuidelines />}
             />
+
+            {/* ✅ RUTA 404 MEJORADA */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Layout>
       </BadgeNotificationProvider>
@@ -64,20 +113,43 @@ function AppContent() {
   );
 }
 
-// ✅ Componente principal que inicializa auth
-function App() {
-  const { initialize } = useAuthStore();
-
-  // ✅ Inicializar auth UNA sola vez
-  useEffect(() => {
-    console.log("🎬 [APP] Inicializando auth...");
-    initialize();
-  }, [initialize]);
+// ✅ Componente 404 simple
+function NotFoundPage() {
+  const { currentContest } = useGlobalApp();
 
   return (
-    <AppStateProvider>
+    <div className="max-w-2xl mx-auto text-center py-16">
+      <div className="text-6xl mb-4">📚</div>
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        Página no encontrada
+      </h1>
+      <p className="text-gray-600 mb-8">
+        La página que buscas no existe o ha sido movida.
+      </p>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/" className="btn-primary">
+          Volver al inicio
+        </a>
+        {currentContest && (
+          <a href="/contest/current" className="btn-secondary">
+            Ver concurso actual
+          </a>
+        )}
+        <a href="/history" className="btn-secondary">
+          Ver historial de concursos
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ✅ COMPONENTE PRINCIPAL SIMPLIFICADO
+function App() {
+  return (
+    <GlobalAppProvider>
       <AppContent />
-    </AppStateProvider>
+    </GlobalAppProvider>
   );
 }
 
