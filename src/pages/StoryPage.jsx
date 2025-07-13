@@ -21,7 +21,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import { useBadgeNotifications } from "../contexts/BadgeNotificationContext";
 import AuthModal from "../components/forms/AuthModal";
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
@@ -48,9 +47,8 @@ const StoryPage = () => {
     canVoteInStory,
     toggleLike,
     getContestPhase,
+    checkFirstStoryBadge,
   } = useGlobalApp();
-
-  const { checkFirstStoryBadge } = useBadgeNotifications();
 
   // ✅ LOCAL STATE SIMPLIFICADO
   const [story, setStory] = useState(null);

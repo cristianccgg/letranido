@@ -15,8 +15,8 @@ import {
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import BadgeDisplay from "../BadgeDisplay";
+import BadgeNotification from "../BadgeNotification";
 import GlobalFooter from "./GlobalFooter";
-import { useBadgeNotifications } from "../../contexts/BadgeNotificationContext";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -35,9 +35,10 @@ const Layout = ({ children }) => {
     userStoriesLoading,
     // Función de logout que necesitaremos implementar en el contexto
     logout: contextLogout,
+    showFounderWelcome,
+    badgeNotifications,
+    removeBadgeNotification,
   } = useGlobalApp();
-
-  const { showFounderWelcome } = useBadgeNotifications();
   const isLanding = location.pathname === "/";
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
@@ -529,6 +530,16 @@ const Layout = ({ children }) => {
           initialMode={authMode}
         />
       )}
+
+      {/* Badge Notifications */}
+      {badgeNotifications.map((notification) => (
+        <BadgeNotification
+          key={notification.id}
+          badge={notification.badge}
+          isOpen={true}
+          onClose={() => removeBadgeNotification(notification.id)}
+        />
+      ))}
     </div>
   );
 };

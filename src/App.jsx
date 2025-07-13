@@ -1,7 +1,6 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
-import { BadgeNotificationProvider } from "./contexts/BadgeNotificationContext";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import UnifiedProfile from "./pages/UnifiedProfile";
@@ -77,38 +76,36 @@ function AppContent() {
 
   return (
     <Router>
-      <BadgeNotificationProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
 
-            {/* ✅ RUTAS SIMPLIFICADAS - Menos componentes diferentes */}
-            <Route path="/profile" element={<UnifiedProfile />} />
-            <Route path="/dashboard" element={<UnifiedProfile />} />
-            <Route path="/profile/:userId" element={<UnifiedProfile />} />
+          {/* ✅ RUTAS SIMPLIFICADAS - Menos componentes diferentes */}
+          <Route path="/profile" element={<UnifiedProfile />} />
+          <Route path="/dashboard" element={<UnifiedProfile />} />
+          <Route path="/profile/:userId" element={<UnifiedProfile />} />
 
-            <Route path="/write/:promptId?" element={<WritePrompt />} />
-            <Route path="/history" element={<ContestHistory />} />
-            <Route path="/contest/current" element={<CurrentContest />} />
-            <Route path="/contest/:id" element={<CurrentContest />} />
-            <Route path="/story/:id" element={<StoryPage />} />
+          <Route path="/write/:promptId?" element={<WritePrompt />} />
+          <Route path="/history" element={<ContestHistory />} />
+          <Route path="/contest/current" element={<CurrentContest />} />
+          <Route path="/contest/:id" element={<CurrentContest />} />
+          <Route path="/story/:id" element={<StoryPage />} />
 
-            {/* Admin */}
-            <Route path="/admin" element={<ContestAdminPanel />} />
+          {/* Admin */}
+          <Route path="/admin" element={<ContestAdminPanel />} />
 
-            {/* Legal */}
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route
-              path="/community-guidelines"
-              element={<CommunityGuidelines />}
-            />
+          {/* Legal */}
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route
+            path="/community-guidelines"
+            element={<CommunityGuidelines />}
+          />
 
-            {/* ✅ RUTA 404 MEJORADA */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Layout>
-      </BadgeNotificationProvider>
+          {/* ✅ RUTA 404 MEJORADA */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 }

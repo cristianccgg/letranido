@@ -23,7 +23,6 @@ import {
   User,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import { useBadgeNotifications } from "../contexts/BadgeNotificationContext";
 import VotingGuidance from "../components/voting/VotingGuidance";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -53,9 +52,8 @@ const CurrentContest = () => {
     refreshUserData,
     toggleLike,
     getContestPhase,
+    checkFirstStoryBadge,
   } = useGlobalApp();
-
-  const { checkFirstStoryBadge } = useBadgeNotifications();
 
   // ✅ LOCAL STATE PARA CURRENTCONTEST (DIFERENTE DE GALLERY)
   const [contest, setContest] = useState(null);
