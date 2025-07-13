@@ -152,10 +152,15 @@ const StoryPage = () => {
   // ✅ ACTUALIZAR STORY LOCAL CUANDO CAMBIE GALLERYSTORIES (para views_count)
   useEffect(() => {
     if (story && galleryStories.length > 0) {
-      const updatedStory = galleryStories.find(s => s.id === story.id);
+      const updatedStory = galleryStories.find((s) => s.id === story.id);
       if (updatedStory && updatedStory.views_count !== story.views_count) {
-        console.log(`🔄 Actualizando views_count en StoryPage: ${story.views_count} → ${updatedStory.views_count}`);
-        setStory(prev => ({ ...prev, views_count: updatedStory.views_count }));
+        console.log(
+          `🔄 Actualizando views_count en StoryPage: ${story.views_count} → ${updatedStory.views_count}`
+        );
+        setStory((prev) => ({
+          ...prev,
+          views_count: updatedStory.views_count,
+        }));
       }
     }
   }, [galleryStories, story?.id, story?.views_count]);
@@ -188,7 +193,6 @@ const StoryPage = () => {
             result.liked ? "agregado" : "removido"
           }`
         );
-
       } else {
         console.error("❌ Error voting:", result.error);
         alert("Error al procesar el voto: " + result.error);
@@ -296,7 +300,10 @@ const StoryPage = () => {
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <div className="space-x-4">
-            <button onClick={() => navigate("/contest/current")} className="btn-secondary">
+            <button
+              onClick={() => navigate("/contest/current")}
+              className="btn-secondary"
+            >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Volver
             </button>
@@ -536,46 +543,6 @@ const StoryPage = () => {
                 size="large"
                 showTooltip={false}
               />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Author Bio */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Sobre el autor</h3>
-
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <User className="h-8 w-8 text-white" />
-          </div>
-
-          <div className="flex-1">
-            <h4 className="font-semibold text-gray-900 text-lg mb-2">
-              {story.author.name}
-            </h4>
-
-            <p className="text-gray-700 mb-4">
-              {story.author.bio ||
-                "Este autor prefiere dejar que sus historias hablen por sí mismas."}
-            </p>
-
-            <div className="flex items-center gap-6 text-sm text-gray-600">
-              <div className="flex items-center">
-                <Trophy className="h-4 w-4 mr-1 text-yellow-500" />
-                <span>{story.author.wins} victorias en concursos</span>
-              </div>
-              <div className="flex items-center">
-                <Heart className="h-4 w-4 mr-1 text-red-500" />
-                <span>{story.author.totalLikes} likes totales</span>
-              </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>
-                  Miembro desde{" "}
-                  {formatDate(story.author.joinedAt).split(",")[0]}
-                </span>
-              </div>
             </div>
           </div>
         </div>

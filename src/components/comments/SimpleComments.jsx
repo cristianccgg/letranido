@@ -9,53 +9,54 @@ const SimpleComments = ({ storyId, storyTitle }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ USO DEL CONTEXTO GLOBAL EN LUGAR DE AUTHSTORE
-  const { user, isAuthenticated } = useGlobalApp();
+  // ✅ USO DEL CONTEXTO GLOBAL CON FUNCIONES DE COMENTARIOS
+  const { 
+    user, 
+    isAuthenticated,
+    getStoryComments,
+    addComment,
+    deleteComment,
+    toggleCommentLike
+  } = useGlobalApp();
 
-  // Simular carga de comentarios
+  // ✅ CARGAR COMENTARIOS REALES
   useEffect(() => {
     const loadComments = async () => {
+      if (!storyId) return;
+
       setLoading(true);
       try {
-        // TODO: Implementar carga real de comentarios desde Supabase
-        // Por ahora, datos simulados
-        const mockComments = [
-          {
-            id: 1,
-            content:
-              "¡Excelente historia! Me encantó el desarrollo de los personajes.",
-            author: "Ana García",
-            author_id: "user1",
-            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            likes_count: 3,
-            isLiked: false,
-          },
-          {
-            id: 2,
-            content:
-              "El final fue inesperado. Muy buen trabajo con la narrativa.",
-            author: "Carlos López",
-            author_id: "user2",
-            created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-            likes_count: 1,
-            isLiked: false,
-          },
-        ];
-
-        setTimeout(() => {
-          setComments(mockComments);
-          setLoading(false);
-        }, 500);
+        const result = await getStoryComments(storyId);
+        
+        if (result.success) {
+          // Transformar datos de Supabase al formato esperado
+          const transformedComments = result.comments.map(comment => ({
+            id: comment.id,
+            content: comment.content,
+            author: "Usuario", // Por ahora mostrar "Usuario" genérico
+            author_id: comment.user_id,
+            created_at: comment.created_at,
+            likes_count: comment.likes_count || 0,
+            isLiked: false, // TODO: Verificar si el usuario actual ha dado like
+            parent_id: comment.parent_id,
+            is_featured: comment.is_featured
+          }));
+          
+          setComments(transformedComments);
+        } else {
+          console.error("Error loading comments:", result.error);
+          setComments([]);
+        }
       } catch (error) {
         console.error("Error loading comments:", error);
+        setComments([]);
+      } finally {
         setLoading(false);
       }
     };
 
-    if (storyId) {
-      loadComments();
-    }
-  }, [storyId]);
+    loadComments();
+  }, [storyId, getStoryComments]);
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -71,19 +72,28 @@ const SimpleComments = ({ storyId, storyTitle }) => {
 
     setSubmitting(true);
     try {
-      // TODO: Implementar envío real de comentario a Supabase
-      const mockComment = {
-        id: Date.now(),
-        content: newComment.trim(),
-        author: user.name || user.display_name || "Usuario",
-        author_id: user.id,
-        created_at: new Date().toISOString(),
-        likes_count: 0,
-        isLiked: false,
-      };
+      const result = await addComment(storyId, newComment.trim());
+      
+      if (result.success) {
+        // Transformar el comentario agregado al formato esperado
+        const newCommentData = {
+          id: result.comment.id,
+          content: result.comment.content,
+          author: user.name || user.display_name || "Usuario", // Usar el usuario actual
+          author_id: result.comment.user_id,
+          created_at: result.comment.created_at,
+          likes_count: result.comment.likes_count || 0,
+          isLiked: false,
+          parent_id: result.comment.parent_id,
+          is_featured: result.comment.is_featured
+        };
 
-      setComments((prev) => [mockComment, ...prev]);
-      setNewComment("");
+        setComments((prev) => [newCommentData, ...prev]);
+        setNewComment("");
+      } else {
+        console.error("Error adding comment:", result.error);
+        alert("Error al enviar el comentario: " + result.error);
+      }
     } catch (error) {
       console.error("Error submitting comment:", error);
       alert("Error al enviar el comentario");
@@ -99,20 +109,25 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     }
 
     try {
-      // TODO: Implementar like real de comentario
-      setComments((prev) =>
-        prev.map((comment) => {
-          if (comment.id === commentId) {
-            const newIsLiked = !comment.isLiked;
-            return {
-              ...comment,
-              isLiked: newIsLiked,
-              likes_count: comment.likes_count + (newIsLiked ? 1 : -1),
-            };
-          }
-          return comment;
-        })
-      );
+      const result = await toggleCommentLike(commentId);
+      
+      if (result.success) {
+        setComments((prev) =>
+          prev.map((comment) => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                isLiked: result.liked,
+                likes_count: comment.likes_count + (result.liked ? 1 : -1),
+              };
+            }
+            return comment;
+          })
+        );
+      } else {
+        console.error("Error liking comment:", result.error);
+        alert("Error al procesar el like: " + result.error);
+      }
     } catch (error) {
       console.error("Error liking comment:", error);
     }
@@ -124,10 +139,17 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     }
 
     try {
-      // TODO: Implementar eliminación real
-      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      const result = await deleteComment(commentId);
+      
+      if (result.success) {
+        setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      } else {
+        console.error("Error deleting comment:", result.error);
+        alert("Error al eliminar el comentario: " + result.error);
+      }
     } catch (error) {
       console.error("Error deleting comment:", error);
+      alert("Error al eliminar el comentario");
     }
   };
 

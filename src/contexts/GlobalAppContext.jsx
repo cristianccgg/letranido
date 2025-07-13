@@ -1958,6 +1958,275 @@ export function GlobalAppProvider({ children }) {
   }, []);
 
 
+  // ✅ FUNCIONES DE COMENTARIOS
+  const getStoryComments = useCallback(async (storyId) => {
+    try {
+      console.log("📝 Fetching comments for story:", storyId);
+      
+      const { data, error } = await supabase
+        .from("comments")
+        .select(`
+          id,
+          content,
+          user_id,
+          story_id,
+          parent_id,
+          likes_count,
+          is_featured,
+          created_at,
+          updated_at
+        `)
+        .eq("story_id", storyId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error fetching comments:", error);
+        return { success: false, error: error.message, comments: [] };
+      }
+
+      console.log("✅ Comments loaded:", data?.length || 0);
+      return { success: true, comments: data || [] };
+    } catch (err) {
+      console.error("💥 Error fetching comments:", err);
+      return { success: false, error: err.message, comments: [] };
+    }
+  }, []);
+
+  const addComment = useCallback(async (storyId, content, parentId = null) => {
+    if (!state.isAuthenticated || !state.user) {
+      return { success: false, error: "Usuario no autenticado" };
+    }
+
+    if (!content?.trim()) {
+      return { success: false, error: "El comentario no puede estar vacío" };
+    }
+
+    try {
+      console.log("📝 Adding comment to story:", storyId);
+      
+      const { data, error } = await supabase
+        .from("comments")
+        .insert({
+          story_id: storyId,
+          user_id: state.user.id,
+          content: content.trim(),
+          parent_id: parentId
+        })
+        .select(`
+          id,
+          content,
+          user_id,
+          story_id,
+          parent_id,
+          likes_count,
+          is_featured,
+          created_at,
+          updated_at
+        `)
+        .single();
+
+      if (error) {
+        console.error("❌ Error adding comment:", error);
+        return { success: false, error: error.message };
+      }
+
+      console.log("✅ Comment added:", data.id);
+      return { success: true, comment: data };
+    } catch (err) {
+      console.error("💥 Error adding comment:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const deleteComment = useCallback(async (commentId) => {
+    if (!state.isAuthenticated || !state.user) {
+      return { success: false, error: "Usuario no autenticado" };
+    }
+
+    try {
+      console.log("🗑️ Deleting comment:", commentId);
+      
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", commentId)
+        .eq("user_id", state.user.id); // Solo el autor puede eliminar
+
+      if (error) {
+        console.error("❌ Error deleting comment:", error);
+        return { success: false, error: error.message };
+      }
+
+      console.log("✅ Comment deleted:", commentId);
+      return { success: true };
+    } catch (err) {
+      console.error("💥 Error deleting comment:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const toggleCommentLike = useCallback(async (commentId) => {
+    if (!state.isAuthenticated || !state.user) {
+      return { success: false, error: "Usuario no autenticado" };
+    }
+
+    try {
+      console.log("❤️ Toggling comment like:", commentId);
+      
+      // Versión simplificada: solo incrementar/decrementar el contador
+      // TODO: Implementar tabla comment_likes para tracking real de usuarios
+      
+      // Obtener comentario actual
+      const { data: currentComment, error: fetchError } = await supabase
+        .from("comments")
+        .select("likes_count")
+        .eq("id", commentId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Por ahora, simplemente alternar entre incrementar/decrementar
+      // En una implementación real, verificaríamos si el usuario ya dio like
+      const currentCount = currentComment.likes_count || 0;
+      const newCount = currentCount + 1; // Siempre incrementar por ahora
+      
+      const { error: updateError } = await supabase
+        .from("comments")
+        .update({ likes_count: newCount })
+        .eq("id", commentId);
+
+      if (updateError) throw updateError;
+
+      console.log("❤️ Comment like toggled");
+      return { success: true, liked: true };
+    } catch (err) {
+      console.error("💥 Error toggling comment like:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  // ✅ FUNCIONES DE ADMIN - LIMPIEZA DE DATOS
+  const clearAllComments = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user?.is_admin) {
+      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+    }
+
+    try {
+      console.log("🗑️ Admin: Eliminando todos los comentarios...");
+      
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Eliminar todos
+
+      if (error) throw error;
+
+      console.log("✅ Admin: Todos los comentarios eliminados");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Admin: Error eliminando comentarios:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const clearAllStoryLikes = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user?.is_admin) {
+      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+    }
+
+    try {
+      console.log("🗑️ Admin: Reiniciando contadores de likes...");
+      
+      // Reiniciar contadores de likes a 0
+      const { error: updateError } = await supabase
+        .from("stories")
+        .update({ likes_count: 0 })
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (updateError) throw updateError;
+
+      console.log("✅ Admin: Todos los likes han sido reiniciados a 0");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Admin: Error reiniciando likes:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const clearAllStoryViews = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user?.is_admin) {
+      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+    }
+
+    try {
+      console.log("🗑️ Admin: Eliminando todas las vistas de historias...");
+      
+      // Eliminar registros de vistas (si existe la tabla)
+      try {
+        const { error: deleteViewsError } = await supabase
+          .from("story_views")
+          .delete()
+          .neq("id", "00000000-0000-0000-0000-000000000000");
+
+        if (deleteViewsError && deleteViewsError.code !== "42P01") { // 42P01 = tabla no existe
+          throw deleteViewsError;
+        }
+      } catch (viewError) {
+        console.log("ℹ️ Tabla story_views no existe, solo reiniciando contadores");
+      }
+
+      // Reiniciar contadores
+      const { error: updateError } = await supabase
+        .from("stories")
+        .update({ views_count: 0 })
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (updateError) throw updateError;
+
+      // Limpiar localStorage de vistas
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('view_')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      console.log("✅ Admin: Todas las vistas eliminadas");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Admin: Error eliminando vistas:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const clearAllTestData = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user?.is_admin) {
+      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+    }
+
+    try {
+      console.log("🗑️ Admin: Eliminando TODOS los datos de prueba...");
+      
+      const commentsResult = await clearAllComments();
+      const likesResult = await clearAllStoryLikes();
+      const viewsResult = await clearAllStoryViews();
+
+      const errors = [];
+      if (!commentsResult.success) errors.push(`Comentarios: ${commentsResult.error}`);
+      if (!likesResult.success) errors.push(`Likes: ${likesResult.error}`);
+      if (!viewsResult.success) errors.push(`Vistas: ${viewsResult.error}`);
+
+      if (errors.length > 0) {
+        return { success: false, error: errors.join(", ") };
+      }
+
+      console.log("✅ Admin: Todos los datos de prueba eliminados");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Admin: Error eliminando datos:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user, clearAllComments, clearAllStoryLikes, clearAllStoryViews]);
+
   // ✅ UTILIDADES DE CONTESTS
   const getContestPhase = useCallback((contest) => {
     if (!contest) return "unknown";
@@ -2076,6 +2345,18 @@ export function GlobalAppProvider({ children }) {
     checkUserLike,
     canVoteInStory,
     loadGalleryStories,
+
+    // Funciones de comentarios
+    getStoryComments,
+    addComment,
+    deleteComment,
+    toggleCommentLike,
+
+    // Funciones de admin
+    clearAllComments,
+    clearAllStoryLikes,
+    clearAllStoryViews,
+    clearAllTestData,
 
     // Utilidades
     getContestPhase,

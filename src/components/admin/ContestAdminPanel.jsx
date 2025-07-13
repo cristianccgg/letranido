@@ -28,6 +28,7 @@ import {
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
 import { supabase } from "../../lib/supabase";
+import DataCleanupPanel from "./DataCleanupPanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -866,6 +867,9 @@ const ContestAdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Panel de limpieza de datos */}
+      <DataCleanupPanel />
 
       {/* Modal de simulación de ganadores */}
       {showPreviewModal && selectedContest && simulatedWinners && (
