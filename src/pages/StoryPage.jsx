@@ -292,7 +292,7 @@ const StoryPage = () => {
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <div className="space-x-4">
-            <button onClick={() => navigate(-1)} className="btn-secondary">
+            <button onClick={() => navigate("/contest/current")} className="btn-secondary">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Volver
             </button>
@@ -332,7 +332,7 @@ const StoryPage = () => {
       {/* Back Navigation */}
       <div className="flex items-center justify-between">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/contest/current")}
           className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ChevronLeft className="h-5 w-5 mr-1" />

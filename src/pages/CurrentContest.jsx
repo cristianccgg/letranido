@@ -1,5 +1,5 @@
 // pages/CurrentContest.jsx - VERSIÓN CORREGIDA Y LIMPIA
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Trophy,
@@ -37,28 +37,28 @@ const CurrentContest = () => {
     user,
     isAuthenticated,
     currentContest,
-    currentContestPhase,
     contests,
     contestsLoading,
     galleryStories,
     galleryLoading,
     votingStats,
-    votingStatsLoading,
     initialized,
     globalLoading,
     getContestById,
-    getStoriesByContest,
     refreshContests,
     refreshUserData,
     toggleLike,
     getContestPhase,
+    loadGalleryStories,
     checkFirstStoryBadge,
   } = useGlobalApp();
 
-  // ✅ LOCAL STATE PARA CURRENTCONTEST (DIFERENTE DE GALLERY)
+  // ✅ LOCAL STATE PARA CURRENTCONTEST - USA GALLERYSTORIES DEL CONTEXTO
   const [contest, setContest] = useState(null);
-  const [stories, setStories] = useState([]);
-  const [storiesLoading, setStoriesLoading] = useState(true);
+
+  // ✅ ALIAS PARA COMPATIBILIDAD - AHORA STORIES = GALLERYSTORIES
+  const stories = galleryStories;
+  const storiesLoading = galleryLoading;
   const [error, setError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
@@ -102,9 +102,8 @@ const CurrentContest = () => {
   useEffect(() => {
     const loadContestData = async () => {
       if (!initialized) return;
-      
-      // Reset loading state al iniciar
-      setStoriesLoading(true);
+
+      // Reset state al iniciar
       setError(null);
 
       try {
@@ -120,7 +119,6 @@ const CurrentContest = () => {
             console.error("❌ Error obteniendo concurso:", err);
             setError("Concurso no encontrado");
             setContest(null);
-            setStories([]);
             return;
           }
         } else {
@@ -129,7 +127,6 @@ const CurrentContest = () => {
           } else {
             setError("No hay concursos disponibles");
             setContest(null);
-            setStories([]);
             return;
           }
         }
@@ -137,24 +134,14 @@ const CurrentContest = () => {
         setContest(contestData);
         console.log("✅ Concurso cargado:", contestData.title);
 
-        // 2. Cargar historias (siempre, pero determinar visibilidad después)
-        const storiesResult = await getStoriesByContest(contestData.id);
-
-        if (storiesResult.success) {
-          console.log("✅ Historias cargadas:", storiesResult.stories.length);
-          setStories(storiesResult.stories);
-        } else {
-          console.error("❌ Error cargando historias:", storiesResult.error);
-          setError("Error al cargar las historias: " + storiesResult.error);
-          setStories([]);
-        }
+        // 2. Cargar historias usando SIEMPRE galleryStories para máxima reactividad
+        console.log("🔄 Cargando historias vía galleryStories");
+        await loadGalleryStories({ contestId: contestData.id });
+        console.log("✅ GalleryStories cargadas para CurrentContest");
       } catch (err) {
         console.error("💥 Error general cargando concurso:", err);
         setError("Error inesperado: " + err.message);
         setContest(null);
-        setStories([]);
-      } finally {
-        setStoriesLoading(false);
       }
     };
 
@@ -178,20 +165,34 @@ const CurrentContest = () => {
         });
       }, 500);
     }
-  }, [stories.length]);
+  }, [galleryStories.length]);
+
+  // ✅ DETECTAR CAMBIOS EN GALLERYSTORIES Y FORZAR RE-RENDER INMEDIATO
+  const [forceRender, setForceRender] = useState(0);
+  
+  useLayoutEffect(() => {
+    if (contest?.id === currentContest?.id && galleryStories.length > 0) {
+      console.log("🔄 GalleryStories cambió, forzando re-render de CurrentContest");
+      setForceRender(prev => prev + 1);
+    }
+  }, [galleryStories, contest?.id, currentContest?.id]);
+
+  // ✅ FORZAR RE-RENDER CUANDO SE NAVEGA DE VUELTA
+  useLayoutEffect(() => {
+    console.log("🔄 CurrentContest montado/actualizado - Force render:", forceRender);
+  }, [forceRender]);
 
   // ✅ REFRESH COMPLETO
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([refreshContests(), refreshUserData()]);
-
-      if (contest?.id) {
-        const storiesResult = await getStoriesByContest(contest.id);
-        if (storiesResult.success) {
-          setStories(storiesResult.stories);
-        }
-      }
+      await Promise.all([
+        refreshContests(),
+        refreshUserData(),
+        contest?.id
+          ? loadGalleryStories({ contestId: contest.id })
+          : Promise.resolve(),
+      ]);
     } catch (err) {
       console.error("Error refreshing:", err);
     } finally {
@@ -199,7 +200,7 @@ const CurrentContest = () => {
     }
   };
 
-  // ✅ HANDLE VOTE OPTIMIZADO - ACTUALIZACION OPTIMISTA LOCAL + CONTEXTO GLOBAL
+  // ✅ HANDLE VOTE SIMPLIFICADO - SOLO CONTEXTO GLOBAL (SE SINCRONIZA AUTOMÁTICAMENTE)
   const handleVote = async (storyId) => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
@@ -210,19 +211,11 @@ const CurrentContest = () => {
       const result = await toggleLike(storyId);
 
       if (result.success) {
-        // ✅ ACTUALIZACIÓN OPTIMISTA LOCAL PARA CURRENTCONTEST
-        setStories((prevStories) =>
-          prevStories.map((story) => {
-            if (story.id === storyId) {
-              const newLikesCount = story.likes_count + (result.liked ? 1 : -1);
-              return {
-                ...story,
-                likes_count: Math.max(0, newLikesCount),
-                isLiked: result.liked,
-              };
-            }
-            return story;
-          })
+        // ✅ NO NECESITAMOS ACTUALIZACIÓN LOCAL - SE SINCRONIZA AUTOMÁTICAMENTE VIA useEffect
+        console.log(
+          `${
+            result.liked ? "❤️" : "💔"
+          } Voto procesado, sincronización automática`
         );
 
         if (result.liked && user?.id) {
@@ -240,9 +233,28 @@ const CurrentContest = () => {
     }
   };
 
-  // ✅ FILTROS Y ORDENAMIENTO - USANDO ESTADO LOCAL DE CURRENTCONTEST
+  // ✅ FILTROS Y ORDENAMIENTO - USAR SOLO GALLERYSTORIES (FUENTE ÚNICA DE VERDAD)
   const filteredAndSortedStories = (() => {
-    let filtered = [...stories];
+    // Usar SIEMPRE galleryStories como fuente única de verdad
+    console.log("🔍 CurrentContest usando galleryStories:", {
+      contestId: contest?.id,
+      galleryStoriesCount: galleryStories.length,
+      storiesLoading,
+      // Debug: mostrar likes de las historias para verificar sincronización
+      storiesWithLikes: galleryStories.map(s => ({ 
+        id: s.id.slice(-6), 
+        likes: s.likes_count, 
+        views: s.views_count, // ← Agregar views para debug
+        isLiked: s.isLiked 
+      }))
+    });
+
+    // Si galleryStories está vacía, mostrar array vacío (loading se maneja aparte)
+    if (galleryStories.length === 0) {
+      return [];
+    }
+
+    let filtered = [...galleryStories];
 
     if (searchTerm.trim()) {
       const search = searchTerm.toLowerCase();

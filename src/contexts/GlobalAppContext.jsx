@@ -1085,34 +1085,110 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        console.log("📊 Registrando vista para historia:", storyId);
+        const isAuthenticated = !!state.user?.id;
+        const today = new Date().toISOString().split("T")[0];
+        console.log(
+          "📊 Registrando vista para historia:",
+          storyId,
+          isAuthenticated ? "(usuario registrado)" : "(visitante)",
+          "fecha:",
+          today
+        );
 
-        // Intentar insertar una vista
-        const { error } = await supabase.from("story_views").insert([
-          {
-            story_id: storyId,
-            user_id: state.user?.id || null,
-            view_date: new Date().toISOString().split("T")[0],
-          },
-        ]);
+        // Verificar si ya se contó una vista hoy para este usuario/historia
+        const viewKey = `view_${storyId}_${state.user?.id || 'anon'}_${today}`;
+        const alreadyViewed = localStorage.getItem(viewKey);
+        
+        console.log("📋 Verificando vista:", { viewKey, alreadyViewed: !!alreadyViewed });
 
-        if (error) {
-          // Si la tabla no existe o hay constraint duplicate, no es crítico
-          if (error.code === "42P01") {
-            console.log(
-              "ℹ️ Tabla story_views no existe, saltando registro de vista"
-            );
-            return { success: true };
+        let viewAlreadyExists = false;
+
+        if (alreadyViewed) {
+          console.log("ℹ️ Vista ya registrada hoy para este usuario");
+          viewAlreadyExists = true;
+        } else {
+          // Actualizar views_count directamente en stories
+          console.log("🔄 Actualizando views_count directamente...");
+          
+          try {
+            // Obtener contador actual
+            const { data: currentStory, error: fetchError } = await supabase
+              .from("stories")
+              .select("views_count")
+              .eq("id", storyId)
+              .single();
+
+            if (fetchError) {
+              console.warn("⚠️ Error obteniendo views_count:", fetchError);
+              return { success: false, error: fetchError.message };
+            }
+
+            const newCount = (currentStory.views_count || 0) + 1;
+            
+            // Actualizar contador
+            const { error: updateError } = await supabase
+              .from("stories")
+              .update({ views_count: newCount })
+              .eq("id", storyId);
+
+            if (updateError) {
+              console.warn("⚠️ Error actualizando views_count:", updateError);
+              return { success: false, error: updateError.message };
+            }
+
+            // Marcar como visto en localStorage
+            localStorage.setItem(viewKey, 'true');
+            console.log(`✅ views_count actualizado: ${currentStory.views_count || 0} → ${newCount}`);
+            
+          } catch (err) {
+            console.warn("⚠️ Error en actualización directa:", err);
+            return { success: false, error: err.message };
           }
-          if (error.code === "23505") {
-            console.log("ℹ️ Vista ya registrada hoy para este usuario");
-            return { success: true };
-          }
-          console.warn("⚠️ Error recording view:", error);
-          return { success: false, error: error.message };
         }
 
-        console.log("✅ Vista registrada exitosamente");
+        // Manejar actualización del contador de vistas - IGUAL QUE LIKES
+        if (!viewAlreadyExists) {
+          const userType = isAuthenticated ? "usuario registrado" : "visitante";
+          console.log(
+            `✅ Nueva vista de ${userType} registrada - trigger actualizará views_count`
+          );
+
+          // Actualizar estado local inmediatamente (como hace toggleLike)
+          if (state.galleryStories.length > 0) {
+            const currentStory = state.galleryStories.find(
+              (s) => s.id === storyId
+            );
+            if (currentStory) {
+              dispatch({
+                type: actions.UPDATE_STORY_IN_GALLERY,
+                payload: {
+                  id: storyId,
+                  updates: {
+                    views_count: (currentStory.views_count || 0) + 1,
+                  },
+                },
+              });
+              console.log("✅ Estado local actualizado inmediatamente");
+            }
+          }
+
+          // Recargar después para sincronizar con BD (como hace toggleLike)
+          setTimeout(async () => {
+            if (state.currentContest?.id) {
+              console.log(
+                "⏰ Recargando galleryStories para sincronización de vistas"
+              );
+              await loadGalleryStories({ contestId: state.currentContest.id });
+              console.log("✅ GalleryStories recargada - views sincronizadas");
+            }
+          }, 200);
+        } else {
+          const userType = isAuthenticated ? "usuario registrado" : "visitante";
+          console.log(
+            `✅ Vista de ${userType} ya existía para hoy - contador no se incrementa`
+          );
+        }
+
         return { success: true };
       } catch (err) {
         console.warn("⚠️ Error recording view:", err);
@@ -1536,11 +1612,35 @@ export function GlobalAppProvider({ children }) {
         let liked;
         let isCurrentContest = false;
 
-        // Verificar si es del concurso actual para las estadísticas
+        // Verificar si es del concurso actual - PRIMERO buscar en galleryStories,
+        // luego hacer consulta directa si galleryStories está vacía
         if (state.galleryStories.length > 0) {
           const story = state.galleryStories.find((s) => s.id === storyId);
           isCurrentContest = story?.contest_id === state.currentContest?.id;
+        } else if (state.currentContest?.id) {
+          // GalleryStories está vacía, consultar directamente la historia para verificar concurso
+          try {
+            const { data: story, error } = await supabase
+              .from("stories")
+              .select("contest_id")
+              .eq("id", storyId)
+              .single();
+
+            if (!error && story) {
+              isCurrentContest = story.contest_id === state.currentContest.id;
+            }
+          } catch (err) {
+            console.warn("Error verificando concurso de la historia:", err);
+          }
         }
+
+        console.log("🔍 Análisis de voto:", {
+          storyId,
+          isCurrentContest,
+          currentContestId: state.currentContest?.id,
+          galleryStoriesCount: state.galleryStories.length,
+          existingVote: !!existingVote,
+        });
 
         if (existingVote) {
           // Remover voto
@@ -1571,20 +1671,57 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
-        // Actualizar historia en gallery si está cargada
+        // SIEMPRE actualizar galleryStories si es concurso actual para máxima sincronización
         const likesChange = liked ? 1 : -1;
-        dispatch({
-          type: actions.UPDATE_STORY_IN_GALLERY,
-          payload: {
-            id: storyId,
-            updates: {
-              likes_count:
-                (state.galleryStories.find((s) => s.id === storyId)
-                  ?.likes_count || 0) + likesChange,
-              isLiked: liked,
+
+        if (isCurrentContest) {
+          console.log(
+            "🔄 Sincronizando voto en concurso actual - galleryStories:",
+            state.galleryStories.length > 0 ? "cargada" : "vacía"
+          );
+
+          if (state.galleryStories.length > 0) {
+            // Gallery ya está cargada, actualizar directamente
+            dispatch({
+              type: actions.UPDATE_STORY_IN_GALLERY,
+              payload: {
+                id: storyId,
+                updates: {
+                  likes_count:
+                    (state.galleryStories.find((s) => s.id === storyId)
+                      ?.likes_count || 0) + likesChange,
+                  isLiked: liked,
+                },
+              },
+            });
+            console.log("✅ GalleryStories actualizada directamente");
+          }
+
+          // SIEMPRE recargar para asegurar sincronización perfecta
+          setTimeout(async () => {
+            console.log(
+              "⏰ Recargando galleryStories para sincronización perfecta"
+            );
+            await loadGalleryStories({ contestId: state.currentContest?.id });
+            console.log(
+              "✅ GalleryStories recargada - sincronización completa"
+            );
+          }, 200);
+        } else if (state.galleryStories.length > 0) {
+          // No es concurso actual pero gallery está cargada (concursos históricos)
+          dispatch({
+            type: actions.UPDATE_STORY_IN_GALLERY,
+            payload: {
+              id: storyId,
+              updates: {
+                likes_count:
+                  (state.galleryStories.find((s) => s.id === storyId)
+                    ?.likes_count || 0) + likesChange,
+                isLiked: liked,
+              },
             },
-          },
-        });
+          });
+        }
 
         return { success: true, liked };
       } catch (err) {
@@ -1595,7 +1732,12 @@ export function GlobalAppProvider({ children }) {
         };
       }
     },
-    [state.user, state.galleryStories, state.currentContest?.id]
+    [
+      state.user,
+      state.galleryStories,
+      state.currentContest?.id,
+      loadGalleryStories,
+    ]
   );
 
   // ✅ FUNCIONES DE AUTENTICACIÓN
@@ -1936,68 +2078,74 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
-  const awardBadge = useCallback(async (userId, badgeId, metadata = {}) => {
-    if (!state.isAuthenticated) {
-      return { success: false, error: "No authenticated" };
-    }
-
-    try {
-      // Verificar si el usuario ya tiene este badge
-      const alreadyHas = await hasUserBadge(userId, badgeId);
-      if (alreadyHas) {
-        return { success: true, newBadge: false };
+  const awardBadge = useCallback(
+    async (userId, badgeId, metadata = {}) => {
+      if (!state.isAuthenticated) {
+        return { success: false, error: "No authenticated" };
       }
 
-      const badgeDefinition = getBadgeDefinition(badgeId);
-      if (!badgeDefinition) {
-        return { success: false, error: "Badge definition not found" };
+      try {
+        // Verificar si el usuario ya tiene este badge
+        const alreadyHas = await hasUserBadge(userId, badgeId);
+        if (alreadyHas) {
+          return { success: true, newBadge: false };
+        }
+
+        const badgeDefinition = getBadgeDefinition(badgeId);
+        if (!badgeDefinition) {
+          return { success: false, error: "Badge definition not found" };
+        }
+
+        // Otorgar el badge
+        const { error: insertError } = await supabase
+          .from("user_badges")
+          .insert([
+            {
+              user_id: userId,
+              badge_id: badgeId,
+              metadata: metadata,
+              earned_at: new Date().toISOString(),
+            },
+          ]);
+
+        if (insertError) throw insertError;
+
+        // Actualizar puntos del usuario
+        const { error: updateError } = await supabase
+          .from("user_profiles")
+          .update({
+            total_points: supabase.raw(
+              `total_points + ${badgeDefinition.points}`
+            ),
+          })
+          .eq("id", userId);
+
+        if (updateError) throw updateError;
+
+        // Actualizar el contexto del usuario si es el usuario actual
+        if (state.user && state.user.id === userId) {
+          updateUser({
+            total_points:
+              (state.user.total_points || 0) + badgeDefinition.points,
+          });
+        }
+
+        console.log(
+          `🎖️ Badge awarded: ${badgeDefinition.name} to user ${userId}`
+        );
+
+        return {
+          success: true,
+          newBadge: true,
+          badge: badgeDefinition,
+        };
+      } catch (error) {
+        console.error("Error awarding badge:", error);
+        return { success: false, error: error.message };
       }
-
-      // Otorgar el badge
-      const { error: insertError } = await supabase.from("user_badges").insert([
-        {
-          user_id: userId,
-          badge_id: badgeId,
-          metadata: metadata,
-          earned_at: new Date().toISOString(),
-        },
-      ]);
-
-      if (insertError) throw insertError;
-
-      // Actualizar puntos del usuario
-      const { error: updateError } = await supabase
-        .from("user_profiles")
-        .update({
-          total_points: supabase.raw(
-            `total_points + ${badgeDefinition.points}`
-          ),
-        })
-        .eq("id", userId);
-
-      if (updateError) throw updateError;
-
-      // Actualizar el contexto del usuario si es el usuario actual
-      if (state.user && state.user.id === userId) {
-        updateUser({
-          total_points: (state.user.total_points || 0) + badgeDefinition.points,
-        });
-      }
-
-      console.log(
-        `🎖️ Badge awarded: ${badgeDefinition.name} to user ${userId}`
-      );
-
-      return {
-        success: true,
-        newBadge: true,
-        badge: badgeDefinition,
-      };
-    } catch (error) {
-      console.error("Error awarding badge:", error);
-      return { success: false, error: error.message };
-    }
-  }, [state.isAuthenticated, state.user, hasUserBadge, getBadgeDefinition]);
+    },
+    [state.isAuthenticated, state.user, hasUserBadge, getBadgeDefinition]
+  );
 
   const showBadgeNotification = useCallback((badge) => {
     const notification = {
@@ -2027,73 +2175,85 @@ export function GlobalAppProvider({ children }) {
     });
   }, []);
 
-  const checkFirstStoryBadge = useCallback(async (userId) => {
-    if (!state.isAuthenticated || !state.user) return;
+  const checkFirstStoryBadge = useCallback(
+    async (userId) => {
+      if (!state.isAuthenticated || !state.user) return;
 
-    try {
-      const result = await awardBadge(userId, "first_story");
-      if (result.success && result.newBadge) {
-        showBadgeNotification(result.badge);
-      }
-    } catch (error) {
-      console.error("Error checking first story badge:", error);
-    }
-  }, [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]);
-
-  const checkWinnerBadge = useCallback(async (userId, contestTitle) => {
-    if (!state.isAuthenticated || !state.user) return;
-
-    try {
-      const result = await awardBadge(userId, "contest_winner", {
-        contestTitle,
-      });
-      if (result.success && result.newBadge) {
-        showBadgeNotification(result.badge);
-      }
-    } catch (error) {
-      console.error("Error checking winner badge:", error);
-    }
-  }, [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]);
-
-  const checkStreakBadge = useCallback(async (userId, streakCount) => {
-    if (!state.isAuthenticated || !state.user) return;
-
-    try {
-      let badgeType = null;
-      if (streakCount >= 3) badgeType = "participation_streak_3";
-      if (streakCount >= 5) badgeType = "participation_streak_5";
-      if (streakCount >= 10) badgeType = "participation_streak_10";
-
-      if (badgeType) {
-        const result = await awardBadge(userId, badgeType, { streakCount });
+      try {
+        const result = await awardBadge(userId, "first_story");
         if (result.success && result.newBadge) {
           showBadgeNotification(result.badge);
         }
+      } catch (error) {
+        console.error("Error checking first story badge:", error);
       }
-    } catch (error) {
-      console.error("Error checking streak badge:", error);
-    }
-  }, [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]);
+    },
+    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
+  );
 
-  const checkPopularityBadge = useCallback(async (userId, totalLikes) => {
-    if (!state.isAuthenticated || !state.user) return;
+  const checkWinnerBadge = useCallback(
+    async (userId, contestTitle) => {
+      if (!state.isAuthenticated || !state.user) return;
 
-    try {
-      let badgeType = null;
-      if (totalLikes >= 50) badgeType = "popular_author_50";
-      if (totalLikes >= 100) badgeType = "popular_author_100";
-      if (totalLikes >= 500) badgeType = "popular_author_500";
-
-      if (badgeType) {
-        const result = await awardBadge(userId, badgeType, { totalLikes });
+      try {
+        const result = await awardBadge(userId, "contest_winner", {
+          contestTitle,
+        });
         if (result.success && result.newBadge) {
           showBadgeNotification(result.badge);
         }
+      } catch (error) {
+        console.error("Error checking winner badge:", error);
       }
-    } catch (error) {
-      console.error("Error checking popularity badge:", error);
-    }
-  }, [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]);
+    },
+    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
+  );
+
+  const checkStreakBadge = useCallback(
+    async (userId, streakCount) => {
+      if (!state.isAuthenticated || !state.user) return;
+
+      try {
+        let badgeType = null;
+        if (streakCount >= 3) badgeType = "participation_streak_3";
+        if (streakCount >= 5) badgeType = "participation_streak_5";
+        if (streakCount >= 10) badgeType = "participation_streak_10";
+
+        if (badgeType) {
+          const result = await awardBadge(userId, badgeType, { streakCount });
+          if (result.success && result.newBadge) {
+            showBadgeNotification(result.badge);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking streak badge:", error);
+      }
+    },
+    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
+  );
+
+  const checkPopularityBadge = useCallback(
+    async (userId, totalLikes) => {
+      if (!state.isAuthenticated || !state.user) return;
+
+      try {
+        let badgeType = null;
+        if (totalLikes >= 50) badgeType = "popular_author_50";
+        if (totalLikes >= 100) badgeType = "popular_author_100";
+        if (totalLikes >= 500) badgeType = "popular_author_500";
+
+        if (badgeType) {
+          const result = await awardBadge(userId, badgeType, { totalLikes });
+          if (result.success && result.newBadge) {
+            showBadgeNotification(result.badge);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking popularity badge:", error);
+      }
+    },
+    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
+  );
 
   const showFounderWelcome = useCallback(() => {
     if (!state.user?.is_founder) return;
