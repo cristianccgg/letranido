@@ -24,7 +24,6 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import AuthModal from "../components/forms/AuthModal";
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
-import BadgeDisplay from "../components/BadgeDisplay";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -48,7 +47,6 @@ const StoryPage = () => {
     canVoteInStory,
     toggleLike,
     getContestPhase,
-    checkFirstStoryBadge,
   } = useGlobalApp();
 
   // ✅ LOCAL STATE SIMPLIFICADO
@@ -191,12 +189,6 @@ const StoryPage = () => {
           }`
         );
 
-        // Verificar badge de primera historia si es necesario
-        if (result.liked && user?.id) {
-          setTimeout(() => {
-            checkFirstStoryBadge(user.id);
-          }, 1000);
-        }
       } else {
         console.error("❌ Error voting:", result.error);
         alert("Error al procesar el voto: " + result.error);

@@ -9,97 +9,6 @@ import React, {
 } from "react";
 import { supabase } from "../lib/supabase";
 
-// ✅ DEFINICIONES DE BADGES
-const BADGE_DEFINITIONS = {
-  first_story: {
-    id: "first_story",
-    name: "Primera Historia",
-    description: "Escribiste tu primera historia en LiteraLab",
-    icon: "🎯",
-    rarity: "common",
-    points: 10,
-  },
-  contest_winner: {
-    id: "contest_winner",
-    name: "Ganador de Concurso",
-    description: "Ganaste un concurso mensual",
-    icon: "🏆",
-    rarity: "rare",
-    points: 100,
-  },
-  participation_streak_3: {
-    id: "participation_streak_3",
-    name: "Racha de Participación",
-    description: "Participaste en 3 concursos consecutivos",
-    icon: "🔥",
-    rarity: "uncommon",
-    points: 25,
-  },
-  participation_streak_5: {
-    id: "participation_streak_5",
-    name: "Escritor Consistente",
-    description: "Participaste en 5 concursos consecutivos",
-    icon: "⚡",
-    rarity: "rare",
-    points: 50,
-  },
-  participation_streak_10: {
-    id: "participation_streak_10",
-    name: "Leyenda Literaria",
-    description: "Participaste en 10 concursos consecutivos",
-    icon: "👑",
-    rarity: "legendary",
-    points: 100,
-  },
-  popular_author_50: {
-    id: "popular_author_50",
-    name: "Autor Popular",
-    description: "Recibiste 50 likes en total",
-    icon: "⭐",
-    rarity: "uncommon",
-    points: 30,
-  },
-  popular_author_100: {
-    id: "popular_author_100",
-    name: "Autor Querido",
-    description: "Recibiste 100 likes en total",
-    icon: "💫",
-    rarity: "rare",
-    points: 60,
-  },
-  popular_author_500: {
-    id: "popular_author_500",
-    name: "Fenómeno Literario",
-    description: "Recibiste 500 likes en total",
-    icon: "🌟",
-    rarity: "legendary",
-    points: 150,
-  },
-  early_adopter: {
-    id: "early_adopter",
-    name: "Adoptador Temprano",
-    description: "Te uniste a LiteraLab en sus primeros días",
-    icon: "🚀",
-    rarity: "epic",
-    points: 75,
-  },
-  community_supporter: {
-    id: "community_supporter",
-    name: "Soporte de la Comunidad",
-    description: "Votaste por 50 historias diferentes",
-    icon: "❤️",
-    rarity: "uncommon",
-    points: 40,
-  },
-  prolific_writer: {
-    id: "prolific_writer",
-    name: "Escritor Prolífico",
-    description: "Publicaste 10 historias",
-    icon: "📝",
-    rarity: "rare",
-    points: 80,
-  },
-};
 
 // ✅ ESTADO INICIAL COMPLETO
 const initialState = {
@@ -140,9 +49,6 @@ const initialState = {
   // UI State
   notifications: [],
   globalLoading: false,
-
-  // Badge Notifications State
-  badgeNotifications: [],
 
   // Cache e inicialización
   dataFreshness: {
@@ -190,9 +96,6 @@ const actions = {
   UPDATE_DATA_FRESHNESS: "UPDATE_DATA_FRESHNESS",
   RESET_ALL_USER_DATA: "RESET_ALL_USER_DATA",
 
-  // Badge Notifications
-  ADD_BADGE_NOTIFICATION: "ADD_BADGE_NOTIFICATION",
-  REMOVE_BADGE_NOTIFICATION: "REMOVE_BADGE_NOTIFICATION",
 };
 
 // ✅ REDUCER OPTIMIZADO
@@ -336,19 +239,6 @@ function globalAppReducer(state, action) {
         globalLoading: action.payload !== false ? false : state.globalLoading,
       };
 
-    case actions.ADD_BADGE_NOTIFICATION:
-      return {
-        ...state,
-        badgeNotifications: [...state.badgeNotifications, action.payload],
-      };
-
-    case actions.REMOVE_BADGE_NOTIFICATION:
-      return {
-        ...state,
-        badgeNotifications: state.badgeNotifications.filter(
-          (notification) => notification.id !== action.payload
-        ),
-      };
 
     case actions.RESET_ALL_USER_DATA:
       return {
@@ -356,7 +246,6 @@ function globalAppReducer(state, action) {
         userStories: [],
         votingStats: initialState.votingStats,
         galleryStories: [], // También limpiar gallery
-        badgeNotifications: [], // También limpiar notificaciones de badges
         dataFreshness: {
           ...state.dataFreshness,
           lastUserStoriesUpdate: null,
@@ -454,7 +343,6 @@ export function GlobalAppProvider({ children }) {
             avatar: profile?.avatar_url || null,
             is_admin: profile?.is_admin || false,
             is_founder: profile?.is_founder || false,
-            badges: profile?.badges || [],
             // Solo agregar datos del perfil si existe
             ...(profile ? profile : {}),
           };
@@ -543,8 +431,7 @@ export function GlobalAppProvider({ children }) {
                 avatar: profile?.avatar_url || null,
                 is_admin: profile?.is_admin || false,
                 is_founder: profile?.is_founder || false,
-                badges: profile?.badges || [],
-                // Solo agregar datos del perfil si existe
+                    // Solo agregar datos del perfil si existe
                 ...(profile ? profile : {}),
               };
 
@@ -1820,7 +1707,6 @@ export function GlobalAppProvider({ children }) {
         avatar: profile?.avatar_url || null,
         is_admin: profile?.is_admin || false,
         is_founder: profile?.is_founder || false,
-        badges: profile?.badges || [],
         ...(profile || {}),
       };
 
@@ -1951,7 +1837,6 @@ export function GlobalAppProvider({ children }) {
               avatar: null,
               is_admin: false,
               is_founder: false,
-              badges: [],
             },
             isAuthenticated: true,
             loading: false,
@@ -2072,220 +1957,6 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
-  // ✅ FUNCIONES DE BADGE NOTIFICATIONS
-  // Funciones de badges movidas al contexto para evitar dependencia circular
-  const getBadgeDefinition = useCallback((badgeId) => {
-    return BADGE_DEFINITIONS[badgeId] || null;
-  }, []);
-
-  const hasUserBadge = useCallback(async (userId, badgeId) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_badges")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("badge_id", badgeId)
-        .single();
-
-      if (error && error.code !== "PGRST116") throw error;
-      return !!data;
-    } catch (error) {
-      console.error("Error checking user badge:", error);
-      return false;
-    }
-  }, []);
-
-  const awardBadge = useCallback(
-    async (userId, badgeId, metadata = {}) => {
-      if (!state.isAuthenticated) {
-        return { success: false, error: "No authenticated" };
-      }
-
-      try {
-        // Verificar si el usuario ya tiene este badge
-        const alreadyHas = await hasUserBadge(userId, badgeId);
-        if (alreadyHas) {
-          return { success: true, newBadge: false };
-        }
-
-        const badgeDefinition = getBadgeDefinition(badgeId);
-        if (!badgeDefinition) {
-          return { success: false, error: "Badge definition not found" };
-        }
-
-        // Otorgar el badge
-        const { error: insertError } = await supabase
-          .from("user_badges")
-          .insert([
-            {
-              user_id: userId,
-              badge_id: badgeId,
-              metadata: metadata,
-              earned_at: new Date().toISOString(),
-            },
-          ]);
-
-        if (insertError) throw insertError;
-
-        // Actualizar puntos del usuario
-        const { error: updateError } = await supabase
-          .from("user_profiles")
-          .update({
-            total_points: supabase.raw(
-              `total_points + ${badgeDefinition.points}`
-            ),
-          })
-          .eq("id", userId);
-
-        if (updateError) throw updateError;
-
-        // Actualizar el contexto del usuario si es el usuario actual
-        if (state.user && state.user.id === userId) {
-          updateUser({
-            total_points:
-              (state.user.total_points || 0) + badgeDefinition.points,
-          });
-        }
-
-        console.log(
-          `🎖️ Badge awarded: ${badgeDefinition.name} to user ${userId}`
-        );
-
-        return {
-          success: true,
-          newBadge: true,
-          badge: badgeDefinition,
-        };
-      } catch (error) {
-        console.error("Error awarding badge:", error);
-        return { success: false, error: error.message };
-      }
-    },
-    [state.isAuthenticated, state.user, hasUserBadge, getBadgeDefinition]
-  );
-
-  const showBadgeNotification = useCallback((badge) => {
-    const notification = {
-      id: Date.now(),
-      badge,
-      timestamp: Date.now(),
-    };
-
-    dispatch({
-      type: actions.ADD_BADGE_NOTIFICATION,
-      payload: notification,
-    });
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      dispatch({
-        type: actions.REMOVE_BADGE_NOTIFICATION,
-        payload: notification.id,
-      });
-    }, 5000);
-  }, []);
-
-  const removeBadgeNotification = useCallback((notificationId) => {
-    dispatch({
-      type: actions.REMOVE_BADGE_NOTIFICATION,
-      payload: notificationId,
-    });
-  }, []);
-
-  const checkFirstStoryBadge = useCallback(
-    async (userId) => {
-      if (!state.isAuthenticated || !state.user) return;
-
-      try {
-        const result = await awardBadge(userId, "first_story");
-        if (result.success && result.newBadge) {
-          showBadgeNotification(result.badge);
-        }
-      } catch (error) {
-        console.error("Error checking first story badge:", error);
-      }
-    },
-    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
-  );
-
-  const checkWinnerBadge = useCallback(
-    async (userId, contestTitle) => {
-      if (!state.isAuthenticated || !state.user) return;
-
-      try {
-        const result = await awardBadge(userId, "contest_winner", {
-          contestTitle,
-        });
-        if (result.success && result.newBadge) {
-          showBadgeNotification(result.badge);
-        }
-      } catch (error) {
-        console.error("Error checking winner badge:", error);
-      }
-    },
-    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
-  );
-
-  const checkStreakBadge = useCallback(
-    async (userId, streakCount) => {
-      if (!state.isAuthenticated || !state.user) return;
-
-      try {
-        let badgeType = null;
-        if (streakCount >= 3) badgeType = "participation_streak_3";
-        if (streakCount >= 5) badgeType = "participation_streak_5";
-        if (streakCount >= 10) badgeType = "participation_streak_10";
-
-        if (badgeType) {
-          const result = await awardBadge(userId, badgeType, { streakCount });
-          if (result.success && result.newBadge) {
-            showBadgeNotification(result.badge);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking streak badge:", error);
-      }
-    },
-    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
-  );
-
-  const checkPopularityBadge = useCallback(
-    async (userId, totalLikes) => {
-      if (!state.isAuthenticated || !state.user) return;
-
-      try {
-        let badgeType = null;
-        if (totalLikes >= 50) badgeType = "popular_author_50";
-        if (totalLikes >= 100) badgeType = "popular_author_100";
-        if (totalLikes >= 500) badgeType = "popular_author_500";
-
-        if (badgeType) {
-          const result = await awardBadge(userId, badgeType, { totalLikes });
-          if (result.success && result.newBadge) {
-            showBadgeNotification(result.badge);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking popularity badge:", error);
-      }
-    },
-    [state.isAuthenticated, state.user, awardBadge, showBadgeNotification]
-  );
-
-  const showFounderWelcome = useCallback(() => {
-    if (!state.user?.is_founder) return;
-
-    const founderBadge = {
-      id: "founder",
-      name: "Miembro Fundador",
-      description: "Parte de los primeros usuarios de LiteraLab",
-      icon: "🚀",
-      rarity: "legendary",
-      isSpecial: true,
-    };
-
-    showBadgeNotification(founderBadge);
-  }, [state.user?.is_founder, showBadgeNotification]);
 
   // ✅ UTILIDADES DE CONTESTS
   const getContestPhase = useCallback((contest) => {
@@ -2411,15 +2082,6 @@ export function GlobalAppProvider({ children }) {
     getContestById,
     debugAuth,
 
-    // Badge Notifications
-    badgeNotifications: state.badgeNotifications,
-    showBadgeNotification,
-    removeBadgeNotification,
-    checkFirstStoryBadge,
-    checkWinnerBadge,
-    checkStreakBadge,
-    checkPopularityBadge,
-    showFounderWelcome,
 
     // Dispatch para casos especiales
     dispatch,

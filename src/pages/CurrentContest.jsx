@@ -50,7 +50,6 @@ const CurrentContest = () => {
     toggleLike,
     getContestPhase,
     loadGalleryStories,
-    checkFirstStoryBadge,
   } = useGlobalApp();
 
   // ✅ LOCAL STATE PARA CURRENTCONTEST - USA GALLERYSTORIES DEL CONTEXTO
@@ -218,11 +217,6 @@ const CurrentContest = () => {
           } Voto procesado, sincronización automática`
         );
 
-        if (result.liked && user?.id) {
-          setTimeout(() => {
-            checkFirstStoryBadge(user.id);
-          }, 1000);
-        }
       } else {
         console.error("Error voting:", result.error);
         alert("Error al procesar el voto: " + result.error);

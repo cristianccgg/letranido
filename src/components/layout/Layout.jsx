@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
-import BadgeDisplay from "../BadgeDisplay";
-import BadgeNotification from "../BadgeNotification";
 import GlobalFooter from "./GlobalFooter";
 
 const Layout = ({ children }) => {
@@ -35,9 +33,6 @@ const Layout = ({ children }) => {
     userStoriesLoading,
     // Función de logout que necesitaremos implementar en el contexto
     logout: contextLogout,
-    showFounderWelcome,
-    badgeNotifications,
-    removeBadgeNotification,
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
 
@@ -137,45 +132,6 @@ const Layout = ({ children }) => {
     }
   };
 
-  // ✅ RENDER DE BADGES SIMPLIFICADO
-  const renderUserBadges = () => {
-    if (!user?.badges || user.badges.length === 0) return null;
-
-    const otherBadges = user.badges.filter((badge) => badge.id !== "founder");
-    if (otherBadges.length === 0) return null;
-
-    return (
-      <>
-        {otherBadges.slice(0, 2).map((badge, index) => (
-          <div key={badge.id || index} className="relative group">
-            <BadgeDisplay badge={badge} size="xs" showTooltip={false} />
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 pointer-events-none">
-              <div className="bg-gray-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap shadow-lg">
-                <div className="font-bold">
-                  {badge.icon} {badge.name}
-                </div>
-                <div className="text-gray-300">{badge.description}</div>
-                {badge.earnedAt && (
-                  <div className="text-gray-400 text-xs mt-1">
-                    {new Date(badge.earnedAt).toLocaleDateString("es-ES")}
-                  </div>
-                )}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
-              </div>
-            </div>
-          </div>
-        ))}
-        {otherBadges.length > 2 && (
-          <span
-            className="text-xs text-gray-500 ml-1"
-            title={`${otherBadges.length - 2} badges más`}
-          >
-            +{otherBadges.length - 2}
-          </span>
-        )}
-      </>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,37 +218,6 @@ const Layout = ({ children }) => {
                       </button>
                     </Link>
 
-                    <div className="hidden sm:flex items-center gap-1">
-                      {user?.is_founder && (
-                        <div className="relative group">
-                          <button
-                            type="button"
-                            onClick={showFounderWelcome}
-                            className="focus:outline-none"
-                            style={{
-                              background: "none",
-                              border: "none",
-                              padding: 0,
-                              margin: 0,
-                            }}
-                          >
-                            <BadgeDisplay
-                              badge={{
-                                id: "founder",
-                                name: "Fundador",
-                                description: "Miembro fundador de LiteraLab",
-                                icon: "🚀",
-                                rarity: "legendary",
-                                isSpecial: true,
-                              }}
-                              size="xs"
-                              showTooltip={false}
-                            />
-                          </button>
-                        </div>
-                      )}
-                      {renderUserBadges()}
-                    </div>
                   </div>
                 </div>
               ) : (
@@ -385,28 +310,6 @@ const Layout = ({ children }) => {
                   >
                     <User className="h-5 w-5" />
                     <span>Mi perfil</span>
-                    {user?.is_founder && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          showFounderWelcome();
-                        }}
-                        className="focus:outline-none"
-                      >
-                        <BadgeDisplay
-                          badge={{
-                            id: "founder",
-                            name: "Fundador",
-                            description: "Miembro fundador de LiteraLab",
-                            icon: "🚀",
-                            rarity: "legendary",
-                            isSpecial: true,
-                          }}
-                          size="xs"
-                        />
-                      </button>
-                    )}
                   </Link>
 
                   <button
@@ -531,15 +434,6 @@ const Layout = ({ children }) => {
         />
       )}
 
-      {/* Badge Notifications */}
-      {badgeNotifications.map((notification) => (
-        <BadgeNotification
-          key={notification.id}
-          badge={notification.badge}
-          isOpen={true}
-          onClose={() => removeBadgeNotification(notification.id)}
-        />
-      ))}
     </div>
   );
 };

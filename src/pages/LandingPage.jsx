@@ -90,16 +90,20 @@ const LandingPage = () => {
   useEffect(() => {
     const loadLastContestWinners = async () => {
       if (!initialized || contests.length === 0) return;
-      
+
       setLoadingWinners(true);
       try {
         // Encontrar el último concurso finalizado (excluyendo el actual)
         const finishedContests = contests
-          .filter(contest => 
-            contest.status === "results" && 
-            contest.id !== currentContest?.id
+          .filter(
+            (contest) =>
+              contest.status === "results" && contest.id !== currentContest?.id
           )
-          .sort((a, b) => new Date(b.finalized_at || b.voting_deadline) - new Date(a.finalized_at || a.voting_deadline));
+          .sort(
+            (a, b) =>
+              new Date(b.finalized_at || b.voting_deadline) -
+              new Date(a.finalized_at || a.voting_deadline)
+          );
 
         if (finishedContests.length === 0) {
           setLastContestWinners(null);
@@ -117,7 +121,7 @@ const LandingPage = () => {
 
           setLastContestWinners({
             contest: lastContest,
-            winners: sortedStories.slice(0, 3)
+            winners: sortedStories.slice(0, 3),
           });
         } else {
           setLastContestWinners(null);
@@ -210,7 +214,8 @@ const LandingPage = () => {
             LiteraLab
           </h1>
           <p className="text-lg md:text-xl text-primary-100 mb-8">
-            Concurso mensual de escritura creativa
+            Escribe con nosotros, mejora, gana y haz parte de una comunidad
+            creativa. Un prompt. Un límite. Una historia. ¿Aceptas el reto?
           </p>
           {currentContest && (
             <div className="w-full flex flex-col items-center gap-6">
