@@ -1140,6 +1140,23 @@ export function GlobalAppProvider({ children }) {
             localStorage.setItem(viewKey, 'true');
             console.log(`✅ views_count actualizado: ${currentStory.views_count || 0} → ${newCount}`);
             
+            // Actualizar también galleryStories para sincronización inmediata
+            if (state.galleryStories.length > 0) {
+              const currentGalleryStory = state.galleryStories.find((s) => s.id === storyId);
+              if (currentGalleryStory) {
+                dispatch({
+                  type: actions.UPDATE_STORY_IN_GALLERY,
+                  payload: {
+                    id: storyId,
+                    updates: {
+                      views_count: newCount,
+                    },
+                  },
+                });
+                console.log("✅ Estado galleryStories actualizado inmediatamente");
+              }
+            }
+            
           } catch (err) {
             console.warn("⚠️ Error en actualización directa:", err);
             return { success: false, error: err.message };

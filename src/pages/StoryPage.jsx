@@ -39,6 +39,7 @@ const StoryPage = () => {
     // App state
     initialized,
     globalLoading,
+    galleryStories,
 
     // Functions
     getStoryById,
@@ -149,6 +150,17 @@ const StoryPage = () => {
     recordStoryView,
     // ✅ REMOVED viewRecorded - CAUSABA LOOP INFINITO
   ]);
+
+  // ✅ ACTUALIZAR STORY LOCAL CUANDO CAMBIE GALLERYSTORIES (para views_count)
+  useEffect(() => {
+    if (story && galleryStories.length > 0) {
+      const updatedStory = galleryStories.find(s => s.id === story.id);
+      if (updatedStory && updatedStory.views_count !== story.views_count) {
+        console.log(`🔄 Actualizando views_count en StoryPage: ${story.views_count} → ${updatedStory.views_count}`);
+        setStory(prev => ({ ...prev, views_count: updatedStory.views_count }));
+      }
+    }
+  }, [galleryStories, story?.id, story?.views_count]);
 
   // ✅ HANDLE VOTE
   const handleVote = async () => {
