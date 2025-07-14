@@ -2227,7 +2227,7 @@ export function GlobalAppProvider({ children }) {
     }
   }, [state.isAuthenticated, state.user, clearAllComments, clearAllStoryLikes, clearAllStoryViews]);
 
-  // ✅ UTILIDADES DE CONTESTS
+  // ✅ UTILIDAD DE CONTESTS (movida antes para evitar error de inicialización)
   const getContestPhase = useCallback((contest) => {
     if (!contest) return "unknown";
 
@@ -2243,6 +2243,80 @@ export function GlobalAppProvider({ children }) {
       return "results";
     }
   }, []);
+
+  // ✅ FUNCIÓN PARA ELIMINAR HISTORIA DE USUARIO
+  const deleteUserStory = useCallback(async (storyId) => {
+    if (!state.isAuthenticated || !state.user?.id) {
+      return { success: false, error: "Debes estar autenticado para eliminar una historia" };
+    }
+
+    try {
+      console.log("🗑️ Eliminando historia del usuario:", storyId);
+
+      // Verificar que la historia pertenece al usuario
+      const { data: story, error: fetchError } = await supabase
+        .from("stories")
+        .select("user_id, contest_id, contests!inner(status, submission_deadline, voting_deadline)")
+        .eq("id", storyId)
+        .single();
+
+      if (fetchError) {
+        console.error("❌ Error verificando historia:", fetchError);
+        return { success: false, error: "Historia no encontrada" };
+      }
+
+      if (story.user_id !== state.user.id) {
+        return { success: false, error: "No puedes eliminar una historia que no es tuya" };
+      }
+
+      // Verificar que el concurso esté en período de envío
+      console.log("🔍 Debug delete - contest data:", story.contests);
+      const contestPhase = getContestPhase(story.contests);
+      console.log("🔍 Debug delete - contest phase:", contestPhase);
+      
+      if (contestPhase !== "submission") {
+        console.log("❌ Debug delete - phase not submission, current phase:", contestPhase);
+        return { 
+          success: false, 
+          error: `Solo puedes eliminar historias durante el período de envío. Fase actual: ${contestPhase}` 
+        };
+      }
+
+      // Eliminar la historia
+      const { error: deleteError } = await supabase
+        .from("stories")
+        .delete()
+        .eq("id", storyId)
+        .eq("user_id", state.user.id); // Doble verificación de seguridad
+
+      if (deleteError) {
+        console.error("❌ Error eliminando historia:", deleteError);
+        return { success: false, error: "Error al eliminar la historia" };
+      }
+
+      // Actualizar el estado local eliminando la historia
+      dispatch({ 
+        type: actions.SET_USER_STORIES, 
+        payload: state.userStories.filter(story => story.id !== storyId) 
+      });
+
+      // También actualizar galleryStories si está cargada
+      if (state.galleryStories.length > 0) {
+        dispatch({ 
+          type: actions.SET_GALLERY_STORIES, 
+          payload: state.galleryStories.filter(story => story.id !== storyId) 
+        });
+      }
+
+      console.log("✅ Historia eliminada exitosamente");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Error eliminando historia:", err);
+      return { success: false, error: "Error inesperado al eliminar la historia" };
+    }
+  }, [state.isAuthenticated, state.user, state.userStories, state.galleryStories, getContestPhase]);
+
+  // ✅ UTILIDADES DE CONTESTS
 
   const getContestById = useCallback(
     async (id) => {
@@ -2357,6 +2431,9 @@ export function GlobalAppProvider({ children }) {
     clearAllStoryLikes,
     clearAllStoryViews,
     clearAllTestData,
+
+    // Funciones de usuario
+    deleteUserStory,
 
     // Utilidades
     getContestPhase,

@@ -154,7 +154,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
                     errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
                   }`}
                   placeholder="Tu nombre completo"
@@ -178,7 +178,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
                   errors.email ? "border-red-300 bg-red-50" : "border-gray-300"
                 }`}
                 placeholder="tu@email.com"
@@ -201,7 +201,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
-                className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
                   errors.password
                     ? "border-red-300 bg-red-50"
                     : "border-gray-300"

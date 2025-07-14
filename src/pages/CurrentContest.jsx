@@ -850,146 +850,108 @@ const CurrentContest = () => {
                       )}
                     </div>
                   ) : (
-                    <div className="grid gap-6">
+                    <div className="grid gap-3">
                       {filteredAndSortedStories.map((story, index) => (
                         <div
                           key={story.id}
-                          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
+                          className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => navigate(`/story/${story.id}`)}
                         >
-                          {/* Header con posición si es resultados */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
+                          {/* Header compacto */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1 min-w-0">
+                              {/* Posición si es resultados - más compacta */}
                               {sortBy === "popular" &&
                                 phaseInfo?.phase === "results" &&
                                 index < 3 && (
-                                  <div className="flex items-center mb-2">
+                                  <div className="flex items-center mb-1">
                                     {index === 0 && (
-                                      <div className="flex items-center text-yellow-600">
-                                        <Crown className="h-5 w-5 mr-1" />
-                                        <span className="font-bold">
-                                          1º Lugar
-                                        </span>
+                                      <div className="flex items-center text-yellow-600 text-sm">
+                                        <Crown className="h-4 w-4 mr-1" />
+                                        <span className="font-bold">1º</span>
                                       </div>
                                     )}
                                     {index === 1 && (
-                                      <div className="flex items-center text-gray-600">
-                                        <Medal className="h-5 w-5 mr-1" />
-                                        <span className="font-bold">
-                                          2º Lugar
-                                        </span>
+                                      <div className="flex items-center text-gray-600 text-sm">
+                                        <Medal className="h-4 w-4 mr-1" />
+                                        <span className="font-bold">2º</span>
                                       </div>
                                     )}
                                     {index === 2 && (
-                                      <div className="flex items-center text-orange-600">
-                                        <Award className="h-5 w-5 mr-1" />
-                                        <span className="font-bold">
-                                          3º Lugar
-                                        </span>
+                                      <div className="flex items-center text-orange-600 text-sm">
+                                        <Award className="h-4 w-4 mr-1" />
+                                        <span className="font-bold">3º</span>
                                       </div>
                                     )}
                                   </div>
                                 )}
 
-                              <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-primary-600 cursor-pointer">
+                              <h3 className="text-lg font-semibold text-gray-900 hover:text-primary-600 cursor-pointer truncate">
                                 <a href={`/story/${story.id}`}>{story.title}</a>
                               </h3>
 
-                              <div className="flex items-center text-sm text-gray-600 mb-3">
-                                <span>
-                                  por <strong>{story.author}</strong>
-                                </span>
-                                <span className="mx-2">•</span>
-                                <span>{getReadingTime(story.word_count)}</span>
-                                <span className="mx-2">•</span>
-                                <span>{story.word_count} palabras</span>
+                              <div className="flex items-center text-xs text-gray-500 mt-1">
+                                <span>por <strong>{story.author}</strong></span>
+                                <span className="mx-1">•</span>
+                                <span>{getReadingTime(story.word_count)} min</span>
+                                <span className="mx-1">•</span>
+                                <span>{story.word_count}</span>
                                 {story.is_mature && (
                                   <>
-                                    <span className="mx-2">•</span>
-                                    <span className="text-red-600 font-medium">
-                                      18+
-                                    </span>
+                                    <span className="mx-1">•</span>
+                                    <span className="text-red-600 font-medium">18+</span>
                                   </>
                                 )}
                               </div>
                             </div>
+
+                            {/* Botón leer - más prominente */}
+                            <a
+                              href={`/story/${story.id}`}
+                              className="btn-primary text-sm px-3 py-1 ml-3 flex-shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Leer
+                            </a>
                           </div>
 
-                          {/* Excerpt */}
-                          <p className="text-gray-700 mb-4 leading-relaxed">
+                          {/* Excerpt más corto */}
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
                             {story.excerpt}
                           </p>
 
-                          {/* Actions */}
+                          {/* Actions compactas */}
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              {/* Vote button - SOLO EN FASE DE VOTACIÓN */}
-                              {phaseInfo?.phase === "voting" && (
-                                <button
-                                  onClick={() => handleVote(story.id)}
-                                  disabled={
-                                    !isAuthenticated && !setShowAuthModal
-                                  }
-                                  className={`flex items-center space-x-1 px-3 py-2 rounded-lg font-medium transition-colors ${
-                                    story.isLiked
-                                      ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                                      : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                                  }`}
-                                >
-                                  <Heart
-                                    className={`h-4 w-4 ${
-                                      story.isLiked ? "fill-current" : ""
-                                    }`}
-                                  />
-                                  <span>{story.likes_count || 0}</span>
-                                </button>
-                              )}
+                            <div className="flex items-center space-x-3">
+                              {/* Likes display compacto - SIN FUNCIONALIDAD DE CLICK */}
+                              <div className="flex items-center space-x-1 text-red-600 text-sm">
+                                <Heart className="h-3 w-3 fill-current" />
+                                <span className="font-medium">
+                                  {story.likes_count || 0}
+                                </span>
+                              </div>
 
-                              {/* Likes display - SOLO EN FASE DE RESULTADOS */}
-                              {phaseInfo?.phase === "results" && (
-                                <div className="flex items-center space-x-1 text-red-600">
-                                  <Heart className="h-4 w-4 fill-current" />
-                                  <span className="font-medium">
-                                    {story.likes_count || 0} likes
-                                  </span>
-                                </div>
-                              )}
 
-                              {/* Views */}
-                              <div className="flex items-center space-x-1 text-gray-500">
-                                <Eye className="h-4 w-4" />
+                              {/* Views compacto */}
+                              <div className="flex items-center space-x-1 text-gray-500 text-sm">
+                                <Eye className="h-3 w-3" />
                                 <span>{story.views_count || 0}</span>
                               </div>
                             </div>
 
-                            {/* Read button */}
-                            <a
-                              href={`/story/${story.id}`}
-                              className="btn-primary text-sm"
-                            >
-                              Leer historia
-                            </a>
-                          </div>
-
-                          {/* Voting restrictions info */}
-                          {!isAuthenticated &&
-                            phaseInfo?.phase === "voting" && (
-                              <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
-                                💡{" "}
-                                <button
-                                  onClick={() => setShowAuthModal(true)}
-                                  className="underline hover:no-underline"
-                                >
-                                  Inicia sesión
-                                </button>{" "}
-                                para votar por esta historia
-                              </div>
+                            {/* Info de votación - solo mostrar mensaje */}
+                            {!isAuthenticated && (
+                              <span className="text-xs text-blue-600">
+                                Lee la historia para dar like
+                              </span>
                             )}
 
-                          {isAuthenticated && story.user_id === user?.id && (
-                            <div className="mt-3 p-2 bg-purple-50 border border-purple-200 rounded text-sm text-purple-800">
-                              ✨ Esta es tu historia - no puedes votar por ella
-                            </div>
-                          )}
+                            {isAuthenticated && story.user_id === user?.id && (
+                              <span className="text-xs text-purple-600">
+                                Tu historia
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

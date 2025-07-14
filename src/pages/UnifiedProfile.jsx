@@ -14,6 +14,7 @@ import {
   BookOpen,
   CheckCircle,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
@@ -28,6 +29,8 @@ const UnifiedProfile = () => {
     userStoriesLoading,
     votingStats,
     votingStatsLoading,
+    deleteUserStory,
+    getContestPhase,
   } = useGlobalApp();
 
   // 🔍 Log para verificar datos en cada render
@@ -46,6 +49,28 @@ const UnifiedProfile = () => {
     currentContest && userStories.length > 0
       ? userStories.some((story) => story.contest_id === currentContest.id)
       : false;
+
+  // ✅ FUNCIÓN PARA ELIMINAR HISTORIA
+  const handleDeleteStory = async (storyId, storyTitle) => {
+    const confirmMessage = `¿Estás seguro de que quieres eliminar la historia "${storyTitle}"?\n\nEsta acción no se puede deshacer. Después de eliminarla, podrás escribir una nueva historia para el concurso.`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      const result = await deleteUserStory(storyId);
+      
+      if (result.success) {
+        alert("✅ Historia eliminada exitosamente. Ahora puedes escribir una nueva historia para el concurso.");
+      } else {
+        alert("❌ Error: " + result.error);
+      }
+    } catch (err) {
+      alert("❌ Error inesperado al eliminar la historia");
+      console.error("Error deleting story:", err);
+    }
+  };
 
   // ✅ ESTADÍSTICAS CALCULADAS - sin cargas separadas
   const totalLikes = userStories.reduce(
@@ -311,12 +336,25 @@ const UnifiedProfile = () => {
                         <span>{story.word_count || 0} palabras</span>
                       </div>
 
-                      <Link
-                        to={`/story/${story.id}`}
-                        className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-                      >
-                        Leer →
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/story/${story.id}`}
+                          className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                        >
+                          Leer →
+                        </Link>
+                        
+                        {/* Botón eliminar - solo durante período de envío */}
+                        {story.contests && getContestPhase(story.contests) === "submission" && (
+                          <button
+                            onClick={() => handleDeleteStory(story.id, story.title)}
+                            className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                            title="Eliminar historia"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 ))}
