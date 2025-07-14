@@ -135,17 +135,17 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <header className="bg-white shadow-sm border-b  border-gray-200 border">
+        <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full overflow-hidden">
+          <div className="flex justify-between items-center h-16 min-w-0 max-w-7xl mx-auto">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <PenTool className="h-8 w-8 text-primary-600" />
-              <span className="text-xl font-bold text-gray-900">LiteraLab</span>
+            <Link to="/" className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+              <PenTool className="h-7 w-7 sm:h-8 sm:w-8 text-primary-600" />
+              <span className="text-lg sm:text-xl font-bold text-gray-900">LiteraLab</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-4 lg:space-x-8 flex-1 justify-center min-w-0">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
@@ -194,7 +194,7 @@ const Layout = ({ children }) => {
             </nav>
 
             {/* Auth Section */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
               {isAuthenticated ? (
                 <div className="relative">
                   <div className="flex items-center space-x-3">
@@ -219,16 +219,16 @@ const Layout = ({ children }) => {
                   </div>
                 </div>
               ) : (
-                <div className="items-center space-x-3 hidden md:flex">
+                <div className="items-center space-x-2 md:space-x-3 hidden md:flex">
                   <button
                     onClick={() => handleAuthClick("login")}
-                    className="text-gray-600 cursor-pointer hover:text-gray-900 font-medium"
+                    className="text-gray-600 cursor-pointer hover:text-gray-900 font-medium text-sm md:text-base"
                   >
                     Iniciar sesión
                   </button>
                   <button
                     onClick={() => handleAuthClick("register")}
-                    className="btn-primary cursor-pointer"
+                    className="btn-primary cursor-pointer text-sm md:text-base px-3 md:px-4 py-2"
                   >
                     Registrarse
                   </button>
