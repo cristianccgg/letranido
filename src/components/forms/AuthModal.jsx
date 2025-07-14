@@ -157,7 +157,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
                     errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
                   }`}
-                  placeholder="Tu nombre completo"
+                  placeholder="Tu nombre de escritor"
                   disabled={isLoading}
                 />
               </div>

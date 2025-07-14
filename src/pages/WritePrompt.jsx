@@ -4,6 +4,7 @@ import { Clock, Send, AlertCircle, PenTool } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
+import LiteraryEditor from "../components/ui/LiteraryEditor";
 
 const WritePrompt = () => {
   const { promptId } = useParams();
@@ -33,12 +34,17 @@ const WritePrompt = () => {
   // ✅ DETERMINAR CONCURSO A USAR
   const contestToUse = currentContest; // Simplificado: siempre usar el actual
 
-  // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS
+  // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS (sin HTML)
   useEffect(() => {
     if (!contestToUse?.id) return;
 
-    const words = text
-      .trim()
+    // Limpiar HTML antes de contar palabras
+    const cleanText = text
+      .replace(/<\/?[^>]+(>|$)/g, "") // Remover tags HTML
+      .replace(/&nbsp;/g, " ") // Convertir espacios no-break
+      .trim();
+    
+    const words = cleanText
       .split(/\s+/)
       .filter((word) => word.length > 0);
     setWordCount(words.length);
@@ -323,14 +329,12 @@ const WritePrompt = () => {
           >
             Tu historia
           </label>
-          <textarea
-            id="story"
+          <LiteraryEditor
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={setText}
             placeholder="Comienza a escribir tu historia aquí..."
-            className="writing-area w-full py-2 px-4"
-            rows={20}
             disabled={isSubmissionClosed()}
+            rows={20}
           />
         </div>
 

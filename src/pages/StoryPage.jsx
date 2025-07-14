@@ -267,6 +267,29 @@ const StoryPage = () => {
     return minutes;
   };
 
+  const formatStoryContent = (content) => {
+    if (!content) return "";
+    
+    // Si el contenido ya tiene HTML (nuevo formato), procesarlo
+    if (content.includes('<') || content.includes('*')) {
+      return content
+        .replace(/\n/g, "<br>")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/(<br>\s*){2,}/g, "</p><p>") // Convertir dobles saltos a párrafos
+        .replace(/^/, "<p>") // Agregar párrafo inicial
+        .replace(/$/, "</p>") // Agregar párrafo final
+        .replace(/<p><\/p>/g, ""); // Limpiar párrafos vacíos
+    }
+    
+    // Si es texto plano (formato anterior), convertir a párrafos
+    return content
+      .split("\n")
+      .filter(paragraph => paragraph.trim())
+      .map(paragraph => `<p>${paragraph.trim()}</p>`)
+      .join("");
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("es-ES", {
       year: "numeric",
@@ -498,19 +521,38 @@ const StoryPage = () => {
       <div className="bg-white rounded-xl shadow-lg p-8">
         <div
           ref={storyContentRef}
-          className="prose prose-lg max-w-none"
+          className="prose prose-lg max-w-none story-content"
           style={{
             fontSize: "18px",
             lineHeight: "1.7",
-            fontFamily: "Georgia, serif",
+            fontFamily: '"Crimson Text", "Times New Roman", serif',
           }}
-        >
-          {story.content.split("\n").map((paragraph, index) => (
-            <p key={index} className="mb-4 text-gray-800 leading-relaxed">
-              {paragraph.trim() || "\u00A0"}
-            </p>
-          ))}
-        </div>
+          dangerouslySetInnerHTML={{
+            __html: formatStoryContent(story.content)
+          }}
+        />
+
+        <style jsx>{`
+          .story-content p {
+            margin-bottom: 1rem;
+            color: #374151;
+            text-align: justify;
+          }
+          
+          .story-content em {
+            font-style: italic;
+            color: #4B5563;
+          }
+          
+          .story-content strong {
+            font-weight: 600;
+            color: #1F2937;
+          }
+          
+          .story-content br {
+            line-height: 1.7;
+          }
+        `}</style>
 
         {/* Story Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200">

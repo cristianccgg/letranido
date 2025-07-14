@@ -15,6 +15,9 @@ import {
   Heart,
   BookOpen,
   Loader,
+  Shield,
+  Copyright,
+  Lock,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
@@ -207,74 +210,85 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Minimalista */}
-      <section className="bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 text-white">
-        <div className="max-w-3xl mx-auto px-4 py-20 flex flex-col items-center text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-primary-100 bg-clip-text text-transparent">
-            LiteraLab
-          </h1>
-          <p className="text-lg md:text-xl text-primary-100 mb-8">
-            Escribe con nosotros, mejora, gana y haz parte de una comunidad
-            creativa. Un prompt. Un límite. Una historia. ¿Aceptas el reto?
+      {/* Hero Section - Vibrante pero limpio */}
+      <section className="bg-gradient-to-br from-primary-100 via-white to-accent-100 relative overflow-hidden">
+        {/* Elementos decorativos */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-20 h-20 bg-primary-200 rounded-full opacity-20 animate-pulse"></div>
+          <div className="absolute top-32 right-16 w-16 h-16 bg-accent-200 rounded-full opacity-30"></div>
+          <div className="absolute bottom-20 left-20 w-12 h-12 bg-primary-300 rounded-full opacity-25"></div>
+          <div className="absolute bottom-32 right-10 w-24 h-24 bg-accent-200 rounded-full opacity-20 animate-pulse"></div>
+        </div>
+        
+        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 text-center">
+          {/* Logo/Título con más personalidad */}
+          <div className="mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+              LiteraLab
+            </h1>
+            <div className="w-20 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full mx-auto"></div>
+          </div>
+          
+          {/* Subtítulo con mejor tipografía */}
+          <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
+            Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a brillar. <span className="text-primary-600">Crece como escritor en comunidad.</span>
           </p>
+          
           {currentContest && (
-            <div className="w-full flex flex-col items-center gap-6">
-              {/* Prompt destacado */}
-              <div className="bg-white/10 rounded-xl px-6 py-4 mb-2 w-full">
-                <span className="text-sm text-primary-200">Prompt actual</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mt-2 mb-1">
-                  {currentContest.title}
-                </h2>
-                <p className="text-primary-100 text-base">
-                  {currentContest.description}
-                </p>
-              </div>
-              {/* Contador llamativo */}
-              <div className="bg-white/20 rounded-xl px-8 py-6 mb-2 flex flex-col items-center shadow-lg">
-                <span className="text-sm text-primary-200 mb-2">
-                  Cierre de envíos en
-                </span>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-8 w-8 text-primary-100" />
-                  <span className="text-3xl md:text-4xl font-bold text-white tracking-wide">
-                    {timeLeft}
+            <div className="space-y-6">
+              {/* Prompt en card con más personalidad */}
+              <div className="bg-white/90 backdrop-blur-sm border-2 border-primary-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="mb-4">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Concurso de {currentContest.month}
                   </span>
                 </div>
-                {/* Aclaración de zona horaria */}
-                <div className="mt-2 text-xs text-primary-100">
-                  {currentContest?.submission_deadline &&
-                    `La fase de envíos cierra el ${new Date(
-                      currentContest.submission_deadline
-                    ).toLocaleString("es-CO", {
-                      timeZone: "America/Bogota",
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })} (GMT-5)`}
+                
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                  {currentContest.title}
+                </h2>
+                
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  {currentContest.description}
+                </p>
+                
+                {/* Contador con más estilo */}
+                <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-4 inline-flex items-center gap-4 shadow-sm">
+                  <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-sm text-primary-700 font-medium block">Cierre en</span>
+                    <span className="text-xl font-bold text-primary-900">
+                      {timeLeft}
+                    </span>
+                  </div>
                 </div>
               </div>
-              {/* Botones principales */}
-              <div className="flex flex-col md:flex-row gap-3 justify-center items-center mt-4">
+              
+              {/* Botones con más estilo */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <ContestActionButton
                   variant="primary"
                   size="large"
                   showDescription={false}
                 />
+                
                 {secondaryButton && (
                   <Link
                     to={secondaryButton.href}
-                    className="inline-flex items-center px-6 py-3 rounded-lg bg-white text-primary-700 font-semibold shadow hover:bg-primary-50 transition-colors"
+                    className="inline-flex items-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all shadow-sm"
                   >
                     <secondaryButton.icon className="h-5 w-5 mr-2" />
                     {secondaryButton.text}
                   </Link>
                 )}
+                
                 <button
                   type="button"
                   onClick={() => setShowRulesModal(true)}
-                  className="inline-flex cursor-pointer items-center px-6 py-3 rounded-lg bg-gray-100 text-gray-700 font-semibold shadow hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-all shadow-sm"
                 >
                   <BookOpen className="h-5 w-5 mr-2" />
                   Ver reglas
@@ -428,6 +442,68 @@ const LandingPage = () => {
                 premios.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sección de Derechos de Autor */}
+      <section className="py-12 bg-gradient-to-r from-green-50 to-blue-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+              Tu obra, tus derechos
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              En LiteraLab, tu creatividad está completamente protegida. Mantienes todos los derechos sobre tus historias.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Copyright className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
+                Derechos completos
+              </h3>
+              <p className="text-gray-600 text-sm text-center">
+                Mantienes todos los derechos de autor sobre tus historias. Son tuyas y siempre lo serán.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
+                Protección total
+              </h3>
+              <p className="text-gray-600 text-sm text-center">
+                Nadie puede republicar, copiar o usar tu historia sin tu permiso expreso.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
+                Solo la plataforma
+              </h3>
+              <p className="text-gray-600 text-sm text-center">
+                LiteraLab solo proporciona el espacio para compartir. Tu trabajo es completamente tuyo.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500 max-w-3xl mx-auto">
+              Al participar en LiteraLab, solo nos das permiso para mostrar tu historia en la plataforma durante los concursos. 
+              Puedes retirar tu obra cuando quieras y usarla libremente en cualquier otro lugar.
+            </p>
           </div>
         </div>
       </section>

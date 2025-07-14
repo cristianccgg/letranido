@@ -168,17 +168,22 @@ const CurrentContest = () => {
 
   // ✅ DETECTAR CAMBIOS EN GALLERYSTORIES Y FORZAR RE-RENDER INMEDIATO
   const [forceRender, setForceRender] = useState(0);
-  
+
   useLayoutEffect(() => {
     if (contest?.id === currentContest?.id && galleryStories.length > 0) {
-      console.log("🔄 GalleryStories cambió, forzando re-render de CurrentContest");
-      setForceRender(prev => prev + 1);
+      console.log(
+        "🔄 GalleryStories cambió, forzando re-render de CurrentContest"
+      );
+      setForceRender((prev) => prev + 1);
     }
   }, [galleryStories, contest?.id, currentContest?.id]);
 
   // ✅ FORZAR RE-RENDER CUANDO SE NAVEGA DE VUELTA
   useLayoutEffect(() => {
-    console.log("🔄 CurrentContest montado/actualizado - Force render:", forceRender);
+    console.log(
+      "🔄 CurrentContest montado/actualizado - Force render:",
+      forceRender
+    );
   }, [forceRender]);
 
   // ✅ REFRESH COMPLETO
@@ -216,7 +221,6 @@ const CurrentContest = () => {
             result.liked ? "❤️" : "💔"
           } Voto procesado, sincronización automática`
         );
-
       } else {
         console.error("Error voting:", result.error);
         alert("Error al procesar el voto: " + result.error);
@@ -235,12 +239,12 @@ const CurrentContest = () => {
       galleryStoriesCount: galleryStories.length,
       storiesLoading,
       // Debug: mostrar likes de las historias para verificar sincronización
-      storiesWithLikes: galleryStories.map(s => ({ 
-        id: s.id.slice(-6), 
-        likes: s.likes_count, 
+      storiesWithLikes: galleryStories.map((s) => ({
+        id: s.id.slice(-6),
+        likes: s.likes_count,
         views: s.views_count, // ← Agregar views para debug
-        isLiked: s.isLiked 
-      }))
+        isLiked: s.isLiked,
+      })),
     });
 
     // Si galleryStories está vacía, mostrar array vacío (loading se maneja aparte)
@@ -411,39 +415,45 @@ const CurrentContest = () => {
 
   // ✅ RENDER PRINCIPAL
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header del concurso */}
-      <div className="text-center">
-        <div className="mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-            <Calendar className="h-4 w-4 mr-1" />
-            {contest.month}
-          </span>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-6 overflow-hidden">
+      {/* Header del concurso - Más compacto */}
+      <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 rounded-xl p-4 md:p-6 text-center relative overflow-hidden">
+        {/* Elementos decorativos sutiles - Ocultos en mobile */}
+        <div className="absolute top-4 right-4 w-16 h-16 bg-primary-200 rounded-full opacity-10 hidden md:block"></div>
+        <div className="absolute bottom-4 left-4 w-12 h-12 bg-accent-200 rounded-full opacity-15 hidden md:block"></div>
 
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          {contest.title}
-        </h1>
-
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
-          {contest.description}
-        </p>
-
-        {/* Stats del concurso */}
-        <div className="flex flex-wrap justify-center gap-6 mb-8">
-          <div className="flex items-center text-gray-600">
-            <Users className="h-5 w-5 mr-2" />
-            <span>{contest.participants_count || 0} participantes</span>
-          </div>
-          <div className="flex items-center text-gray-600">
-            <Star className="h-5 w-5 mr-2" />
-            <span>{contest.category}</span>
-          </div>
-          <div className="flex items-center text-gray-600">
-            <PenTool className="h-5 w-5 mr-2" />
-            <span>
-              {contest.min_words}-{contest.max_words} palabras
+        <div className="relative">
+          <div className="mb-3">
+            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm">
+              <Calendar className="h-4 w-4 mr-2" />
+              Concurso de {contest.month}
             </span>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            {contest.title}
+          </h1>
+
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-4">
+            {contest.description}
+          </p>
+
+          {/* Stats del concurso - Más compactas */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4 text-sm text-gray-600">
+            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
+              <Users className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{contest.participants_count || 0} participantes</span>
+            </div>
+            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
+              <Star className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{contest.category}</span>
+            </div>
+            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
+              <PenTool className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">
+                {contest.min_words}-{contest.max_words} palabras
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -463,59 +473,52 @@ const CurrentContest = () => {
         <div ref={storiesSectionRef} id="stories-section" className="space-y-6">
           {/* FASE DE SUBMISSION - Mostrar participantes sin contenido */}
           {phaseInfo.phase === "submission" && (
-            <div className="space-y-8">
-              {/* Header motivacional */}
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <PenTool className="h-8 w-8 text-blue-600" />
+            <div className="space-y-6">
+              {/* Header compacto con CTA */}
+              <div className="bg-gradient-to-r from-blue-50 to-primary-50 rounded-xl p-6 text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <PenTool className="h-6 w-6 text-blue-600 mr-2" />
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Fase de envío de historias
+                  </h2>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Fase de envío de historias
-                </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-                  Los participantes están escribiendo sus historias. Las
-                  historias se revelarán cuando inicie la votación.
+
+                <p className="text-gray-600 mb-4 max-w-xl mx-auto">
+                  Las historias se revelarán cuando inicie la votación. ¡Aún
+                  puedes participar!
                 </p>
 
-                {/* CTA Principal */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-                  <h3 className="font-semibold text-blue-900 mb-3">
-                    ¿Aún no participas?
-                  </h3>
-                  <p className="text-blue-700 text-sm mb-4">
-                    Únete a estos escritores y demuestra tu talento creativo
-                  </p>
-                  <ContestActionButton
-                    variant="primary"
-                    size="large"
-                    showDescription={false}
-                  />
-                </div>
+                <ContestActionButton
+                  variant="primary"
+                  size="default"
+                  showDescription={false}
+                />
               </div>
 
-              {/* Lista de participantes */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 border-b border-gray-200">
+              {/* Lista de participantes - Más prominente */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                         <Users className="h-5 w-5 mr-2 text-green-600" />
-                        Escritores que ya participaron
+                        Escritores participando
                       </h3>
                       <p className="text-sm text-gray-600 mt-1">
-                        Sus historias se revelarán cuando inicie la votación
+                        {storiesLoading
+                          ? "Cargando..."
+                          : `${stories.length} historias enviadas`}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-green-600">
                         {storiesLoading ? "..." : stories.length}
                       </div>
-                      <div className="text-sm text-gray-500">participantes</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4">
                   {/* Loading state */}
                   {storiesLoading && (
                     <div className="text-center py-8">
@@ -628,87 +631,43 @@ const CurrentContest = () => {
                 </div>
               </div>
 
-              {/* Estadísticas motivacionales */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {storiesLoading ? "..." : stories.length}
+              {/* Estadísticas estilo landing page */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 overflow-hidden">
+                <div className="grid grid-cols-3 gap-4 md:gap-6">
+                  <div className="text-center min-w-0">
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-700 mb-2">
+                      {storiesLoading ? "..." : stories.length}
+                    </div>
+                    <div className="text-gray-500 text-sm md:text-base">Historias enviadas</div>
                   </div>
-                  <div className="text-blue-800 font-medium">
-                    Historias enviadas
-                  </div>
-                  <div className="text-sm text-blue-600 mt-1">
-                    ¡Únete a ellos!
-                  </div>
-                </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {Math.max(
-                      0,
-                      Math.floor(
-                        (new Date(contest.submission_deadline) - new Date()) /
-                          (1000 * 60 * 60 * 24)
-                      )
-                    )}
+                  <div className="text-center min-w-0">
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-600 mb-2">
+                      {Math.max(
+                        0,
+                        Math.floor(
+                          (new Date(contest.submission_deadline) - new Date()) /
+                            (1000 * 60 * 60 * 24)
+                        )
+                      )}
+                    </div>
+                    <div className="text-gray-500 text-sm md:text-base">Días restantes</div>
                   </div>
-                  <div className="text-green-800 font-medium">
-                    Días restantes
-                  </div>
-                  <div className="text-sm text-green-600 mt-1">
-                    Para enviar tu historia
-                  </div>
-                </div>
 
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">
-                    {storiesLoading
-                      ? "..."
-                      : stories
-                          .reduce(
-                            (total, story) => total + (story.word_count || 0),
-                            0
-                          )
-                          .toLocaleString()}
+                  <div className="text-center min-w-0">
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-purple-600 mb-2">
+                      {storiesLoading
+                        ? "..."
+                        : Math.floor(
+                            stories.reduce(
+                              (total, story) => total + (story.word_count || 0),
+                              0
+                            ) / 1000
+                          )}
+                      k
+                    </div>
+                    <div className="text-gray-500 text-sm md:text-base">Palabras escritas</div>
                   </div>
-                  <div className="text-purple-800 font-medium">
-                    Palabras escritas
-                  </div>
-                  <div className="text-sm text-purple-600 mt-1">
-                    Por la comunidad
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA final para participar */}
-              <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-xl p-8 text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  ¡Aún estás a tiempo de participar!
-                </h3>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  Tienes hasta el{" "}
-                  <strong>
-                    {new Date(contest.submission_deadline).toLocaleDateString(
-                      "es-ES"
-                    )}
-                  </strong>{" "}
-                  para enviar tu historia al concurso de {contest.month}.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  {phaseInfo.buttonLink && (
-                    <a
-                      href={phaseInfo.buttonLink}
-                      className="btn-primary px-8 py-3"
-                    >
-                      {phaseInfo.buttonText}
-                    </a>
-                  )}
-                  <button
-                    onClick={() => setShowRulesModal(true)}
-                    className="btn-secondary px-8 py-3"
-                  >
-                    Ver reglas del concurso
-                  </button>
                 </div>
               </div>
             </div>
@@ -891,15 +850,19 @@ const CurrentContest = () => {
                               </h3>
 
                               <div className="flex items-center text-xs text-gray-500 mt-1">
-                                <span>por <strong>{story.author}</strong></span>
+                                <span>
+                                  por <strong>{story.author}</strong>
+                                </span>
                                 <span className="mx-1">•</span>
-                                <span>{getReadingTime(story.word_count)} min</span>
+                                <span>{getReadingTime(story.word_count)} </span>
                                 <span className="mx-1">•</span>
                                 <span>{story.word_count}</span>
                                 {story.is_mature && (
                                   <>
                                     <span className="mx-1">•</span>
-                                    <span className="text-red-600 font-medium">18+</span>
+                                    <span className="text-red-600 font-medium">
+                                      18+
+                                    </span>
                                   </>
                                 )}
                               </div>
@@ -916,9 +879,12 @@ const CurrentContest = () => {
                           </div>
 
                           {/* Excerpt más corto */}
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
-                            {story.excerpt}
-                          </p>
+                          <div
+                            className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              __html: story.excerpt,
+                            }}
+                          />
 
                           {/* Actions compactas */}
                           <div className="flex items-center justify-between">
@@ -930,7 +896,6 @@ const CurrentContest = () => {
                                   {story.likes_count || 0}
                                 </span>
                               </div>
-
 
                               {/* Views compacto */}
                               <div className="flex items-center space-x-1 text-gray-500 text-sm">
