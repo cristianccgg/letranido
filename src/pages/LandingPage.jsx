@@ -23,6 +23,7 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
+import UserAvatar from "../components/ui/UserAvatar";
 
 const LandingPage = () => {
   const {
@@ -380,9 +381,15 @@ const LandingPage = () => {
                     {story.title}
                   </h3>
 
-                  <p className="text-sm text-gray-600 text-center mb-3">
-                    por {story.author}
-                  </p>
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <UserAvatar 
+                      user={{ name: story.author, email: `${story.author}@mock.com` }} 
+                      size="xs" 
+                    />
+                    <p className="text-sm text-gray-600">
+                      por {story.author}
+                    </p>
+                  </div>
 
                   <div className="flex items-center justify-between">
                     <span className="flex items-center text-red-600 text-sm">

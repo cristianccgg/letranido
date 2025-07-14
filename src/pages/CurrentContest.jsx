@@ -27,6 +27,7 @@ import VotingGuidance from "../components/voting/VotingGuidance";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
+import UserAvatar from "../components/ui/UserAvatar";
 
 const CurrentContest = () => {
   const { id } = useParams();
@@ -565,9 +566,10 @@ const CurrentContest = () => {
                         >
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <User className="h-5 w-5 text-white" />
-                            </div>
+                            <UserAvatar 
+                              user={{ name: story.author, email: `${story.author}@mock.com` }} 
+                              size="md" 
+                            />
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
@@ -859,7 +861,11 @@ const CurrentContest = () => {
                                 <a href={`/story/${story.id}`}>{story.title}</a>
                               </h3>
 
-                              <div className="flex items-center text-xs text-gray-500 mt-1">
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                <UserAvatar 
+                                  user={{ name: story.author, email: `${story.author}@mock.com` }} 
+                                  size="xs" 
+                                />
                                 <span>
                                   por <strong>{story.author}</strong>
                                 </span>

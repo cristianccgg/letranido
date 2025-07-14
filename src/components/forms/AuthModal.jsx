@@ -10,6 +10,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
     password: "",
     name: "",
     confirmPassword: "",
+    emailNotifications: true, // Por defecto habilitado
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -26,6 +27,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         password: "",
         name: "",
         confirmPassword: "",
+        emailNotifications: true,
       });
       setErrors({});
       setShowPassword(false);
@@ -85,7 +87,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         result = await register(
           formData.email,
           formData.name,
-          formData.password
+          formData.password,
+          formData.emailNotifications
         );
       }
 
@@ -265,6 +268,28 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                   {errors.confirmPassword}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Email notifications consent (only for register) */}
+          {mode === "register" && (
+            <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <input
+                type="checkbox"
+                id="emailNotifications"
+                checked={formData.emailNotifications}
+                onChange={(e) => handleInputChange("emailNotifications", e.target.checked)}
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
+              />
+              <div className="flex-1">
+                <label htmlFor="emailNotifications" className="text-sm font-medium text-gray-700">
+                  📧 Notificaciones por email
+                </label>
+                <p className="text-xs text-gray-600 mt-1">
+                  Acepto recibir emails sobre nuevos concursos, recordatorios y resultados. 
+                  Puedes desuscribirte en cualquier momento desde tu perfil o desde los emails.
+                </p>
+              </div>
             </div>
           )}
 

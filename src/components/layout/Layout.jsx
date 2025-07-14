@@ -1,5 +1,5 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   PenTool,
@@ -11,10 +11,15 @@ import {
   BarChart3,
   CheckCircle,
   Shield,
+  ChevronDown,
+  LogOut,
+  Settings,
+  Trophy,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
+import UserAvatar from "../ui/UserAvatar";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -22,6 +27,7 @@ const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
   const {
@@ -31,8 +37,8 @@ const Layout = ({ children }) => {
     currentContestPhase,
     userStories,
     userStoriesLoading,
-    // Función de logout que necesitaremos implementar en el contexto
-    logout: contextLogout,
+    contests,
+    logout,
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
 
@@ -42,11 +48,13 @@ const Layout = ({ children }) => {
       ? userStories.some((story) => story.contest_id === currentContest.id)
       : false;
 
+  // ✅ VERIFICAR SI HAY CONCURSOS FINALIZADOS PARA MOSTRAR HISTORIAL
+  const hasFinishedContests = contests.some(contest => contest.status === "results");
+
   // ✅ LOGOUT SIMPLIFICADO
   const handleLogout = async () => {
     try {
-      // Implementar logout en el contexto global
-      await contextLogout();
+      await logout();
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -97,7 +105,10 @@ const Layout = ({ children }) => {
       className: hasUserParticipated ? "text-green-600" : "",
     },
     { name: getGalleryText(), href: "/contest/current", icon: BookOpen },
-    { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+    // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS
+    ...(hasFinishedContests
+      ? [{ name: "Historial", href: "/contest-history", icon: Trophy }]
+      : []),
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
           {
@@ -112,6 +123,10 @@ const Layout = ({ children }) => {
 
   const publicNavigation = [
     { name: "Concurso Actual", href: "/contest/current", icon: BookOpen },
+    // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS
+    ...(hasFinishedContests
+      ? [{ name: "Historial", href: "/contest-history", icon: Trophy }]
+      : []),
   ];
 
   const navigation = isAuthenticated
@@ -132,16 +147,35 @@ const Layout = ({ children }) => {
     }
   };
 
+  // Cerrar dropdown cuando se presiona Escape
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b  border-gray-200 border">
-        <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full overflow-hidden">
+      <header className="bg-white shadow-sm border-b border-gray-200 relative z-30">
+        <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full">
           <div className="flex justify-between items-center h-16 min-w-0 max-w-7xl mx-auto">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            <Link
+              to="/"
+              className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0"
+            >
               <PenTool className="h-7 w-7 sm:h-8 sm:w-8 text-primary-600" />
-              <span className="text-lg sm:text-xl font-bold text-gray-900">Letranido</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">
+                Letranido
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -197,26 +231,92 @@ const Layout = ({ children }) => {
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
               {isAuthenticated ? (
                 <div className="relative">
-                  <div className="flex items-center space-x-3">
-                    <Link
-                      to="/profile"
-                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 group"
-                    >
-                      <User className="h-5 w-5" />
-                      <div className="hidden sm:block">
-                        <span>{user?.name}</span>
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                  >
+                    <UserAvatar user={user} size="sm" />
+                    <div className="hidden sm:block text-left min-w-0">
+                      <div className="font-medium text-gray-900 truncate">
+                        {user?.name || user?.display_name}
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleLogout();
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <>
+                      {/* Overlay para cerrar el menu */}
+                      <div
+                        className="fixed inset-0"
+                        style={{zIndex: 9998}}
+                        onClick={() => setIsUserMenuOpen(false)}
+                      />
+                      <div 
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1" 
+                        style={{
+                          zIndex: 9999,
+                          top: '100%',
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #e5e7eb',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
                         }}
-                        className="absolute w-fit cursor-pointer text-nowrap left-0 mt-15 bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:text-gray-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                       >
-                        Cerrar sesión
-                      </button>
-                    </Link>
-                  </div>
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <div className="flex items-center space-x-3">
+                            <UserAvatar user={user} size="md" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900 truncate">
+                                {user?.name || user?.display_name}
+                              </div>
+                              <div className="text-sm text-gray-500 truncate">
+                                {user?.email}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="py-1">
+                          <Link
+                            to="/profile"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <User className="h-4 w-4 mr-3 text-gray-400" />
+                            Mi perfil
+                          </Link>
+
+                          <Link
+                            to="/email/preferences"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Settings className="h-4 w-4 mr-3 text-gray-400" />
+                            Preferencias
+                          </Link>
+                        </div>
+
+                        {/* Logout */}
+                        <div className="border-t border-gray-100 py-1">
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              setIsUserMenuOpen(false);
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogOut className="h-4 w-4 mr-3" />
+                            Cerrar sesión
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="items-center space-x-2 md:space-x-3 hidden md:flex">

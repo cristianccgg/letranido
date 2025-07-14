@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { MessageSquare, Send, Heart, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
+import UserAvatar from "../ui/UserAvatar";
 
 const SimpleComments = ({ storyId, storyTitle }) => {
   const [comments, setComments] = useState([]);
@@ -178,9 +179,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
       {isAuthenticated ? (
         <form onSubmit={handleSubmitComment} className="space-y-4">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="h-4 w-4 text-white" />
-            </div>
+            <UserAvatar user={user} size="sm" />
             <div className="flex-1">
               <textarea
                 value={newComment}
@@ -233,9 +232,10 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           comments.map((comment) => (
             <div key={comment.id} className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="h-4 w-4 text-white" />
-                </div>
+                <UserAvatar 
+                  user={{ name: comment.author, email: `${comment.author}@mock.com` }} 
+                  size="sm" 
+                />
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">

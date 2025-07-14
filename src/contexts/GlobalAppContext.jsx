@@ -1734,7 +1734,7 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
-  const register = useCallback(async (email, name, password) => {
+  const register = useCallback(async (email, name, password, emailNotifications = true) => {
     dispatch({
       type: actions.SET_AUTH_STATE,
       payload: { loading: true },
@@ -1788,6 +1788,7 @@ export function GlobalAppProvider({ children }) {
                   id: userId,
                   email: email.trim().toLowerCase(),
                   display_name: name.trim(),
+                  email_notifications: emailNotifications,
                   created_at: new Date().toISOString(),
                 },
               ]);

@@ -12,6 +12,9 @@ import ContestAdminPanel from "./components/admin/ContestAdminPanel";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
+import EmailTest from "./pages/EmailTest";
+import EmailUnsubscribe from "./pages/EmailUnsubscribe";
+import EmailPreferences from "./pages/EmailPreferences";
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -93,6 +96,11 @@ function AppContent() {
 
           {/* Admin */}
           <Route path="/admin" element={<ContestAdminPanel />} />
+          <Route path="/test-email" element={<EmailTest />} />
+
+          {/* Email management */}
+          <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
+          <Route path="/email/preferences" element={<EmailPreferences />} />
 
           {/* Legal */}
           <Route path="/terms" element={<TermsOfService />} />

@@ -18,9 +18,11 @@ import {
   Trash2,
   Save,
   X,
+  Mail,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
+import UserAvatar from "../components/ui/UserAvatar";
 
 const UnifiedProfile = () => {
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -177,9 +179,7 @@ const UnifiedProfile = () => {
       {/* Profile Header */}
       <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-8">
         <div className="flex items-start gap-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <User className="h-12 w-12 text-white" />
-          </div>
+          <UserAvatar user={user} size="2xl" />
 
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -234,7 +234,16 @@ const UnifiedProfile = () => {
             )}
 
 
-            <p className="text-gray-600 mb-4">{user?.email}</p>
+            <div className="flex items-center gap-4 mb-4">
+              <p className="text-gray-600">{user?.email}</p>
+              <Link
+                to="/email/preferences"
+                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                <Mail className="h-4 w-4 mr-1" />
+                Preferencias de email
+              </Link>
+            </div>
 
             <div className="text-sm text-gray-500 mb-6">
               Miembro desde{" "}

@@ -24,6 +24,7 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import AuthModal from "../components/forms/AuthModal";
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
+import UserAvatar from "../components/ui/UserAvatar";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -424,8 +425,8 @@ const StoryPage = () => {
           {/* Author Info */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div className="flex items-center mb-4 md:mb-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center mr-4">
-                <User className="h-6 w-6 text-white" />
+              <div className="mr-4">
+                <UserAvatar user={story.author} size="lg" />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-lg">
