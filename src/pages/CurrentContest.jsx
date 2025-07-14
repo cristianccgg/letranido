@@ -442,7 +442,9 @@ const CurrentContest = () => {
           <div className="flex flex-wrap justify-center gap-2 md:gap-4 text-sm text-gray-600">
             <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
               <Users className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{contest.participants_count || 0} participantes</span>
+              <span className="truncate">
+                {contest.participants_count || 0} participantes
+              </span>
             </div>
             <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
               <Star className="h-4 w-4 mr-1 flex-shrink-0" />
@@ -638,7 +640,9 @@ const CurrentContest = () => {
                     <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-700 mb-2">
                       {storiesLoading ? "..." : stories.length}
                     </div>
-                    <div className="text-gray-500 text-sm md:text-base">Historias enviadas</div>
+                    <div className="text-gray-500 text-sm md:text-base">
+                      Historias enviadas
+                    </div>
                   </div>
 
                   <div className="text-center min-w-0">
@@ -651,22 +655,28 @@ const CurrentContest = () => {
                         )
                       )}
                     </div>
-                    <div className="text-gray-500 text-sm md:text-base">Días restantes</div>
+                    <div className="text-gray-500 text-sm md:text-base">
+                      Días restantes
+                    </div>
                   </div>
 
                   <div className="text-center min-w-0">
                     <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-purple-600 mb-2">
                       {storiesLoading
                         ? "..."
-                        : Math.floor(
-                            stories.reduce(
+                        : (() => {
+                            const totalWords = stories.reduce(
                               (total, story) => total + (story.word_count || 0),
                               0
-                            ) / 1000
-                          )}
-                      k
+                            );
+                            return totalWords >= 1000
+                              ? `${Math.floor(totalWords / 1000)}k`
+                              : totalWords.toLocaleString();
+                          })()}
                     </div>
-                    <div className="text-gray-500 text-sm md:text-base">Palabras escritas</div>
+                    <div className="text-gray-500 text-sm md:text-base">
+                      Palabras escritas
+                    </div>
                   </div>
                 </div>
               </div>

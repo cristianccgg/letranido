@@ -96,18 +96,19 @@ const GlobalFooter = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {ctaContent.showButton && (
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 w-full">
                 <ContestActionButton
                   variant="primary"
                   size="large"
                   showDescription={false}
+                  className="w-full"
                 />
               </div>
             )}
 
             <button
               onClick={() => setShowRulesModal(true)}
-              className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-bold py-3 px-8 rounded-lg transition-colors"
+              className="border-2 w-full border-white text-white hover:bg-white hover:text-primary-600 font-bold py-3 px-8 rounded-lg transition-colors"
             >
               Ver las reglas
             </button>

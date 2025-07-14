@@ -22,7 +22,6 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
 import ContestActionButton from "../components/ui/ContestActionButton";
-import ContestPhaseBadge from "../components/ui/ContestPhaseBadge";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 
 const LandingPage = () => {
@@ -219,7 +218,7 @@ const LandingPage = () => {
           <div className="absolute bottom-20 left-20 w-12 h-12 bg-primary-300 rounded-full opacity-25"></div>
           <div className="absolute bottom-32 right-10 w-24 h-24 bg-accent-200 rounded-full opacity-20 animate-pulse"></div>
         </div>
-        
+
         <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 text-center">
           {/* Logo/Título con más personalidad */}
           <div className="mb-6">
@@ -228,12 +227,16 @@ const LandingPage = () => {
             </h1>
             <div className="w-20 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full mx-auto"></div>
           </div>
-          
+
           {/* Subtítulo con mejor tipografía */}
           <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
-            Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a brillar. <span className="text-primary-600">Crece como escritor en comunidad.</span>
+            Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a
+            brillar.{" "}
+            <span className="text-primary-600">
+              Crece como escritor en comunidad.
+            </span>
           </p>
-          
+
           {currentContest && (
             <div className="space-y-6">
               {/* Prompt en card con más personalidad */}
@@ -244,51 +247,54 @@ const LandingPage = () => {
                     Concurso de {currentContest.month}
                   </span>
                 </div>
-                
+
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
                   {currentContest.title}
                 </h2>
-                
+
                 <p className="text-gray-700 mb-6 leading-relaxed">
                   {currentContest.description}
                 </p>
-                
+
                 {/* Contador con más estilo */}
                 <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-4 inline-flex items-center gap-4 shadow-sm">
                   <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
                     <Clock className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm text-primary-700 font-medium block">Cierre en</span>
+                    <span className="text-sm text-primary-700 font-medium block">
+                      Cierre en
+                    </span>
                     <span className="text-xl font-bold text-primary-900">
                       {timeLeft}
                     </span>
                   </div>
                 </div>
               </div>
-              
+
               {/* Botones con más estilo */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <ContestActionButton
                   variant="primary"
                   size="large"
                   showDescription={false}
+                  className="w-full"
                 />
-                
+
                 {secondaryButton && (
                   <Link
                     to={secondaryButton.href}
-                    className="inline-flex items-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all shadow-sm"
+                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all shadow-sm"
                   >
                     <secondaryButton.icon className="h-5 w-5 mr-2" />
                     {secondaryButton.text}
                   </Link>
                 )}
-                
+
                 <button
                   type="button"
                   onClick={() => setShowRulesModal(true)}
-                  className="inline-flex items-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-all shadow-sm"
+                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-all shadow-sm"
                 >
                   <BookOpen className="h-5 w-5 mr-2" />
                   Ver reglas
@@ -305,19 +311,19 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white rounded-xl shadow-lg p-8">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
-                {stats.totalParticipants}+
+                {stats.totalParticipants}
               </div>
               <div className="text-gray-500">Escritores participando</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
-                {stats.totalStories}+
+                {stats.totalStories}
               </div>
               <div className="text-gray-500">Historias publicadas</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
-                {stats.totalWords.toLocaleString()}+
+                {stats.totalWords.toLocaleString()}
               </div>
               <div className="text-gray-500">Palabras escritas</div>
             </div>
@@ -457,7 +463,8 @@ const LandingPage = () => {
               Tu obra, tus derechos
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              En LiteraLab, tu creatividad está completamente protegida. Mantienes todos los derechos sobre tus historias.
+              En LiteraLab, tu creatividad está completamente protegida.
+              Mantienes todos los derechos sobre tus historias.
             </p>
           </div>
 
@@ -470,7 +477,8 @@ const LandingPage = () => {
                 Derechos completos
               </h3>
               <p className="text-gray-600 text-sm text-center">
-                Mantienes todos los derechos de autor sobre tus historias. Son tuyas y siempre lo serán.
+                Mantienes todos los derechos de autor sobre tus historias. Son
+                tuyas y siempre lo serán.
               </p>
             </div>
 
@@ -482,7 +490,8 @@ const LandingPage = () => {
                 Protección total
               </h3>
               <p className="text-gray-600 text-sm text-center">
-                Nadie puede republicar, copiar o usar tu historia sin tu permiso expreso.
+                Nadie puede republicar, copiar o usar tu historia sin tu permiso
+                expreso.
               </p>
             </div>
 
@@ -494,15 +503,17 @@ const LandingPage = () => {
                 Solo la plataforma
               </h3>
               <p className="text-gray-600 text-sm text-center">
-                LiteraLab solo proporciona el espacio para compartir. Tu trabajo es completamente tuyo.
+                LiteraLab solo proporciona el espacio para compartir. Tu trabajo
+                es completamente tuyo.
               </p>
             </div>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500 max-w-3xl mx-auto">
-              Al participar en LiteraLab, solo nos das permiso para mostrar tu historia en la plataforma durante los concursos. 
-              Puedes retirar tu obra cuando quieras y usarla libremente en cualquier otro lugar.
+              Al participar en LiteraLab, solo nos das permiso para mostrar tu
+              historia en la plataforma durante los concursos. Puedes retirar tu
+              obra cuando quieras y usarla libremente en cualquier otro lugar.
             </p>
           </div>
         </div>
