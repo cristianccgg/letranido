@@ -38,7 +38,7 @@ function AppContent() {
 
           <div className="space-y-2">
             <h2 className="text-xl font-semibold text-gray-800">
-              Cargando LiteraLab
+              Cargando Letranido
             </h2>
             <p className="text-gray-600">
               {!authInitialized

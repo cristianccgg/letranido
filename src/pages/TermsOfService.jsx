@@ -11,7 +11,7 @@ const TermsOfService = () => {
             Términos de Servicio
           </h1>
           <p className="text-xl text-gray-600">
-            LiteraLab - Comunidad de Escritura Creativa
+            Letranido - Comunidad de Escritura Creativa
           </p>
           <p className="text-sm text-gray-500 mt-2">
             Última actualización: {new Date().toLocaleDateString("es-ES")}
@@ -26,13 +26,13 @@ const TermsOfService = () => {
           </h2>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <p className="text-blue-800">
-              Al acceder y usar LiteraLab, aceptas cumplir estos términos de
+              Al acceder y usar Letranido, aceptas cumplir estos términos de
               servicio. Si no estás de acuerdo, por favor no uses la plataforma.
             </p>
           </div>
           <p>
             Estos términos constituyen un acuerdo legal entre tú ("Usuario") y
-            LiteraLab ("Nosotros", "Plataforma"). Nos reservamos el derecho de
+            Letranido ("Nosotros", "Plataforma"). Nos reservamos el derecho de
             modificar estos términos en cualquier momento, con notificación
             previa de al menos 30 días.
           </p>
@@ -69,7 +69,7 @@ const TermsOfService = () => {
           </h3>
           <p className="mb-4">
             Conservas todos los derechos de autor sobre tu contenido original.
-            Al publicar en LiteraLab, nos otorgas una licencia no exclusiva,
+            Al publicar en Letranido, nos otorgas una licencia no exclusiva,
             mundial, libre de regalías para:
           </p>
           <ul className="list-disc pl-6 mb-4">
@@ -268,7 +268,7 @@ const TermsOfService = () => {
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
             <p className="text-gray-800 text-sm">
-              <strong>AVISO LEGAL:</strong> LiteraLab se proporciona "como
+              <strong>AVISO LEGAL:</strong> Letranido se proporciona "como
               está". No nos hacemos responsables por daños directos, indirectos,
               incidentales o consecuentes que puedan surgir del uso de la
               plataforma.
@@ -301,7 +301,7 @@ const TermsOfService = () => {
         {/* Footer */}
         <div className="border-t border-gray-200 pt-8 mt-12 text-center">
           <p className="text-gray-600">
-            Al continuar usando LiteraLab, confirmas que has leído, entendido y
+            Al continuar usando Letranido, confirmas que has leído, entendido y
             aceptado estos términos de servicio.
           </p>
         </div>

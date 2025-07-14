@@ -19,7 +19,7 @@ const CommunityGuidelines = () => {
             Guías de la Comunidad
           </h1>
           <p className="text-xl text-gray-600">
-            Construyendo una comunidad respetuosa y creativa en LiteraLab
+            Construyendo una comunidad respetuosa y creativa en Letranido
           </p>
           <p className="text-sm text-gray-500 mt-2">
             Última actualización: {new Date().toLocaleDateString("es-ES")}
@@ -34,7 +34,7 @@ const CommunityGuidelines = () => {
               Nuestra Misión Comunitaria
             </h2>
             <p className="text-blue-800 mb-4">
-              LiteraLab es un espacio donde escritores de todos los niveles
+              Letranido es un espacio donde escritores de todos los niveles
               pueden compartir, aprender y crecer juntos. Creemos en la
               creatividad auténtica, el respeto mutuo y la protección de la
               propiedad intelectual.
@@ -69,7 +69,7 @@ const CommunityGuidelines = () => {
             </h3>
             <p className="text-red-800 mb-4">
               <strong>Cada palabra de tu historia debe ser tuya.</strong>{" "}
-              LiteraLab protege férreamente los derechos de autor tanto de
+              Letranido protege férreamente los derechos de autor tanto de
               nuestros usuarios como de creadores externos.
             </p>
 
@@ -115,7 +115,7 @@ const CommunityGuidelines = () => {
                 originales
               </li>
               <li>
-                ✅ <strong>LiteraLab NO reclama</strong> derechos sobre tu
+                ✅ <strong>Letranido NO reclama</strong> derechos sobre tu
                 contenido
               </li>
               <li>
@@ -132,7 +132,7 @@ const CommunityGuidelines = () => {
           </div>
 
           <h3 className="text-lg font-semibold mb-3">
-            1.2 Licencia Limitada a LiteraLab
+            1.2 Licencia Limitada a Letranido
           </h3>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <p className="text-blue-800 text-sm mb-2">
@@ -528,7 +528,7 @@ const CommunityGuidelines = () => {
             </p>
             <ol className="text-green-800 space-y-2 text-sm">
               <li>
-                <strong>1.</strong> Envía un email a appeals@literalab.com
+                <strong>1.</strong> Envía un email a appeals@letranido.com
               </li>
               <li>
                 <strong>2.</strong> Incluye el ID de tu historia y una
@@ -611,7 +611,7 @@ const CommunityGuidelines = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-blue-800 text-sm">
               <strong>Tu voz importa:</strong> Envía sugerencias para mejorar
-              estas guías a community@literalab.com. Las mejores ideas serán
+              estas guías a community@letranido.com. Las mejores ideas serán
               implementadas.
             </p>
           </div>
@@ -629,19 +629,19 @@ const CommunityGuidelines = () => {
                 <div className="text-lg mb-2">📧</div>
                 <strong>Preguntas generales:</strong>
                 <br />
-                community@literalab.com
+                community@letranido.com
               </div>
               <div>
                 <div className="text-lg mb-2">🚨</div>
                 <strong>Reportar problemas:</strong>
                 <br />
-                reports@literalab.com
+                reports@letranido.com
               </div>
               <div>
                 <div className="text-lg mb-2">⚖️</div>
                 <strong>Apelaciones:</strong>
                 <br />
-                appeals@literalab.com
+                appeals@letranido.com
               </div>
             </div>
 

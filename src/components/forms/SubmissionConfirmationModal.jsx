@@ -135,7 +135,7 @@ const SubmissionConfirmationModal = ({
                     Acepto los términos y condiciones del concurso.
                   </strong>
                   <br />
-                  He leído las reglas y entiendo que LiteraLab puede mostrar mi
+                  He leído las reglas y entiendo que Letranido puede mostrar mi
                   historia en la plataforma.
                 </span>
               </label>

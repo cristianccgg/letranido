@@ -17,7 +17,7 @@ const GlobalFooter = () => {
   const getCTAContent = () => {
     if (!currentContest) {
       return {
-        title: "¡Únete a LiteraLab!",
+        title: "¡Únete a Letranido!",
         subtitle: "Descubre una comunidad apasionada por la escritura creativa",
         description: "Pronto habrá nuevos concursos. ¡Mantente atento!",
         showButton: false,
@@ -160,7 +160,7 @@ const GlobalFooter = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-xl font-bold mb-4">LiteraLab</h3>
+              <h3 className="text-xl font-bold mb-4">Letranido</h3>
               <p className="text-primary-200 mb-4 max-w-md">
                 Una comunidad donde la creatividad literaria no tiene límites.
                 Únete a escritores apasionados de todo el mundo.
@@ -240,7 +240,7 @@ const GlobalFooter = () => {
           {/* Copyright */}
           <div className="mt-8 pt-8 border-t border-primary-500 text-center text-primary-300">
             <p>
-              &copy; 2024 LiteraLab. Hecho con ❤️ para la comunidad escritora.
+              &copy; 2024 Letranido. Hecho con ❤️ para la comunidad escritora.
             </p>
           </div>
         </div>

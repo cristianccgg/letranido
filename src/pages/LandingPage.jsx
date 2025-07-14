@@ -175,7 +175,7 @@ const LandingPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
-          <p className="text-gray-600">Cargando LiteraLab...</p>
+          <p className="text-gray-600">Cargando Letranido...</p>
         </div>
       </div>
     );
@@ -223,7 +223,7 @@ const LandingPage = () => {
           {/* Logo/Título con más personalidad */}
           <div className="mb-6">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-              LiteraLab
+              Letranido
             </h1>
             <div className="w-20 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full mx-auto"></div>
           </div>
@@ -463,7 +463,7 @@ const LandingPage = () => {
               Tu obra, tus derechos
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              En LiteraLab, tu creatividad está completamente protegida.
+              En Letranido, tu creatividad está completamente protegida.
               Mantienes todos los derechos sobre tus historias.
             </p>
           </div>
@@ -503,7 +503,7 @@ const LandingPage = () => {
                 Solo la plataforma
               </h3>
               <p className="text-gray-600 text-sm text-center">
-                LiteraLab solo proporciona el espacio para compartir. Tu trabajo
+                Letranido solo proporciona el espacio para compartir. Tu trabajo
                 es completamente tuyo.
               </p>
             </div>
@@ -511,7 +511,7 @@ const LandingPage = () => {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500 max-w-3xl mx-auto">
-              Al participar en LiteraLab, solo nos das permiso para mostrar tu
+              Al participar en Letranido, solo nos das permiso para mostrar tu
               historia en la plataforma durante los concursos. Puedes retirar tu
               obra cuando quieras y usarla libremente en cualquier otro lugar.
             </p>
@@ -524,7 +524,7 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              ¿Por qué elegir LiteraLab?
+              ¿Por qué elegir Letranido?
             </h2>
             <p className="text-xl text-gray-600">
               La plataforma perfecta para escritores creativos de todos los

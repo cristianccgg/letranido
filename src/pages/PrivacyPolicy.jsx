@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
             Política de Privacidad
           </h1>
           <p className="text-xl text-gray-600">
-            Cómo protegemos y manejamos tu información en LiteraLab
+            Cómo protegemos y manejamos tu información en Letranido
           </p>
           <p className="text-sm text-gray-500 mt-2">
             Última actualización: {new Date().toLocaleDateString("es-ES")}
@@ -113,7 +113,7 @@ const PrivacyPolicy = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
             <p className="text-blue-800 text-sm">
               <strong>NO recopilamos:</strong> Ubicación precisa, datos de
-              dispositivo personal, historial de navegación fuera de LiteraLab,
+              dispositivo personal, historial de navegación fuera de Letranido,
               información de redes sociales, datos biométricos, o información
               financiera.
             </p>
@@ -402,7 +402,7 @@ const PrivacyPolicy = () => {
             </h3>
             <div className="text-blue-800 space-y-2">
               <p>
-                <strong>Email principal:</strong> privacy@literalab.com
+                <strong>Email principal:</strong> privacy@letranido.com
               </p>
               <p>
                 <strong>Asunto sugerido:</strong> "Consulta de Privacidad - [Tu
