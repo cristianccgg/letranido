@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   PenTool,
   Trophy,
@@ -15,6 +16,8 @@ import {
   CheckCircle,
   AlertCircle,
   Trash2,
+  Save,
+  X,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
@@ -31,7 +34,13 @@ const UnifiedProfile = () => {
     votingStatsLoading,
     deleteUserStory,
     getContestPhase,
+    updateDisplayName,
   } = useGlobalApp();
+
+  // Estado para edición de nombre
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(user?.display_name || "");
+  const [nameUpdateLoading, setNameUpdateLoading] = useState(false);
 
   // 🔍 Log para verificar datos en cada render
   console.log("🔍 UnifiedProfile render:", {
@@ -69,6 +78,47 @@ const UnifiedProfile = () => {
     } catch (err) {
       alert("❌ Error inesperado al eliminar la historia");
       console.error("Error deleting story:", err);
+    }
+  };
+
+  // ✅ FUNCIONES PARA EDITAR NOMBRE
+  const handleStartEditName = () => {
+    setEditedName(user?.display_name || "");
+    setIsEditingName(true);
+  };
+
+  const handleCancelEditName = () => {
+    setEditedName(user?.display_name || "");
+    setIsEditingName(false);
+  };
+
+  const handleSaveDisplayName = async () => {
+    if (!editedName.trim()) {
+      alert("❌ El nombre no puede estar vacío");
+      return;
+    }
+
+    if (editedName.trim() === user?.display_name) {
+      // No hay cambios
+      setIsEditingName(false);
+      return;
+    }
+
+    setNameUpdateLoading(true);
+    try {
+      const result = await updateDisplayName(editedName);
+      
+      if (result.success) {
+        alert("✅ Nombre actualizado exitosamente");
+        setIsEditingName(false);
+      } else {
+        alert("❌ Error: " + result.error);
+      }
+    } catch (err) {
+      alert("❌ Error inesperado al actualizar el nombre");
+      console.error("Error updating display name:", err);
+    } finally {
+      setNameUpdateLoading(false);
     }
   };
 
@@ -133,13 +183,56 @@ const UnifiedProfile = () => {
 
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {user?.name || user?.display_name}
-              </h1>
-              <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-lg hover:bg-white/50">
-                <Edit3 className="h-4 w-4" />
-              </button>
+              {!isEditingName ? (
+                <>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {user?.name || user?.display_name}
+                  </h1>
+                  <button 
+                    onClick={handleStartEditName}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-lg hover:bg-white/50"
+                    title="Editar nombre"
+                  >
+                    <Edit3 className="h-5 w-5" />
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-2 flex-1">
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="text-3xl font-bold text-gray-900 bg-white/80 border border-gray-300 rounded-lg px-3 py-1 flex-1 max-w-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    placeholder="Tu nombre de escritor"
+                    disabled={nameUpdateLoading}
+                  />
+                  <button
+                    onClick={handleSaveDisplayName}
+                    disabled={nameUpdateLoading}
+                    className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                    title="Guardar"
+                  >
+                    <Save className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={handleCancelEditName}
+                    disabled={nameUpdateLoading}
+                    className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                    title="Cancelar"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
             </div>
+            
+            {/* Mensaje informativo cuando está editando */}
+            {isEditingName && (
+              <div className="text-sm text-gray-600 mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
+                💡 Este nombre aparecerá en todas tus historias y comentarios
+              </div>
+            )}
+
 
             <p className="text-gray-600 mb-4">{user?.email}</p>
 
@@ -344,8 +437,24 @@ const UnifiedProfile = () => {
                           Leer →
                         </Link>
                         
-                        {/* Botón eliminar - solo durante período de envío */}
-                        {story.contests && getContestPhase(story.contests) === "submission" && (
+                        {/* Botón eliminar - solo durante período de envío O si es admin */}
+                        {(() => {
+                          const contestPhase = story.contests ? getContestPhase(story.contests) : 'no contests';
+                          const canDelete = contestPhase === "submission" || user?.is_admin;
+                          
+                          // DEBUG TEMPORAL: Ver fechas y fase
+                          console.log("🔍 DEBUG FASE:", {
+                            storyId: story.id,
+                            now: new Date().toISOString(),
+                            submissionDeadline: story.contests?.submission_deadline,
+                            votingDeadline: story.contests?.voting_deadline,
+                            contestPhase,
+                            isAdmin: user?.is_admin,
+                            canDelete
+                          });
+                          
+                          return canDelete;
+                        })() && (
                           <button
                             onClick={() => handleDeleteStory(story.id, story.title)}
                             className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"

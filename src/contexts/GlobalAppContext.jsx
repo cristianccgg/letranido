@@ -657,7 +657,7 @@ export function GlobalAppProvider({ children }) {
         .select(
           `
           *,
-          contests!inner(id, title, month, status, category)
+          contests!inner(id, title, month, status, category, submission_deadline, voting_deadline)
         `
         )
         .eq("user_id", userId)
@@ -2269,13 +2269,11 @@ export function GlobalAppProvider({ children }) {
         return { success: false, error: "No puedes eliminar una historia que no es tuya" };
       }
 
-      // Verificar que el concurso esté en período de envío
-      console.log("🔍 Debug delete - contest data:", story.contests);
+      // Verificar que el concurso esté en período de envío (o que sea admin)
       const contestPhase = getContestPhase(story.contests);
-      console.log("🔍 Debug delete - contest phase:", contestPhase);
+      const isAdmin = state.user?.is_admin;
       
-      if (contestPhase !== "submission") {
-        console.log("❌ Debug delete - phase not submission, current phase:", contestPhase);
+      if (contestPhase !== "submission" && !isAdmin) {
         return { 
           success: false, 
           error: `Solo puedes eliminar historias durante el período de envío. Fase actual: ${contestPhase}` 
@@ -2283,15 +2281,21 @@ export function GlobalAppProvider({ children }) {
       }
 
       // Eliminar la historia
-      const { error: deleteError } = await supabase
+      const { data: deleteData, error: deleteError } = await supabase
         .from("stories")
         .delete()
         .eq("id", storyId)
-        .eq("user_id", state.user.id); // Doble verificación de seguridad
+        .eq("user_id", state.user.id)
+        .select();
 
       if (deleteError) {
         console.error("❌ Error eliminando historia:", deleteError);
         return { success: false, error: "Error al eliminar la historia" };
+      }
+
+      // Verificar si realmente se eliminó algo
+      if (!deleteData || deleteData.length === 0) {
+        return { success: false, error: "No se pudo eliminar la historia. Verifica los permisos." };
       }
 
       // Actualizar el estado local eliminando la historia
@@ -2315,6 +2319,68 @@ export function GlobalAppProvider({ children }) {
       return { success: false, error: "Error inesperado al eliminar la historia" };
     }
   }, [state.isAuthenticated, state.user, state.userStories, state.galleryStories, getContestPhase]);
+
+  // ✅ FUNCIÓN PARA ACTUALIZAR DISPLAY NAME
+  const updateDisplayName = useCallback(async (newDisplayName) => {
+    if (!state.isAuthenticated || !state.user?.id) {
+      return { success: false, error: "Debes estar autenticado para actualizar tu nombre" };
+    }
+
+    // Validaciones
+    if (!newDisplayName || typeof newDisplayName !== 'string') {
+      return { success: false, error: "El nombre es requerido" };
+    }
+
+    const trimmedName = newDisplayName.trim();
+    if (trimmedName.length < 2) {
+      return { success: false, error: "El nombre debe tener al menos 2 caracteres" };
+    }
+
+    if (trimmedName.length > 50) {
+      return { success: false, error: "El nombre no puede tener más de 50 caracteres" };
+    }
+
+    // Validar caracteres especiales problemáticos
+    const invalidChars = /[<>{}[\]\\\/]/;
+    if (invalidChars.test(trimmedName)) {
+      return { success: false, error: "El nombre contiene caracteres no válidos" };
+    }
+
+    try {
+      console.log("🔄 Actualizando display_name del usuario:", trimmedName);
+
+      // Actualizar en Supabase
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({ display_name: trimmedName })
+        .eq("id", state.user.id);
+
+      if (error) {
+        console.error("❌ Error actualizando display_name:", error);
+        return { success: false, error: "Error al actualizar el nombre" };
+      }
+
+      // Actualizar estado local preservando el estado de auth
+      dispatch({
+        type: actions.SET_AUTH_STATE,
+        payload: {
+          user: {
+            ...state.user,
+            display_name: trimmedName,
+            name: trimmedName // También actualizar name para consistencia
+          },
+          isAuthenticated: true,
+          initialized: state.authInitialized, // Preservar authInitialized (el reducer usa 'initialized')
+        },
+      });
+
+      console.log("✅ Display name actualizado exitosamente");
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Error inesperado actualizando nombre:", err);
+      return { success: false, error: "Error inesperado al actualizar el nombre" };
+    }
+  }, [state.isAuthenticated, state.user]);
 
   // ✅ UTILIDADES DE CONTESTS
 
@@ -2434,6 +2500,7 @@ export function GlobalAppProvider({ children }) {
 
     // Funciones de usuario
     deleteUserStory,
+    updateDisplayName,
 
     // Utilidades
     getContestPhase,
