@@ -237,11 +237,11 @@ const UnifiedProfile = () => {
             <div className="flex items-center gap-4 mb-4">
               <p className="text-gray-600">{user?.email}</p>
               <Link
-                to="/email/preferences"
+                to="/preferences"
                 className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 <Mail className="h-4 w-4 mr-1" />
-                Preferencias de email
+                Configurar preferencias
               </Link>
             </div>
 
@@ -416,9 +416,12 @@ const UnifiedProfile = () => {
                       {story.title}
                     </h3>
 
-                    <p className="text-gray-600 mb-3 line-clamp-2">
-                      {story.excerpt}
-                    </p>
+                    <div 
+                      className="text-gray-600 mb-3 line-clamp-2"
+                      dangerouslySetInnerHTML={{
+                        __html: story.excerpt || ''
+                      }}
+                    />
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-sm text-gray-500">

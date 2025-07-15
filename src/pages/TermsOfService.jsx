@@ -260,10 +260,10 @@ const TermsOfService = () => {
           </p>
         </section>
 
-        {/* 7. Limitación de Responsabilidad */}
+        {/* 7. Limitación de Responsabilidad y DMCA */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            7. Limitación de Responsabilidad
+            7. Limitación de Responsabilidad y Protección Legal
           </h2>
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
@@ -275,10 +275,50 @@ const TermsOfService = () => {
             </p>
           </div>
 
+          <h3 className="text-lg font-semibold mb-2">7.1 DMCA y Derechos de Autor</h3>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-800 text-sm">
+              <strong>IMPORTANTE:</strong> Si crees que tu contenido protegido por derechos de autor 
+              ha sido utilizado sin autorización, puedes enviar una notificación DMCA a 
+              <strong> admin@letranido.com</strong> con la siguiente información:
+            </p>
+            <ul className="text-red-700 text-sm mt-2 space-y-1 list-disc pl-4">
+              <li>Identificación del material protegido por derechos de autor</li>
+              <li>URL específica del contenido infractor</li>
+              <li>Información de contacto del titular de derechos</li>
+              <li>Declaración bajo juramento de buena fe</li>
+              <li>Firma electrónica o física</li>
+            </ul>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2">7.2 Responsabilidad del Usuario</h3>
+          <p className="mb-4">
+            Los usuarios son completamente responsables de:
+          </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>La originalidad y legitimidad de su contenido</li>
+            <li>Respetar los derechos de autor de terceros</li>
+            <li>No infringir marcas registradas o patentes</li>
+            <li>Cumplir con las leyes aplicables de su jurisdicción</li>
+            <li>Respaldar su propio contenido</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mb-2">7.3 Indemnización</h3>
+          <p className="mb-4">
+            Al usar Letranido, aceptas indemnizar y eximir de responsabilidad 
+            a la plataforma y sus operadores de cualquier reclamación, pérdida 
+            o daño resultante de:
+          </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Tu violación de estos términos</li>
+            <li>Infracción de derechos de terceros</li>
+            <li>Contenido que publiques o compartas</li>
+            <li>Tu uso o mal uso de la plataforma</li>
+          </ul>
+
           <p>
-            Los usuarios son responsables de respaldar su propio contenido. No
-            garantizamos la preservación permanente del contenido en la
-            plataforma.
+            No garantizamos la preservación permanente del contenido en la
+            plataforma. Es responsabilidad del usuario mantener copias de respaldo.
           </p>
         </section>
 
@@ -289,11 +329,13 @@ const TermsOfService = () => {
           <p>Para preguntas sobre estos términos, contacta:</p>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
             <p className="text-blue-800">
-              <strong>Email:</strong> cristianccggg@gmail.com
+              <strong>Email:</strong> admin@letranido.com
               <br />
               <strong>Respuesta:</strong> Dentro de 5 días hábiles
               <br />
-              <strong>Jurisdicción:</strong> Colombia
+              <strong>Jurisdicción:</strong> Bogotá, Colombia
+              <br />
+              <strong>Ley aplicable:</strong> Legislación colombiana
             </p>
           </div>
         </section>

@@ -20,13 +20,12 @@ import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
 import UserAvatar from "../ui/UserAvatar";
+import CookieBanner from "../ui/CookieBanner";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState("login");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -39,8 +38,20 @@ const Layout = ({ children }) => {
     userStoriesLoading,
     contests,
     logout,
+    // Auth Modal desde contexto global  
+    showAuthModal: authModalVisible,
+    authModalMode,
+    openAuthModal,
+    closeAuthModal,
+    // Cookie Banner desde contexto global
+    showCookieBanner,
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
+
+  // Debug logging
+  useEffect(() => {
+    console.log("🔍 Layout - authModalVisible changed:", authModalVisible);
+  }, [authModalVisible]);
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
   const hasUserParticipated =
@@ -134,8 +145,7 @@ const Layout = ({ children }) => {
     : publicNavigation;
 
   const handleAuthClick = (mode) => {
-    setAuthMode(mode);
-    setShowAuthModal(true);
+    openAuthModal(mode);
   };
 
   const handleWriteClick = (e) => {
@@ -292,7 +302,7 @@ const Layout = ({ children }) => {
                           </Link>
 
                           <Link
-                            to="/email/preferences"
+                            to="/preferences"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
@@ -523,14 +533,23 @@ const Layout = ({ children }) => {
       <GlobalFooter />
 
       {/* Auth Modal */}
-      {showAuthModal && (
+      {authModalVisible && (
         <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={() => setShowAuthModal(false)}
-          initialMode={authMode}
+          isOpen={authModalVisible}
+          onClose={() => {
+            console.log("🚪 Layout - onClose called, cerrando modal");
+            closeAuthModal();
+          }}
+          onSuccess={() => {
+            console.log("✅ Layout - onSuccess called, modal se cerrará automáticamente");
+            // No cerramos aquí, el contexto global se encarga
+          }}
+          initialMode={authModalMode}
         />
       )}
+
+      {/* Cookie Banner */}
+      {showCookieBanner && <CookieBanner />}
     </div>
   );
 };

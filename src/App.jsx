@@ -11,10 +11,11 @@ import StoryPage from "./pages/StoryPage";
 import ContestAdminPanel from "./components/admin/ContestAdminPanel";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CookiePolicy from "./pages/CookiePolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
 import EmailTest from "./pages/EmailTest";
 import EmailUnsubscribe from "./pages/EmailUnsubscribe";
-import EmailPreferences from "./pages/EmailPreferences";
+import Preferences from "./pages/Preferences";
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -47,8 +48,8 @@ function AppContent() {
               {!authInitialized
                 ? "Verificando sesión..."
                 : !initialized
-                ? "Preparando tu experiencia..."
-                : "Casi listo..."}
+                  ? "Preparando tu experiencia..."
+                  : "Casi listo..."}
             </p>
 
             {/* Barra de progreso simple */}
@@ -60,8 +61,8 @@ function AppContent() {
                     width: !authInitialized
                       ? "50%"
                       : !initialized
-                      ? "75%"
-                      : "100%",
+                        ? "75%"
+                        : "100%",
                     transition: "width 0.5s ease-in-out",
                   }}
                 ></div>
@@ -90,6 +91,7 @@ function AppContent() {
 
           <Route path="/write/:promptId?" element={<WritePrompt />} />
           <Route path="/history" element={<ContestHistory />} />
+          <Route path="/contest-history" element={<ContestHistory />} />
           <Route path="/contest/current" element={<CurrentContest />} />
           <Route path="/contest/:id" element={<CurrentContest />} />
           <Route path="/story/:id" element={<StoryPage />} />
@@ -100,11 +102,15 @@ function AppContent() {
 
           {/* Email management */}
           <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
-          <Route path="/email/preferences" element={<EmailPreferences />} />
+
+          {/* User Preferences */}
+          <Route path="/preferences" element={<Preferences />} />
 
           {/* Legal */}
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route
             path="/community-guidelines"
             element={<CommunityGuidelines />}

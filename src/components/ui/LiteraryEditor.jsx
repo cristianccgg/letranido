@@ -14,6 +14,7 @@ const LiteraryEditor = ({
   const editorRef = useRef(null);
   const quillRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
+  const isUpdatingRef = useRef(false);
 
   // Configuración de Quill simple para escritura creativa
   const quillOptions = {
@@ -38,7 +39,7 @@ const LiteraryEditor = ({
 
       // Configurar eventos
       quillRef.current.on("text-change", () => {
-        if (onChange) {
+        if (onChange && !isUpdatingRef.current) {
           const html = quillRef.current.root.innerHTML;
           const text = quillRef.current.getText();
           onChange(text.trim() === "" ? "" : html);
@@ -56,6 +57,13 @@ const LiteraryEditor = ({
       editor.style.lineHeight = "1.6";
       editor.style.minHeight = `${rows * 1.5}em`;
       editor.style.color = "#111827";
+
+      // Establecer valor inicial
+      if (value) {
+        isUpdatingRef.current = true;
+        quillRef.current.root.innerHTML = value;
+        isUpdatingRef.current = false;
+      }
     }
 
     return () => {
@@ -63,14 +71,17 @@ const LiteraryEditor = ({
         quillRef.current = null;
       }
     };
-  }, []);
+  }, []); // Solo ejecutar una vez al montar
 
-  // Sincronizar valor
+  // Sincronizar valor solo cuando cambie externamente
   useEffect(() => {
-    if (quillRef.current && value !== undefined) {
+    if (quillRef.current && !isUpdatingRef.current) {
       const currentContent = quillRef.current.root.innerHTML;
-      if (currentContent !== value) {
-        quillRef.current.root.innerHTML = value;
+      // Solo actualizar si el contenido es realmente diferente
+      if (value !== currentContent) {
+        isUpdatingRef.current = true;
+        quillRef.current.root.innerHTML = value || "";
+        isUpdatingRef.current = false;
       }
     }
   }, [value]);
@@ -95,59 +106,64 @@ const LiteraryEditor = ({
           minHeight: `${rows * 1.5 + 3}em`, // +3 para la toolbar
         }}
       />
-      
-      <style jsx>{`
-        .literary-editor .ql-toolbar {
-          border-top: 1px solid #d1d5db;
-          border-left: 1px solid #d1d5db;
-          border-right: 1px solid #d1d5db;
-          border-bottom: none;
-          border-radius: 0.5rem 0.5rem 0 0;
-          background: #f9fafb;
-          padding: 8px;
-        }
-        
-        .literary-editor .ql-container {
-          border-bottom: 1px solid #d1d5db;
-          border-left: 1px solid #d1d5db;
-          border-right: 1px solid #d1d5db;
-          border-top: none;
-          border-radius: 0 0 0.5rem 0.5rem;
-          font-size: 16px;
-        }
-        
-        .literary-editor .ql-editor {
-          padding: 16px;
-          font-family: "Crimson Text", "Times New Roman", serif;
-          font-size: 16px;
-          line-height: 1.6;
-          color: #111827;
-        }
-        
-        .literary-editor .ql-editor.ql-blank::before {
-          color: #9ca3af;
-          font-style: normal;
-        }
-        
-        .literary-editor .ql-toolbar .ql-formats {
-          margin-right: 15px;
-        }
-        
-        .literary-editor .ql-toolbar button {
-          width: 28px;
-          height: 28px;
-          border-radius: 4px;
-        }
-        
-        .literary-editor .ql-toolbar button:hover {
-          background-color: #e5e7eb;
-        }
-        
-        .literary-editor .ql-toolbar button.ql-active {
-          background-color: #d1d5db;
-          color: #111827;
-        }
-      `}</style>
+
+      {/* Estilos CSS normales en lugar de styled-jsx */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          .literary-editor .ql-toolbar {
+            border-top: 1px solid #d1d5db;
+            border-left: 1px solid #d1d5db;
+            border-right: 1px solid #d1d5db;
+            border-bottom: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+            background: #f9fafb;
+            padding: 8px;
+          }
+          
+          .literary-editor .ql-container {
+            border-bottom: 1px solid #d1d5db;
+            border-left: 1px solid #d1d5db;
+            border-right: 1px solid #d1d5db;
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            font-size: 16px;
+          }
+          
+          .literary-editor .ql-editor {
+            padding: 16px;
+            font-family: "Crimson Text", "Times New Roman", serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #111827;
+          }
+          
+          .literary-editor .ql-editor.ql-blank::before {
+            color: #9ca3af;
+            font-style: normal;
+          }
+          
+          .literary-editor .ql-toolbar .ql-formats {
+            margin-right: 15px;
+          }
+          
+          .literary-editor .ql-toolbar button {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+          }
+          
+          .literary-editor .ql-toolbar button:hover {
+            background-color: #e5e7eb;
+          }
+          
+          .literary-editor .ql-toolbar button.ql-active {
+            background-color: #d1d5db;
+            color: #111827;
+          }
+        `,
+        }}
+      />
     </div>
   );
 };

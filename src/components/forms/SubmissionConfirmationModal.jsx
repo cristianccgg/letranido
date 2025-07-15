@@ -203,7 +203,7 @@ const SubmissionConfirmationModal = ({
           <div className="flex items-center justify-between">
             <button
               onClick={onClose}
-              className="btn-secondary"
+              className="btn-secondary cursor-pointer hover:text-red-600"
               disabled={isSubmitting}
             >
               Cancelar
@@ -212,7 +212,7 @@ const SubmissionConfirmationModal = ({
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className={`btn-primary flex items-center ${
+              className={`btn-primary flex items-center cursor-pointer border border-blue-300 py-1 px-2 bg-blue-200 rounded-lg hover:bg-blue-400 hover:text-white hover:shadow-md ${
                 !canSubmit ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

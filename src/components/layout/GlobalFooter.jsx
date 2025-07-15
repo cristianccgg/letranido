@@ -227,10 +227,18 @@ const GlobalFooter = () => {
                 </li>
                 <li>
                   <Link
-                    to="/privacy"
+                    to="/privacy-policy"
                     className="hover:text-white transition-colors"
                   >
-                    Politica de privacidad
+                    Política de privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/cookie-policy"
+                    className="hover:text-white transition-colors"
+                  >
+                    Configuración de cookies
                   </Link>
                 </li>
               </ul>

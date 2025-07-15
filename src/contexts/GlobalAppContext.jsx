@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { supabase } from "../lib/supabase";
 
-
 // ✅ ESTADO INICIAL COMPLETO
 const initialState = {
   // Auth State
@@ -49,6 +48,15 @@ const initialState = {
   // UI State
   notifications: [],
   globalLoading: false,
+
+  // Auth Modal State
+  showAuthModal: false,
+  authModalMode: "login",
+  authModalErrors: {},
+
+  // Cookie Consent State
+  cookieConsent: null,
+  showCookieBanner: false,
 
   // Cache e inicialización
   dataFreshness: {
@@ -90,12 +98,18 @@ const actions = {
   SET_GALLERY_FILTERS: "SET_GALLERY_FILTERS",
   UPDATE_STORY_IN_GALLERY: "UPDATE_STORY_IN_GALLERY",
 
+  // Auth Modal
+  SET_AUTH_MODAL: "SET_AUTH_MODAL",
+
+  // Cookie Consent
+  SET_COOKIE_CONSENT: "SET_COOKIE_CONSENT",
+  SET_SHOW_COOKIE_BANNER: "SET_SHOW_COOKIE_BANNER",
+
   // Global
   SET_GLOBAL_LOADING: "SET_GLOBAL_LOADING",
   SET_INITIALIZED: "SET_INITIALIZED",
   UPDATE_DATA_FRESHNESS: "UPDATE_DATA_FRESHNESS",
   RESET_ALL_USER_DATA: "RESET_ALL_USER_DATA",
-
 };
 
 // ✅ REDUCER OPTIMIZADO
@@ -239,7 +253,6 @@ function globalAppReducer(state, action) {
         globalLoading: action.payload !== false ? false : state.globalLoading,
       };
 
-
     case actions.RESET_ALL_USER_DATA:
       return {
         ...state,
@@ -252,6 +265,32 @@ function globalAppReducer(state, action) {
           lastVotingStatsUpdate: null,
           lastGalleryUpdate: null,
         },
+      };
+
+    case actions.SET_AUTH_MODAL:
+      return {
+        ...state,
+        showAuthModal:
+          action.payload.show !== undefined
+            ? action.payload.show
+            : state.showAuthModal,
+        authModalMode: action.payload.mode || state.authModalMode,
+        authModalErrors:
+          action.payload.errors !== undefined
+            ? action.payload.errors
+            : state.authModalErrors,
+      };
+
+    case actions.SET_COOKIE_CONSENT:
+      return {
+        ...state,
+        cookieConsent: action.payload,
+      };
+
+    case actions.SET_SHOW_COOKIE_BANNER:
+      return {
+        ...state,
+        showCookieBanner: action.payload,
       };
 
     default:
@@ -316,15 +355,45 @@ export function GlobalAppProvider({ children }) {
 
           if (profileError) {
             console.warn("⚠️ Error fetching user profile:", profileError);
-            // Solo forzar logout en errores serios, no en usuarios nuevos sin perfil
+
+            // Forzar logout en errores de autorización
             if (profileError.status === 401 || profileError.status === 403) {
               console.log("🚨 Error de autorización, forzando logout");
               await supabase.auth.signOut();
               return;
             }
-            // Para error 406 o usuario no encontrado, continuar sin perfil
+
+            // Para error PGRST116 (usuario no encontrado), también hacer logout
+            // Esto previene usuarios "fantasma" que fueron eliminados de la DB
+            if (profileError.code === "PGRST116") {
+              console.log(
+                "🚨 Usuario no encontrado en base de datos, forzando logout por seguridad"
+              );
+
+              try {
+                await supabase.auth.signOut();
+              } catch (logoutError) {
+                console.error("❌ Error en logout automático:", logoutError);
+                console.log("🔄 Forzando logout local por seguridad");
+              }
+
+              // Forzar logout local independientemente del resultado de Supabase
+              dispatch({
+                type: actions.SET_AUTH_STATE,
+                payload: {
+                  user: null,
+                  isAuthenticated: false,
+                  loading: false,
+                  initialized: true,
+                },
+              });
+              dispatch({ type: actions.RESET_ALL_USER_DATA });
+              return;
+            }
+
+            // Para otros errores, continuar sin perfil
             console.log(
-              "ℹ️ Perfil no encontrado, continuando sin datos de perfil"
+              "ℹ️ Error de perfil no crítico, continuando sin datos de perfil"
             );
           }
 
@@ -431,7 +500,7 @@ export function GlobalAppProvider({ children }) {
                 avatar: profile?.avatar_url || null,
                 is_admin: profile?.is_admin || false,
                 is_founder: profile?.is_founder || false,
-                    // Solo agregar datos del perfil si existe
+                // Solo agregar datos del perfil si existe
                 ...(profile ? profile : {}),
               };
 
@@ -489,13 +558,16 @@ export function GlobalAppProvider({ children }) {
 
               console.log("✅ Proceso de login completado");
             } else if (event === "SIGNED_OUT") {
+              console.log(
+                "🚪 SIGNED_OUT event - manteniendo authInitialized como true"
+              );
               dispatch({
                 type: actions.SET_AUTH_STATE,
                 payload: {
                   user: null,
                   isAuthenticated: false,
                   loading: false,
-                  initialized: true,
+                  initialized: true, // Mantener authInitialized como true
                 },
               });
               dispatch({ type: actions.RESET_ALL_USER_DATA });
@@ -551,7 +623,22 @@ export function GlobalAppProvider({ children }) {
         await loadContests();
         console.log("✅ Contests cargados, marcando app como inicializada");
 
-        // 2. Los datos del usuario se cargan en el auth listener, no aquí
+        // 2. Verificar consentimiento de cookies
+        const cookieConsent = localStorage.getItem('cookie-consent');
+        if (cookieConsent) {
+          try {
+            const parsedConsent = JSON.parse(cookieConsent);
+            dispatch({ type: actions.SET_COOKIE_CONSENT, payload: parsedConsent });
+            dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: false });
+          } catch (e) {
+            console.warn("Error parsing cookie consent, showing banner");
+            dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: true });
+          }
+        } else {
+          dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: true });
+        }
+
+        // 3. Los datos del usuario se cargan en el auth listener, no aquí
         // Esto evita re-ejecuciones cuando cambia el usuario
 
         dispatch({ type: actions.SET_INITIALIZED, payload: true });
@@ -983,10 +1070,13 @@ export function GlobalAppProvider({ children }) {
         );
 
         // Verificar si ya se contó una vista hoy para este usuario/historia
-        const viewKey = `view_${storyId}_${state.user?.id || 'anon'}_${today}`;
+        const viewKey = `view_${storyId}_${state.user?.id || "anon"}_${today}`;
         const alreadyViewed = localStorage.getItem(viewKey);
-        
-        console.log("📋 Verificando vista:", { viewKey, alreadyViewed: !!alreadyViewed });
+
+        console.log("📋 Verificando vista:", {
+          viewKey,
+          alreadyViewed: !!alreadyViewed,
+        });
 
         let viewAlreadyExists = false;
 
@@ -996,7 +1086,7 @@ export function GlobalAppProvider({ children }) {
         } else {
           // Actualizar views_count directamente en stories
           console.log("🔄 Actualizando views_count directamente...");
-          
+
           try {
             // Obtener contador actual
             const { data: currentStory, error: fetchError } = await supabase
@@ -1011,7 +1101,7 @@ export function GlobalAppProvider({ children }) {
             }
 
             const newCount = (currentStory.views_count || 0) + 1;
-            
+
             // Actualizar contador
             const { error: updateError } = await supabase
               .from("stories")
@@ -1024,12 +1114,16 @@ export function GlobalAppProvider({ children }) {
             }
 
             // Marcar como visto en localStorage
-            localStorage.setItem(viewKey, 'true');
-            console.log(`✅ views_count actualizado: ${currentStory.views_count || 0} → ${newCount}`);
-            
+            localStorage.setItem(viewKey, "true");
+            console.log(
+              `✅ views_count actualizado: ${currentStory.views_count || 0} → ${newCount}`
+            );
+
             // Actualizar también galleryStories para sincronización inmediata
             if (state.galleryStories.length > 0) {
-              const currentGalleryStory = state.galleryStories.find((s) => s.id === storyId);
+              const currentGalleryStory = state.galleryStories.find(
+                (s) => s.id === storyId
+              );
               if (currentGalleryStory) {
                 dispatch({
                   type: actions.UPDATE_STORY_IN_GALLERY,
@@ -1040,10 +1134,11 @@ export function GlobalAppProvider({ children }) {
                     },
                   },
                 });
-                console.log("✅ Estado galleryStories actualizado inmediatamente");
+                console.log(
+                  "✅ Estado galleryStories actualizado inmediatamente"
+                );
               }
             }
-            
           } catch (err) {
             console.warn("⚠️ Error en actualización directa:", err);
             return { success: false, error: err.message };
@@ -1644,170 +1739,320 @@ export function GlobalAppProvider({ children }) {
     ]
   );
 
-  // ✅ FUNCIONES DE AUTENTICACIÓN
-  // ✅ FUNCIONES DE AUTENTICACIÓN
-  const login = useCallback(async (email, password) => {
+  // ✅ FUNCIONES PARA AUTH MODAL (deben ir antes de las funciones de auth)
+  const openAuthModal = useCallback((mode = "login") => {
+    console.log("📱 Abriendo modal de auth:", mode);
     dispatch({
-      type: actions.SET_AUTH_STATE,
-      payload: { loading: true },
+      type: actions.SET_AUTH_MODAL,
+      payload: { show: true, mode },
     });
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-
-      if (error) {
-        dispatch({
-          type: actions.SET_AUTH_STATE,
-          payload: { loading: false },
-        });
-        return {
-          success: false,
-          error: getErrorMessage(error.message),
-        };
-      }
-
-      const session = data.session;
-
-      if (!session?.user) {
-        dispatch({
-          type: actions.SET_AUTH_STATE,
-          payload: { loading: false },
-        });
-        return { success: false, error: "Sesión inválida" };
-      }
-
-      const user = session.user;
-
-      // 🔍 Obtener perfil desde user_profiles
-      const { data: profile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) {
-        console.warn("⚠️ Error cargando perfil tras login:", profileError);
-      }
-
-      const userData = {
-        id: user.id,
-        email: user.email,
-        name:
-          profile?.display_name ||
-          user.user_metadata?.display_name ||
-          user.email?.split("@")[0] ||
-          "Usuario",
-        display_name:
-          profile?.display_name ||
-          user.user_metadata?.display_name ||
-          "Usuario",
-        avatar: profile?.avatar_url || null,
-        is_admin: profile?.is_admin || false,
-        is_founder: profile?.is_founder || false,
-        ...(profile || {}),
-      };
-
-      dispatch({
-        type: actions.SET_AUTH_STATE,
-        payload: {
-          user: userData,
-          isAuthenticated: true,
-          loading: false,
-          initialized: true,
-        },
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error("Login error:", error);
-      dispatch({
-        type: actions.SET_AUTH_STATE,
-        payload: { loading: false },
-      });
-      return {
-        success: false,
-        error: "Error inesperado. Intenta nuevamente.",
-      };
-    }
   }, []);
 
-  const register = useCallback(async (email, name, password, emailNotifications = true) => {
+  const closeAuthModal = useCallback(() => {
+    console.log("📱 Cerrando modal de auth");
     dispatch({
-      type: actions.SET_AUTH_STATE,
-      payload: { loading: true },
+      type: actions.SET_AUTH_MODAL,
+      payload: { show: false, errors: {} },
     });
+  }, []);
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          data: {
-            display_name: name.trim(),
-          },
-        },
+  const setAuthModalError = useCallback((error) => {
+    console.log("❌ Estableciendo error en modal:", error);
+    dispatch({
+      type: actions.SET_AUTH_MODAL,
+      payload: { errors: { general: error } },
+    });
+  }, []);
+
+  const clearAuthModalErrors = useCallback(() => {
+    console.log("🧹 Limpiando errores del modal");
+    dispatch({
+      type: actions.SET_AUTH_MODAL,
+      payload: { errors: {} },
+    });
+  }, []);
+
+  // ✅ FUNCIONES PARA COOKIE CONSENT
+  const setCookieConsent = useCallback((consent) => {
+    console.log("🍪 Estableciendo consentimiento de cookies:", consent);
+    localStorage.setItem('cookie-consent', JSON.stringify({
+      ...consent,
+      timestamp: new Date().toISOString()
+    }));
+    dispatch({ type: actions.SET_COOKIE_CONSENT, payload: consent });
+    dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: false });
+  }, []);
+
+  const showCookieBannerAgain = useCallback(() => {
+    console.log("🍪 Mostrando banner de cookies nuevamente");
+    dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: true });
+  }, []);
+
+  const resetCookieConsent = useCallback(() => {
+    console.log("🍪 Reseteando consentimiento de cookies");
+    localStorage.removeItem('cookie-consent');
+    dispatch({ type: actions.SET_COOKIE_CONSENT, payload: null });
+    dispatch({ type: actions.SET_SHOW_COOKIE_BANNER, payload: true });
+  }, []);
+
+  // ✅ FUNCIONES DE AUTENTICACIÓN
+  const login = useCallback(
+    async (email, password) => {
+      dispatch({
+        type: actions.SET_AUTH_STATE,
+        payload: { loading: true },
       });
 
-      if (error) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+
+        if (error) {
+          console.log("🚨 Error de login de Supabase:", error);
+          const errorMessage = getErrorMessage(error.message);
+
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: {
+              loading: false,
+              // Preservar authInitialized - no cambiarlo durante errores de login
+              initialized: state.authInitialized,
+            },
+          });
+
+          // Establecer error en el modal global
+          setAuthModalError(errorMessage);
+
+          return {
+            success: false,
+            error: errorMessage,
+          };
+        }
+
+        const session = data.session;
+
+        if (!session?.user) {
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: {
+              loading: false,
+              // Preservar authInitialized - no cambiarlo durante errores de login
+              initialized: state.authInitialized,
+            },
+          });
+          return { success: false, error: "Sesión inválida" };
+        }
+
+        const user = session.user;
+
+        // 🔍 Obtener perfil desde user_profiles
+        const { data: profile, error: profileError } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) {
+          console.warn("⚠️ Error cargando perfil tras login:", profileError);
+        }
+
+        const userData = {
+          id: user.id,
+          email: user.email,
+          name:
+            profile?.display_name ||
+            user.user_metadata?.display_name ||
+            user.email?.split("@")[0] ||
+            "Usuario",
+          display_name:
+            profile?.display_name ||
+            user.user_metadata?.display_name ||
+            "Usuario",
+          avatar: profile?.avatar_url || null,
+          is_admin: profile?.is_admin || false,
+          is_founder: profile?.is_founder || false,
+          ...(profile || {}),
+        };
+
         dispatch({
           type: actions.SET_AUTH_STATE,
-          payload: { loading: false },
+          payload: {
+            user: userData,
+            isAuthenticated: true,
+            loading: false,
+            initialized: true,
+          },
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.error("💥 Login error inesperado:", error);
+        console.error("💥 Error details:", {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+        });
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: {
+            loading: false,
+            // Preservar authInitialized - no cambiarlo durante errores de login
+            initialized: state.authInitialized,
+          },
         });
         return {
           success: false,
-          error: getErrorMessage(error.message),
+          error: "Error inesperado. Intenta nuevamente.",
         };
       }
+    },
+    [state.authInitialized, setAuthModalError]
+  );
 
-      // Crear perfil en user_profiles si no existe
-      let userId = data.user?.id || data.session?.user?.id;
-      if (userId) {
-        // Verificar si ya existe el perfil
-        let existingProfile = null;
-        let retries = 0;
-        const maxRetries = 5;
-        while (retries < maxRetries) {
-          const { data: profile } = await supabase
-            .from("user_profiles")
-            .select("id")
-            .eq("id", userId)
-            .single();
-          if (profile) {
-            existingProfile = profile;
-            break;
-          }
-          // Si no existe, intentar crear
-          if (retries === 0) {
-            const { error: profileError } = await supabase
-              .from("user_profiles")
-              .insert([
-                {
-                  id: userId,
-                  email: email.trim().toLowerCase(),
-                  display_name: name.trim(),
-                  email_notifications: emailNotifications,
-                  created_at: new Date().toISOString(),
-                },
-              ]);
-            if (profileError && profileError.code !== "23505") {
-              dispatch({
-                type: actions.SET_AUTH_STATE,
-                payload: { loading: false },
-              });
-              return {
-                success: false,
-                error:
-                  "Error creando perfil de usuario: " + profileError.message,
-              };
-            }
-          }
-          // Esperar 500ms antes de reintentar
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          retries++;
+  const register = useCallback(
+    async (email, name, password, emailNotifications = true) => {
+      console.log(
+        "🔍 register() recibió emailNotifications:",
+        emailNotifications,
+        typeof emailNotifications
+      );
+
+      dispatch({
+        type: actions.SET_AUTH_STATE,
+        payload: { loading: true },
+      });
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          options: {
+            data: {
+              display_name: name.trim(),
+            },
+          },
+        });
+
+        if (error) {
+          console.log("🚨 Error de registro de Supabase:", error);
+          const errorMessage = getErrorMessage(error.message);
+
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: {
+              loading: false,
+              // Preservar authInitialized - no cambiarlo durante errores de registro
+              initialized: state.authInitialized,
+            },
+          });
+
+          // Establecer error en el modal global
+          setAuthModalError(errorMessage);
+
+          return {
+            success: false,
+            error: errorMessage,
+          };
         }
+
+        // Crear perfil en user_profiles si no existe
+        let userId = data.user?.id || data.session?.user?.id;
+        if (userId) {
+          // Verificar si ya existe el perfil
+          let existingProfile = null;
+          let retries = 0;
+          const maxRetries = 5;
+          while (retries < maxRetries) {
+            const { data: profile } = await supabase
+              .from("user_profiles")
+              .select("id")
+              .eq("id", userId)
+              .single();
+            if (profile) {
+              console.log("👤 Perfil existente encontrado:", profile);
+
+              // Actualizar perfil existente con email y email_notifications
+              console.log(
+                "📧 Actualizando perfil existente con emailNotifications:",
+                emailNotifications
+              );
+              const updateData = {
+                email_notifications: emailNotifications,
+              };
+
+              // Solo guardar email si el usuario quiere notificaciones
+              if (emailNotifications) {
+                updateData.email = email.trim().toLowerCase();
+              } else {
+                updateData.email = null; // Limpiar email si no quiere notificaciones
+              }
+
+              console.log("📧 Datos de actualización:", updateData);
+              const { error: updateError } = await supabase
+                .from("user_profiles")
+                .update(updateData)
+                .eq("id", userId);
+
+              if (updateError) {
+                console.error(
+                  "❌ Error actualizando email en perfil:",
+                  updateError
+                );
+              } else {
+                console.log("✅ Email actualizado en perfil existente");
+              }
+              
+              existingProfile = profile;
+              break;
+            }
+            // Si no existe, intentar crear
+            if (retries === 0) {
+              const profileData = {
+                id: userId,
+                email: email.trim().toLowerCase(),
+                display_name: name.trim(),
+                email_notifications: emailNotifications,
+                created_at: new Date().toISOString(),
+              };
+
+              console.log("👤 Creando perfil de usuario:", profileData);
+
+              const { error: profileError } = await supabase
+                .from("user_profiles")
+                .insert([profileData]);
+
+              if (profileError) {
+                console.error("❌ Error creando perfil:", profileError);
+                if (profileError.code !== "23505") {
+                  dispatch({
+                    type: actions.SET_AUTH_STATE,
+                    payload: { loading: false },
+                  });
+                  return {
+                    success: false,
+                    error:
+                      "Error creando perfil de usuario: " + profileError.message,
+                  };
+                } else {
+                  // Si es error 23505 (duplicado), el perfil ya existe
+                  console.log("✅ Perfil ya existe (error 23505), continuando...");
+                  existingProfile = { id: userId }; // Marcar como existente
+                  break;
+                }
+              } else {
+                // Si no hay error, el perfil fue creado exitosamente
+                console.log("✅ Perfil creado exitosamente");
+                existingProfile = { id: userId }; // Marcar como existente
+                break;
+              }
+            }
+            
+            // Esperar 500ms antes de reintentar
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            retries++;
+          }
         if (!existingProfile) {
           dispatch({
             type: actions.SET_AUTH_STATE,
@@ -1818,75 +2063,90 @@ export function GlobalAppProvider({ children }) {
             error: "No se pudo crear el perfil de usuario. Intenta nuevamente.",
           };
         }
-      }
 
-      // 👇 Si la sesión existe, el usuario ya está autenticado
-      if (data.session && data.session.user) {
-        // Fuerza actualización del estado de autenticación tras registro
-        dispatch({
-          type: actions.SET_AUTH_STATE,
-          payload: {
-            user: {
-              id: data.session.user.id,
-              email: data.session.user.email,
-              name:
-                data.session.user.user_metadata?.display_name ||
-                data.session.user.email?.split("@")[0] ||
-                "Usuario",
-              display_name:
-                data.session.user.user_metadata?.display_name || "Usuario",
-              avatar: null,
-              is_admin: false,
-              is_founder: false,
+        // 👇 Si la sesión existe, el usuario ya está autenticado
+        if (data.session && data.session.user) {
+          // Fuerza actualización del estado de autenticación tras registro
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: {
+              user: {
+                id: data.session.user.id,
+                email: data.session.user.email,
+                name:
+                  data.session.user.user_metadata?.display_name ||
+                  data.session.user.email?.split("@")[0] ||
+                  "Usuario",
+                display_name:
+                  data.session.user.user_metadata?.display_name || "Usuario",
+                avatar: null,
+                is_admin: false,
+                is_founder: false,
+              },
+              isAuthenticated: true,
+              loading: false,
+              initialized: true, // 👈 Marca inicializado
             },
-            isAuthenticated: true,
-            loading: false,
-            initialized: true, // 👈 Marca inicializado
-          },
-        });
-        return { success: true };
-      }
-
-      // 👇 Si no hay sesión, intentar login automático con retry
-      if (data.user && !data.session) {
-        let loginResult = await login(email, password);
-        if (!loginResult.success) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          loginResult = await login(email, password);
+          });
+          return { success: true };
         }
-        // El login ya actualiza el estado correctamente
+
+        // 👇 Si no hay sesión, intentar login automático con retry
+        if (data.user && !data.session) {
+          let loginResult = await login(email, password);
+          if (!loginResult.success) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            loginResult = await login(email, password);
+          }
+          // El login ya actualiza el estado correctamente
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: { loading: false },
+          });
+          if (loginResult.success) {
+            return { success: true };
+          }
+          return {
+            success: true,
+            message:
+              "✅ Registro exitoso, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión.",
+            requiresConfirmation: false,
+          };
+        }
+
         dispatch({
           type: actions.SET_AUTH_STATE,
           payload: { loading: false },
         });
-        if (loginResult.success) {
-          return { success: true };
-        }
+        return { success: true };
+      }
+    } catch (error) {
+        console.error("💥 Registration error inesperado:", error);
+        console.error("💥 Error details:", {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+        });
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: {
+            loading: false,
+            // Preservar authInitialized - no cambiarlo durante errores de registro
+            initialized: state.authInitialized,
+          },
+        });
+
+        // Establecer error en el modal global
+        setAuthModalError("Error inesperado. Intenta nuevamente.");
+
         return {
-          success: true,
-          message:
-            "✅ Registro exitoso, pero no se pudo iniciar sesión automáticamente. Por favor, inicia sesión.",
-          requiresConfirmation: false,
+          success: false,
+          error: "Error inesperado. Intenta nuevamente.",
         };
       }
-
-      dispatch({
-        type: actions.SET_AUTH_STATE,
-        payload: { loading: false },
-      });
-      return { success: true };
-    } catch (error) {
-      console.error("Registration error:", error);
-      dispatch({
-        type: actions.SET_AUTH_STATE,
-        payload: { loading: false },
-      });
-      return {
-        success: false,
-        error: "Error inesperado. Intenta nuevamente.",
-      };
-    }
-  }, []);
+    },
+    [state.authInitialized, setAuthModalError]
+  );
 
   const updateUser = useCallback(
     (newUserData) => {
@@ -1922,7 +2182,15 @@ export function GlobalAppProvider({ children }) {
         "No existe una cuenta con este email. ¿Quieres registrarte?",
       "Email rate limit exceeded":
         "Demasiados intentos. Espera un momento antes de intentar nuevamente.",
+      // Agregar más variaciones de errores de login
+      "Invalid credentials": "Email o contraseña incorrectos",
+      "Wrong email or password": "Email o contraseña incorrectos",
+      "Authentication failed": "Email o contraseña incorrectos",
+      "Bad Request": "Email o contraseña incorrectos",
     };
+
+    // Logging para debug
+    console.log("🐛 Error original de Supabase:", errorMessage);
 
     return errorMap[errorMessage] || errorMessage || "Error desconocido";
   }, []);
@@ -1958,15 +2226,15 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
-
   // ✅ FUNCIONES DE COMENTARIOS
   const getStoryComments = useCallback(async (storyId) => {
     try {
       console.log("📝 Fetching comments for story:", storyId);
-      
+
       const { data, error } = await supabase
         .from("comments")
-        .select(`
+        .select(
+          `
           id,
           content,
           user_id,
@@ -1976,7 +2244,8 @@ export function GlobalAppProvider({ children }) {
           is_featured,
           created_at,
           updated_at
-        `)
+        `
+        )
         .eq("story_id", storyId)
         .order("created_at", { ascending: false });
 
@@ -1993,27 +2262,29 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
-  const addComment = useCallback(async (storyId, content, parentId = null) => {
-    if (!state.isAuthenticated || !state.user) {
-      return { success: false, error: "Usuario no autenticado" };
-    }
+  const addComment = useCallback(
+    async (storyId, content, parentId = null) => {
+      if (!state.isAuthenticated || !state.user) {
+        return { success: false, error: "Usuario no autenticado" };
+      }
 
-    if (!content?.trim()) {
-      return { success: false, error: "El comentario no puede estar vacío" };
-    }
+      if (!content?.trim()) {
+        return { success: false, error: "El comentario no puede estar vacío" };
+      }
 
-    try {
-      console.log("📝 Adding comment to story:", storyId);
-      
-      const { data, error } = await supabase
-        .from("comments")
-        .insert({
-          story_id: storyId,
-          user_id: state.user.id,
-          content: content.trim(),
-          parent_id: parentId
-        })
-        .select(`
+      try {
+        console.log("📝 Adding comment to story:", storyId);
+
+        const { data, error } = await supabase
+          .from("comments")
+          .insert({
+            story_id: storyId,
+            user_id: state.user.id,
+            content: content.trim(),
+            parent_id: parentId,
+          })
+          .select(
+            `
           id,
           content,
           user_id,
@@ -2023,98 +2294,110 @@ export function GlobalAppProvider({ children }) {
           is_featured,
           created_at,
           updated_at
-        `)
-        .single();
+        `
+          )
+          .single();
 
-      if (error) {
-        console.error("❌ Error adding comment:", error);
-        return { success: false, error: error.message };
+        if (error) {
+          console.error("❌ Error adding comment:", error);
+          return { success: false, error: error.message };
+        }
+
+        console.log("✅ Comment added:", data.id);
+        return { success: true, comment: data };
+      } catch (err) {
+        console.error("💥 Error adding comment:", err);
+        return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  const deleteComment = useCallback(
+    async (commentId) => {
+      if (!state.isAuthenticated || !state.user) {
+        return { success: false, error: "Usuario no autenticado" };
       }
 
-      console.log("✅ Comment added:", data.id);
-      return { success: true, comment: data };
-    } catch (err) {
-      console.error("💥 Error adding comment:", err);
-      return { success: false, error: err.message };
-    }
-  }, [state.isAuthenticated, state.user]);
+      try {
+        console.log("🗑️ Deleting comment:", commentId);
 
-  const deleteComment = useCallback(async (commentId) => {
-    if (!state.isAuthenticated || !state.user) {
-      return { success: false, error: "Usuario no autenticado" };
-    }
+        const { error } = await supabase
+          .from("comments")
+          .delete()
+          .eq("id", commentId)
+          .eq("user_id", state.user.id); // Solo el autor puede eliminar
 
-    try {
-      console.log("🗑️ Deleting comment:", commentId);
-      
-      const { error } = await supabase
-        .from("comments")
-        .delete()
-        .eq("id", commentId)
-        .eq("user_id", state.user.id); // Solo el autor puede eliminar
+        if (error) {
+          console.error("❌ Error deleting comment:", error);
+          return { success: false, error: error.message };
+        }
 
-      if (error) {
-        console.error("❌ Error deleting comment:", error);
-        return { success: false, error: error.message };
+        console.log("✅ Comment deleted:", commentId);
+        return { success: true };
+      } catch (err) {
+        console.error("💥 Error deleting comment:", err);
+        return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  const toggleCommentLike = useCallback(
+    async (commentId) => {
+      if (!state.isAuthenticated || !state.user) {
+        return { success: false, error: "Usuario no autenticado" };
       }
 
-      console.log("✅ Comment deleted:", commentId);
-      return { success: true };
-    } catch (err) {
-      console.error("💥 Error deleting comment:", err);
-      return { success: false, error: err.message };
-    }
-  }, [state.isAuthenticated, state.user]);
+      try {
+        console.log("❤️ Toggling comment like:", commentId);
 
-  const toggleCommentLike = useCallback(async (commentId) => {
-    if (!state.isAuthenticated || !state.user) {
-      return { success: false, error: "Usuario no autenticado" };
-    }
+        // Versión simplificada: solo incrementar/decrementar el contador
+        // TODO: Implementar tabla comment_likes para tracking real de usuarios
 
-    try {
-      console.log("❤️ Toggling comment like:", commentId);
-      
-      // Versión simplificada: solo incrementar/decrementar el contador
-      // TODO: Implementar tabla comment_likes para tracking real de usuarios
-      
-      // Obtener comentario actual
-      const { data: currentComment, error: fetchError } = await supabase
-        .from("comments")
-        .select("likes_count")
-        .eq("id", commentId)
-        .single();
+        // Obtener comentario actual
+        const { data: currentComment, error: fetchError } = await supabase
+          .from("comments")
+          .select("likes_count")
+          .eq("id", commentId)
+          .single();
 
-      if (fetchError) throw fetchError;
+        if (fetchError) throw fetchError;
 
-      // Por ahora, simplemente alternar entre incrementar/decrementar
-      // En una implementación real, verificaríamos si el usuario ya dio like
-      const currentCount = currentComment.likes_count || 0;
-      const newCount = currentCount + 1; // Siempre incrementar por ahora
-      
-      const { error: updateError } = await supabase
-        .from("comments")
-        .update({ likes_count: newCount })
-        .eq("id", commentId);
+        // Por ahora, simplemente alternar entre incrementar/decrementar
+        // En una implementación real, verificaríamos si el usuario ya dio like
+        const currentCount = currentComment.likes_count || 0;
+        const newCount = currentCount + 1; // Siempre incrementar por ahora
 
-      if (updateError) throw updateError;
+        const { error: updateError } = await supabase
+          .from("comments")
+          .update({ likes_count: newCount })
+          .eq("id", commentId);
 
-      console.log("❤️ Comment like toggled");
-      return { success: true, liked: true };
-    } catch (err) {
-      console.error("💥 Error toggling comment like:", err);
-      return { success: false, error: err.message };
-    }
-  }, [state.isAuthenticated, state.user]);
+        if (updateError) throw updateError;
+
+        console.log("❤️ Comment like toggled");
+        return { success: true, liked: true };
+      } catch (err) {
+        console.error("💥 Error toggling comment like:", err);
+        return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
 
   // ✅ FUNCIONES DE ADMIN - LIMPIEZA DE DATOS
   const clearAllComments = useCallback(async () => {
     if (!state.isAuthenticated || !state.user?.is_admin) {
-      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+      return {
+        success: false,
+        error: "Solo administradores pueden realizar esta acción",
+      };
     }
 
     try {
       console.log("🗑️ Admin: Eliminando todos los comentarios...");
-      
+
       const { error } = await supabase
         .from("comments")
         .delete()
@@ -2132,12 +2415,15 @@ export function GlobalAppProvider({ children }) {
 
   const clearAllStoryLikes = useCallback(async () => {
     if (!state.isAuthenticated || !state.user?.is_admin) {
-      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+      return {
+        success: false,
+        error: "Solo administradores pueden realizar esta acción",
+      };
     }
 
     try {
       console.log("🗑️ Admin: Reiniciando contadores de likes...");
-      
+
       // Reiniciar contadores de likes a 0
       const { error: updateError } = await supabase
         .from("stories")
@@ -2156,12 +2442,15 @@ export function GlobalAppProvider({ children }) {
 
   const clearAllStoryViews = useCallback(async () => {
     if (!state.isAuthenticated || !state.user?.is_admin) {
-      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+      return {
+        success: false,
+        error: "Solo administradores pueden realizar esta acción",
+      };
     }
 
     try {
       console.log("🗑️ Admin: Eliminando todas las vistas de historias...");
-      
+
       // Eliminar registros de vistas (si existe la tabla)
       try {
         const { error: deleteViewsError } = await supabase
@@ -2169,11 +2458,14 @@ export function GlobalAppProvider({ children }) {
           .delete()
           .neq("id", "00000000-0000-0000-0000-000000000000");
 
-        if (deleteViewsError && deleteViewsError.code !== "42P01") { // 42P01 = tabla no existe
+        if (deleteViewsError && deleteViewsError.code !== "42P01") {
+          // 42P01 = tabla no existe
           throw deleteViewsError;
         }
       } catch (viewError) {
-        console.log("ℹ️ Tabla story_views no existe, solo reiniciando contadores");
+        console.log(
+          "ℹ️ Tabla story_views no existe, solo reiniciando contadores"
+        );
       }
 
       // Reiniciar contadores
@@ -2185,8 +2477,8 @@ export function GlobalAppProvider({ children }) {
       if (updateError) throw updateError;
 
       // Limpiar localStorage de vistas
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('view_')) {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("view_")) {
           localStorage.removeItem(key);
         }
       });
@@ -2201,18 +2493,22 @@ export function GlobalAppProvider({ children }) {
 
   const clearAllTestData = useCallback(async () => {
     if (!state.isAuthenticated || !state.user?.is_admin) {
-      return { success: false, error: "Solo administradores pueden realizar esta acción" };
+      return {
+        success: false,
+        error: "Solo administradores pueden realizar esta acción",
+      };
     }
 
     try {
       console.log("🗑️ Admin: Eliminando TODOS los datos de prueba...");
-      
+
       const commentsResult = await clearAllComments();
       const likesResult = await clearAllStoryLikes();
       const viewsResult = await clearAllStoryViews();
 
       const errors = [];
-      if (!commentsResult.success) errors.push(`Comentarios: ${commentsResult.error}`);
+      if (!commentsResult.success)
+        errors.push(`Comentarios: ${commentsResult.error}`);
       if (!likesResult.success) errors.push(`Likes: ${likesResult.error}`);
       if (!viewsResult.success) errors.push(`Vistas: ${viewsResult.error}`);
 
@@ -2226,7 +2522,13 @@ export function GlobalAppProvider({ children }) {
       console.error("❌ Admin: Error eliminando datos:", err);
       return { success: false, error: err.message };
     }
-  }, [state.isAuthenticated, state.user, clearAllComments, clearAllStoryLikes, clearAllStoryViews]);
+  }, [
+    state.isAuthenticated,
+    state.user,
+    clearAllComments,
+    clearAllStoryLikes,
+    clearAllStoryViews,
+  ]);
 
   // ✅ UTILIDAD DE CONTESTS (movida antes para evitar error de inicialización)
   const getContestPhase = useCallback((contest) => {
@@ -2246,142 +2548,195 @@ export function GlobalAppProvider({ children }) {
   }, []);
 
   // ✅ FUNCIÓN PARA ELIMINAR HISTORIA DE USUARIO
-  const deleteUserStory = useCallback(async (storyId) => {
-    if (!state.isAuthenticated || !state.user?.id) {
-      return { success: false, error: "Debes estar autenticado para eliminar una historia" };
-    }
-
-    try {
-      console.log("🗑️ Eliminando historia del usuario:", storyId);
-
-      // Verificar que la historia pertenece al usuario
-      const { data: story, error: fetchError } = await supabase
-        .from("stories")
-        .select("user_id, contest_id, contests!inner(status, submission_deadline, voting_deadline)")
-        .eq("id", storyId)
-        .single();
-
-      if (fetchError) {
-        console.error("❌ Error verificando historia:", fetchError);
-        return { success: false, error: "Historia no encontrada" };
-      }
-
-      if (story.user_id !== state.user.id) {
-        return { success: false, error: "No puedes eliminar una historia que no es tuya" };
-      }
-
-      // Verificar que el concurso esté en período de envío (o que sea admin)
-      const contestPhase = getContestPhase(story.contests);
-      const isAdmin = state.user?.is_admin;
-      
-      if (contestPhase !== "submission" && !isAdmin) {
-        return { 
-          success: false, 
-          error: `Solo puedes eliminar historias durante el período de envío. Fase actual: ${contestPhase}` 
+  const deleteUserStory = useCallback(
+    async (storyId) => {
+      if (!state.isAuthenticated || !state.user?.id) {
+        return {
+          success: false,
+          error: "Debes estar autenticado para eliminar una historia",
         };
       }
 
-      // Eliminar la historia
-      const { data: deleteData, error: deleteError } = await supabase
-        .from("stories")
-        .delete()
-        .eq("id", storyId)
-        .eq("user_id", state.user.id)
-        .select();
+      try {
+        console.log("🗑️ Eliminando historia del usuario:", storyId);
 
-      if (deleteError) {
-        console.error("❌ Error eliminando historia:", deleteError);
-        return { success: false, error: "Error al eliminar la historia" };
-      }
+        // Verificar que la historia pertenece al usuario
+        const { data: story, error: fetchError } = await supabase
+          .from("stories")
+          .select(
+            "user_id, contest_id, contests!inner(status, submission_deadline, voting_deadline)"
+          )
+          .eq("id", storyId)
+          .single();
 
-      // Verificar si realmente se eliminó algo
-      if (!deleteData || deleteData.length === 0) {
-        return { success: false, error: "No se pudo eliminar la historia. Verifica los permisos." };
-      }
+        if (fetchError) {
+          console.error("❌ Error verificando historia:", fetchError);
+          return { success: false, error: "Historia no encontrada" };
+        }
 
-      // Actualizar el estado local eliminando la historia
-      dispatch({ 
-        type: actions.SET_USER_STORIES, 
-        payload: state.userStories.filter(story => story.id !== storyId) 
-      });
+        if (story.user_id !== state.user.id) {
+          return {
+            success: false,
+            error: "No puedes eliminar una historia que no es tuya",
+          };
+        }
 
-      // También actualizar galleryStories si está cargada
-      if (state.galleryStories.length > 0) {
-        dispatch({ 
-          type: actions.SET_GALLERY_STORIES, 
-          payload: state.galleryStories.filter(story => story.id !== storyId) 
+        // Verificar que el concurso esté en período de envío (o que sea admin)
+        const contestPhase = getContestPhase(story.contests);
+        const isAdmin = state.user?.is_admin;
+
+        if (contestPhase !== "submission" && !isAdmin) {
+          return {
+            success: false,
+            error: `Solo puedes eliminar historias durante el período de envío. Fase actual: ${contestPhase}`,
+          };
+        }
+
+        // Eliminar la historia
+        const { data: deleteData, error: deleteError } = await supabase
+          .from("stories")
+          .delete()
+          .eq("id", storyId)
+          .eq("user_id", state.user.id)
+          .select();
+
+        if (deleteError) {
+          console.error("❌ Error eliminando historia:", deleteError);
+          return { success: false, error: "Error al eliminar la historia" };
+        }
+
+        // Verificar si realmente se eliminó algo
+        if (!deleteData || deleteData.length === 0) {
+          return {
+            success: false,
+            error: "No se pudo eliminar la historia. Verifica los permisos.",
+          };
+        }
+
+        // Actualizar el estado local eliminando la historia
+        dispatch({
+          type: actions.SET_USER_STORIES,
+          payload: state.userStories.filter((story) => story.id !== storyId),
         });
-      }
 
-      console.log("✅ Historia eliminada exitosamente");
-      return { success: true };
-    } catch (err) {
-      console.error("❌ Error eliminando historia:", err);
-      return { success: false, error: "Error inesperado al eliminar la historia" };
-    }
-  }, [state.isAuthenticated, state.user, state.userStories, state.galleryStories, getContestPhase]);
+        // También actualizar galleryStories si está cargada
+        if (state.galleryStories.length > 0) {
+          dispatch({
+            type: actions.SET_GALLERY_STORIES,
+            payload: state.galleryStories.filter(
+              (story) => story.id !== storyId
+            ),
+          });
+        }
+
+        console.log("✅ Historia eliminada exitosamente");
+        return { success: true };
+      } catch (err) {
+        console.error("❌ Error eliminando historia:", err);
+        return {
+          success: false,
+          error: "Error inesperado al eliminar la historia",
+        };
+      }
+    },
+    [
+      state.isAuthenticated,
+      state.user,
+      state.userStories,
+      state.galleryStories,
+      getContestPhase,
+    ]
+  );
 
   // ✅ FUNCIÓN PARA ACTUALIZAR DISPLAY NAME
-  const updateDisplayName = useCallback(async (newDisplayName) => {
-    if (!state.isAuthenticated || !state.user?.id) {
-      return { success: false, error: "Debes estar autenticado para actualizar tu nombre" };
-    }
-
-    // Validaciones
-    if (!newDisplayName || typeof newDisplayName !== 'string') {
-      return { success: false, error: "El nombre es requerido" };
-    }
-
-    const trimmedName = newDisplayName.trim();
-    if (trimmedName.length < 2) {
-      return { success: false, error: "El nombre debe tener al menos 2 caracteres" };
-    }
-
-    if (trimmedName.length > 50) {
-      return { success: false, error: "El nombre no puede tener más de 50 caracteres" };
-    }
-
-    // Validar caracteres especiales problemáticos
-    const invalidChars = /[<>{}[\]\\\/]/;
-    if (invalidChars.test(trimmedName)) {
-      return { success: false, error: "El nombre contiene caracteres no válidos" };
-    }
-
-    try {
-      console.log("🔄 Actualizando display_name del usuario:", trimmedName);
-
-      // Actualizar en Supabase
-      const { error } = await supabase
-        .from("user_profiles")
-        .update({ display_name: trimmedName })
-        .eq("id", state.user.id);
-
-      if (error) {
-        console.error("❌ Error actualizando display_name:", error);
-        return { success: false, error: "Error al actualizar el nombre" };
+  const updateDisplayName = useCallback(
+    async (newDisplayName) => {
+      if (!state.isAuthenticated || !state.user?.id) {
+        return {
+          success: false,
+          error: "Debes estar autenticado para actualizar tu nombre",
+        };
       }
 
-      // Actualizar estado local preservando el estado de auth
-      dispatch({
-        type: actions.SET_AUTH_STATE,
-        payload: {
-          user: {
-            ...state.user,
-            display_name: trimmedName,
-            name: trimmedName // También actualizar name para consistencia
-          },
-          isAuthenticated: true,
-          initialized: state.authInitialized, // Preservar authInitialized (el reducer usa 'initialized')
-        },
-      });
+      // Validaciones
+      if (!newDisplayName || typeof newDisplayName !== "string") {
+        return { success: false, error: "El nombre es requerido" };
+      }
 
-      console.log("✅ Display name actualizado exitosamente");
-      return { success: true };
-    } catch (err) {
-      console.error("❌ Error inesperado actualizando nombre:", err);
-      return { success: false, error: "Error inesperado al actualizar el nombre" };
+      const trimmedName = newDisplayName.trim();
+      if (trimmedName.length < 2) {
+        return {
+          success: false,
+          error: "El nombre debe tener al menos 2 caracteres",
+        };
+      }
+
+      if (trimmedName.length > 50) {
+        return {
+          success: false,
+          error: "El nombre no puede tener más de 50 caracteres",
+        };
+      }
+
+      // Validar caracteres especiales problemáticos
+      const invalidChars = /[<>{}[\]\\\/]/;
+      if (invalidChars.test(trimmedName)) {
+        return {
+          success: false,
+          error: "El nombre contiene caracteres no válidos",
+        };
+      }
+
+      try {
+        console.log("🔄 Actualizando display_name del usuario:", trimmedName);
+
+        // Actualizar en Supabase
+        const { error } = await supabase
+          .from("user_profiles")
+          .update({ display_name: trimmedName })
+          .eq("id", state.user.id);
+
+        if (error) {
+          console.error("❌ Error actualizando display_name:", error);
+          return { success: false, error: "Error al actualizar el nombre" };
+        }
+
+        // Actualizar estado local preservando el estado de auth
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: {
+            user: {
+              ...state.user,
+              display_name: trimmedName,
+              name: trimmedName, // También actualizar name para consistencia
+            },
+            isAuthenticated: true,
+            initialized: state.authInitialized, // Preservar authInitialized (el reducer usa 'initialized')
+          },
+        });
+
+        console.log("✅ Display name actualizado exitosamente");
+        return { success: true };
+      } catch (err) {
+        console.error("❌ Error inesperado actualizando nombre:", err);
+        return {
+          success: false,
+          error: "Error inesperado al actualizar el nombre",
+        };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  // Cerrar modal automáticamente cuando el usuario se autentica exitosamente
+  useEffect(() => {
+    if (state.isAuthenticated && state.showAuthModal) {
+      console.log(
+        "🎉 Usuario autenticado exitosamente, cerrando modal automáticamente"
+      );
+      closeAuthModal();
     }
-  }, [state.isAuthenticated, state.user]);
+  }, [state.isAuthenticated, state.showAuthModal, closeAuthModal]);
 
   // ✅ UTILIDADES DE CONTESTS
 
@@ -2503,11 +2858,21 @@ export function GlobalAppProvider({ children }) {
     deleteUserStory,
     updateDisplayName,
 
+    // Funciones de Auth Modal
+    openAuthModal,
+    closeAuthModal,
+    setAuthModalError,
+    clearAuthModalErrors,
+
+    // Funciones de Cookie Consent
+    setCookieConsent,
+    showCookieBannerAgain,
+    resetCookieConsent,
+
     // Utilidades
     getContestPhase,
     getContestById,
     debugAuth,
-
 
     // Dispatch para casos especiales
     dispatch,

@@ -402,7 +402,7 @@ const PrivacyPolicy = () => {
             </h3>
             <div className="text-blue-800 space-y-2">
               <p>
-                <strong>Email principal:</strong> privacy@letranido.com
+                <strong>Email principal:</strong> info@letranido.com
               </p>
               <p>
                 <strong>Asunto sugerido:</strong> "Consulta de Privacidad - [Tu

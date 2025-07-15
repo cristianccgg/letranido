@@ -14,14 +14,29 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
 
   // ✅ USO DEL CONTEXTO GLOBAL EN LUGAR DE AUTHSTORE
-  const { login, register, isLoading } = useGlobalApp();
+  const { 
+    login, 
+    register, 
+    isLoading, 
+    authModalErrors: serverErrors,
+    clearAuthModalErrors 
+  } = useGlobalApp();
 
-  // Reset form when modal opens/closes or mode changes
+  // Combinar errores del servidor y de validación
+  const errors = { ...validationErrors, ...serverErrors };
+
+  // Reset form only when mode actually changes, track previous mode
+  const [prevMode, setPrevMode] = useState(mode);
+  
   useEffect(() => {
-    if (isOpen) {
+    console.log("🔍 AuthModal useEffect - mode:", mode, "prevMode:", prevMode);
+    
+    // Solo limpiar si realmente cambió el modo
+    if (mode !== prevMode) {
+      console.log("🔄 Limpiando formulario - modo cambió de", prevMode, "a", mode);
       setFormData({
         email: "",
         password: "",
@@ -29,11 +44,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         confirmPassword: "",
         emailNotifications: true,
       });
-      setErrors({});
+      clearAuthModalErrors();
+      setValidationErrors({});
       setShowPassword(false);
       setShowConfirmPassword(false);
+      setPrevMode(mode);
     }
-  }, [isOpen, mode]);
+  }, [mode, prevMode, clearAuthModalErrors]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -67,7 +84,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       }
     }
 
-    setErrors(newErrors);
+    // Establecer errores de validación en estado local
+    setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -84,6 +102,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       if (mode === "login") {
         result = await login(formData.email, formData.password);
       } else {
+        console.log("📧 Enviando registro con emailNotifications:", formData.emailNotifications);
         result = await register(
           formData.email,
           formData.name,
@@ -92,33 +111,43 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         );
       }
 
+      console.log("🔍 Auth result:", result);
+      
       if (result.success) {
+        console.log("✅ Login exitoso, el Layout se encargará de cerrar el modal");
+        // No cerramos el modal aquí, el Layout lo detectará automáticamente
+        // cuando isAuthenticated cambie a true
         onSuccess?.();
-        onClose();
       } else {
-        setErrors({ general: result.error });
+        console.log("❌ Login falló, error ya establecido en contexto global");
+        // El error ya se estableció en el contexto global desde la función login
       }
     } catch (error) {
       console.error("Auth error:", error);
-      setErrors({ general: "Error inesperado. Intenta nuevamente." });
+      console.error("❌ Error inesperado en AuthModal");
     }
   };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // Clear field-specific error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+    // Clear field-specific validation error when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: "" }));
     }
 
-    // Clear general error when user makes changes
-    if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: "" }));
+    // Clear general server error when user makes changes
+    if (serverErrors.general) {
+      clearAuthModalErrors();
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log("🚫 AuthModal no renderiza - isOpen:", isOpen);
+    return null;
+  }
+  
+  console.log("✅ AuthModal renderizando - isLoading:", isLoading, "validationErrors:", validationErrors, "serverErrors:", serverErrors);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
