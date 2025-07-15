@@ -354,8 +354,8 @@ const LandingPage = () => {
                     index === 0
                       ? "bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300"
                       : index === 1
-                      ? "bg-gradient-to-b from-gray-100 to-gray-50 border-2 border-gray-300"
-                      : "bg-gradient-to-b from-orange-100 to-orange-50 border-2 border-orange-300"
+                        ? "bg-gradient-to-b from-gray-100 to-gray-50 border-2 border-gray-300"
+                        : "bg-gradient-to-b from-orange-100 to-orange-50 border-2 border-orange-300"
                   }`}
                 >
                   <div className="text-center mb-4">
@@ -382,13 +382,14 @@ const LandingPage = () => {
                   </h3>
 
                   <div className="flex items-center justify-center gap-2 mb-3">
-                    <UserAvatar 
-                      user={{ name: story.author, email: `${story.author}@mock.com` }} 
-                      size="xs" 
+                    <UserAvatar
+                      user={{
+                        name: story.author,
+                        email: `${story.author}@mock.com`,
+                      }}
+                      size="xs"
                     />
-                    <p className="text-sm text-gray-600">
-                      por {story.author}
-                    </p>
+                    <p className="text-sm text-gray-600">por {story.author}</p>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -451,8 +452,8 @@ const LandingPage = () => {
                 3. Descubre los ganadores
               </h3>
               <p className="text-gray-600 text-sm">
-                Al finalizar la votación, se anuncian los ganadores y se otorgan
-                premios.
+                Al finalizar la votación, se celebran las historias más votadas
+                con menciones especiales e insignias destacadas.
               </p>
             </div>
           </div>
