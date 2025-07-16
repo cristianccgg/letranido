@@ -24,11 +24,13 @@ import { supabase } from "../lib/supabase"; // 👈 Agrega este import
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
+import NextContestPreview from "../components/ui/NextContestPreview";
 
 const LandingPage = () => {
   const {
     // Contest state
     currentContest,
+    nextContest,
     currentContestPhase,
     contestsLoading,
     contests,
@@ -220,7 +222,7 @@ const LandingPage = () => {
           <div className="absolute bottom-32 right-10 w-24 h-24 bg-gradient-to-br from-accent-200 to-primary-200 rounded-full opacity-20 animate-pulse blur-sm"></div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:py-20 text-center">
+        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:pt-20 lg:pb-8 text-center">
           {/* Logo/Título con más personalidad */}
           <div className="mb-6">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-2 tracking-tight">
@@ -273,6 +275,12 @@ const LandingPage = () => {
                 </div>
               </div>
 
+              {/* Siguiente concurso preview */}
+              <NextContestPreview
+                nextContest={nextContest}
+                currentContest={currentContest}
+              />
+
               {/* Botones con más estilo */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <ContestActionButton
@@ -314,19 +322,25 @@ const LandingPage = () => {
               <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalParticipants}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">Escritores participando</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">
+                Escritores participando
+              </div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalStories}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">Historias publicadas</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">
+                Historias publicadas
+              </div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalWords.toLocaleString()}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">Palabras escritas</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">
+                Palabras escritas
+              </div>
             </div>
           </div>
         </div>
@@ -389,7 +403,9 @@ const LandingPage = () => {
                       }}
                       size="xs"
                     />
-                    <p className="text-sm md:text-base lg:text-lg text-gray-600">por {story.author}</p>
+                    <p className="text-sm md:text-base lg:text-lg text-gray-600">
+                      por {story.author}
+                    </p>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -504,8 +520,8 @@ const LandingPage = () => {
                     Derechos completos
                   </h3>
                   <p className="text-gray-600 md:text-lg lg:text-xl">
-                    Mantienes todos los derechos de autor sobre tus historias. Son
-                    tuyas y siempre lo serán.
+                    Mantienes todos los derechos de autor sobre tus historias.
+                    Son tuyas y siempre lo serán.
                   </p>
                 </div>
               </div>
@@ -521,8 +537,8 @@ const LandingPage = () => {
                     Protección total
                   </h3>
                   <p className="text-gray-600 md:text-lg lg:text-xl">
-                    Nadie puede republicar, copiar o usar tu historia sin tu permiso
-                    expreso.
+                    Nadie puede republicar, copiar o usar tu historia sin tu
+                    permiso expreso.
                   </p>
                 </div>
               </div>
@@ -538,8 +554,8 @@ const LandingPage = () => {
                     Solo la plataforma
                   </h3>
                   <p className="text-gray-600 md:text-lg lg:text-xl">
-                    Letranido solo proporciona el espacio para compartir. Tu trabajo
-                    es completamente tuyo.
+                    Letranido solo proporciona el espacio para compartir. Tu
+                    trabajo es completamente tuyo.
                   </p>
                 </div>
               </div>

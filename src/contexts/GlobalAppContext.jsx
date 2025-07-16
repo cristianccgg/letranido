@@ -20,6 +20,7 @@ const initialState = {
   // Contests State
   contests: [],
   currentContest: null,
+  nextContest: null,
   contestsLoading: false,
   contestsError: null,
 
@@ -77,6 +78,7 @@ const actions = {
   // Contests
   SET_CONTESTS: "SET_CONTESTS",
   SET_CURRENT_CONTEST: "SET_CURRENT_CONTEST",
+  SET_NEXT_CONTEST: "SET_NEXT_CONTEST",
   SET_CONTESTS_LOADING: "SET_CONTESTS_LOADING",
   SET_CONTESTS_ERROR: "SET_CONTESTS_ERROR",
 
@@ -136,6 +138,9 @@ function globalAppReducer(state, action) {
 
     case actions.SET_CURRENT_CONTEST:
       return { ...state, currentContest: action.payload };
+
+    case actions.SET_NEXT_CONTEST:
+      return { ...state, nextContest: action.payload };
 
     case actions.SET_CONTESTS_LOADING:
       return { ...state, contestsLoading: action.payload };
@@ -705,10 +710,14 @@ export function GlobalAppProvider({ children }) {
 
       // Encontrar concurso actual con lógica híbrida
       const current = findCurrentContest(processedContests);
+      
+      // Encontrar el siguiente concurso
+      const next = findNextContest(processedContests, current);
 
       if (isMounted.current) {
         dispatch({ type: actions.SET_CONTESTS, payload: processedContests });
         dispatch({ type: actions.SET_CURRENT_CONTEST, payload: current });
+        dispatch({ type: actions.SET_NEXT_CONTEST, payload: next });
         console.log("✅ loadContests completado exitosamente");
       }
     } catch (error) {
@@ -3057,6 +3066,70 @@ const findCurrentContest = (contests) => {
   }
   
   return fallback;
+};
+
+// Función para encontrar el siguiente concurso en la cola
+const findNextContest = (contests, currentContest) => {
+  if (!contests || contests.length === 0) return null;
+  
+  const now = new Date();
+  
+  // Filtrar concursos que no sean el actual y que no estén finalizados
+  const availableContests = contests.filter(contest => 
+    contest.id !== currentContest?.id && 
+    !contest.finalized_at &&
+    contest.status !== "results"
+  );
+  
+  if (availableContests.length === 0) return null;
+  
+  // Separar concursos de prueba y producción
+  const testContests = availableContests.filter(contest => isTestContest(contest));
+  const productionContests = availableContests.filter(contest => !isTestContest(contest));
+  
+  // Si el concurso actual es de prueba, buscar el siguiente de prueba o el siguiente de producción
+  if (currentContest && isTestContest(currentContest)) {
+    // Priorizar siguiente concurso de prueba
+    if (testContests.length > 0) {
+      const next = testContests
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))[0];
+      console.log(`🎭 Siguiente concurso de prueba: "${next.title}"`);
+      return next;
+    }
+    
+    // Fallback a concurso de producción
+    if (productionContests.length > 0) {
+      const next = productionContests
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))[0];
+      console.log(`🏗️ Siguiente concurso de producción (desde prueba): "${next.title}"`);
+      return next;
+    }
+  }
+  
+  // Para concursos de producción, buscar el siguiente concurso de producción
+  if (productionContests.length > 0) {
+    // Buscar el siguiente concurso por orden de creación (el más reciente que no sea el actual)
+    const next = productionContests
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      .find(contest => new Date(contest.created_at) > new Date(currentContest?.created_at || 0));
+    
+    if (next) {
+      console.log(`📅 Siguiente concurso por orden: "${next.title}"`);
+      return next;
+    }
+    
+    // Si no hay siguiente por fecha de creación, tomar el más reciente disponible
+    const fallbackNext = productionContests
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    
+    if (fallbackNext) {
+      console.log(`🔄 Siguiente concurso (fallback): "${fallbackNext.title}"`);
+      return fallbackNext;
+    }
+  }
+  
+  console.log("🔍 No se encontró siguiente concurso");
+  return null;
 };
 
 // ✅ HOOK PRINCIPAL

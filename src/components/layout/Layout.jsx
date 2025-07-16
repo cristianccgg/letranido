@@ -244,7 +244,7 @@ const Layout = ({ children }) => {
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                    className="flex items-center cursor-pointer space-x-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
                   >
                     <UserAvatar user={user} size="sm" />
                     <div className="hidden sm:block text-left min-w-0">
@@ -267,7 +267,7 @@ const Layout = ({ children }) => {
                         onClick={() => setIsUserMenuOpen(false)}
                       />
                       <div
-                        className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
+                        className="absolute  right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
                         style={{
                           zIndex: 9999,
                           top: "100%",
@@ -278,7 +278,7 @@ const Layout = ({ children }) => {
                         }}
                       >
                         {/* User Info */}
-                        <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="px-4 py-3 border-b border-gray-100 ">
                           <div className="flex items-center space-x-3">
                             <UserAvatar user={user} size="md" />
                             <div className="flex-1 min-w-0">
@@ -297,7 +297,7 @@ const Layout = ({ children }) => {
                           <Link
                             to="/profile"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 transition-colors"
                           >
                             <User className="h-4 w-4 mr-3 text-gray-400" />
                             Mi perfil
@@ -306,7 +306,7 @@ const Layout = ({ children }) => {
                           <Link
                             to="/preferences"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 transition-colors"
                           >
                             <Settings className="h-4 w-4 mr-3 text-gray-400" />
                             Preferencias
@@ -320,7 +320,7 @@ const Layout = ({ children }) => {
                               handleLogout();
                               setIsUserMenuOpen(false);
                             }}
-                            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            className="w-full flex cursor-pointer items-center px-4 py-2 text-sm text-red-600 hover:bg-red-100 transition-colors"
                           >
                             <LogOut className="h-4 w-4 mr-3" />
                             Cerrar sesión
