@@ -11,8 +11,6 @@ import {
   Trophy,
   Star,
   ChevronLeft,
-  Share2,
-  Flag,
   BookOpen,
   Award,
   Loader,
@@ -25,6 +23,7 @@ import AuthModal from "../components/forms/AuthModal";
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import UserAvatar from "../components/ui/UserAvatar";
+import ShareDropdown from "../components/ui/ShareDropdown";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -40,6 +39,7 @@ const StoryPage = () => {
     initialized,
     globalLoading,
     galleryStories,
+    userStories,
 
     // Functions
     getStoryById,
@@ -205,61 +205,32 @@ const StoryPage = () => {
   };
 
   // ✅ SHARE FUNCTIONALITY
-  const handleShare = async () => {
-    const shareData = {
-      title: `"${story.title}" por ${story.author.name}`,
-      text: story.title,
-      url: window.location.href,
-    };
+  // Generar datos para compartir
+  const getShareData = () => {
+    if (!story?.contest) return null;
 
-    try {
-      if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare(shareData)
-      ) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback - copiar al clipboard
-        await navigator.clipboard.writeText(window.location.href);
-        alert("¡Enlace copiado al portapapeles!");
-      }
-    } catch (err) {
-      console.error("Error sharing:", err);
-      // Fallback manual
-      const textArea = document.createElement("textarea");
-      textArea.value = window.location.href;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      alert("¡Enlace copiado al portapapeles!");
-    }
-  };
-
-  // ✅ REPORT FUNCTIONALITY
-  const handleReport = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    const reason = prompt(
-      "¿Por qué quieres reportar esta historia?\n\n" +
-        "Razones válidas:\n" +
-        "- Contenido ofensivo o inapropiado\n" +
-        "- Spam o contenido irrelevante\n" +
-        "- Violación de las reglas de la comunidad\n" +
-        "- Plagio o contenido copiado\n\n" +
-        "Escribe tu razón:"
+    // Verificar si el usuario participó en este concurso
+    const userParticipated = userStories.some(userStory => 
+      userStory.contest_id === story.contest.id
     );
 
-    if (reason && reason.trim()) {
-      console.log("🚨 Historia reportada:", id, "Razón:", reason);
-      alert("Gracias por tu reporte. Nuestro equipo lo revisará pronto.");
-      // TODO: Implementar sistema de reportes real
-    }
+    // URL del concurso (no de la historia específica)
+    const contestUrl = `${window.location.origin}/contest/${story.contest.id}`;
+
+    // Generar texto según si el usuario participó o no
+    return userParticipated 
+      ? {
+          title: `Letranido - ${story.contest.title}`,
+          text: `¡Participé con mi historia en el concurso "${story.contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
+          url: contestUrl,
+        }
+      : {
+          title: `Letranido - ${story.contest.title}`,
+          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Concurso activo: "${story.contest.title}"\n✍️ Únete como escritor:`,
+          url: contestUrl,
+        };
   };
+
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
@@ -375,21 +346,7 @@ const StoryPage = () => {
         </button>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleShare}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Compartir historia"
-          >
-            <Share2 className="h-5 w-5" />
-          </button>
-
-          <button
-            onClick={handleReport}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            title="Reportar historia"
-          >
-            <Flag className="h-5 w-5" />
-          </button>
+          {/* Botón compartir se movió al lado de likes y vistas */}
         </div>
       </div>
 
@@ -496,6 +453,11 @@ const StoryPage = () => {
                 <Eye className="h-5 w-5 mr-2" />
                 <span>{story.views_count || 0} vistas</span>
               </div>
+
+              {/* Compartir */}
+              {getShareData() && (
+                <ShareDropdown shareData={getShareData()} size="default" />
+              )}
             </div>
 
             {/* Contest Phase Info */}
@@ -661,6 +623,7 @@ const StoryPage = () => {
           initialMode="register"
         />
       )}
+
     </div>
   );
 };

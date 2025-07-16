@@ -64,16 +64,18 @@ const UnifiedProfile = () => {
   // ✅ FUNCIÓN PARA ELIMINAR HISTORIA
   const handleDeleteStory = async (storyId, storyTitle) => {
     const confirmMessage = `¿Estás seguro de que quieres eliminar la historia "${storyTitle}"?\n\nEsta acción no se puede deshacer. Después de eliminarla, podrás escribir una nueva historia para el concurso.`;
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
 
     try {
       const result = await deleteUserStory(storyId);
-      
+
       if (result.success) {
-        alert("✅ Historia eliminada exitosamente. Ahora puedes escribir una nueva historia para el concurso.");
+        alert(
+          "✅ Historia eliminada exitosamente. Ahora puedes escribir una nueva historia para el concurso."
+        );
       } else {
         alert("❌ Error: " + result.error);
       }
@@ -109,7 +111,7 @@ const UnifiedProfile = () => {
     setNameUpdateLoading(true);
     try {
       const result = await updateDisplayName(editedName);
-      
+
       if (result.success) {
         alert("✅ Nombre actualizado exitosamente");
         setIsEditingName(false);
@@ -188,7 +190,7 @@ const UnifiedProfile = () => {
                   <h1 className="text-3xl font-bold text-gray-900">
                     {user?.name || user?.display_name}
                   </h1>
-                  <button 
+                  <button
                     onClick={handleStartEditName}
                     className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-lg hover:bg-white/50"
                     title="Editar nombre"
@@ -225,14 +227,13 @@ const UnifiedProfile = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Mensaje informativo cuando está editando */}
             {isEditingName && (
               <div className="text-sm text-gray-600 mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
                 💡 Este nombre aparecerá en todas tus historias y comentarios
               </div>
             )}
-
 
             <div className="flex items-center gap-4 mb-4">
               <p className="text-gray-600">{user?.email}</p>
@@ -306,8 +307,8 @@ const UnifiedProfile = () => {
                   {currentContestPhase === "submission"
                     ? "Envíos abiertos"
                     : currentContestPhase === "voting"
-                    ? "En votación"
-                    : "Finalizado"}
+                      ? "En votación"
+                      : "Finalizado"}
                 </div>
               </div>
 
@@ -398,7 +399,7 @@ const UnifiedProfile = () => {
                 {userStories.map((story) => (
                   <article
                     key={story.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    className="border-2 border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">
@@ -416,10 +417,10 @@ const UnifiedProfile = () => {
                       {story.title}
                     </h3>
 
-                    <div 
+                    <div
                       className="text-gray-600 mb-3 line-clamp-2"
                       dangerouslySetInnerHTML={{
-                        __html: story.excerpt || ''
+                        __html: story.excerpt || "",
                       }}
                     />
 
@@ -444,32 +445,38 @@ const UnifiedProfile = () => {
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/story/${story.id}`}
-                          className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                          className="text-primary-600 hover:scale-110 hover:text-primary-700 font-medium text-sm"
                         >
                           Leer →
                         </Link>
-                        
+
                         {/* Botón eliminar - solo durante período de envío O si es admin */}
                         {(() => {
-                          const contestPhase = story.contests ? getContestPhase(story.contests) : 'no contests';
-                          const canDelete = contestPhase === "submission" || user?.is_admin;
-                          
+                          const contestPhase = story.contests
+                            ? getContestPhase(story.contests)
+                            : "no contests";
+                          const canDelete =
+                            contestPhase === "submission" || user?.is_admin;
+
                           // DEBUG TEMPORAL: Ver fechas y fase
                           console.log("🔍 DEBUG FASE:", {
                             storyId: story.id,
                             now: new Date().toISOString(),
-                            submissionDeadline: story.contests?.submission_deadline,
+                            submissionDeadline:
+                              story.contests?.submission_deadline,
                             votingDeadline: story.contests?.voting_deadline,
                             contestPhase,
                             isAdmin: user?.is_admin,
-                            canDelete
+                            canDelete,
                           });
-                          
+
                           return canDelete;
                         })() && (
                           <button
-                            onClick={() => handleDeleteStory(story.id, story.title)}
-                            className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                            onClick={() =>
+                              handleDeleteStory(story.id, story.title)
+                            }
+                            className="text-red-600 cursor-pointer hover:scale-110 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
                             title="Eliminar historia"
                           >
                             <Trash2 className="h-4 w-4" />

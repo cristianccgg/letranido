@@ -38,7 +38,7 @@ const Layout = ({ children }) => {
     userStoriesLoading,
     contests,
     logout,
-    // Auth Modal desde contexto global  
+    // Auth Modal desde contexto global
     showAuthModal: authModalVisible,
     authModalMode,
     openAuthModal,
@@ -60,7 +60,9 @@ const Layout = ({ children }) => {
       : false;
 
   // ✅ VERIFICAR SI HAY CONCURSOS FINALIZADOS PARA MOSTRAR HISTORIAL
-  const hasFinishedContests = contests.some(contest => contest.status === "results");
+  const hasFinishedContests = contests.some(
+    (contest) => contest.status === "results"
+  );
 
   // ✅ LOGOUT SIMPLIFICADO
   const handleLogout = async () => {
@@ -75,7 +77,7 @@ const Layout = ({ children }) => {
   const getWriteButtonText = () => {
     if (userStoriesLoading) return "Verificando...";
     if (!isAuthenticated) return "Escribir";
-    if (hasUserParticipated) return "Ya participaste ✓";
+    if (hasUserParticipated) return "Ya participaste";
     if (currentContestPhase === "results") return "Ver resultados";
     return "Escribir";
   };
@@ -170,7 +172,6 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -262,17 +263,18 @@ const Layout = ({ children }) => {
                       {/* Overlay para cerrar el menu */}
                       <div
                         className="fixed inset-0"
-                        style={{zIndex: 9998}}
+                        style={{ zIndex: 9998 }}
                         onClick={() => setIsUserMenuOpen(false)}
                       />
-                      <div 
-                        className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1" 
+                      <div
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
                         style={{
                           zIndex: 9999,
-                          top: '100%',
-                          backgroundColor: '#ffffff',
-                          border: '1px solid #e5e7eb',
-                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                          top: "100%",
+                          backgroundColor: "#ffffff",
+                          border: "1px solid #e5e7eb",
+                          boxShadow:
+                            "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
                         }}
                       >
                         {/* User Info */}
@@ -541,7 +543,9 @@ const Layout = ({ children }) => {
             closeAuthModal();
           }}
           onSuccess={() => {
-            console.log("✅ Layout - onSuccess called, modal se cerrará automáticamente");
+            console.log(
+              "✅ Layout - onSuccess called, modal se cerrará automáticamente"
+            );
             // No cerramos aquí, el contexto global se encarga
           }}
           initialMode={authModalMode}

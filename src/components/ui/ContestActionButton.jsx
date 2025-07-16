@@ -123,7 +123,7 @@ const ContestActionButton = ({
         // ✅ SOLO para usuarios autenticados verificamos participación
         if (isAuthenticated && hasUserParticipated) {
           return {
-            text: customText || "Ya participaste ✓",
+            text: customText || "Ya participaste",
             description: "Tu historia fue enviada exitosamente",
             href: "/contest/current",
             onClick: null,
@@ -245,18 +245,18 @@ const ContestActionButton = ({
       primary: config.disabled
         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
         : forceWhiteStyle
-        ? "bg-white text-primary-600 hover:bg-primary-50 focus:ring-white"
-        : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
+          ? "bg-white text-primary-600 hover:bg-primary-50 focus:ring-white"
+          : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
       secondary: config.disabled
         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
         : forceWhiteStyle
-        ? "bg-white/20 text-white border border-white hover:bg-white/30 focus:ring-white"
-        : "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
+          ? "bg-white/20 text-white border border-white hover:bg-white/30 focus:ring-white"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
       outline: config.disabled
         ? "border border-gray-200 text-gray-400 cursor-not-allowed"
         : forceWhiteStyle
-        ? "border-2 border-white text-white hover:bg-white/10 focus:ring-white"
-        : "border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
+          ? "border-2 border-white text-white hover:bg-white/10 focus:ring-white"
+          : "border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
       success: forceWhiteStyle
         ? "bg-white/20 text-white cursor-not-allowed"
         : "bg-green-100 text-green-700 cursor-not-allowed",

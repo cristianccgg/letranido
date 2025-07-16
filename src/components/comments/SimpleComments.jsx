@@ -3,12 +3,14 @@ import { useState, useEffect } from "react";
 import { MessageSquare, Send, Heart, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import UserAvatar from "../ui/UserAvatar";
+import ReportModal from "../modals/ReportModal";
 
 const SimpleComments = ({ storyId, storyTitle }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [reportModal, setReportModal] = useState({ isOpen: false, commentId: null, commentContent: '' });
 
   // ✅ USO DEL CONTEXTO GLOBAL CON FUNCIONES DE COMENTARIOS
   const { 
@@ -17,7 +19,8 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     getStoryComments,
     addComment,
     deleteComment,
-    toggleCommentLike
+    toggleCommentLike,
+    reportComment
   } = useGlobalApp();
 
   // ✅ CARGAR COMENTARIOS REALES
@@ -154,6 +157,25 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     }
   };
 
+  const handleReportComment = (commentId, commentContent) => {
+    setReportModal({ isOpen: true, commentId, commentContent });
+  };
+
+  const handleSubmitReport = async (commentId, reason, description) => {
+    try {
+      const result = await reportComment(commentId, reason, description);
+      
+      if (result.success) {
+        alert("Reporte enviado exitosamente. Nuestro equipo lo revisará pronto.");
+      } else {
+        alert("Error al enviar el reporte: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Error al enviar el reporte");
+    }
+  };
+
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -281,6 +303,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                       {/* Botón de reportar */}
                       {isAuthenticated && user?.id !== comment.author_id && (
                         <button
+                          onClick={() => handleReportComment(comment.id, comment.content)}
                           className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
                           title="Reportar comentario"
                         >
@@ -305,6 +328,15 @@ const SimpleComments = ({ storyId, storyTitle }) => {
         Los comentarios están moderados. Mantén un tono respetuoso y
         constructivo.
       </div>
+
+      {/* Modal de reportes */}
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={() => setReportModal({ isOpen: false, commentId: null, commentContent: '' })}
+        onReport={handleSubmitReport}
+        commentId={reportModal.commentId}
+        commentContent={reportModal.commentContent}
+      />
     </div>
   );
 };

@@ -2378,6 +2378,111 @@ export function GlobalAppProvider({ children }) {
     [state.isAuthenticated, state.user]
   );
 
+  // ✅ FUNCIONES DE REPORTES
+  const reportComment = useCallback(
+    async (commentId, reason, description = '') => {
+      if (!state.isAuthenticated || !state.user) {
+        return { success: false, error: "Usuario no autenticado" };
+      }
+
+      try {
+        console.log("🚩 Reporting comment:", commentId, "Reason:", reason);
+
+        const { error } = await supabase
+          .from("reports")
+          .insert([{
+            reporter_id: state.user.id,
+            reported_comment_id: commentId,
+            reason,
+            description,
+            status: 'pending'
+          }]);
+
+        if (error) {
+          if (error.code === '23505') { // Unique constraint violation
+            return { success: false, error: "Ya has reportado este comentario" };
+          }
+          throw error;
+        }
+
+        console.log("✅ Comment reported successfully");
+        return { success: true };
+      } catch (err) {
+        console.error("💥 Error reporting comment:", err);
+        return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  const getReports = useCallback(async () => {
+    if (!state.isAuthenticated || !state.user?.is_admin) {
+      return { success: false, error: "Solo administradores pueden ver reportes" };
+    }
+
+    try {
+      console.log("📋 Fetching all reports for admin...");
+
+      const { data: reports, error } = await supabase
+        .from("reports")
+        .select(`
+          *,
+          reporter:user_profiles!reporter_id(display_name, email),
+          reported_comment:comments!reported_comment_id(
+            content,
+            user_id,
+            story_id,
+            created_at
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      console.log(`📋 Found ${reports?.length || 0} reports`);
+      return { success: true, data: reports || [] };
+    } catch (err) {
+      console.error("💥 Error fetching reports:", err);
+      return { success: false, error: err.message };
+    }
+  }, [state.isAuthenticated, state.user]);
+
+  const updateReportStatus = useCallback(
+    async (reportId, status, adminNotes = '') => {
+      if (!state.isAuthenticated || !state.user?.is_admin) {
+        return { success: false, error: "Solo administradores pueden actualizar reportes" };
+      }
+
+      try {
+        console.log("🔄 Updating report status:", reportId, "to:", status);
+
+        const updateData = {
+          status,
+          admin_notes: adminNotes
+        };
+
+        if (status === 'resolved' || status === 'dismissed') {
+          updateData.resolved_at = new Date().toISOString();
+          updateData.resolved_by = state.user.id;
+        }
+
+        const { error } = await supabase
+          .from("reports")
+          .update(updateData)
+          .eq("id", reportId);
+
+        if (error) throw error;
+
+        console.log("✅ Report status updated successfully");
+        return { success: true };
+      } catch (err) {
+        console.error("💥 Error updating report status:", err);
+        return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
   // ✅ FUNCIONES DE ADMIN - LIMPIEZA DE DATOS
   const clearAllComments = useCallback(async () => {
     if (!state.isAuthenticated || !state.user?.is_admin) {
@@ -2839,6 +2944,11 @@ export function GlobalAppProvider({ children }) {
     addComment,
     deleteComment,
     toggleCommentLike,
+
+    // Funciones de reportes
+    reportComment,
+    getReports,
+    updateReportStatus,
 
     // Funciones de admin
     clearAllComments,

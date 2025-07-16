@@ -28,6 +28,7 @@ import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
+import ShareDropdown from "../components/ui/ShareDropdown";
 
 const CurrentContest = () => {
   const { id } = useParams();
@@ -287,6 +288,33 @@ const CurrentContest = () => {
         );
     }
   })();
+
+  // ✅ FUNCIONES DE COMPARTIR
+  // Generar datos para compartir
+  const getShareData = () => {
+    if (!contest) return null;
+
+    // Verificar si el usuario participó en este concurso
+    const userParticipated = userStories.some(userStory => 
+      userStory.contest_id === contest.id
+    );
+
+    // URL del concurso (no de la historia específica)
+    const contestUrl = `${window.location.origin}/contest/${contest.id}`;
+
+    // Generar texto según si el usuario participó o no
+    return userParticipated 
+      ? {
+          title: `Letranido - ${contest.title}`,
+          text: `¡Participé con mi historia en el concurso "${contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
+          url: contestUrl,
+        }
+      : {
+          title: `Letranido - ${contest.title}`,
+          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Concurso activo: "${contest.title}"\n✍️ Únete como escritor:`,
+          url: contestUrl,
+        };
+  };
 
   // ✅ FUNCIONES DE UTILIDAD
   const getPhaseInfo = () => {
@@ -884,14 +912,21 @@ const CurrentContest = () => {
                               </div>
                             </div>
 
-                            {/* Botón leer - más prominente */}
-                            <a
-                              href={`/story/${story.id}`}
-                              className="btn-primary text-sm px-3 py-1 ml-3 flex-shrink-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Leer
-                            </a>
+                            {/* Botones de acción */}
+                            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                              {getShareData() && (
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  <ShareDropdown shareData={getShareData()} size="small" />
+                                </div>
+                              )}
+                              <a
+                                href={`/story/${story.id}`}
+                                className="btn-primary text-sm px-3 py-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Leer
+                              </a>
+                            </div>
                           </div>
 
                           {/* Excerpt más corto */}
@@ -964,6 +999,7 @@ const CurrentContest = () => {
           }}
         />
       )}
+
     </div>
   );
 };
