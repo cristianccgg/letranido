@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff, User, Mail, Lock, Loader } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
+import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalytics";
 
 const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const [mode, setMode] = useState(initialMode);
@@ -24,6 +25,9 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
     authModalErrors: serverErrors,
     clearAuthModalErrors 
   } = useGlobalApp();
+
+  // ✅ GOOGLE ANALYTICS
+  const { trackEvent } = useGoogleAnalytics();
 
   // Combinar errores del servidor y de validación
   const errors = { ...validationErrors, ...serverErrors };
@@ -114,6 +118,14 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       console.log("🔍 Auth result:", result);
       
       if (result.success) {
+        // 📊 TRACK EVENT: User signup (only for register mode)
+        if (mode === "register") {
+          trackEvent(AnalyticsEvents.USER_SIGNUP, {
+            email_notifications: formData.emailNotifications,
+            signup_method: 'email'
+          });
+        }
+
         console.log("✅ Login exitoso, el Layout se encargará de cerrar el modal");
         // No cerramos el modal aquí, el Layout lo detectará automáticamente
         // cuando isAuthenticated cambie a true

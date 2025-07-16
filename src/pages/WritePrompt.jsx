@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Send, AlertCircle, PenTool } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
@@ -24,6 +25,9 @@ const WritePrompt = () => {
     submitStory, // ✅ Función integrada en el contexto
     userStories,
   } = useGlobalApp();
+
+  // ✅ GOOGLE ANALYTICS
+  const { trackEvent } = useGoogleAnalytics();
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA
   const hasUserParticipated =
@@ -155,6 +159,14 @@ const WritePrompt = () => {
     const result = await submitStory(storyData);
 
     if (result.success) {
+      // 📊 TRACK EVENT: Story published
+      trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
+        contest_id: contestToUse.id,
+        word_count: wordCount,
+        has_mature_content: hasMatureContent,
+        contest_title: contestToUse.title
+      });
+
       // Limpiar borrador
       localStorage.removeItem(`story-draft-${contestToUse.id}`);
 

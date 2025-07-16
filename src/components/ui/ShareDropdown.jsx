@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Users, Copy, CheckCircle } from "lucide-react";
+import React, { useState } from "react";
+import { Users, CheckCircle } from "lucide-react";
 
 const ShareDropdown = ({ shareData, className = "", size = "default" }) => {
   const [copied, setCopied] = useState(false);
@@ -11,7 +11,7 @@ const ShareDropdown = ({ shareData, className = "", size = "default" }) => {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       // Fallback para navegadores que no soportan clipboard API
       const textArea = document.createElement("textarea");
       textArea.value = url;

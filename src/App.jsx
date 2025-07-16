@@ -1,6 +1,7 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
+import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import UnifiedProfile from "./pages/UnifiedProfile";
@@ -20,6 +21,9 @@ import Preferences from "./pages/Preferences";
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
   const { initialized, authInitialized } = useGlobalApp();
+  
+  // Inicializar Google Analytics cuando el contexto esté listo
+  useGoogleAnalytics();
 
   // 🔧 DEBUG: Agregar logs para entender el estado
   console.log("🔍 AppContent render:", {

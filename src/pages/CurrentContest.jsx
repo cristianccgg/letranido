@@ -44,6 +44,7 @@ const CurrentContest = () => {
     galleryStories,
     galleryLoading,
     votingStats,
+    userStories,
     initialized,
     globalLoading,
     getContestById,
