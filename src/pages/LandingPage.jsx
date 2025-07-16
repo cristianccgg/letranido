@@ -25,6 +25,7 @@ import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
 import NextContestPreview from "../components/ui/NextContestPreview";
+import NewsletterSignup from "../components/ui/NewsletterSignup";
 
 const LandingPage = () => {
   const {
@@ -172,6 +173,9 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, [currentContest?.submission_deadline]);
 
+  // Estado para mostrar el modal de reglas
+  const [showRulesModal, setShowRulesModal] = useState(false);
+
   // ✅ LOADING STATE
   if (globalLoading || contestsLoading || !initialized) {
     return (
@@ -183,9 +187,6 @@ const LandingPage = () => {
       </div>
     );
   }
-
-  // Estado para mostrar el modal de reglas
-  const [showRulesModal, setShowRulesModal] = useState(false);
 
   // Configuración del segundo botón según la fase
   const getSecondaryButton = () => {
@@ -212,14 +213,14 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Vibrante pero limpio */}
-      <section className="bg-gradient-to-br from-primary-50 via-accent-50 to-primary-100 relative overflow-hidden">
-        {/* Elementos decorativos */}
+      {/* Hero Section - Elegante y moderno */}
+      <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+        {/* Elementos decorativos modernos */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-pulse blur-sm"></div>
-          <div className="absolute top-32 right-16 w-16 h-16 bg-gradient-to-br from-accent-200 to-accent-300 rounded-full opacity-30 blur-sm"></div>
-          <div className="absolute bottom-20 left-20 w-12 h-12 bg-gradient-to-br from-primary-300 to-accent-200 rounded-full opacity-25 animate-pulse blur-sm"></div>
-          <div className="absolute bottom-32 right-10 w-24 h-24 bg-gradient-to-br from-accent-200 to-primary-200 rounded-full opacity-20 animate-pulse blur-sm"></div>
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
+          <div className="absolute top-32 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+          <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+          <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:pt-20 lg:pb-8 text-center">
@@ -228,14 +229,14 @@ const LandingPage = () => {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-2 tracking-tight">
               Letranido
             </h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-primary-500 via-accent-500 to-primary-600 rounded-full mx-auto shadow-lg"></div>
+            <div className="w-20 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto shadow-lg"></div>
           </div>
 
           {/* Subtítulo con mejor tipografía */}
           <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium leading-relaxed tracking-wide">
             Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a
             brillar.{" "}
-            <span className="text-primary-600 tracking-wide">
+            <span className="text-indigo-600 tracking-wide">
               Crece como escritor en comunidad.
             </span>
           </p>
@@ -243,9 +244,9 @@ const LandingPage = () => {
           {currentContest && (
             <div className="space-y-6">
               {/* Prompt en card con más personalidad */}
-              <div className="bg-white/90 backdrop-blur-md border-2 border-primary-200 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-primary-300">
+              <div className="bg-white/95 backdrop-blur-md border-2 border-indigo-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300">
                 <div className="mb-4">
-                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 via-accent-500 to-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                     <Calendar className="h-4 w-4 mr-2" />
                     Concurso de {currentContest.month}
                   </span>
@@ -260,15 +261,15 @@ const LandingPage = () => {
                 </p>
 
                 {/* Contador con más estilo */}
-                <div className="bg-gradient-to-r from-primary-50 via-white to-accent-50 border border-primary-200 rounded-lg p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-md">
+                <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                     <Clock className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm md:text-base lg:text-lg text-primary-700 font-medium block tracking-wide">
+                    <span className="text-sm md:text-base lg:text-lg text-indigo-700 font-medium block tracking-wide">
                       Cierre en
                     </span>
-                    <span className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-900 tracking-tight">
+                    <span className="text-xl md:text-2xl lg:text-3xl font-bold text-indigo-900 tracking-tight">
                       {timeLeft}
                     </span>
                   </div>
@@ -293,7 +294,7 @@ const LandingPage = () => {
                 {secondaryButton && (
                   <Link
                     to={secondaryButton.href}
-                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 hover:shadow-lg transition-all duration-300 shadow-sm"
+                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-lg transition-all duration-300 shadow-sm hover:scale-105"
                   >
                     <secondaryButton.icon className="h-5 w-5 mr-2" />
                     {secondaryButton.text}
@@ -303,7 +304,7 @@ const LandingPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowRulesModal(true)}
-                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 hover:shadow-lg transition-all duration-300 shadow-sm"
+                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-xl border-2 border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 hover:shadow-lg transition-all duration-300 shadow-sm hover:scale-105"
                 >
                   <BookOpen className="h-5 w-5 mr-2" />
                   Ver reglas
@@ -314,31 +315,31 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Estadísticas - separadas y limpias */}
-      <section className="py-8 lg:py-12 bg-white">
+      {/* Estadísticas - modernas y elegantes */}
+      <section className="py-8 lg:py-12 bg-gradient-to-r from-slate-50 to-indigo-50">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white rounded-xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-indigo-100 hover:border-purple-200">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
                 {stats.totalParticipants}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">
+              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
                 Escritores participando
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
                 {stats.totalStories}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">
+              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
                 Historias publicadas
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                 {stats.totalWords.toLocaleString()}
               </div>
-              <div className="text-gray-500 md:text-lg lg:text-xl">
+              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
                 Palabras escritas
               </div>
             </div>
@@ -436,8 +437,8 @@ const LandingPage = () => {
         </section>
       )}
 
-      {/* Explicación del flujo del concurso */}
-      <section className="py-20 lg:py-24">
+      {/* Explicación del flujo del concurso - Modernizada */}
+      <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
@@ -450,9 +451,9 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <PenTool className="h-8 w-8 text-primary-600" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <PenTool className="h-8 w-8 text-indigo-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 1. Escribe tu historia
@@ -463,9 +464,9 @@ const LandingPage = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Heart className="h-8 w-8 text-red-500" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Heart className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 2. Vota por tus favoritas
@@ -477,9 +478,9 @@ const LandingPage = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Trophy className="h-8 w-8 text-yellow-600" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Trophy className="h-8 w-8 text-pink-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 3. Descubre los ganadores
@@ -572,8 +573,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section - MANTENER */}
-      <section className="py-20 lg:py-24">
+      {/* Newsletter Signup 
+      <NewsletterSignup />*/}
+
+      {/* Features Section - Modernizada */}
+      <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
@@ -587,9 +591,9 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <PenTool className="h-8 w-8 text-primary-600" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <PenTool className="h-8 w-8 text-indigo-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Concursos Mensuales
@@ -601,9 +605,9 @@ const LandingPage = () => {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Users className="h-8 w-8 text-green-600" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Users className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Comunidad Activa
@@ -615,9 +619,9 @@ const LandingPage = () => {
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Trophy className="h-8 w-8 text-yellow-600" />
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Trophy className="h-8 w-8 text-pink-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Sistema de Reconocimiento

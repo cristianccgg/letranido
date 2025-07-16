@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   ChevronRight,
   Calendar,
-  Eye,
   Clock,
   Sparkles,
   BookOpen,

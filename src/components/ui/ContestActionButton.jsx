@@ -228,38 +228,38 @@ const ContestActionButton = ({
   const config = getButtonConfig();
   const Icon = config.icon;
 
-  // ✅ Clases CSS según el variant y size
+  // ✅ Clases CSS según el variant y size - MODERNIZADAS
   const getButtonClasses = () => {
     const baseClasses =
-      "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg";
+      "inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-xl shadow-lg hover:shadow-xl hover:scale-105";
 
     // Size classes
     const sizeClasses = {
-      small: "px-3 py-2 text-sm",
-      default: "px-4 py-2 text-sm",
-      large: "px-6 py-3 text-base",
+      small: "px-4 py-2 text-sm",
+      default: "px-5 py-3 text-sm",
+      large: "px-8 py-4 text-base",
     };
 
-    // Variant classes - ✅ Mejorado con soporte para forceWhiteStyle
+    // Variant classes - ✅ Modernizadas con gradientes elegantes
     const variantClasses = {
       primary: config.disabled
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:scale-100 hover:shadow-lg"
         : forceWhiteStyle
-          ? "bg-white text-primary-600 hover:bg-primary-50 focus:ring-white"
-          : "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
+          ? "bg-white text-indigo-600 hover:bg-indigo-50 focus:ring-white hover:shadow-2xl"
+          : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500",
       secondary: config.disabled
-        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed hover:scale-100 hover:shadow-lg"
         : forceWhiteStyle
-          ? "bg-white/20 text-white border border-white hover:bg-white/30 focus:ring-white"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
+          ? "bg-white/20 text-white border border-white hover:bg-white/30 focus:ring-white backdrop-blur-sm"
+          : "bg-white border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-purple-300 focus:ring-indigo-500",
       outline: config.disabled
-        ? "border border-gray-200 text-gray-400 cursor-not-allowed"
+        ? "border border-gray-200 text-gray-400 cursor-not-allowed hover:scale-100 hover:shadow-lg"
         : forceWhiteStyle
-          ? "border-2 border-white text-white hover:bg-white/10 focus:ring-white"
-          : "border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
+          ? "border-2 border-white text-white hover:bg-white/10 focus:ring-white backdrop-blur-sm"
+          : "border-2 border-indigo-300 text-indigo-600 hover:bg-indigo-50 hover:border-purple-400 focus:ring-indigo-500",
       success: forceWhiteStyle
-        ? "bg-white/20 text-white cursor-not-allowed"
-        : "bg-green-100 text-green-700 cursor-not-allowed",
+        ? "bg-white/20 text-white cursor-not-allowed backdrop-blur-sm hover:scale-100"
+        : "bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 cursor-not-allowed border border-green-200 hover:scale-100 hover:shadow-lg",
     };
 
     return `${baseClasses} ${sizeClasses[size]} ${

@@ -16,8 +16,11 @@ interface EmailRequest {
     | "results"
     | "manual_general"
     | "manual_newsletter"
-    | "manual_essential";
+    | "manual_essential"
+    | "newsletter_subscription";
   contestId?: string;
+  // Para suscripción de newsletter
+  email?: string;
   // Para emails manuales
   subject?: string;
   htmlContent?: string;
@@ -38,10 +41,15 @@ serve(async (req) => {
     );
 
     // Get request data
-    const { emailType, contestId, subject, htmlContent, textContent }: EmailRequest = await req.json();
+    const { emailType, contestId, subject, htmlContent, textContent, email }: EmailRequest = await req.json();
     console.log(
-      `📧 Enviando email tipo: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}`
+      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}`
     );
+
+    // Handle newsletter subscription separately
+    if (emailType === "newsletter_subscription") {
+      return await handleNewsletterSubscription(supabaseClient, email);
+    }
 
     // Get contest data (solo para emails de concurso)
     let contest;
@@ -615,4 +623,240 @@ function generateResultsHTML(contest: any): string {
       </div>
     </div>
   `;
+}
+
+// Función para manejar suscripción de newsletter con deduplicación
+async function handleNewsletterSubscription(supabaseClient: any, email: string): Promise<Response> {
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+
+  try {
+    // Validación básica
+    if (!email || !email.includes("@")) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Por favor ingresa un email válido" 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    console.log(`📧 Procesando suscripción para: ${normalizedEmail}`);
+
+    // 1. Verificar si ya existe un usuario registrado con este email
+    const { data: existingUser, error: userError } = await supabaseClient
+      .from("user_profiles")
+      .select("id, email, newsletter_contests")
+      .eq("email", normalizedEmail)
+      .single();
+
+    if (userError && userError.code !== "PGRST116") {
+      console.error("Error checking existing user:", userError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Error verificando usuario existente" 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // 2. Si existe usuario registrado, actualizar sus preferencias
+    if (existingUser) {
+      if (existingUser.newsletter_contests) {
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: "Ya estás suscrito a las notificaciones de concursos en tu cuenta",
+            isNewSubscription: false 
+          }),
+          { 
+            status: 200, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
+      }
+
+      // Activar notificaciones en su perfil
+      const { error: updateError } = await supabaseClient
+        .from("user_profiles")
+        .update({ newsletter_contests: true })
+        .eq("id", existingUser.id);
+
+      if (updateError) {
+        console.error("Error updating user preferences:", updateError);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: "Error activando notificaciones en tu cuenta" 
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
+      }
+
+      console.log(`✅ Newsletter activado para usuario existente: ${normalizedEmail}`);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Notificaciones activadas en tu cuenta existente",
+          isNewSubscription: true 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // 3. Verificar si ya existe en newsletter_subscribers
+    const { data: existingSubscriber, error: subscriberError } = await supabaseClient
+      .from("newsletter_subscribers")
+      .select("id, is_active")
+      .eq("email", normalizedEmail)
+      .single();
+
+    if (subscriberError && subscriberError.code !== "PGRST116") {
+      console.error("Error checking existing subscriber:", subscriberError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Error verificando suscripción existente" 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // 4. Si ya está suscrito pero inactivo, reactivar
+    if (existingSubscriber && !existingSubscriber.is_active) {
+      const { error: reactivateError } = await supabaseClient
+        .from("newsletter_subscribers")
+        .update({ 
+          is_active: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq("email", normalizedEmail);
+
+      if (reactivateError) {
+        console.error("Error reactivating subscription:", reactivateError);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: "Error reactivando suscripción" 
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
+      }
+
+      console.log(`✅ Suscripción reactivada: ${normalizedEmail}`);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Suscripción reactivada exitosamente",
+          isNewSubscription: true 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // 5. Si ya está suscrito y activo
+    if (existingSubscriber && existingSubscriber.is_active) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Ya estás suscrito a las notificaciones de concursos",
+          isNewSubscription: false 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // 6. Crear nueva suscripción
+    const { error: insertError } = await supabaseClient
+      .from("newsletter_subscribers")
+      .insert({
+        email: normalizedEmail,
+        source: "landing_page",
+        is_active: true
+      });
+
+    if (insertError) {
+      console.error("Error creating subscription:", insertError);
+      
+      if (insertError.code === "23505") { // Duplicate key
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: "Ya estás suscrito a las notificaciones",
+            isNewSubscription: false 
+          }),
+          { 
+            status: 200, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Error creando suscripción" 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    console.log(`✅ Nueva suscripción creada: ${normalizedEmail}`);
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: "Suscripción exitosa. Te notificaremos cuando inicie el próximo concurso",
+        isNewSubscription: true 
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      }
+    );
+
+  } catch (error) {
+    console.error("Error inesperado en suscripción:", error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        message: "Error inesperado. Inténtalo de nuevo en unos minutos" 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      }
+    );
+  }
 }
