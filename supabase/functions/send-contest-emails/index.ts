@@ -13,8 +13,15 @@ interface EmailRequest {
     | "new_contest"
     | "submission_reminder"
     | "voting_started"
-    | "results";
+    | "results"
+    | "manual_general"
+    | "manual_newsletter"
+    | "manual_essential";
   contestId?: string;
+  // Para emails manuales
+  subject?: string;
+  htmlContent?: string;
+  textContent?: string;
 }
 
 serve(async (req) => {
@@ -31,52 +38,110 @@ serve(async (req) => {
     );
 
     // Get request data
-    const { emailType, contestId }: EmailRequest = await req.json();
+    const { emailType, contestId, subject, htmlContent, textContent }: EmailRequest = await req.json();
     console.log(
-      `📧 Enviando email tipo: ${emailType} para concurso: ${contestId}`
+      `📧 Enviando email tipo: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}`
     );
 
-    // Get contest data
+    // Get contest data (solo para emails de concurso)
     let contest;
-    if (contestId) {
+    const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+    
+    if (isContestEmail) {
+      if (contestId) {
+        const { data, error } = await supabaseClient
+          .from("contests")
+          .select("*")
+          .eq("id", contestId)
+          .single();
+
+        if (error) throw error;
+        contest = data;
+      } else {
+        // Get active contest using hybrid logic
+        const { data: allContests, error } = await supabaseClient
+          .from("contests")
+          .select("*")
+          .is("finalized_at", null)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        
+        // Use hybrid logic for contest selection
+        if (allContests && allContests.length > 0) {
+          const now = new Date();
+          
+          // Separate test and production contests
+          const testContests = allContests.filter((c: any) => 
+            c.title && (c.title.toLowerCase().includes('test') || 
+                       c.title.toLowerCase().includes('prueba') || 
+                       c.title.toLowerCase().includes('demo'))
+          );
+          const productionContests = allContests.filter((c: any) => 
+            !testContests.includes(c)
+          );
+          
+          // Priority 1: Test contests (most recent)
+          if (testContests.length > 0) {
+            contest = testContests[0];
+          }
+          // Priority 2: Production contests (by dates)
+          else if (productionContests.length > 0) {
+            const activeNow = productionContests.filter((c: any) => {
+              const votingDeadline = new Date(c.voting_deadline);
+              return now <= votingDeadline;
+            });
+            
+            if (activeNow.length > 0) {
+              contest = activeNow.sort((a: any, b: any) => 
+                new Date(a.submission_deadline).getTime() - new Date(b.submission_deadline).getTime()
+              )[0];
+            } else {
+              contest = productionContests[0];
+            }
+          }
+          // Fallback
+          else {
+            contest = allContests[0];
+          }
+        }
+      }
+
+      if (!contest) {
+        throw new Error("No se encontró concurso");
+      }
+    }
+
+    // Get users for email based on notification type
+    let users, usersError;
+    
+    // Use the new granular notification system
+    if (emailType === "new_contest" || emailType === "submission_reminder" || emailType === "voting_started" || emailType === "results") {
+      // Contest-related emails use contest_notifications
       const { data, error } = await supabaseClient
-        .from("contests")
-        .select("*")
-        .eq("id", contestId)
-        .single();
-
-      if (error) throw error;
-      contest = data;
+        .rpc("get_contest_email_recipients");
+      users = data;
+      usersError = error;
+    } else if (emailType === "manual_essential") {
+      // Essential emails go to all users with valid email
+      const { data, error } = await supabaseClient
+        .rpc("get_essential_email_recipients");
+      users = data;
+      usersError = error;
     } else {
-      // Get active contest
-      const { data: contests, error } = await supabaseClient
-        .from("contests")
-        .select("*")
-        .is("finalized_at", null)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (error) throw error;
-      contest = contests?.[0];
+      // General emails and newsletters use general_notifications
+      const { data, error } = await supabaseClient
+        .rpc("get_general_email_recipients");
+      users = data;
+      usersError = error;
     }
-
-    if (!contest) {
-      throw new Error("No se encontró concurso");
-    }
-
-    // Get users for email (only those who want notifications)
-    const { data: users, error: usersError } = await supabaseClient
-      .from("user_profiles")
-      .select("email, display_name")
-      .not("email", "is", null)
-      .eq("email_notifications", true);
 
     if (usersError) {
       console.error("Error obteniendo usuarios:", usersError);
       throw usersError;
     }
 
-    // Filter and validate emails
+    // Filter and validate emails using the new validation system
     const validEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const recipients =
       users
@@ -90,7 +155,7 @@ serve(async (req) => {
         .map((email) => email.trim()) || [];
 
     console.log(
-      `📧 Found ${users?.length || 0} users, ${recipients.length} with valid emails`
+      `📧 Found ${users?.length || 0} users with ${emailType} notifications enabled, ${recipients.length} with valid emails`
     );
 
     if (recipients.length === 0) {
@@ -152,6 +217,20 @@ serve(async (req) => {
         };
         break;
 
+      case "manual_general":
+      case "manual_newsletter":
+      case "manual_essential":
+        // Para emails manuales, usar el contenido proporcionado
+        if (!subject || !htmlContent) {
+          throw new Error("Para emails manuales se requiere subject y htmlContent");
+        }
+        emailData = {
+          subject: subject,
+          html: htmlContent,
+          text: textContent || subject,
+        };
+        break;
+
       default:
         throw new Error(`Tipo de email no válido: ${emailType}`);
     }
@@ -200,13 +279,19 @@ serve(async (req) => {
     console.log("✅ Email enviado:", result);
 
     // Log email send to database
-    await supabaseClient.from("email_logs").insert({
-      email_type: emailType,
-      contest_id: contest.id,
-      recipient_count: finalRecipients.length,
-      success: true,
-      sent_at: new Date().toISOString(),
-    });
+    try {
+      await supabaseClient.from("email_logs").insert({
+        email_type: emailType,
+        contest_id: contest?.id || null,
+        recipient_count: finalRecipients.length,
+        success: true,
+        sent_at: new Date().toISOString(),
+        subject: emailData.subject,
+      });
+    } catch (logError) {
+      console.error("⚠️ Error logging to database (email still sent):", logError);
+      // No fallar la función si el logging falla
+    }
 
     return new Response(
       JSON.stringify({

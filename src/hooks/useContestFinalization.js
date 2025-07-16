@@ -31,8 +31,7 @@ export const useContestFinalization = () => {
           title,
           user_id,
           likes_count,
-          views_count,
-          user_profiles(id, display_name, email)
+          views_count
         `
         )
         .eq("contest_id", contestId)
@@ -48,8 +47,25 @@ export const useContestFinalization = () => {
 
       console.log(`📊 Encontradas ${stories.length} historias para finalizar`);
 
+      // 1.5. Obtener información de los usuarios
+      const userIds = stories.map(story => story.user_id).filter(Boolean);
+      const { data: userProfiles, error: usersError } = await supabase
+        .from("user_profiles")
+        .select("id, display_name, email")
+        .in("id", userIds);
+
+      if (usersError) {
+        throw new Error("Error obteniendo perfiles de usuario: " + usersError.message);
+      }
+
+      // Combinar historias con perfiles de usuario
+      const storiesWithUsers = stories.map(story => ({
+        ...story,
+        user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
+      }));
+
       // 2. Determinar ganadores (top 3)
-      const winners = stories.slice(0, 3);
+      const winners = storiesWithUsers.slice(0, 3);
       console.log(
         "🏆 Ganadores determinados:",
         winners.map((w) => w.title)
@@ -79,17 +95,30 @@ export const useContestFinalization = () => {
 
       await Promise.all(winnerUpdates);
 
-      // 4. Actualizar estadísticas de usuarios ganadores
+      // 4. Actualizar estadísticas de usuarios ganadores (solo wins_count por ahora)
       const userUpdates = winners.map(async (winner, index) => {
         const position = index + 1;
-        const pointsAwarded = position === 1 ? 100 : position === 2 ? 50 : 25;
 
-        // Actualizar wins_count y total_points
+        // Primero obtener valores actuales
+        const { data: currentUser, error: getUserError } = await supabase
+          .from("user_profiles")
+          .select("wins_count")
+          .eq("id", winner.user_id)
+          .single();
+
+        if (getUserError) {
+          console.error(
+            `Error obteniendo datos del usuario ${winner.user_id}:`,
+            getUserError
+          );
+          throw getUserError;
+        }
+
+        // Actualizar solo wins_count
         const { error: userUpdateError } = await supabase
           .from("user_profiles")
           .update({
-            wins_count: supabase.raw(`wins_count + 1`),
-            total_points: supabase.raw(`total_points + ${pointsAwarded}`),
+            wins_count: (currentUser.wins_count || 0) + 1,
           })
           .eq("id", winner.user_id);
 
@@ -102,7 +131,7 @@ export const useContestFinalization = () => {
         }
 
         console.log(
-          `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria, +${pointsAwarded} puntos`
+          `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria (posición ${position})`
         );
       });
 
@@ -133,6 +162,7 @@ export const useContestFinalization = () => {
       setLoading(false);
       return {
         success: true,
+        message: "Concurso finalizado exitosamente. Ganadores marcados y estadísticas actualizadas.",
         winners: winners.map((winner, index) => ({
           ...winner,
           position: index + 1,
@@ -190,22 +220,28 @@ export const useContestFinalization = () => {
           );
         }
 
-        // 3. Revertir estadísticas de usuarios
+        // 3. Revertir estadísticas de usuarios (solo wins_count por ahora)
         const userReverts = winnerStories.map(async (story) => {
-          const pointsToRemove =
-            story.winner_position === 1
-              ? 100
-              : story.winner_position === 2
-              ? 50
-              : 25;
+          // Primero obtener valores actuales
+          const { data: currentUser, error: getUserError } = await supabase
+            .from("user_profiles")
+            .select("wins_count")
+            .eq("id", story.user_id)
+            .single();
 
+          if (getUserError) {
+            console.error(
+              `Error obteniendo datos del usuario ${story.user_id}:`,
+              getUserError
+            );
+            throw getUserError;
+          }
+
+          // Revertir solo wins_count
           const { error: userRevertError } = await supabase
             .from("user_profiles")
             .update({
-              wins_count: supabase.raw(`GREATEST(wins_count - 1, 0)`),
-              total_points: supabase.raw(
-                `GREATEST(total_points - ${pointsToRemove}, 0)`
-              ),
+              wins_count: Math.max((currentUser.wins_count || 0) - 1, 0),
             })
             .eq("id", story.user_id);
 
@@ -254,8 +290,92 @@ export const useContestFinalization = () => {
     }
   };
 
+  const previewWinners = async (contestId) => {
+    if (!isAuthenticated || !user?.is_admin) {
+      setError("No tienes permisos para ver ganadores");
+      return { success: false, error: "Sin permisos" };
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("👀 Obteniendo vista previa de ganadores para:", contestId);
+
+      // Obtener todas las historias del concurso
+      const { data: stories, error: storiesError } = await supabase
+        .from("stories")
+        .select(
+          `
+          id,
+          title,
+          user_id,
+          likes_count,
+          views_count
+        `
+        )
+        .eq("contest_id", contestId)
+        .order("likes_count", { ascending: false });
+
+      if (storiesError) {
+        throw new Error("Error obteniendo historias: " + storiesError.message);
+      }
+
+      if (!stories || stories.length === 0) {
+        console.log("⚠️ No hay historias en este concurso");
+        setLoading(false);
+        return { success: true, winners: [] };
+      }
+
+      console.log(`📊 Encontradas ${stories.length} historias para vista previa`);
+
+      // Obtener información de los usuarios
+      const userIds = stories.map(story => story.user_id).filter(Boolean);
+      const { data: userProfiles, error: usersError } = await supabase
+        .from("user_profiles")
+        .select("id, display_name, email")
+        .in("id", userIds);
+
+      if (usersError) {
+        throw new Error("Error obteniendo perfiles de usuario: " + usersError.message);
+      }
+
+      // Combinar historias con perfiles de usuario
+      const storiesWithUsers = stories.map(story => ({
+        ...story,
+        user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
+      }));
+
+      // Determinar ganadores (top 3)
+      const winners = storiesWithUsers.slice(0, 3);
+      console.log(
+        "🏆 Vista previa de ganadores:",
+        winners.map((w) => w.title)
+      );
+
+      setLoading(false);
+      return {
+        success: true,
+        winners: winners.map((winner, index) => ({
+          ...winner,
+          position: index + 1,
+        })),
+        totalStories: stories.length,
+      };
+    } catch (err) {
+      console.error("💥 Error en vista previa de ganadores:", err);
+      setError(err.message);
+      setLoading(false);
+      return {
+        success: false,
+        error: err.message,
+      };
+    }
+  };
+
   return {
     finalizeContest,
+    previewWinners,
     revertFinalization,
     loading,
     error,

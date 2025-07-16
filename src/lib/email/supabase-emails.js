@@ -1,15 +1,23 @@
 // lib/email/supabase-emails.js - Cliente para Edge Functions
 import { supabase } from '../supabase.js';
 
-export const sendContestEmailViaSupabase = async (emailType, contestId = null) => {
+export const sendContestEmailViaSupabase = async (emailType, additionalData = {}) => {
   try {
     console.log(`📧 Enviando email via Supabase Edge Function: ${emailType}`);
     
+    // Construir el body basado en el tipo de email
+    let requestBody = {
+      emailType,
+      ...additionalData
+    };
+    
+    // Si no es un email manual, agregar contestId si existe
+    if (!emailType.startsWith('manual_')) {
+      requestBody.contestId = additionalData.contestId || null;
+    }
+    
     const { data, error } = await supabase.functions.invoke('send-contest-emails', {
-      body: {
-        emailType,
-        contestId
-      }
+      body: requestBody
     });
     
     if (error) {

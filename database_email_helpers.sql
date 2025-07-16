@@ -51,8 +51,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 3. Función para obtener usuarios que quieren emails de marketing
-CREATE OR REPLACE FUNCTION get_marketing_email_recipients()
+-- 3. Función para obtener usuarios que quieren emails esenciales (todos los usuarios con email válido)
+CREATE OR REPLACE FUNCTION get_essential_email_recipients()
 RETURNS TABLE(
   user_id uuid,
   email text,
@@ -70,8 +70,7 @@ BEGIN
   WHERE 
     up.email IS NOT NULL 
     AND up.email != ''
-    AND up.marketing_notifications = true
-    AND up.email_notifications = true  -- Campo maestro debe estar activo
+    -- Los emails esenciales van a todos los usuarios con email válido
   ORDER BY up.created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
@@ -83,7 +82,7 @@ RETURNS TABLE(
   users_with_email bigint,
   contest_subscribers bigint,
   general_subscribers bigint,
-  marketing_subscribers bigint,
+  essential_eligible bigint,
   no_notifications bigint
 ) AS $$
 BEGIN
@@ -93,7 +92,7 @@ BEGIN
     (SELECT COUNT(*) FROM public.user_profiles WHERE email IS NOT NULL AND email != ''),
     (SELECT COUNT(*) FROM public.user_profiles WHERE contest_notifications = true AND email IS NOT NULL),
     (SELECT COUNT(*) FROM public.user_profiles WHERE general_notifications = true AND email IS NOT NULL),
-    (SELECT COUNT(*) FROM public.user_profiles WHERE marketing_notifications = true AND email IS NOT NULL),
+    (SELECT COUNT(*) FROM public.user_profiles WHERE email IS NOT NULL AND email != ''),
     (SELECT COUNT(*) FROM public.user_profiles WHERE email_notifications = false OR email IS NULL);
 END;
 $$ LANGUAGE plpgsql;
@@ -128,12 +127,12 @@ BEGIN
         AND general_notifications = true 
         AND email_notifications = true
       );
-    WHEN 'marketing' THEN
+    WHEN 'essential' THEN
       RETURN EXISTS(
         SELECT 1 FROM public.user_profiles 
         WHERE email = user_email 
-        AND marketing_notifications = true 
-        AND email_notifications = true
+        AND email IS NOT NULL 
+        AND email != ''
       );
     ELSE
       RETURN false;
@@ -143,12 +142,14 @@ $$ LANGUAGE plpgsql;
 
 -- 6. Comentarios para documentación
 COMMENT ON FUNCTION get_contest_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails sobre concursos';
-COMMENT ON FUNCTION get_general_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails generales';
-COMMENT ON FUNCTION get_marketing_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails de marketing';
+COMMENT ON FUNCTION get_general_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails generales (newsletter, tips)';
+COMMENT ON FUNCTION get_essential_email_recipients() IS 'Obtiene todos los usuarios con email válido para emails esenciales';
 COMMENT ON FUNCTION get_notification_stats() IS 'Obtiene estadísticas de suscripciones a notificaciones';
 COMMENT ON FUNCTION validate_email_recipient(text, text) IS 'Valida si un email puede recibir un tipo específico de notificación';
 
 -- Ejemplos de uso:
 -- SELECT * FROM get_contest_email_recipients();
+-- SELECT * FROM get_general_email_recipients();
+-- SELECT * FROM get_essential_email_recipients();
 -- SELECT * FROM get_notification_stats();
 -- SELECT validate_email_recipient('usuario@example.com', 'contest');

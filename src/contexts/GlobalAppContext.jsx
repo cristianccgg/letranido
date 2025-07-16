@@ -703,16 +703,8 @@ export function GlobalAppProvider({ children }) {
         })
       );
 
-      // Encontrar concurso actual
-      const current =
-        processedContests.find(
-          (contest) =>
-            contest.status === "active" ||
-            contest.status === "submission" ||
-            contest.status === "voting"
-        ) ||
-        processedContests[0] ||
-        null;
+      // Encontrar concurso actual con lógica híbrida
+      const current = findCurrentContest(processedContests);
 
       if (isMounted.current) {
         dispatch({ type: actions.SET_CONTESTS, payload: processedContests });
@@ -2884,6 +2876,78 @@ export function GlobalAppProvider({ children }) {
     </GlobalAppContext.Provider>
   );
 }
+
+// Función para determinar si un concurso es de prueba
+const isTestContest = (contest) => {
+  if (!contest?.title) return false;
+  const title = contest.title.toLowerCase();
+  return title.includes('test') || title.includes('prueba') || title.includes('demo');
+};
+
+// Función para encontrar el concurso actual con lógica híbrida
+const findCurrentContest = (contests) => {
+  if (!contests || contests.length === 0) return null;
+  
+  const now = new Date();
+  
+  // Separar concursos de prueba y producción
+  const testContests = contests.filter(contest => 
+    isTestContest(contest) && contest.finalized_at === null
+  );
+  const productionContests = contests.filter(contest => 
+    !isTestContest(contest) && contest.finalized_at === null
+  );
+  
+  console.log(`🔍 Concursos de prueba activos: ${testContests.length}`);
+  console.log(`🔍 Concursos de producción activos: ${productionContests.length}`);
+  
+  // PRIORIDAD 1: Concursos de prueba (más reciente)
+  if (testContests.length > 0) {
+    const current = testContests
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    console.log(`🎭 Usando concurso de prueba: "${current.title}"`);
+    return current;
+  }
+  
+  // PRIORIDAD 2: Concursos de producción (por fechas)
+  if (productionContests.length > 0) {
+    // Buscar concursos que deberían estar activos ahora
+    const activeNow = productionContests.filter(contest => {
+      const submissionDeadline = new Date(contest.submission_deadline);
+      const votingDeadline = new Date(contest.voting_deadline);
+      
+      // El concurso está activo si aún no ha terminado la votación
+      return now <= votingDeadline;
+    });
+    
+    if (activeNow.length > 0) {
+      // Ordenar por fecha de submission (el que debería empezar primero)
+      const current = activeNow
+        .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
+      console.log(`🏗️ Usando concurso de producción: "${current.title}"`);
+      return current;
+    }
+    
+    // Si no hay concursos activos por fecha, usar el más reciente
+    const current = productionContests
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    console.log(`🏗️ Usando concurso de producción (fallback): "${current.title}"`);
+    return current;
+  }
+  
+  // FALLBACK: Cualquier concurso disponible
+  const fallback = contests.find(contest => 
+    contest.status === "active" || 
+    contest.status === "submission" || 
+    contest.status === "voting"
+  ) || contests[0] || null;
+  
+  if (fallback) {
+    console.log(`🔄 Usando concurso fallback: "${fallback.title}"`);
+  }
+  
+  return fallback;
+};
 
 // ✅ HOOK PRINCIPAL
 export function useGlobalApp() {

@@ -45,6 +45,84 @@ const ContestAdminPanel = () => {
   const [deleteLoading, setDeleteLoading] = useState(null); // ID del concurso que se está eliminando
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
 
+  // Función para determinar si un concurso es de prueba
+  const isTestContest = (contest) => {
+    if (!contest?.title) return false;
+    const title = contest.title.toLowerCase();
+    return title.includes('test') || title.includes('prueba') || title.includes('demo');
+  };
+
+  // Función para ordenar concursos según prioridad de cola
+  const sortContestsByPriority = (contests) => {
+    if (!contests || contests.length === 0) return [];
+    
+    const now = new Date();
+    
+    // Separar concursos finalizados y activos
+    const finalized = contests.filter(c => c.finalized_at !== null);
+    const active = contests.filter(c => c.finalized_at === null);
+    
+    // Separar concursos activos en prueba y producción
+    const testContests = active.filter(c => isTestContest(c));
+    const productionContests = active.filter(c => !isTestContest(c));
+    
+    // Ordenar cada grupo
+    const sortedTest = testContests.sort((a, b) => 
+      new Date(b.created_at) - new Date(a.created_at)
+    );
+    
+    const sortedProduction = productionContests.sort((a, b) => {
+      const aSubmission = new Date(a.submission_deadline);
+      const bSubmission = new Date(b.submission_deadline);
+      return aSubmission - bSubmission; // Más cercano a empezar primero
+    });
+    
+    const sortedFinalized = finalized.sort((a, b) => 
+      new Date(b.finalized_at) - new Date(a.finalized_at)
+    );
+    
+    // Combinar en orden de prioridad
+    return [...sortedTest, ...sortedProduction, ...sortedFinalized];
+  };
+
+  // Función para obtener el estilo y label de prioridad
+  const getContestPriorityInfo = (contest, index, sortedContests) => {
+    const isFinalized = contest.finalized_at !== null;
+    const isTest = isTestContest(contest);
+    const activeContests = sortedContests.filter(c => c.finalized_at === null);
+    const activeIndex = activeContests.findIndex(c => c.id === contest.id);
+    
+    if (isFinalized) {
+      return {
+        priority: null,
+        className: "bg-gray-100 text-gray-600",
+        label: "Finalizado"
+      };
+    }
+    
+    if (isTest) {
+      return {
+        priority: activeIndex === 0 ? "ACTIVO" : "PRUEBA",
+        className: activeIndex === 0 ? "bg-purple-100 text-purple-700" : "bg-yellow-100 text-yellow-700",
+        label: activeIndex === 0 ? "🎭 ACTIVO (Prueba)" : "🎭 En Cola (Prueba)"
+      };
+    }
+    
+    if (activeIndex === 0) {
+      return {
+        priority: "ACTIVO",
+        className: "bg-green-100 text-green-700",
+        label: "🏗️ ACTIVO (Producción)"
+      };
+    }
+    
+    return {
+      priority: `#${activeIndex + 1}`,
+      className: "bg-blue-100 text-blue-700",
+      label: `🏗️ En Cola #${activeIndex + 1}`
+    };
+  };
+
   // Usar el contexto global unificado
   const { user, isAuthenticated, contests, contestsLoading, refreshContests } =
     useGlobalApp();
@@ -315,14 +393,10 @@ const ContestAdminPanel = () => {
     try {
       console.log("🎭 Simulando ganadores para:", contest.title);
 
+      // Obtener todas las historias del concurso
       const { data: stories, error } = await supabase
         .from("stories")
-        .select(
-          `
-          *,
-          user_profiles(id, display_name, email)
-        `
-        )
+        .select("*")
         .eq("contest_id", contest.id)
         .order("likes_count", { ascending: false });
 
@@ -333,7 +407,22 @@ const ContestAdminPanel = () => {
         return;
       }
 
-      const mockWinners = stories.slice(0, 3).map((story, index) => ({
+      // Obtener información de los usuarios
+      const userIds = stories.map(story => story.user_id).filter(Boolean);
+      const { data: userProfiles, error: usersError } = await supabase
+        .from("user_profiles")
+        .select("id, display_name, email")
+        .in("id", userIds);
+
+      if (usersError) throw usersError;
+
+      // Combinar historias con perfiles de usuario
+      const storiesWithUsers = stories.map(story => ({
+        ...story,
+        user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
+      }));
+
+      const mockWinners = storiesWithUsers.slice(0, 3).map((story, index) => ({
         ...story,
         position: index + 1,
         simulatedPoints: index === 0 ? 100 : index === 1 ? 50 : 25,
@@ -649,9 +738,37 @@ const ContestAdminPanel = () => {
       {/* Lista de concursos */}
       <div className="grid gap-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">
-            Concursos ({contests.length})
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              Concursos ({contests.length})
+            </h2>
+            {(() => {
+              const sortedContests = sortContestsByPriority(contests);
+              const activeContests = sortedContests.filter(c => c.finalized_at === null);
+              const testActive = activeContests.filter(c => isTestContest(c));
+              const prodActive = activeContests.filter(c => !isTestContest(c));
+              
+              return (
+                <div className="flex items-center gap-2 mt-1">
+                  {testActive.length > 0 && (
+                    <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                      🎭 {testActive.length} prueba{testActive.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                  {prodActive.length > 0 && (
+                    <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                      🏗️ {prodActive.length} producción
+                    </span>
+                  )}
+                  {activeContests.length === 0 && (
+                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                      Sin concursos activos
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
           <button
             onClick={() => refreshContests()}
             className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 flex items-center text-sm"
@@ -677,17 +794,30 @@ const ContestAdminPanel = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contests.map((contest) => (
+            {sortContestsByPriority(contests).map((contest, index, sortedContests) => {
+              const priorityInfo = getContestPriorityInfo(contest, index, sortedContests);
+              return (
               <div
                 key={contest.id}
-                className={`bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow ${
-                  contest.status === "results" ? "opacity-75" : ""
-                }`}
+                className={`bg-white border-2 rounded-lg p-6 hover:shadow-md transition-shadow ${
+                  priorityInfo.priority === "ACTIVO" ? "border-green-400 shadow-lg" : 
+                  priorityInfo.priority && priorityInfo.priority.includes("#") ? "border-blue-400" :
+                  priorityInfo.priority === "PRUEBA" ? "border-yellow-400" :
+                  "border-gray-200"
+                } ${contest.status === "results" ? "opacity-75" : ""}`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
+                    {/* Indicador de prioridad */}
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${priorityInfo.className}`}
+                    >
+                      {priorityInfo.label}
+                    </span>
+                    
+                    {/* Estado del concurso */}
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
                         contest.status === "submission"
                           ? "bg-blue-100 text-blue-700"
                           : contest.status === "voting"
@@ -701,6 +831,8 @@ const ContestAdminPanel = () => {
                         ? "Votación"
                         : "Finalizado"}
                     </span>
+                    
+                    {/* Mes */}
                     <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-xs">
                       {contest.month}
                     </span>
@@ -795,7 +927,7 @@ const ContestAdminPanel = () => {
                   </div>
                 )}
 
-                {/* Fechas importantes */}
+                {/* Fechas importantes y información de cola */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                   <div className="text-xs text-gray-500 space-y-1">
                     <div>
@@ -814,6 +946,34 @@ const ContestAdminPanel = () => {
                           )
                         : "No definido"}
                     </div>
+                    
+                    {/* Información adicional de cola */}
+                    {priorityInfo.priority === "ACTIVO" && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center text-green-600">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                          <strong>🎯 Concurso activo en la aplicación</strong>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {priorityInfo.priority && priorityInfo.priority.includes("#") && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center text-blue-600">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <strong>⏳ Posición en cola: {priorityInfo.priority}</strong>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {priorityInfo.priority === "PRUEBA" && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center text-yellow-600">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                          <strong>🎭 Concurso de prueba en espera</strong>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -863,7 +1023,8 @@ const ContestAdminPanel = () => {
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>
@@ -1473,8 +1634,8 @@ const ContestAdminPanel = () => {
                     </h3>
                     <p className="text-red-700 text-sm">
                       Esta acción finalizará el concurso DEFINITIVAMENTE,
-                      otorgará badges reales a los ganadores, actualizará
-                      estadísticas permanentes y NO se puede deshacer.
+                      marcará a los ganadores, actualizará estadísticas de victorias
+                      y NO se puede deshacer fácilmente.
                     </p>
                   </div>
                 </div>
@@ -1544,10 +1705,10 @@ const ContestAdminPanel = () => {
                             }`}
                           >
                             {index === 0
-                              ? "🏆 Badge Ganador + 100pts"
+                              ? "🏆 Primer lugar (+1 victoria)"
                               : index === 1
-                              ? "🥈 Badge Segundo + 50pts"
-                              : "🥉 Badge Tercero + 25pts"}
+                              ? "🥈 Segundo lugar (+1 victoria)"
+                              : "🥉 Tercer lugar (+1 victoria)"}
                           </div>
                         </div>
                       </div>
@@ -1587,7 +1748,7 @@ const ContestAdminPanel = () => {
                   ) : (
                     <>
                       <Shield className="h-4 w-4 mr-2" />
-                      SÍ, FINALIZAR CON BADGES
+                      SÍ, FINALIZAR CONCURSO
                     </>
                   )}
                 </button>
