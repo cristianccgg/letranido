@@ -238,7 +238,7 @@ const GlobalFooter = () => {
                     to="/cookie-policy"
                     className="hover:text-white transition-colors"
                   >
-                    Configuración de cookies
+                    Política de cookies
                   </Link>
                 </li>
               </ul>
