@@ -211,29 +211,29 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section - Vibrante pero limpio */}
-      <section className="bg-gradient-to-br from-primary-100 via-white to-accent-100 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-primary-50 via-accent-50 to-primary-100 relative overflow-hidden">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-primary-200 rounded-full opacity-20 animate-pulse"></div>
-          <div className="absolute top-32 right-16 w-16 h-16 bg-accent-200 rounded-full opacity-30"></div>
-          <div className="absolute bottom-20 left-20 w-12 h-12 bg-primary-300 rounded-full opacity-25"></div>
-          <div className="absolute bottom-32 right-10 w-24 h-24 bg-accent-200 rounded-full opacity-20 animate-pulse"></div>
+          <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-pulse blur-sm"></div>
+          <div className="absolute top-32 right-16 w-16 h-16 bg-gradient-to-br from-accent-200 to-accent-300 rounded-full opacity-30 blur-sm"></div>
+          <div className="absolute bottom-20 left-20 w-12 h-12 bg-gradient-to-br from-primary-300 to-accent-200 rounded-full opacity-25 animate-pulse blur-sm"></div>
+          <div className="absolute bottom-32 right-10 w-24 h-24 bg-gradient-to-br from-accent-200 to-primary-200 rounded-full opacity-20 animate-pulse blur-sm"></div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 text-center">
+        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:py-20 text-center">
           {/* Logo/Título con más personalidad */}
           <div className="mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-2 tracking-tight">
               Letranido
             </h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full mx-auto"></div>
+            <div className="w-20 h-1 bg-gradient-to-r from-primary-500 via-accent-500 to-primary-600 rounded-full mx-auto shadow-lg"></div>
           </div>
 
           {/* Subtítulo con mejor tipografía */}
-          <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium leading-relaxed tracking-wide">
             Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a
             brillar.{" "}
-            <span className="text-primary-600">
+            <span className="text-primary-600 tracking-wide">
               Crece como escritor en comunidad.
             </span>
           </p>
@@ -241,32 +241,32 @@ const LandingPage = () => {
           {currentContest && (
             <div className="space-y-6">
               {/* Prompt en card con más personalidad */}
-              <div className="bg-white/90 backdrop-blur-sm border-2 border-primary-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="bg-white/90 backdrop-blur-md border-2 border-primary-200 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-primary-300">
                 <div className="mb-4">
-                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 via-accent-500 to-primary-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                     <Calendar className="h-4 w-4 mr-2" />
                     Concurso de {currentContest.month}
                   </span>
                 </div>
 
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 leading-tight tracking-tight">
                   {currentContest.title}
                 </h2>
 
-                <p className="text-gray-700 mb-6 leading-relaxed">
+                <p className="text-gray-700 md:text-lg lg:text-xl mb-6 leading-relaxed">
                   {currentContest.description}
                 </p>
 
                 {/* Contador con más estilo */}
-                <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg p-4 inline-flex items-center gap-4 shadow-sm">
-                  <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
+                <div className="bg-gradient-to-r from-primary-50 via-white to-accent-50 border border-primary-200 rounded-lg p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-md">
                     <Clock className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm text-primary-700 font-medium block">
+                    <span className="text-sm md:text-base lg:text-lg text-primary-700 font-medium block tracking-wide">
                       Cierre en
                     </span>
-                    <span className="text-xl font-bold text-primary-900">
+                    <span className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-900 tracking-tight">
                       {timeLeft}
                     </span>
                   </div>
@@ -285,7 +285,7 @@ const LandingPage = () => {
                 {secondaryButton && (
                   <Link
                     to={secondaryButton.href}
-                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all shadow-sm"
+                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-primary-300 hover:bg-primary-50 hover:shadow-lg transition-all duration-300 shadow-sm"
                   >
                     <secondaryButton.icon className="h-5 w-5 mr-2" />
                     {secondaryButton.text}
@@ -295,7 +295,7 @@ const LandingPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowRulesModal(true)}
-                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-all shadow-sm"
+                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-lg border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 hover:shadow-lg transition-all duration-300 shadow-sm"
                 >
                   <BookOpen className="h-5 w-5 mr-2" />
                   Ver reglas
@@ -307,26 +307,26 @@ const LandingPage = () => {
       </section>
 
       {/* Estadísticas - separadas y limpias */}
-      <section className="py-8 bg-white">
+      <section className="py-8 lg:py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white rounded-xl shadow-lg p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white rounded-xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalParticipants}
               </div>
-              <div className="text-gray-500">Escritores participando</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">Escritores participando</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalStories}
               </div>
-              <div className="text-gray-500">Historias publicadas</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">Historias publicadas</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary-700 mb-2">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-700 mb-2">
                 {stats.totalWords.toLocaleString()}
               </div>
-              <div className="text-gray-500">Palabras escritas</div>
+              <div className="text-gray-500 md:text-lg lg:text-xl">Palabras escritas</div>
             </div>
           </div>
         </div>
@@ -334,14 +334,14 @@ const LandingPage = () => {
 
       {/* 🆕 GANADORES DEL CONCURSO ANTERIOR */}
       {lastContestWinners && !loadingWinners && (
-        <section className="py-12 bg-gradient-to-b from-yellow-50 to-white">
+        <section className="py-12 lg:py-16 bg-gradient-to-b from-yellow-50 via-yellow-25 to-white">
           <div className="max-w-4xl mx-auto px-4">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center tracking-tight">
                 <Trophy className="h-6 w-6 mr-2 text-yellow-500" />
                 Ganadores de {lastContestWinners.contest.month}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 "{lastContestWinners.contest.title}"
               </p>
             </div>
@@ -350,7 +350,7 @@ const LandingPage = () => {
               {lastContestWinners.winners.map((story, index) => (
                 <div
                   key={story.id}
-                  className={`p-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform ${
+                  className={`p-6 rounded-xl shadow-xl transform hover:scale-105 hover:shadow-2xl transition-all duration-300 ${
                     index === 0
                       ? "bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300"
                       : index === 1
@@ -372,12 +372,12 @@ const LandingPage = () => {
                         🥉
                       </div>
                     )}
-                    <div className="font-bold text-lg">
+                    <div className="font-bold text-lg md:text-xl lg:text-2xl">
                       {index === 0 ? "1º" : index === 1 ? "2º" : "3º"} Lugar
                     </div>
                   </div>
 
-                  <h3 className="font-semibold text-gray-900 mb-2 text-center line-clamp-2">
+                  <h3 className="font-semibold text-gray-900 md:text-lg lg:text-xl mb-2 text-center line-clamp-2">
                     {story.title}
                   </h3>
 
@@ -389,7 +389,7 @@ const LandingPage = () => {
                       }}
                       size="xs"
                     />
-                    <p className="text-sm text-gray-600">por {story.author}</p>
+                    <p className="text-sm md:text-base lg:text-lg text-gray-600">por {story.author}</p>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -398,7 +398,7 @@ const LandingPage = () => {
                     </span>
                     <Link
                       to={`/story/${story.id}`}
-                      className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                      className="text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors duration-200"
                     >
                       Leer →
                     </Link>
@@ -410,7 +410,7 @@ const LandingPage = () => {
             <div className="text-center">
               <Link
                 to="/contest-history"
-                className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+                className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200"
               >
                 Ver historial completo de concursos
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -421,37 +421,54 @@ const LandingPage = () => {
       )}
 
       {/* Explicación del flujo del concurso */}
-      <section className="py-12 bg-white">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            ¿Cómo funciona el concurso?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <PenTool className="h-8 w-8 mx-auto text-primary-600 mb-2" />
-              <h3 className="font-semibold text-gray-900 mb-2">
+      <section className="py-20 lg:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              ¿Cómo funciona el concurso?
+            </h2>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
+              Un proceso simple y divertido para participar en nuestra comunidad
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <PenTool className="h-8 w-8 text-primary-600" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 1. Escribe tu historia
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Lee el prompt, escribe tu historia y envíala antes del cierre.
               </p>
             </div>
-            <div>
-              <Heart className="h-8 w-8 mx-auto text-red-500 mb-2" />
-              <h3 className="font-semibold text-gray-900 mb-2">
+
+            {/* Step 2 */}
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Heart className="h-8 w-8 text-red-500" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 2. Vota por tus favoritas
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Cuando termine el periodo de envío, podrás leer y votar por las
                 historias.
               </p>
             </div>
-            <div>
-              <Trophy className="h-8 w-8 mx-auto text-yellow-500 mb-2" />
-              <h3 className="font-semibold text-gray-900 mb-2">
+
+            {/* Step 3 */}
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Trophy className="h-8 w-8 text-yellow-600" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 3. Descubre los ganadores
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Al finalizar la votación, se celebran las historias más votadas
                 con menciones especiales e insignias destacadas.
               </p>
@@ -461,64 +478,76 @@ const LandingPage = () => {
       </section>
 
       {/* Sección de Derechos de Autor */}
-      <section className="py-12 bg-gradient-to-r from-green-50 to-blue-50">
+      <section className="py-12 lg:py-16 bg-gradient-to-r from-green-50 to-blue-50">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <Shield className="h-8 w-8 text-green-600" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
               Tu obra, tus derechos
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
               En Letranido, tu creatividad está completamente protegida.
               Mantienes todos los derechos sobre tus historias.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Copyright className="h-6 w-6 text-green-600" />
+          <div className="space-y-6 max-w-4xl mx-auto">
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-green-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <Copyright className="h-8 w-8 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
+                    Derechos completos
+                  </h3>
+                  <p className="text-gray-600 md:text-lg lg:text-xl">
+                    Mantienes todos los derechos de autor sobre tus historias. Son
+                    tuyas y siempre lo serán.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
-                Derechos completos
-              </h3>
-              <p className="text-gray-600 text-sm text-center">
-                Mantienes todos los derechos de autor sobre tus historias. Son
-                tuyas y siempre lo serán.
-              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-6 w-6 text-blue-600" />
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-blue-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <Lock className="h-8 w-8 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
+                    Protección total
+                  </h3>
+                  <p className="text-gray-600 md:text-lg lg:text-xl">
+                    Nadie puede republicar, copiar o usar tu historia sin tu permiso
+                    expreso.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
-                Protección total
-              </h3>
-              <p className="text-gray-600 text-sm text-center">
-                Nadie puede republicar, copiar o usar tu historia sin tu permiso
-                expreso.
-              </p>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Users className="h-6 w-6 text-purple-600" />
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-purple-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <Users className="h-8 w-8 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
+                    Solo la plataforma
+                  </h3>
+                  <p className="text-gray-600 md:text-lg lg:text-xl">
+                    Letranido solo proporciona el espacio para compartir. Tu trabajo
+                    es completamente tuyo.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">
-                Solo la plataforma
-              </h3>
-              <p className="text-gray-600 text-sm text-center">
-                Letranido solo proporciona el espacio para compartir. Tu trabajo
-                es completamente tuyo.
-              </p>
             </div>
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 max-w-3xl mx-auto">
+            <p className="text-sm md:text-base lg:text-lg text-gray-500 max-w-3xl mx-auto">
               Al participar en Letranido, solo nos das permiso para mostrar tu
               historia en la plataforma durante los concursos. Puedes retirar tu
               obra cuando quieras y usarla libremente en cualquier otro lugar.
@@ -528,13 +557,13 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section - MANTENER */}
-      <section className="py-20">
+      <section className="py-20 lg:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               ¿Por qué elegir Letranido?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
               La plataforma perfecta para escritores creativos de todos los
               niveles
             </p>
@@ -542,42 +571,42 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <PenTool className="h-8 w-8 text-primary-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Concursos Mensuales
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Participa en desafíos creativos cada mes. Nuevos prompts, nuevas
                 oportunidades de brillar.
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Users className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Comunidad Activa
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Conecta con otros escritores, recibe feedback constructivo y haz
                 crecer tu audiencia.
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="bg-white p-8 rounded-xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Trophy className="h-8 w-8 text-yellow-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 Sistema de Reconocimiento
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 md:text-lg lg:text-xl">
                 Gana badges especiales, reconocimiento y construye tu reputación
                 como escritor.
               </p>
