@@ -25,19 +25,19 @@ const Preferences = () => {
     cookieConsent, 
     showCookieBannerAgain,
     resetCookieConsent,
-    showAuthModal 
+    openAuthModal 
   } = useGlobalApp();
 
   // Verificar si el usuario está autenticado
   useEffect(() => {
     if (!user) {
       // Mostrar modal de autenticación y luego redirigir de vuelta
-      showAuthModal();
+      openAuthModal('login');
       
       // Opcional: puedes almacenar la ruta actual para volver después del login
       sessionStorage.setItem('redirectAfterLogin', location.pathname);
     }
-  }, [user, navigate, location.pathname, showAuthModal]);
+  }, [user, navigate, location.pathname, openAuthModal]);
   
   const [showCookieSettings, setShowCookieSettings] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
