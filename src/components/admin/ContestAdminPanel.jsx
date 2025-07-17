@@ -31,6 +31,7 @@ import { supabase } from "../../lib/supabase";
 import DataCleanupPanel from "./DataCleanupPanel";
 import ReportsPanel from "./ReportsPanel";
 import EmailTester from "./EmailTester";
+import MaintenanceControl from "./MaintenanceControl";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1030,6 +1031,9 @@ const ContestAdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Panel de control de mantenimiento */}
+      <MaintenanceControl />
 
       {/* Panel de limpieza de datos */}
       <DataCleanupPanel />

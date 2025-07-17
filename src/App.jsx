@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
+import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import UnifiedProfile from "./pages/UnifiedProfile";
@@ -16,10 +17,12 @@ import CookiePolicy from "./pages/CookiePolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
 import EmailUnsubscribe from "./pages/EmailUnsubscribe";
 import Preferences from "./pages/Preferences";
+import MaintenancePage from "./pages/MaintenancePage";
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
-  const { initialized, authInitialized } = useGlobalApp();
+  const { initialized, authInitialized, user } = useGlobalApp();
+  const { isActive: maintenanceActive, message, estimatedDuration, activatedAt, loading: maintenanceLoading } = useMaintenanceMode();
   
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
@@ -28,12 +31,61 @@ function AppContent() {
   console.log("🔍 AppContent render:", {
     authInitialized,
     initialized,
+    maintenanceActive,
+    maintenanceLoading,
     showingLoading: !authInitialized || !initialized,
   });
 
+  // ✅ VERIFICAR MODO MANTENIMIENTO PRIMERO
+  // Si el mantenimiento está activo, mostrar página de mantenimiento de forma inteligente
+  if (!maintenanceLoading && maintenanceActive) {
+    const currentPath = window.location.pathname;
+    
+    // Páginas que los admins pueden ver durante mantenimiento
+    const adminAllowedPages = [
+      '/admin',
+      '/maintenance-preview'
+    ];
+    
+    // Páginas que todos pueden ver durante mantenimiento (para testing)
+    const publicAllowedPages = [
+      '/login',
+      '/register', 
+      '/auth',
+      '/terms',
+      '/privacy',
+      '/privacy-policy',
+      '/cookie-policy',
+      '/community-guidelines'
+    ];
+    
+    const isAdminPage = adminAllowedPages.some(page => currentPath.startsWith(page));
+    const isPublicAllowedPage = publicAllowedPages.some(page => currentPath.startsWith(page));
+    
+    // Mostrar página de mantenimiento EXCEPTO:
+    // 1. Si es admin en páginas de admin
+    // 2. Si es una página pública permitida (login, registro, etc.)
+    const shouldShowMaintenance = !(
+      (user?.is_admin && isAdminPage) || 
+      isPublicAllowedPage
+    );
+    
+    if (shouldShowMaintenance) {
+      return (
+        <MaintenancePage 
+          maintenanceInfo={{
+            message,
+            estimatedDuration,
+            activatedAt
+          }}
+        />
+      );
+    }
+  }
+
   // ✅ LOADING SIMPLIFICADO - Un solo estado global
   // Solo mostrar loading si auth no está inicializado o si no está inicializado completamente
-  if (!authInitialized || !initialized) {
+  if (!authInitialized || !initialized || maintenanceLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-accent-50">
         <div className="text-center">
@@ -52,7 +104,9 @@ function AppContent() {
                 ? "Verificando sesión..."
                 : !initialized
                   ? "Preparando tu experiencia..."
-                  : "Casi listo..."}
+                  : maintenanceLoading
+                    ? "Verificando estado del sistema..."
+                    : "Casi listo..."}
             </p>
 
             {/* Barra de progreso simple */}
@@ -101,6 +155,7 @@ function AppContent() {
 
           {/* Admin */}
           <Route path="/admin" element={<ContestAdminPanel />} />
+          <Route path="/maintenance-preview" element={<MaintenancePage maintenanceInfo={{ message, estimatedDuration, activatedAt }} />} />
 
           {/* Email management */}
           <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
