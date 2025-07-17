@@ -66,6 +66,19 @@ const EmailUnsubscribe = () => {
 
       console.log('Actualización exitosa');
 
+      // Verificar que realmente se actualizó
+      const { data: updatedUser, error: verifyError } = await supabase
+        .from('user_profiles')
+        .select('email, email_notifications, contest_notifications, general_notifications, newsletter_contests')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (verifyError) {
+        throw new Error('Error verificando actualización: ' + verifyError.message);
+      }
+
+      console.log('Usuario después de actualizar:', updatedUser);
+
       setResult({
         success: true,
         message: 'Te has desuscrito exitosamente de las notificaciones por email.'
