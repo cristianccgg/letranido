@@ -468,21 +468,27 @@ const CurrentContest = () => {
             {contest.description}
           </p>
 
-          {/* Stats del concurso - Más compactas */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-4 text-sm text-gray-600">
-            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
-              <Users className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">
+          {/* Stats del concurso - Modernizadas */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm">
+            <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <span className="truncate font-semibold text-indigo-700">
                 {contest.participants_count || 0} participantes
               </span>
             </div>
-            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
-              <Star className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{contest.category}</span>
+            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
+                <Star className="h-4 w-4 text-white" />
+              </div>
+              <span className="truncate font-semibold text-purple-700">{contest.category}</span>
             </div>
-            <div className="flex items-center bg-white/60 px-2 md:px-3 py-1 rounded-full min-w-0 flex-shrink-0">
-              <PenTool className="h-4 w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">
+            <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 border border-pink-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
+                <PenTool className="h-4 w-4 text-white" />
+              </div>
+              <span className="truncate font-semibold text-pink-700">
                 {contest.min_words}-{contest.max_words} palabras
               </span>
             </div>
@@ -527,13 +533,15 @@ const CurrentContest = () => {
                 />
               </div>
 
-              {/* Lista de participantes - Más prominente */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 border-b border-gray-200">
+              {/* Lista de participantes - Modernizada */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 hover:border-purple-200 overflow-hidden transition-all duration-300">
+                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 border-b border-indigo-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Users className="h-5 w-5 mr-2 text-green-600" />
+                      <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-md">
+                          <Users className="h-4 w-4 text-white" />
+                        </div>
                         Escritores participando
                       </h3>
                       <p className="text-sm text-gray-600 mt-1">
@@ -591,7 +599,7 @@ const CurrentContest = () => {
                       {stories.map((story, index) => (
                         <div
                           key={story.id}
-                          className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors border border-gray-200"
+                          className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
                         >
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
@@ -664,11 +672,11 @@ const CurrentContest = () => {
                 </div>
               </div>
 
-              {/* Estadísticas estilo landing page */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 overflow-hidden">
-                <div className="grid grid-cols-3 gap-4 md:gap-6">
+              {/* Estadísticas estilo landing page - Modernizadas */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 hover:border-purple-200 p-6 md:p-8 overflow-hidden transition-all duration-300 hover:scale-[1.02]">
+                <div className="grid grid-cols-3 gap-6 md:gap-8">
                   <div className="text-center min-w-0">
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-700 mb-2">
+                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
                       {storiesLoading ? "..." : stories.length}
                     </div>
                     <div className="text-gray-500 text-sm md:text-base">
@@ -677,7 +685,7 @@ const CurrentContest = () => {
                   </div>
 
                   <div className="text-center min-w-0">
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-600 mb-2">
+                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
                       {Math.max(
                         0,
                         Math.floor(
@@ -692,7 +700,7 @@ const CurrentContest = () => {
                   </div>
 
                   <div className="text-center min-w-0">
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-purple-600 mb-2">
+                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                       {storiesLoading
                         ? "..."
                         : (() => {
@@ -757,9 +765,9 @@ const CurrentContest = () => {
                 </div>
               </div>
 
-              {/* Panel de filtros */}
+              {/* Panel de filtros - Modernizado */}
               {showFilters && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-2xl p-6 space-y-4 shadow-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Búsqueda */}
                     <div>
@@ -854,7 +862,7 @@ const CurrentContest = () => {
                       {filteredAndSortedStories.map((story, index) => (
                         <div
                           key={story.id}
-                          className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                           onClick={() => navigate(`/story/${story.id}`)}
                         >
                           {/* Header compacto */}

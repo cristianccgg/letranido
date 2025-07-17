@@ -5,11 +5,21 @@ import {
   Clock,
   Sparkles,
   BookOpen,
+  Bell,
+  Mail,
+  CheckCircle,
+  AlertCircle,
+  Loader,
 } from "lucide-react";
 
 const NextContestPreview = ({ nextContest, currentContest }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
+
+  // Estados para newsletter
+  const [email, setEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("idle"); // idle, loading, success, error
+  const [newsletterMessage, setNewsletterMessage] = useState("");
 
   // Solo mostrar si hay un siguiente concurso y hay un concurso actual activo
   useEffect(() => {
@@ -18,6 +28,83 @@ const NextContestPreview = ({ nextContest, currentContest }) => {
     );
   }, [nextContest, currentContest]);
 
+  // Función para suscribirse al newsletter
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validación básica
+    if (!email || !email.includes("@")) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Por favor ingresa un email válido");
+      return;
+    }
+
+    setNewsletterStatus("loading");
+
+    try {
+      const response = await fetch(
+        "https://pvcqonrukrsecgmczwqu.supabase.co/functions/v1/send-contest-emails",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            emailType: "newsletter_subscription",
+            email: email,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setNewsletterStatus("success");
+        setNewsletterMessage(result.message);
+        setEmail("");
+
+        // Reset después de 6 segundos
+        setTimeout(() => {
+          setNewsletterStatus("idle");
+          setNewsletterMessage("");
+        }, 6000);
+      } else {
+        setNewsletterStatus("error");
+        setNewsletterMessage(result.message);
+
+        // Reset después de 4 segundos para errores
+        setTimeout(() => {
+          setNewsletterStatus("idle");
+          setNewsletterMessage("");
+        }, 4000);
+      }
+    } catch (error) {
+      console.error("Error en suscripción de newsletter:", error);
+
+      // Si es error de red pero la función pudo haber funcionado
+      if (
+        error.message.includes("Load failed") ||
+        error.message.includes("502")
+      ) {
+        setNewsletterStatus("error");
+        setNewsletterMessage(
+          "Error de conexión. Si ya tenías cuenta, es posible que la suscripción se haya activado."
+        );
+      } else {
+        setNewsletterStatus("error");
+        setNewsletterMessage("Error inesperado. Inténtalo de nuevo.");
+      }
+
+      // Reset después de 6 segundos para errores de red
+      setTimeout(() => {
+        setNewsletterStatus("idle");
+        setNewsletterMessage("");
+      }, 6000);
+    }
+  };
+
   if (!shouldShow) return null;
 
   return (
@@ -25,7 +112,7 @@ const NextContestPreview = ({ nextContest, currentContest }) => {
       {/* Contenedor principal con animación */}
       <div
         className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 border-2 border-purple-100 shadow-lg transition-all duration-700 ease-out ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-20 opacity-90"
+          isExpanded ? "max-h-[32rem] opacity-100" : "max-h-20 opacity-90"
         }`}
       >
         {/* Botón de expansión */}
@@ -135,7 +222,7 @@ const NextContestPreview = ({ nextContest, currentContest }) => {
               </div>
             )}
 
-            {/* Consejos de preparación */}
+            {/* Consejos de preparación 
             <div className="bg-gradient-to-r flex flex-col justify-center items-center from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-3">
               <div className="flex justify-center items-center gap-2 mb-2">
                 <Sparkles className="h-4 w-4 text-purple-600" />
@@ -149,6 +236,86 @@ const NextContestPreview = ({ nextContest, currentContest }) => {
                 <li>• Revisa la ortografía y gramática</li>
                 <li>• ¡Deja volar tu creatividad!</li>
               </ul>
+            </div>*/}
+
+            {/* Newsletter Signup integrado */}
+            <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-xl p-4 mt-2">
+              <div className="text-center mb-3">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <Bell className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">
+                    ¿Te avisamos cuando inicie?
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600">
+                  Recibe una notificación cuando este concurso comience
+                </p>
+              </div>
+
+              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    disabled={
+                      newsletterStatus === "loading" ||
+                      newsletterStatus === "success"
+                    }
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={
+                    newsletterStatus === "loading" ||
+                    newsletterStatus === "success"
+                  }
+                  className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                >
+                  {newsletterStatus === "loading" ? (
+                    <>
+                      <Loader className="h-4 w-4 animate-spin" />
+                      Suscribiendo...
+                    </>
+                  ) : newsletterStatus === "success" ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      ¡Suscrito!
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="h-4 w-4" />
+                      Notificarme
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Mensaje de estado */}
+              {newsletterMessage && (
+                <div
+                  className={`mt-3 p-2 rounded-lg flex items-center gap-2 text-xs ${
+                    newsletterStatus === "success"
+                      ? "bg-green-50 border border-green-200 text-green-700"
+                      : "bg-red-50 border border-red-200 text-red-700"
+                  }`}
+                >
+                  {newsletterStatus === "success" ? (
+                    <CheckCircle className="h-3 w-3 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                  )}
+                  <span>{newsletterMessage}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

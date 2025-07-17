@@ -356,7 +356,7 @@ function generateNewContestHTML(contest: any): string {
         </div>
         
         <!-- Tarjeta del concurso -->
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #e2e8f0; border-radius: 12px; padding: 30px; margin: 25px 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #e0e7ff; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 22px; font-weight: bold;">"${contest.title}"</h3>
           <p style="color: #475569; margin: 0 0 25px 0; font-size: 16px; line-height: 1.5;">${contest.description}</p>
           
@@ -379,14 +379,14 @@ function generateNewContestHTML(contest: any): string {
         
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¿Estás listo para el desafío? ¡Deja volar tu imaginación!</p>
-          <a href="https://letranido.com/write/${contest.id}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          <a href="https://letranido.com/write/${contest.id}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); transition: all 0.3s ease;">
             ✍️ Escribir mi historia
           </a>
         </div>
       </div>
       
       <!-- Footer -->
-      <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+      <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px; border: 1px solid #e0e7ff; border-top: none;">
         <p style="color: #6b7280; margin: 0; font-size: 14px;">
           <strong>Letranido</strong> • Comunidad de escritura creativa<br>
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
@@ -433,7 +433,7 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
         </div>
         
         <!-- Contador de urgencia -->
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #6366f1; border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #8b5cf6; border-radius: 16px; padding: 28px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);">
           <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
             <h3 style="margin: 0; font-size: 32px; font-weight: bold;">${daysLeft}</h3>
             <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">${daysLeft === 1 ? "DÍA RESTANTE" : "DÍAS RESTANTES"}</p>
@@ -455,14 +455,14 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">
             ${daysLeft <= 1 ? "¡Es tu última oportunidad! No dejes que se escape." : "Las mejores historias a veces nacen de la presión del último momento. 😉"}
           </p>
-          <a href="https://letranido.com/write/${contest.id}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          <a href="https://letranido.com/write/${contest.id}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);">
             ✍️ ${daysLeft <= 1 ? "Escribir YA" : "Escribir ahora"}
           </a>
         </div>
       </div>
       
       <!-- Footer -->
-      <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+      <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px; border: 1px solid #e0e7ff; border-top: none;">
         <p style="color: #6b7280; margin: 0; font-size: 14px;">
           <strong>Letranido</strong> • Comunidad de escritura creativa<br>
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
@@ -508,7 +508,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
         </div>
         
         <!-- Estadísticas del concurso -->
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #6366f1; border-radius: 12px; padding: 30px; margin: 25px 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #8b5cf6; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 20px; font-weight: bold;">"${contest.title}"</h3>
           <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h4 style="margin: 0; font-size: 36px; font-weight: bold;">${storiesCount}</h4>
@@ -542,14 +542,14 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
         
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">Tu voto es importante y ayuda a reconocer el talento de nuestra comunidad. ¡Cada historia merece ser leída!</p>
-          <a href="https://letranido.com/contest/current" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          <a href="https://letranido.com/contest/current" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);">
             📚 Leer y votar
           </a>
         </div>
       </div>
       
       <!-- Footer -->
-      <div style="background: #f8fafc; padding: 25px 30px; text-align: center; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb; border-top: none;">
+      <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px; border: 1px solid #e0e7ff; border-top: none;">
         <p style="color: #6b7280; margin: 0; font-size: 14px;">
           <strong>Letranido</strong> • Comunidad de escritura creativa<br>
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
@@ -584,7 +584,7 @@ function generateResultsHTML(contest: any): string {
         </div>
         
         <!-- Título del concurso -->
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #6366f1; border-radius: 12px; padding: 30px; margin: 25px 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #ec4899; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(236, 72, 153, 0.15);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 22px; font-weight: bold;">"${contest.title}"</h3>
           <p style="color: #6366f1; margin: 0; font-size: 16px; font-weight: 600;">¡Concurso finalizado con éxito!</p>
         </div>
@@ -605,7 +605,7 @@ function generateResultsHTML(contest: any): string {
         <!-- Call to action -->
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¡No te quedes con la curiosidad! Ve los resultados completos y celebra con nosotros.</p>
-          <a href="https://letranido.com/contest/current" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+          <a href="https://letranido.com/contest/current" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);">
             🏆 Ver resultados completos
           </a>
         </div>

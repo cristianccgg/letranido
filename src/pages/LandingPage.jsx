@@ -495,11 +495,11 @@ const LandingPage = () => {
       </section>
 
       {/* Sección de Derechos de Autor */}
-      <section className="py-12 lg:py-16 bg-gradient-to-r from-green-50 to-blue-50">
+      <section className="py-12 lg:py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Shield className="h-8 w-8 text-green-600" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Shield className="h-8 w-8 text-indigo-600" />
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
               Tu obra, tus derechos
@@ -511,10 +511,10 @@ const LandingPage = () => {
           </div>
 
           <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-green-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-indigo-100 hover:border-purple-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-                  <Copyright className="h-8 w-8 text-green-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Copyright className="h-8 w-8 text-indigo-600" />
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
@@ -528,10 +528,10 @@ const LandingPage = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-blue-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-purple-100 hover:border-pink-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-                  <Lock className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Lock className="h-8 w-8 text-purple-600" />
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
@@ -545,10 +545,10 @@ const LandingPage = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-purple-100 hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-100 hover:border-indigo-200 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-                  <Users className="h-8 w-8 text-purple-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Users className="h-8 w-8 text-pink-600" />
                 </div>
                 <div>
                   <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
