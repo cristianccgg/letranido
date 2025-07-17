@@ -3,18 +3,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Trophy,
-  Calendar,
-  Users,
   Crown,
-  Medal,
-  Award,
-  Star,
-  Clock,
   ArrowRight,
   Filter,
   Search,
   Loader,
   AlertCircle,
+  BookOpen,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 
@@ -115,25 +110,6 @@ const ContestHistory = () => {
     { value: "Fantasía", label: "Fantasía" },
   ];
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-    });
-  };
-
-  const getRankIcon = (position) => {
-    switch (position) {
-      case 1:
-        return <Crown className="h-5 w-5 text-yellow-500" />;
-      case 2:
-        return <Medal className="h-5 w-5 text-gray-500" />;
-      case 3:
-        return <Award className="h-5 w-5 text-orange-500" />;
-      default:
-        return <Star className="h-5 w-5 text-gray-400" />;
-    }
-  };
 
   // ✅ LOADING STATES
   if (contestsLoading || loading) {
@@ -238,121 +214,77 @@ const ContestHistory = () => {
           </p>
         </div>
       ) : (
-        <div className="grid gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredContests.map((contest) => (
             <div
               key={contest.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200 overflow-hidden"
             >
               {/* Contest Header */}
-              <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-6 text-white">
-                <div className="flex items-center justify-between mb-4">
+              <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 text-white">
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
-                    <Trophy className="h-6 w-6 mr-3" />
-                    <div>
-                      <h2 className="text-xl font-bold">{contest.title}</h2>
-                      <p className="text-primary-100">
-                        {contest.month} • {contest.category}
-                      </p>
-                    </div>
+                    <Trophy className="h-5 w-5 mr-2" />
+                    <span className="text-sm font-medium opacity-90">
+                      {contest.month}
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm text-primary-200">Finalizado</div>
-                    <div className="text-xs text-primary-300">
-                      {formatDate(contest.voting_deadline || contest.end_date)}
-                    </div>
+                  <div className="text-xs opacity-75">
+                    {contest.totalStories || 0} historias
                   </div>
                 </div>
 
-                <p className="text-primary-100 text-sm">
+                <h2 className="text-lg font-bold mb-2 leading-tight line-clamp-2">
+                  {contest.title}
+                </h2>
+
+                <p className="text-sm opacity-80 line-clamp-2">
                   {contest.description}
                 </p>
               </div>
 
-              {/* Contest Stats */}
+              {/* Winner Section */}
               <div className="p-6">
-                <div className="grid md:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {contest.participants_count || 0}
+                {contest.winner ? (
+                  <div className="mb-4">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                        <Crown className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700">
+                        Historia ganadora
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-600">Participantes</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {contest.totalStories || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Historias</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {contest.min_words}-{contest.max_words}
-                    </div>
-                    <div className="text-sm text-gray-600">Palabras</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {contest.prize ? "🏆" : "🎖️"}
-                    </div>
-                    <div className="text-sm text-gray-600">Premio</div>
-                  </div>
-                </div>
 
-                {/* Winners Section */}
-                {contest.topStories && contest.topStories.length > 0 ? (
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <Crown className="h-5 w-5 mr-2 text-yellow-500" />
-                      Ganadores
-                    </h3>
+                    <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-4 border border-indigo-100">
+                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">
+                        {contest.winner.title}
+                      </h3>
 
-                    <div className="grid md:grid-cols-3 gap-4 mb-6">
-                      {contest.topStories.slice(0, 3).map((story, index) => (
-                        <div
-                          key={story.id}
-                          className={`p-4 rounded-lg border-2 ${
-                            index === 0
-                              ? "border-yellow-300 bg-yellow-50"
-                              : index === 1
-                              ? "border-gray-300 bg-gray-50"
-                              : "border-orange-300 bg-orange-50"
-                          }`}
-                        >
-                          <div className="flex items-center mb-2">
-                            {getRankIcon(index + 1)}
-                            <span className="ml-2 font-bold">
-                              {index === 0 ? "1º" : index === 1 ? "2º" : "3º"}{" "}
-                              Lugar
-                            </span>
-                          </div>
+                      <p className="text-sm text-gray-600 mb-3">
+                        por {contest.winner.author}
+                      </p>
 
-                          <h4 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                            {story.title}
-                          </h4>
-
-                          <p className="text-sm text-gray-600 mb-2">
-                            por {story.author}
-                          </p>
-
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="flex items-center text-red-600">
-                              ❤️ {story.likes_count || 0}
-                            </span>
-                            <Link
-                              to={`/story/${story.id}`}
-                              className="text-primary-600 hover:text-primary-700 font-medium"
-                            >
-                              Leer →
-                            </Link>
-                          </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-full">
+                          <span className="text-red-500 text-sm">❤️</span>
+                          <span className="text-xs font-medium text-gray-700">
+                            {contest.winner.likes_count || 0}
+                          </span>
                         </div>
-                      ))}
+                        <Link
+                          to={`/story/${contest.winner.id}`}
+                          className="text-indigo-600 hover:text-purple-600 font-medium text-sm transition-colors duration-200"
+                        >
+                          Leer →
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No hay historias disponibles para este concurso</p>
+                  <div className="text-center py-6 text-gray-500">
+                    <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Sin historias disponibles</p>
                   </div>
                 )}
 
@@ -360,9 +292,10 @@ const ContestHistory = () => {
                 <div className="text-center">
                   <Link
                     to={`/contest/${contest.id}`}
-                    className="btn-primary inline-flex items-center"
+                    className="inline-flex items-center w-full justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm"
                   >
-                    Ver todas las historias de este concurso
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Ver todas las historias
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </div>

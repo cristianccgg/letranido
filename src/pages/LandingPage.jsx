@@ -349,88 +349,168 @@ const LandingPage = () => {
 
       {/* 🆕 GANADORES DEL CONCURSO ANTERIOR */}
       {lastContestWinners && !loadingWinners && (
-        <section className="py-12 lg:py-16 bg-gradient-to-b from-yellow-50 via-yellow-25 to-white">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center tracking-tight">
-                <Trophy className="h-6 w-6 mr-2 text-yellow-500" />
+        <section className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+          {/* Elementos decorativos */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl animate-pulse"></div>
+            <div className="absolute top-40 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+            <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+            <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
+          </div>
+
+          <div className="max-w-6xl mx-auto px-4 relative">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
+                <Trophy className="h-10 w-10 text-indigo-600" />
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
                 Ganadores de {lastContestWinners.contest.month}
               </h2>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
+              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
                 "{lastContestWinners.contest.title}"
               </p>
+              <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mt-6 shadow-lg"></div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
-              {lastContestWinners.winners.map((story, index) => (
-                <div
-                  key={story.id}
-                  className={`p-6 rounded-xl shadow-xl transform hover:scale-105 hover:shadow-2xl transition-all duration-300 ${
-                    index === 0
-                      ? "bg-gradient-to-b from-yellow-100 to-yellow-50 border-2 border-yellow-300"
-                      : index === 1
-                        ? "bg-gradient-to-b from-gray-100 to-gray-50 border-2 border-gray-300"
-                        : "bg-gradient-to-b from-orange-100 to-orange-50 border-2 border-orange-300"
-                  }`}
-                >
-                  <div className="text-center mb-4">
-                    {index === 0 ? (
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500 text-white rounded-full text-2xl font-bold mb-2">
-                        🥇
-                      </div>
-                    ) : index === 1 ? (
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-500 text-white rounded-full text-2xl font-bold mb-2">
-                        🥈
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-500 text-white rounded-full text-2xl font-bold mb-2">
-                        🥉
-                      </div>
-                    )}
-                    <div className="font-bold text-lg md:text-xl lg:text-2xl">
-                      {index === 0 ? "1º" : index === 1 ? "2º" : "3º"} Lugar
+            {/* 🏆 GANADOR DESTACADO - MÁXIMA VISIBILIDAD */}
+            <div className="mb-8">
+              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-2xl border-2 border-indigo-200 p-8 relative overflow-hidden">
+                {/* Elementos decorativos tipo spotlight */}
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 rounded-2xl"></div>
+                <div className="absolute top-6 right-6 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-20 blur-xl animate-pulse"></div>
+                <div className="absolute bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg animate-pulse"></div>
+                
+                <div className="relative max-w-4xl mx-auto">
+                  {/* Header motivacional */}
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full font-bold text-sm shadow-lg mb-4">
+                      <Sparkles className="h-4 w-4" />
+                      Historia Ganadora de {lastContestWinners.contest.month}
                     </div>
-                  </div>
-
-                  <h3 className="font-semibold text-gray-900 md:text-lg lg:text-xl mb-2 text-center line-clamp-2">
-                    {story.title}
-                  </h3>
-
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <UserAvatar
-                      user={{
-                        name: story.author,
-                        email: `${story.author}@mock.com`,
-                      }}
-                      size="xs"
-                    />
-                    <p className="text-sm md:text-base lg:text-lg text-gray-600">
-                      por {story.author}
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                      ¡Conoce al ganador que conquistó a la comunidad!
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                      Su historia brilló entre todas las demás y se llevó el reconocimiento de los lectores
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center text-red-600 text-sm">
-                      ❤️ {story.likes_count || 0}
-                    </span>
+                  {/* Tarjeta del ganador - VERTICAL Y COMPACTA */}
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 p-8 mb-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center text-center">
+                      {/* Corona y posición */}
+                      <div className="mb-6">
+                        <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl animate-pulse">
+                          <span className="text-5xl">👑</span>
+                        </div>
+                        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold shadow-lg">
+                          🏆 GANADOR
+                        </div>
+                      </div>
+
+                      {/* Título de la historia */}
+                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 leading-tight max-w-lg">
+                        "{lastContestWinners.winners[0].title}"
+                      </h3>
+
+                      {/* Autor */}
+                      <div className="flex items-center justify-center gap-4 mb-6">
+                        <UserAvatar
+                          user={{
+                            name: lastContestWinners.winners[0].author,
+                            email: `${lastContestWinners.winners[0].author}@mock.com`,
+                          }}
+                          size="lg"
+                        />
+                        <div className="text-left">
+                          <p className="text-xl font-bold text-gray-900">
+                            {lastContestWinners.winners[0].author}
+                          </p>
+                          <p className="text-indigo-600 font-semibold">
+                            🌟 Autor destacado del mes
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Estadísticas */}
+                      <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-full">
+                          <Heart className="h-5 w-5 text-red-500" />
+                          <span className="font-bold text-gray-800">
+                            {lastContestWinners.winners[0].likes_count || 0} votos
+                          </span>
+                        </div>
+                        <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-full">
+                          <span className="font-semibold text-indigo-700 text-sm">
+                            {lastContestWinners.contest.title}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Botón principal */}
+                      <Link
+                        to={`/story/${lastContestWinners.winners[0].id}`}
+                        className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                      >
+                        <BookOpen className="h-5 w-5 mr-3" />
+                        Leer la historia ganadora
+                        <ArrowRight className="h-5 w-5 ml-3" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Sección motivacional */}
+                  <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-100 p-6 mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      ¡Podrías ser el próximo ganador!
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Únete al concurso actual y demuestra tu talento. Tu historia podría ser la próxima en brillar.
+                    </p>
                     <Link
-                      to={`/story/${story.id}`}
-                      className="text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors duration-200"
+                      to="/contest/current"
+                      className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
                     >
-                      Leer →
+                      <PenTool className="h-5 w-5 mr-2" />
+                      Participar ahora
+                      <ArrowRight className="h-4 w-4 ml-2" />
                     </Link>
                   </div>
+
+                  {/* Mini-mención discreta de otros lugares */}
+                  {lastContestWinners.winners.length > 1 && (
+                    <div className="text-center text-sm text-gray-500 border-t border-gray-200 pt-4">
+                      <p className="mb-2">También destacaron en este concurso:</p>
+                      <div className="flex items-center justify-center gap-6 text-xs">
+                        {lastContestWinners.winners.slice(1, 3).map((story, index) => (
+                          <Link
+                            key={story.id}
+                            to={`/story/${story.id}`}
+                            className="hover:text-indigo-600 transition-colors duration-200"
+                          >
+                            <span className="font-medium">
+                              {index === 0 ? "🥈" : "🥉"} {story.author}
+                            </span>
+                            <span className="text-gray-400 ml-1">
+                              - "{story.title}"
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
 
             <div className="text-center">
               <Link
                 to="/contest-history"
-                className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium transition-colors duration-200"
+                className="inline-flex items-center px-6 py-3 rounded-xl bg-white/80 backdrop-blur-sm border-2 border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 hover:border-purple-300 hover:shadow-lg transition-all duration-300 shadow-sm"
               >
+                <Trophy className="h-5 w-5 mr-2" />
                 Ver historial completo de concursos
-                <ArrowRight className="h-4 w-4 ml-1" />
+                <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
           </div>

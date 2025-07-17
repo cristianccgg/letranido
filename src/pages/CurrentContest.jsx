@@ -323,9 +323,28 @@ const CurrentContest = () => {
 
     const phase = getContestPhase(contest);
     const now = new Date();
+    
+    // 🆕 Detectar si es un concurso histórico (no es el concurso actual)
+    const isHistoricalContest = contest.id !== currentContest?.id;
 
     switch (phase) {
       case "submission": {
+        // 🆕 Si es histórico, mostrar como solo lectura
+        if (isHistoricalContest) {
+          return {
+            phase: "historical",
+            title: "📚 Concurso Histórico",
+            description: `Concurso de ${contest.month} - Solo lectura`,
+            bgColor: "bg-indigo-50",
+            borderColor: "border-indigo-200",
+            textColor: "text-indigo-800",
+            buttonText: "Ver historias",
+            scrollToStories: true,
+            showStories: true,
+            isHistorical: true,
+          };
+        }
+        
         const submissionEnd = new Date(contest.submission_deadline);
         const daysLeft = Math.ceil(
           (submissionEnd - now) / (1000 * 60 * 60 * 24)
@@ -344,6 +363,22 @@ const CurrentContest = () => {
         };
       }
       case "voting": {
+        // 🆕 Si es histórico, mostrar como solo lectura
+        if (isHistoricalContest) {
+          return {
+            phase: "historical",
+            title: "📚 Concurso Histórico",
+            description: `Concurso de ${contest.month} - Solo lectura`,
+            bgColor: "bg-indigo-50",
+            borderColor: "border-indigo-200",
+            textColor: "text-indigo-800",
+            buttonText: "Ver historias",
+            scrollToStories: true,
+            showStories: true,
+            isHistorical: true,
+          };
+        }
+        
         const votingEnd = new Date(contest.voting_deadline);
         const votingDaysLeft = Math.ceil(
           (votingEnd - now) / (1000 * 60 * 60 * 24)
@@ -363,14 +398,17 @@ const CurrentContest = () => {
       case "results":
         return {
           phase: "results",
-          title: "🏆 Resultados Finales",
-          description: "¡Concurso finalizado! Conoce a los ganadores",
-          bgColor: "bg-yellow-50",
-          borderColor: "border-yellow-200",
-          textColor: "text-yellow-800",
+          title: isHistoricalContest ? "📚 Concurso Histórico" : "🏆 Resultados Finales",
+          description: isHistoricalContest 
+            ? `Concurso de ${contest.month} - Solo lectura`
+            : "¡Concurso finalizado! Conoce a los ganadores",
+          bgColor: isHistoricalContest ? "bg-indigo-50" : "bg-yellow-50",
+          borderColor: isHistoricalContest ? "border-indigo-200" : "border-yellow-200",
+          textColor: isHistoricalContest ? "text-indigo-800" : "text-yellow-800",
           buttonText: "Ver ganadores",
           scrollToStories: true,
           showStories: true,
+          isHistorical: isHistoricalContest,
         };
 
       default:
@@ -964,17 +1002,25 @@ const CurrentContest = () => {
                               </div>
                             </div>
 
-                            {/* Info de votación - solo mostrar mensaje */}
-                            {!isAuthenticated && (
-                              <span className="text-xs text-blue-600">
-                                Lee la historia para dar like
+                            {/* Info de votación - mostrar mensaje según contexto */}
+                            {phaseInfo?.isHistorical ? (
+                              <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                                📚 Solo lectura
                               </span>
-                            )}
+                            ) : (
+                              <>
+                                {!isAuthenticated && (
+                                  <span className="text-xs text-blue-600">
+                                    Lee la historia para dar like
+                                  </span>
+                                )}
 
-                            {isAuthenticated && story.user_id === user?.id && (
-                              <span className="text-xs text-purple-600">
-                                Tu historia
-                              </span>
+                                {isAuthenticated && story.user_id === user?.id && (
+                                  <span className="text-xs text-purple-600">
+                                    Tu historia
+                                  </span>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
