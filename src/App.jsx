@@ -41,6 +41,14 @@ function AppContent() {
   if (!maintenanceLoading && maintenanceActive) {
     const currentPath = window.location.pathname;
     
+    // 🔧 DEBUG: Log para troubleshooting
+    console.log('🔍 Maintenance check:', {
+      currentPath,
+      maintenanceActive,
+      user: user?.email || 'no user',
+      isAdmin: user?.is_admin || false
+    });
+    
     // Páginas que los admins pueden ver durante mantenimiento
     const adminAllowedPages = [
       '/admin',
@@ -52,6 +60,9 @@ function AppContent() {
       '/login',
       '/register', 
       '/auth',
+      '/callback',
+      '/reset-password',
+      '/confirm',
       '/terms',
       '/privacy',
       '/privacy-policy',
@@ -64,7 +75,7 @@ function AppContent() {
     
     // Mostrar página de mantenimiento EXCEPTO:
     // 1. Si es admin en páginas de admin
-    // 2. Si es una página pública permitida (login, registro, etc.)
+    // 2. Si es una página pública permitida (login, registro, etc.) - SIEMPRE disponible
     const shouldShowMaintenance = !(
       (user?.is_admin && isAdminPage) || 
       isPublicAllowedPage
