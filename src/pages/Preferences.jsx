@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Settings, 
   Mail, 
@@ -17,12 +18,26 @@ import { supabase } from '../lib/supabase';
 import CookieSettingsModal from '../components/ui/CookieSettingsModal';
 
 const Preferences = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { 
     user, 
     cookieConsent, 
     showCookieBannerAgain,
-    resetCookieConsent 
+    resetCookieConsent,
+    showAuthModal 
   } = useGlobalApp();
+
+  // Verificar si el usuario está autenticado
+  useEffect(() => {
+    if (!user) {
+      // Mostrar modal de autenticación y luego redirigir de vuelta
+      showAuthModal();
+      
+      // Opcional: puedes almacenar la ruta actual para volver después del login
+      sessionStorage.setItem('redirectAfterLogin', location.pathname);
+    }
+  }, [user, navigate, location.pathname, showAuthModal]);
   
   const [showCookieSettings, setShowCookieSettings] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -170,6 +185,23 @@ const Preferences = () => {
     if (activeCount <= 2) return 'text-yellow-600'; // Pocas activas
     return 'text-green-600'; // Varias activas
   };
+
+  // Si el usuario no está autenticado, mostrar loading o login
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto py-8">
+        <div className="text-center">
+          <Loader className="h-8 w-8 animate-spin text-primary-600 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Autenticación requerida
+          </h2>
+          <p className="text-gray-600">
+            Necesitas iniciar sesión para acceder a tus preferencias
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-8">
