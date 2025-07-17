@@ -35,15 +35,35 @@ const EmailUnsubscribe = () => {
 
     setLoading(true);
     try {
-      // Actualizar preferencias de email
+      // Primero verificar que el usuario existe
+      const { data: user, error: findError } = await supabase
+        .from('user_profiles')
+        .select('email, email_notifications, contest_notifications, general_notifications, newsletter_contests')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (findError) {
+        throw new Error('Usuario no encontrado: ' + findError.message);
+      }
+
+      console.log('Usuario encontrado:', user);
+
+      // Actualizar preferencias de email - desactivar todas las notificaciones
       const { error } = await supabase
         .from('user_profiles')
-        .update({ email_notifications: false })
+        .update({ 
+          email_notifications: false,
+          contest_notifications: false,
+          general_notifications: false,
+          newsletter_contests: false
+        })
         .eq('email', email.toLowerCase().trim());
 
       if (error) {
         throw error;
       }
+
+      console.log('Actualización exitosa');
 
       setResult({
         success: true,

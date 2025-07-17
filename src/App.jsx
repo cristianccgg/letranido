@@ -177,6 +177,7 @@ function AppContent() {
 
           {/* Email management */}
           <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
+          <Route path="/email/preferences" element={<Preferences />} />
 
           {/* User Preferences */}
           <Route path="/preferences" element={<Preferences />} />

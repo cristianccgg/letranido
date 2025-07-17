@@ -157,6 +157,8 @@ export const useContestFinalization = () => {
       // 6. Refrescar datos del contexto
       await refreshContests();
 
+      // 7. Email de resultados se enviará manualmente desde admin panel
+
       console.log("🎉 Finalización completada exitosamente");
 
       setLoading(false);

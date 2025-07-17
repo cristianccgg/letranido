@@ -301,7 +301,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev",
+        from: `Letranido <${Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"}>`,
         to: finalRecipients,
         subject: emailData.subject,
         html: emailData.html,
