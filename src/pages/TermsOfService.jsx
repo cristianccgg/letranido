@@ -207,6 +207,37 @@ const TermsOfService = () => {
             destacados). Cualquier premio físico será claramente especificado.
             No hay transferencia monetaria de premios virtuales.
           </p>
+
+          <h3 className="text-lg font-semibold mb-2">
+            4.4 Uso de Contenido Ganador para Promoción
+          </h3>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 mb-3">
+              <strong>Al ganar un concurso y autorizar el uso promocional:</strong>
+            </p>
+            <ul className="text-blue-800 space-y-2 text-sm">
+              <li>
+                • <strong>Otorgas permiso</strong> para que Letranido use tu historia ganadora, nombre de usuario y fragmentos seleccionados con fines promocionales
+              </li>
+              <li>
+                • <strong>Incluye uso en:</strong> Redes sociales, página web, newsletters, comunicados de prensa y material promocional
+              </li>
+              <li>
+                • <strong>Siempre con crédito:</strong> Tu nombre de usuario será incluido en toda promoción
+              </li>
+              <li>
+                • <strong>Sin compensación adicional:</strong> Esta autorización es parte del reconocimiento como ganador
+              </li>
+              <li>
+                • <strong>Uso limitado:</strong> Solo para promoción de Letranido y reconocimiento del concurso, no para uso comercial independiente
+              </li>
+            </ul>
+          </div>
+          
+          <p className="mb-4 text-sm text-gray-700">
+            <strong>Nota importante:</strong> Esta autorización es separada de tus derechos de autor, que conservas completamente. 
+            Puedes publicar tu historia en otros lugares sin restricciones.
+          </p>
         </section>
 
         {/* 5. Comportamiento del Usuario */}

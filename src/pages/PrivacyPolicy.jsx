@@ -95,8 +95,26 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
+          <h3 className="text-lg font-semibold mb-2">1.3 Consentimientos Legales</h3>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 mb-2">
+              <strong>Para protección legal, almacenamos tus consentimientos al enviar historias:</strong>
+            </p>
+            <ul className="text-blue-800 text-sm space-y-1">
+              <li>• Confirmación de originalidad del contenido</li>
+              <li>• Aceptación de no uso de Inteligencia Artificial</li>
+              <li>• Autorización para compartir contenido ganador (opcional)</li>
+              <li>• Marcado de contenido maduro cuando corresponda</li>
+              <li>• Aceptación de términos y condiciones</li>
+              <li>• Marca de tiempo y información técnica básica (navegador)</li>
+            </ul>
+            <p className="text-blue-700 text-sm mt-2">
+              <strong>Propósito:</strong> Estos registros nos protegen legalmente a ambos en caso de disputas de derechos de autor o reclamaciones.
+            </p>
+          </div>
+
           <h3 className="text-lg font-semibold mb-2">
-            1.3 Información Técnica Mínima
+            1.4 Información Técnica Mínima
           </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
@@ -136,6 +154,7 @@ const PrivacyPolicy = () => {
             <li>Facilitar votación y participación en concursos</li>
             <li>Prevenir spam, fraude y comportamiento abusivo</li>
             <li>Generar estadísticas agregadas y anónimas</li>
+            <li>Mantener registros de consentimientos legales para protección jurídica</li>
           </ul>
 
           <h3 className="text-lg font-semibold mb-2">2.2 Comunicaciones</h3>
