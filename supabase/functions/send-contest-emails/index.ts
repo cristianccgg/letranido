@@ -17,7 +17,8 @@ interface EmailRequest {
     | "manual_general"
     | "manual_newsletter"
     | "manual_essential"
-    | "newsletter_subscription";
+    | "newsletter_subscription"
+    | "unsubscribe_user";
   contestId?: string;
   // Para suscripción de newsletter
   email?: string;
@@ -49,6 +50,11 @@ serve(async (req) => {
     // Handle newsletter subscription separately
     if (emailType === "newsletter_subscription") {
       return await handleNewsletterSubscription(supabaseClient, email);
+    }
+
+    // Handle user unsubscribe separately
+    if (emailType === "unsubscribe_user") {
+      return await handleUserUnsubscribe(supabaseClient, email);
     }
 
     // Get contest data (solo para emails de concurso)
@@ -424,7 +430,7 @@ function generateNewContestHTML(contest: any): string {
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
-          <a href="https://letranido.com/email/unsubscribe" style="color: #6b7280; text-decoration: underline;">
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
             Cancelar suscripción a emails
           </a> • 
           <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">
@@ -500,7 +506,7 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
-          <a href="https://letranido.com/email/unsubscribe" style="color: #6b7280; text-decoration: underline;">
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
             Cancelar suscripción a emails
           </a> • 
           <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">
@@ -587,7 +593,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
-          <a href="https://letranido.com/email/unsubscribe" style="color: #6b7280; text-decoration: underline;">
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
             Cancelar suscripción a emails
           </a> • 
           <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">

@@ -49,17 +49,28 @@ const EmailUnsubscribe = () => {
       console.log('Usuario encontrado:', user);
 
       // Actualizar preferencias de email - desactivar todas las notificaciones
-      // IMPORTANTE: Actualizar primero las columnas específicas para evitar el trigger
-      const { data: updateResult, error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          contest_notifications: false,
-          general_notifications: false,
-          newsletter_contests: false,
-          email_notifications: false  // Esto último para que el trigger no lo reactive
-        })
-        .eq('email', email.toLowerCase().trim())
-        .select(); // Importante: agregar select() para ver el resultado
+      // Usar service role para bypasear RLS
+      const { data: updateResult, error } = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            emailType: 'unsubscribe_user',
+            email: email.toLowerCase().trim()
+          })
+        }
+      );
+
+      if (!updateResult.ok) {
+        const errorText = await updateResult.text();
+        throw new Error(`Error en desuscripción: ${errorText}`);
+      }
+
+      const result = await updateResult.json();
 
       console.log('Resultado del UPDATE:', updateResult);
       console.log('Error del UPDATE:', error);

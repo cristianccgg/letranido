@@ -175,10 +175,6 @@ function AppContent() {
           <Route path="/admin" element={<ContestAdminPanel />} />
           <Route path="/maintenance-preview" element={<MaintenancePage maintenanceInfo={{ message, estimatedDuration, activatedAt }} />} />
 
-          {/* Email management */}
-          <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
-          <Route path="/email/preferences" element={<Preferences />} />
-
           {/* User Preferences */}
           <Route path="/preferences" element={<Preferences />} />
 
