@@ -2015,6 +2015,11 @@ export function GlobalAppProvider({ children }) {
                 email: email.trim().toLowerCase(),
                 display_name: name.trim(),
                 email_notifications: emailNotifications,
+                // Configurar notificaciones específicas por defecto (opt-out)
+                contest_notifications: true,
+                general_notifications: true,
+                newsletter_contests: true,
+                // marketing_notifications se mantiene en su default (existe pero no se usa en UI)
                 created_at: new Date().toISOString(),
               };
 

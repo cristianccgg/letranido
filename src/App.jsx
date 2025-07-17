@@ -67,7 +67,14 @@ function AppContent() {
       '/privacy',
       '/privacy-policy',
       '/cookie-policy',
-      '/community-guidelines'
+      '/community-guidelines',
+      // Páginas esenciales para testing durante mantenimiento
+      '/write',
+      '/profile',
+      '/dashboard',
+      '/contest',
+      '/story',
+      '/preferences'
     ];
     
     const isAdminPage = adminAllowedPages.some(page => currentPath.startsWith(page));

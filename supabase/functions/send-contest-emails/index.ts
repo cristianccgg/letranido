@@ -125,11 +125,43 @@ serve(async (req) => {
     
     // Use the new granular notification system
     if (emailType === "new_contest" || emailType === "submission_reminder" || emailType === "voting_started" || emailType === "results") {
-      // Contest-related emails use contest_notifications
-      const { data, error } = await supabaseClient
+      // Contest-related emails go to BOTH registered users AND newsletter subscribers
+      console.log("📧 Obteniendo usuarios registrados con contest_notifications...");
+      const { data: registeredUsers, error: registeredError } = await supabaseClient
         .rpc("get_contest_email_recipients");
-      users = data;
-      usersError = error;
+      
+      console.log("📧 Obteniendo newsletter subscribers...");
+      const { data: newsletterUsers, error: newsletterError } = await supabaseClient
+        .from("newsletter_subscribers")
+        .select("email, created_at")
+        .eq("is_active", true);
+      
+      if (registeredError) {
+        console.error("Error obteniendo usuarios registrados:", registeredError);
+        usersError = registeredError;
+      } else if (newsletterError) {
+        console.error("Error obteniendo newsletter subscribers:", newsletterError);
+        usersError = newsletterError;
+      } else {
+        // Combinar ambas listas y eliminar duplicados por email
+        const allUsers = [...(registeredUsers || [])];
+        const newsletterEmails = new Set(registeredUsers?.map(u => u.email) || []);
+        
+        // Agregar newsletter subscribers que no estén ya registrados
+        (newsletterUsers || []).forEach(subscriber => {
+          if (!newsletterEmails.has(subscriber.email)) {
+            allUsers.push({
+              user_id: null, // No tienen user_id porque no están registrados
+              email: subscriber.email,
+              display_name: subscriber.email.split('@')[0], // Usar parte del email como nombre
+              created_at: subscriber.created_at
+            });
+          }
+        });
+        
+        users = allUsers;
+        console.log(`📧 Combined: ${registeredUsers?.length || 0} registered users + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
+      }
     } else if (emailType === "manual_essential") {
       // Essential emails go to all users with valid email
       const { data, error } = await supabaseClient

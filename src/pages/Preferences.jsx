@@ -28,6 +28,7 @@ const Preferences = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [contestNotifications, setContestNotifications] = useState(true);
   const [generalNotifications, setGeneralNotifications] = useState(false);
+  const [newsletterContests, setNewsletterContests] = useState(true);
   const [loadingEmailPrefs, setLoadingEmailPrefs] = useState(false);
   const [savingEmailPrefs, setSavingEmailPrefs] = useState(false);
   const [emailResult, setEmailResult] = useState(null);
@@ -46,7 +47,7 @@ const Preferences = () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('email_notifications, contest_notifications, general_notifications')
+        .select('email_notifications, contest_notifications, general_notifications, newsletter_contests')
         .eq('id', user.id)
         .single();
 
@@ -57,6 +58,7 @@ const Preferences = () => {
         setEmailNotifications(data.email_notifications || false);
         setContestNotifications(data.contest_notifications ?? data.email_notifications ?? false);
         setGeneralNotifications(data.general_notifications ?? false);
+        setNewsletterContests(data.newsletter_contests ?? true);
       }
     } catch (error) {
       console.error('Error loading email preferences:', error);
@@ -101,7 +103,8 @@ const Preferences = () => {
       const updateData = {
         email_notifications: emailNotifications,
         contest_notifications: contestNotifications,
-        general_notifications: generalNotifications
+        general_notifications: generalNotifications,
+        newsletter_contests: newsletterContests
       };
 
       const { error } = await supabase
@@ -283,7 +286,7 @@ const Preferences = () => {
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">Notificaciones generales</h3>
                     <p className="text-sm text-gray-600">
-                      Tips de escritura, actualizaciones de funciones, newsletter
+                      Tips de escritura, actualizaciones de funciones
                     </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -293,6 +296,27 @@ const Preferences = () => {
                       checked={generalNotifications}
                       onChange={(e) => {
                         setGeneralNotifications(e.target.checked);
+                        if (emailResult) setEmailResult(null);
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">Newsletter de concursos</h3>
+                    <p className="text-sm text-gray-600">
+                      Resúmenes semanales de concursos, ganadores destacados
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={newsletterContests}
+                      onChange={(e) => {
+                        setNewsletterContests(e.target.checked);
                         if (emailResult) setEmailResult(null);
                       }}
                     />
