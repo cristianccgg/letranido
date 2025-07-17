@@ -50,7 +50,7 @@ const EmailUnsubscribe = () => {
 
       // Actualizar preferencias de email - desactivar todas las notificaciones
       // IMPORTANTE: Actualizar primero las columnas específicas para evitar el trigger
-      const { error } = await supabase
+      const { data: updateResult, error } = await supabase
         .from('user_profiles')
         .update({ 
           contest_notifications: false,
@@ -58,7 +58,11 @@ const EmailUnsubscribe = () => {
           newsletter_contests: false,
           email_notifications: false  // Esto último para que el trigger no lo reactive
         })
-        .eq('email', email.toLowerCase().trim());
+        .eq('email', email.toLowerCase().trim())
+        .select(); // Importante: agregar select() para ver el resultado
+
+      console.log('Resultado del UPDATE:', updateResult);
+      console.log('Error del UPDATE:', error);
 
       if (error) {
         throw error;
