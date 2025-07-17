@@ -1579,6 +1579,7 @@ export function GlobalAppProvider({ children }) {
         return {
           success: true,
           story: processedStory,
+          storyId: newStory.id, // Agregar el ID de la historia creada
           message: "¡Tu historia ha sido enviada exitosamente al concurso!",
         };
       } catch (err) {

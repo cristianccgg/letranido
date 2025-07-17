@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Send, AlertCircle, PenTool } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
+import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
@@ -146,39 +147,79 @@ const WritePrompt = () => {
     setShowConfirmationModal(true);
   };
 
-  const handleConfirmSubmission = async ({ hasMatureContent }) => {
-    const storyData = {
-      title: title.trim(),
-      content: text.trim(),
-      wordCount,
-      contestId: contestToUse.id,
-      hasMatureContent,
-    };
+  const handleConfirmSubmission = async ({ 
+    hasMatureContent, 
+    termsAccepted, 
+    originalConfirmed, 
+    noAIConfirmed, 
+    shareWinnerContentAccepted 
+  }) => {
+    // Primero guardar los consentimientos legales
+    try {
+      const { data: consentData, error: consentError } = await supabase
+        .from('submission_consents')
+        .insert({
+          user_id: user.id,
+          terms_accepted: termsAccepted,
+          original_confirmed: originalConfirmed,
+          no_ai_confirmed: noAIConfirmed,
+          share_winner_content_accepted: shareWinnerContentAccepted,
+          mature_content_marked: hasMatureContent,
+          ip_address: null, // Se puede obtener del cliente si es necesario
+          user_agent: navigator.userAgent
+        })
+        .select()
+        .single();
 
-    // ✅ submitStory del contexto actualiza automáticamente userStories
-    const result = await submitStory(storyData);
+      if (consentError) {
+        console.error('Error guardando consentimientos:', consentError);
+        alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
+        return;
+      }
 
-    if (result.success) {
-      // 📊 TRACK EVENT: Story published
-      trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
-        contest_id: contestToUse.id,
-        word_count: wordCount,
-        has_mature_content: hasMatureContent,
-        contest_title: contestToUse.title
-      });
+      const storyData = {
+        title: title.trim(),
+        content: text.trim(),
+        wordCount,
+        contestId: contestToUse.id,
+        hasMatureContent,
+        consentId: consentData.id, // Vincular el consentimiento
+      };
 
-      // Limpiar borrador
-      localStorage.removeItem(`story-draft-${contestToUse.id}`);
+      // ✅ submitStory del contexto actualiza automáticamente userStories
+      const result = await submitStory(storyData);
 
-      // Cerrar modal
-      setShowConfirmationModal(false);
+      if (result.success) {
+        // Actualizar el consentimiento con el story_id
+        await supabase
+          .from('submission_consents')
+          .update({ story_id: result.storyId })
+          .eq('id', consentData.id);
 
-      // Redirigir con mensaje
-      navigate("/contest/current", {
-        state: { message: result.message },
-      });
-    } else {
-      alert(result.error);
+        // 📊 TRACK EVENT: Story published
+        trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
+          contest_id: contestToUse.id,
+          word_count: wordCount,
+          has_mature_content: hasMatureContent,
+          contest_title: contestToUse.title
+        });
+
+        // Limpiar borrador
+        localStorage.removeItem(`story-draft-${contestToUse.id}`);
+
+        // Cerrar modal
+        setShowConfirmationModal(false);
+
+        // Redirigir con mensaje
+        navigate("/contest/current", {
+          state: { message: result.message },
+        });
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      console.error('Error en el proceso de envío:', error);
+      alert('Error inesperado. Inténtalo de nuevo.');
     }
   };
 
