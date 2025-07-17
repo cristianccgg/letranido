@@ -7,6 +7,8 @@ const subscribeToNewsletter = async (email) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+        "authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({ 
         emailType: "newsletter_subscription",
@@ -61,16 +63,25 @@ const NewsletterSignup = () => {
       }
     } catch (error) {
       console.error("Error en suscripción de newsletter:", error);
-      setStatus("error");
-      setMessage(
-        "Hubo un error inesperado. Inténtalo de nuevo en unos minutos."
-      );
+      
+      // Si es error de red pero la función pudo haber funcionado
+      if (error.message.includes("Load failed") || error.message.includes("502")) {
+        setStatus("error");
+        setMessage(
+          "Error de conexión. Si ya tenías cuenta, es posible que la suscripción se haya activado. Verifica en tu perfil."
+        );
+      } else {
+        setStatus("error");
+        setMessage(
+          "Hubo un error inesperado. Inténtalo de nuevo en unos minutos."
+        );
+      }
 
-      // Reset después de 5 segundos para errores
+      // Reset después de 8 segundos para errores de red
       setTimeout(() => {
         setStatus("idle");
         setMessage("");
-      }, 5000);
+      }, 8000);
     }
   };
 

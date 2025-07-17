@@ -37,7 +37,7 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     // Get request data
@@ -249,7 +249,7 @@ serve(async (req) => {
       throw new Error("RESEND_API_KEY no configurada");
     }
 
-    // In test mode, send only to admin
+    // In test mode, send only to admin (but not for newsletter subscriptions)
     const isTestMode = Deno.env.get("EMAIL_MODE") === "test";
     const finalRecipients = isTestMode
       ? [Deno.env.get("ADMIN_EMAIL") || "cristianccggg@gmail.com"]
@@ -673,6 +673,8 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
 
     // 2. Si existe usuario registrado, actualizar sus preferencias
     if (existingUser) {
+      console.log(`👤 Usuario existente encontrado: ${existingUser.id}, newsletter_contests: ${existingUser.newsletter_contests}`);
+      
       if (existingUser.newsletter_contests) {
         return new Response(
           JSON.stringify({ 
@@ -688,6 +690,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
       }
 
       // Activar notificaciones en su perfil
+      console.log(`📝 Activando newsletter para usuario: ${existingUser.id}`);
       const { error: updateError } = await supabaseClient
         .from("user_profiles")
         .update({ newsletter_contests: true })
@@ -698,7 +701,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
         return new Response(
           JSON.stringify({ 
             success: false, 
-            message: "Error activando notificaciones en tu cuenta" 
+            message: `Error activando notificaciones: ${updateError.message}` 
           }),
           { 
             status: 500, 
@@ -801,7 +804,8 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
       .insert({
         email: normalizedEmail,
         source: "landing_page",
-        is_active: true
+        is_active: true,
+        subscribed_at: new Date().toISOString()
       });
 
     if (insertError) {

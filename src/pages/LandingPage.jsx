@@ -573,8 +573,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Newsletter Signup 
-      <NewsletterSignup />*/}
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
 
       {/* Features Section - Modernizada */}
       <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
