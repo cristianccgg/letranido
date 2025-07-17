@@ -14,7 +14,6 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
-import EmailTest from "./pages/EmailTest";
 import EmailUnsubscribe from "./pages/EmailUnsubscribe";
 import Preferences from "./pages/Preferences";
 
@@ -102,7 +101,6 @@ function AppContent() {
 
           {/* Admin */}
           <Route path="/admin" element={<ContestAdminPanel />} />
-          <Route path="/test-email" element={<EmailTest />} />
 
           {/* Email management */}
           <Route path="/email/unsubscribe" element={<EmailUnsubscribe />} />
