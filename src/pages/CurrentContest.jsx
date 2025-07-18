@@ -297,15 +297,15 @@ const CurrentContest = () => {
     if (!contest) return null;
 
     // Verificar si el usuario participó en este concurso
-    const userParticipated = userStories.some(userStory => 
-      userStory.contest_id === contest.id
+    const userParticipated = userStories.some(
+      (userStory) => userStory.contest_id === contest.id
     );
 
     // URL del concurso (no de la historia específica)
     const contestUrl = `${window.location.origin}/contest/${contest.id}`;
 
     // Generar texto según si el usuario participó o no
-    return userParticipated 
+    return userParticipated
       ? {
           title: `Letranido - ${contest.title}`,
           text: `¡Participé con mi historia en el concurso "${contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
@@ -324,7 +324,7 @@ const CurrentContest = () => {
 
     const phase = getContestPhase(contest);
     const now = new Date();
-    
+
     // 🆕 Detectar si es un concurso histórico (no es el concurso actual)
     const isHistoricalContest = contest.id !== currentContest?.id;
 
@@ -345,7 +345,7 @@ const CurrentContest = () => {
             isHistorical: true,
           };
         }
-        
+
         const submissionEnd = new Date(contest.submission_deadline);
         const daysLeft = Math.ceil(
           (submissionEnd - now) / (1000 * 60 * 60 * 24)
@@ -379,7 +379,7 @@ const CurrentContest = () => {
             isHistorical: true,
           };
         }
-        
+
         const votingEnd = new Date(contest.voting_deadline);
         const votingDaysLeft = Math.ceil(
           (votingEnd - now) / (1000 * 60 * 60 * 24)
@@ -399,13 +399,19 @@ const CurrentContest = () => {
       case "results":
         return {
           phase: "results",
-          title: isHistoricalContest ? "📚 Concurso Histórico" : "🏆 Resultados Finales",
-          description: isHistoricalContest 
+          title: isHistoricalContest
+            ? "📚 Concurso Histórico"
+            : "🏆 Resultados Finales",
+          description: isHistoricalContest
             ? `Concurso de ${contest.month} - Solo lectura`
             : "¡Concurso finalizado! Conoce a los ganadores",
           bgColor: isHistoricalContest ? "bg-indigo-50" : "bg-yellow-50",
-          borderColor: isHistoricalContest ? "border-indigo-200" : "border-yellow-200",
-          textColor: isHistoricalContest ? "text-indigo-800" : "text-yellow-800",
+          borderColor: isHistoricalContest
+            ? "border-indigo-200"
+            : "border-yellow-200",
+          textColor: isHistoricalContest
+            ? "text-indigo-800"
+            : "text-yellow-800",
           buttonText: "Ver ganadores",
           scrollToStories: true,
           showStories: true,
@@ -487,17 +493,18 @@ const CurrentContest = () => {
     <div className="max-w-6xl mx-auto space-y-6 overflow-hidden">
       {/* SEO Meta Tags */}
       <SEOHead
-        title={`${currentContest?.title || 'Concurso Actual'} - Concurso de Escritura`}
-        description={currentContest ? 
-          `Participa en "${currentContest.title}" - ${currentContest.description} | Concurso de escritura creativa en Letranido.` :
-          'Participa en el concurso actual de escritura creativa. Lee historias originales, vota por tus favoritas y únete a nuestra comunidad.'
+        title={`${currentContest?.title || "Concurso Actual"} - Concurso de Escritura`}
+        description={
+          currentContest
+            ? `Participa en "${currentContest.title}" - ${currentContest.description} | Concurso de escritura creativa en Letranido.`
+            : "Participa en el concurso actual de escritura creativa. Lee historias originales, vota por tus favoritas y únete a nuestra comunidad."
         }
-        keywords={`concurso escritura, ${currentContest?.category || 'ficción'}, historias originales, votación, literatura, ${currentContest?.title || 'concurso actual'}`}
+        keywords={`concurso escritura, ${currentContest?.category || "ficción"}, historias originales, votación, literatura, ${currentContest?.title || "concurso actual"}`}
         url="/contest/current"
         type="article"
         publishedTime={currentContest?.created_at}
       />
-      
+
       {/* Header del concurso - Más compacto */}
       <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 rounded-xl p-4 md:p-6 text-center relative overflow-hidden">
         {/* Elementos decorativos sutiles - Ocultos en mobile */}
@@ -534,7 +541,9 @@ const CurrentContest = () => {
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <Star className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-purple-700">{contest.category}</span>
+              <span className="truncate font-semibold text-purple-700">
+                {contest.category}
+              </span>
             </div>
             <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 border border-pink-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
@@ -655,9 +664,12 @@ const CurrentContest = () => {
                         >
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
-                            <UserAvatar 
-                              user={{ name: story.author, email: `${story.author}@mock.com` }} 
-                              size="md" 
+                            <UserAvatar
+                              user={{
+                                name: story.author,
+                                email: `${story.author}@mock.com`,
+                              }}
+                              size="md"
                             />
 
                             <div className="flex-1 min-w-0">
@@ -763,7 +775,8 @@ const CurrentContest = () => {
                             return totalWords >= 1000
                               ? `${Math.floor(totalWords / 1000)}k`
                               : totalWords.toLocaleString();
-                          })()}
+                          })()}{" "}
+                      +
                     </div>
                     <div className="text-gray-500 text-sm md:text-base">
                       Palabras escritas
@@ -900,8 +913,8 @@ const CurrentContest = () => {
                         {searchTerm
                           ? "Intenta con otros términos de búsqueda"
                           : phaseInfo?.phase === "voting"
-                          ? "Los participantes están escribiendo sus historias"
-                          : "Pronto habrá nuevas historias aquí"}
+                            ? "Los participantes están escribiendo sus historias"
+                            : "Pronto habrá nuevas historias aquí"}
                       </p>
                       {phaseInfo?.buttonLink && !searchTerm && (
                         <a href={phaseInfo.buttonLink} className="btn-primary">
@@ -951,9 +964,12 @@ const CurrentContest = () => {
                               </h3>
 
                               <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                <UserAvatar 
-                                  user={{ name: story.author, email: `${story.author}@mock.com` }} 
-                                  size="xs" 
+                                <UserAvatar
+                                  user={{
+                                    name: story.author,
+                                    email: `${story.author}@mock.com`,
+                                  }}
+                                  size="xs"
                                 />
                                 <span>
                                   por <strong>{story.author}</strong>
@@ -977,7 +993,10 @@ const CurrentContest = () => {
                             <div className="flex items-center gap-2 ml-3 flex-shrink-0">
                               {getShareData() && (
                                 <div onClick={(e) => e.stopPropagation()}>
-                                  <ShareDropdown shareData={getShareData()} size="small" />
+                                  <ShareDropdown
+                                    shareData={getShareData()}
+                                    size="small"
+                                  />
                                 </div>
                               )}
                               <a
@@ -1029,11 +1048,12 @@ const CurrentContest = () => {
                                   </span>
                                 )}
 
-                                {isAuthenticated && story.user_id === user?.id && (
-                                  <span className="text-xs text-purple-600">
-                                    Tu historia
-                                  </span>
-                                )}
+                                {isAuthenticated &&
+                                  story.user_id === user?.id && (
+                                    <span className="text-xs text-purple-600">
+                                      Tu historia
+                                    </span>
+                                  )}
                               </>
                             )}
                           </div>
@@ -1068,7 +1088,6 @@ const CurrentContest = () => {
           }}
         />
       )}
-
     </div>
   );
 };
