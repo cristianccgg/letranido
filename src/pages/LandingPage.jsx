@@ -46,7 +46,7 @@ const LandingPage = () => {
 
   // ✅ SOLO ESTADÍSTICAS GENERALES - SIN CARGAR HISTORIAS
   const [stats, setStats] = useState({
-    totalParticipants: 0,
+    totalUsers: 0, // Cambiado de totalParticipants a totalUsers
     totalStories: 0,
     totalWords: 0, // Cambiado de totalLikes a totalWords
   });
@@ -61,32 +61,46 @@ const LandingPage = () => {
       if (!initialized) return;
 
       try {
-        // Solo estadísticas del concurso actual
-        if (currentContest) {
-          // Obtener el total de palabras de todas las historias enviadas
-          let totalWords = 0;
-          try {
-            const { data: stories, error } = await supabase // 👈 Usa supabase importado
-              .from("stories")
-              .select("word_count")
-              .eq("contest_id", currentContest.id);
+        // Obtener total de usuarios registrados
+        let totalUsers = 0;
+        try {
+          const { count, error: usersError } = await supabase
+            .from("user_profiles")
+            .select("*", { count: "exact", head: true });
 
-            if (!error && stories && stories.length > 0) {
-              totalWords = stories.reduce(
-                (acc, story) => acc + (story.word_count || 0),
-                0
-              );
-            }
-          } catch (err) {
-            console.error("Error cargando total de palabras:", err);
+          if (!usersError) {
+            totalUsers = count || 0;
           }
-
-          setStats({
-            totalParticipants: currentContest.participants_count || 0,
-            totalStories: currentContest.participants_count || 0,
-            totalWords, // Nuevo campo
-          });
+        } catch (err) {
+          console.error("Error cargando total de usuarios:", err);
         }
+
+        // Estadísticas de todas las historias publicadas
+        let totalStories = 0;
+        let totalWords = 0;
+
+        try {
+          const { data: stories, error } = await supabase
+            .from("stories")
+            .select("word_count")
+            .not("published_at", "is", null); // Solo historias publicadas
+
+          if (!error && stories && stories.length > 0) {
+            totalStories = stories.length;
+            totalWords = stories.reduce(
+              (acc, story) => acc + (story.word_count || 0),
+              0
+            );
+          }
+        } catch (err) {
+          console.error("Error cargando estadísticas totales:", err);
+        }
+
+        setStats({
+          totalUsers,
+          totalStories,
+          totalWords,
+        });
       } catch (error) {
         console.error("Error cargando stats básicas:", error);
       }
@@ -334,10 +348,10 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-indigo-100 hover:border-purple-200">
             <div className="text-center">
               <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                {stats.totalParticipants}
+                {stats.totalUsers}
               </div>
               <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
-                Escritores participando
+                Escritores en la comunidad
               </div>
             </div>
             <div className="text-center">
@@ -438,7 +452,7 @@ const LandingPage = () => {
                         />
                         <div className="text-left">
                           <div className="text-xl font-bold text-gray-900 mb-1">
-                            <UserWithWinnerBadges 
+                            <UserWithWinnerBadges
                               userId={lastContestWinners.winners[0].user_id}
                               userName={lastContestWinners.winners[0].author}
                             />
