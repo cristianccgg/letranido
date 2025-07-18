@@ -126,12 +126,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           });
         }
 
-        console.log("✅ Login exitoso, el Layout se encargará de cerrar el modal");
-        // No cerramos el modal aquí, el Layout lo detectará automáticamente
-        // cuando isAuthenticated cambie a true
+        console.log("✅ Login exitoso, cerrando modal");
+        // Cerrar modal solo en caso de éxito
         onSuccess?.();
+        onClose();
       } else {
-        console.log("❌ Login falló, error ya establecido en contexto global");
+        console.log("❌ Login falló, manteniendo modal abierto para mostrar errores");
+        // NO cerrar el modal en caso de error para que el usuario vea el mensaje
         // El error ya se estableció en el contexto global desde la función login
       }
     } catch (error) {
