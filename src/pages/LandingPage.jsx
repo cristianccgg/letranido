@@ -27,6 +27,7 @@ import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
+import logo from "../assets/images/letranido-logo.png";
 
 const LandingPage = () => {
   const {
@@ -221,7 +222,7 @@ const LandingPage = () => {
         keywords="escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido, literatura"
         url="/"
       />
-      
+
       {/* Hero Section - Elegante y moderno */}
       <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
         {/* Elementos decorativos modernos */}
@@ -234,15 +235,17 @@ const LandingPage = () => {
 
         <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:pt-20 lg:pb-8 text-center">
           {/* Logo/Título con más personalidad */}
-          <div className="mb-6">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-2 tracking-tight">
-              Letranido
-            </h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto shadow-lg"></div>
+          <div className="mb-2 flex flex-col items-center">
+            <div className="flex items-center">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
+                Letranido
+              </h1>
+              <img src={logo} alt="Letranido" className="h-15 md:h-25 w-auto" />
+            </div>
           </div>
 
           {/* Subtítulo con mejor tipografía */}
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium leading-relaxed tracking-wide">
+          <p className="text-lg md:text-xl lg:text-2xl flex flex-col text-gray-900 mb-8 max-w-2xl mx-auto font-dancing-script font-semibold">
             Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a
             brillar.{" "}
             <span className="text-indigo-600 tracking-wide">
@@ -388,7 +391,7 @@ const LandingPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 rounded-2xl"></div>
                 <div className="absolute top-6 right-6 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-20 blur-xl animate-pulse"></div>
                 <div className="absolute bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg animate-pulse"></div>
-                
+
                 <div className="relative max-w-4xl mx-auto">
                   {/* Header motivacional */}
                   <div className="text-center mb-8">
@@ -400,7 +403,8 @@ const LandingPage = () => {
                       ¡Conoce al ganador que conquistó a la comunidad!
                     </h2>
                     <p className="text-gray-600 text-lg">
-                      Su historia brilló entre todas las demás y se llevó el reconocimiento de los lectores
+                      Su historia brilló entre todas las demás y se llevó el
+                      reconocimiento de los lectores
                     </p>
                   </div>
 
@@ -446,7 +450,8 @@ const LandingPage = () => {
                         <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-full">
                           <Heart className="h-5 w-5 text-red-500" />
                           <span className="font-bold text-gray-800">
-                            {lastContestWinners.winners[0].likes_count || 0} votos
+                            {lastContestWinners.winners[0].likes_count || 0}{" "}
+                            votos
                           </span>
                         </div>
                         <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-full">
@@ -474,7 +479,8 @@ const LandingPage = () => {
                       ¡Podrías ser el próximo ganador!
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Únete al concurso actual y demuestra tu talento. Tu historia podría ser la próxima en brillar.
+                      Únete al concurso actual y demuestra tu talento. Tu
+                      historia podría ser la próxima en brillar.
                     </p>
                     <Link
                       to="/contest/current"
@@ -489,22 +495,26 @@ const LandingPage = () => {
                   {/* Mini-mención discreta de otros lugares */}
                   {lastContestWinners.winners.length > 1 && (
                     <div className="text-center text-sm text-gray-500 border-t border-gray-200 pt-4">
-                      <p className="mb-2">También destacaron en este concurso:</p>
+                      <p className="mb-2">
+                        También destacaron en este concurso:
+                      </p>
                       <div className="flex items-center justify-center gap-6 text-xs">
-                        {lastContestWinners.winners.slice(1, 3).map((story, index) => (
-                          <Link
-                            key={story.id}
-                            to={`/story/${story.id}`}
-                            className="hover:text-indigo-600 transition-colors duration-200"
-                          >
-                            <span className="font-medium">
-                              {index === 0 ? "🥈" : "🥉"} {story.author}
-                            </span>
-                            <span className="text-gray-400 ml-1">
-                              - "{story.title}"
-                            </span>
-                          </Link>
-                        ))}
+                        {lastContestWinners.winners
+                          .slice(1, 3)
+                          .map((story, index) => (
+                            <Link
+                              key={story.id}
+                              to={`/story/${story.id}`}
+                              className="hover:text-indigo-600 transition-colors duration-200"
+                            >
+                              <span className="font-medium">
+                                {index === 0 ? "🥈" : "🥉"} {story.author}
+                              </span>
+                              <span className="text-gray-400 ml-1">
+                                - "{story.title}"
+                              </span>
+                            </Link>
+                          ))}
                       </div>
                     </div>
                   )}

@@ -21,6 +21,7 @@ import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
 import UserAvatar from "../ui/UserAvatar";
 import CookieBanner from "../ui/CookieBanner";
+import logo from "../../assets/images/letranido-logo.png";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -47,7 +48,6 @@ const Layout = ({ children }) => {
     showCookieBanner,
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
-
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
   const hasUserParticipated =
@@ -139,9 +139,10 @@ const Layout = ({ children }) => {
   ];
 
   // No mostrar navegación de usuario autenticado en página de reset
-  const navigation = (isAuthenticated && location.pathname !== "/reset-password")
-    ? authenticatedNavigation
-    : publicNavigation;
+  const navigation =
+    isAuthenticated && location.pathname !== "/reset-password"
+      ? authenticatedNavigation
+      : publicNavigation;
 
   const handleAuthClick = (mode) => {
     // No abrir modal si estamos en la página de reset de contraseña
@@ -182,14 +183,16 @@ const Layout = ({ children }) => {
             {/* Logo */}
             <Link
               to="/"
-              className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0"
+              className="flex items-center space-x-1 sm:space-x-0 flex-shrink-0"
             >
-              <PenTool className="h-7 w-7 sm:h-8 sm:w-8 text-primary-600" />
-              <span className="text-lg sm:text-xl font-bold text-gray-900">
+              <img src={logo} alt="Letranido" className="lg:h-18 h-15 w-auto" />
+              <span className="text-lg sm:text-xl lg:text-4xl  text-primary-600 font-dm-serif">
                 Letranido
               </span>
               {location.pathname === "/reset-password" && (
-                <span className="text-gray-500 text-sm ml-2">- Restablecer contraseña</span>
+                <span className="text-gray-500 text-sm ml-2">
+                  - Restablecer contraseña
+                </span>
               )}
             </Link>
 
