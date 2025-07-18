@@ -245,11 +245,11 @@ const LandingPage = () => {
           </div>
 
           {/* Subtítulo con mejor tipografía */}
-          <p className="text-lg md:text-xl lg:text-2xl flex flex-col text-gray-900 mb-8 max-w-2xl mx-auto font-dancing-script font-semibold">
-            Crea historias increíbles. Recibe feedback valioso. Ayuda a otros a
-            brillar.{" "}
+          <p className="text-xl md:text-xl lg:text-2xl flex flex-col text-gray-900 mb-8 max-w-2xl mx-auto font-dancing-script font-semibold">
+            Crea historias increíbles. <br className="md:hidden" />
+            Recibe feedback valioso. Ayuda a otros a brillar. <br />
             <span className="text-indigo-600 tracking-wide">
-              Crece como escritor en comunidad.
+              Crece en comunidad, en un verdadero nido de escritura.
             </span>
           </p>
 
