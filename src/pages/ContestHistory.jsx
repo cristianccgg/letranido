@@ -12,6 +12,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 
 const ContestHistory = () => {
   const { contests, contestsLoading, getStoriesByContest } = useGlobalApp();
@@ -262,7 +263,12 @@ const ContestHistory = () => {
                       </h3>
 
                       <p className="text-sm text-gray-600 mb-3">
-                        por {contest.winner.author}
+                        por{" "}
+                        <UserWithWinnerBadges 
+                          userId={contest.winner.user_id}
+                          userName={contest.winner.author}
+                          className="inline-flex"
+                        />
                       </p>
 
                       <div className="flex items-center justify-between">

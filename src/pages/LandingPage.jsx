@@ -25,6 +25,7 @@ import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
+import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import logo from "../assets/images/letranido-logo.png";
@@ -436,9 +437,12 @@ const LandingPage = () => {
                           size="lg"
                         />
                         <div className="text-left">
-                          <p className="text-xl font-bold text-gray-900">
-                            {lastContestWinners.winners[0].author}
-                          </p>
+                          <div className="text-xl font-bold text-gray-900 mb-1">
+                            <UserWithWinnerBadges 
+                              userId={lastContestWinners.winners[0].user_id}
+                              userName={lastContestWinners.winners[0].author}
+                            />
+                          </div>
                           <p className="text-indigo-600 font-semibold">
                             🌟 Autor destacado del mes
                           </p>

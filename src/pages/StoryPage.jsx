@@ -23,6 +23,7 @@ import AuthModal from "../components/forms/AuthModal";
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import UserAvatar from "../components/ui/UserAvatar";
+import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
 
 const StoryPage = () => {
@@ -387,7 +388,10 @@ const StoryPage = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-lg">
-                  {story.author.name}
+                  <UserWithTopBadge 
+                    userId={story.user_id}
+                    userName={story.author.name}
+                  />
                 </h3>
                 <div className="flex items-center text-sm text-gray-600">
                   <Award className="h-4 w-4 mr-1" />

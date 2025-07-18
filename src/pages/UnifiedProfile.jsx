@@ -23,6 +23,7 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
+import UserBadgesSection from "../components/ui/UserBadgesSection";
 
 const UnifiedProfile = () => {
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -294,6 +295,12 @@ const UnifiedProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Badges Section */}
+      <UserBadgesSection 
+        userId={user?.id} 
+        userName={user?.name || user?.display_name || "Usuario"}
+      />
 
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
         {/* Main Content */}

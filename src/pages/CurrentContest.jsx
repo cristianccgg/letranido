@@ -29,6 +29,7 @@ import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
+import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
 
 const CurrentContest = () => {
@@ -674,18 +675,11 @@ const CurrentContest = () => {
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-gray-900 truncate">
-                                  {story.author}
-                                </span>
-                                {/* Badges del autor */}
-                                {story.authorWins > 0 && (
-                                  <span
-                                    className="text-sm"
-                                    title="Ganador de concursos"
-                                  >
-                                    🏆
-                                  </span>
-                                )}
+                                <UserWithTopBadge 
+                                  userId={story.user_id}
+                                  userName={story.author}
+                                  className="truncate"
+                                />
                                 {story.likes_count > 50 && (
                                   <span
                                     className="text-sm"
@@ -972,7 +966,12 @@ const CurrentContest = () => {
                                   size="xs"
                                 />
                                 <span>
-                                  por <strong>{story.author}</strong>
+                                  por{" "}
+                                  <UserWithTopBadge 
+                                    userId={story.user_id}
+                                    userName={story.author}
+                                    className="inline-flex"
+                                  />
                                 </span>
                                 <span className="mx-1">•</span>
                                 <span>{getReadingTime(story.word_count)} </span>

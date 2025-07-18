@@ -1581,6 +1581,21 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
+        // Verificar y otorgar badges automáticamente
+        try {
+          const { data: newBadges, error: badgeError } = await supabase.rpc('check_and_award_badges', {
+            target_user_id: state.user.id
+          });
+          
+          if (!badgeError && newBadges && newBadges.length > 0) {
+            console.log('🏆 Nuevos badges otorgados:', newBadges);
+            // Aquí podrías mostrar una notificación de badge si implementas el componente
+          }
+        } catch (badgeErr) {
+          console.warn('Error checking badges:', badgeErr);
+          // No fallar la publicación por errores de badges
+        }
+
         return {
           success: true,
           story: processedStory,

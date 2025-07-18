@@ -4,6 +4,7 @@ import { MessageSquare, Send, Heart, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
+import { UserWithTopBadge } from "../ui/UserNameWithBadges";
 
 const SimpleComments = ({ storyId, storyTitle }) => {
   const [comments, setComments] = useState([]);
@@ -262,9 +263,11 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">
-                        {comment.author}
-                      </span>
+                      <UserWithTopBadge 
+                        userId={comment.author_id}
+                        userName={comment.author}
+                        className="font-medium"
+                      />
                       <span className="text-xs text-gray-500">
                         {formatTimeAgo(comment.created_at)}
                       </span>
