@@ -458,11 +458,6 @@ const Layout = ({ children }) => {
                       <div className="text-sm font-medium text-gray-900">
                         {user?.name}
                       </div>
-                      {user?.is_founder && (
-                        <span className="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                          🚀 Fundador
-                        </span>
-                      )}
                     </div>
                     <div className="text-xs text-gray-400">{user?.email}</div>
                     {hasUserParticipated && (

@@ -177,17 +177,19 @@ const UnifiedProfile = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 px-4">
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-8">
-        <div className="flex items-start gap-6">
-          <UserAvatar user={user} size="2xl" />
+      <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+          <div className="flex-shrink-0 mx-auto sm:mx-0">
+            <UserAvatar user={user} size="2xl" />
+          </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="flex-1 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
               {!isEditingName ? (
-                <>
-                  <h1 className="text-3xl font-bold text-gray-900">
+                <div className="flex items-center justify-center sm:justify-start gap-3">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {user?.name || user?.display_name}
                   </h1>
                   <button
@@ -197,33 +199,35 @@ const UnifiedProfile = () => {
                   >
                     <Edit3 className="h-5 w-5" />
                   </button>
-                </>
+                </div>
               ) : (
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
                   <input
                     type="text"
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
-                    className="text-3xl font-bold text-gray-900 bg-white/80 border border-gray-300 rounded-lg px-3 py-1 flex-1 max-w-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    className="text-xl sm:text-3xl font-bold text-gray-900 bg-white/80 border border-gray-300 rounded-lg px-3 py-2 flex-1 text-center sm:text-left focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     placeholder="Tu nombre de escritor"
                     disabled={nameUpdateLoading}
                   />
-                  <button
-                    onClick={handleSaveDisplayName}
-                    disabled={nameUpdateLoading}
-                    className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                    title="Guardar"
-                  >
-                    <Save className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={handleCancelEditName}
-                    disabled={nameUpdateLoading}
-                    className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                    title="Cancelar"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
+                  <div className="flex gap-2 justify-center sm:justify-start">
+                    <button
+                      onClick={handleSaveDisplayName}
+                      disabled={nameUpdateLoading}
+                      className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                      title="Guardar"
+                    >
+                      <Save className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={handleCancelEditName}
+                      disabled={nameUpdateLoading}
+                      className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                      title="Cancelar"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -235,18 +239,18 @@ const UnifiedProfile = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-4 mb-4">
-              <p className="text-gray-600">{user?.email}</p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
+              <p className="text-gray-600 text-center sm:text-left break-all sm:break-normal">{user?.email}</p>
               <Link
                 to="/preferences"
-                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-flex items-center justify-center sm:justify-start text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 <Mail className="h-4 w-4 mr-1" />
                 Configurar preferencias
               </Link>
             </div>
 
-            <div className="text-sm text-gray-500 mb-6">
+            <div className="text-sm text-gray-500 mb-6 text-center sm:text-left">
               Miembro desde{" "}
               {new Date(user?.created_at || Date.now()).toLocaleDateString(
                 "es-ES",
@@ -258,40 +262,40 @@ const UnifiedProfile = () => {
             </div>
 
             {/* Quick Stats - Datos en tiempo real */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-blue-600">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="bg-white rounded-lg p-3 sm:p-4 text-center shadow-sm">
+                <div className="text-xl sm:text-2xl font-bold text-blue-600">
                   {userStories.length}
                 </div>
-                <div className="text-sm text-gray-600">Historias</div>
+                <div className="text-xs sm:text-sm text-gray-600">Historias</div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="bg-white rounded-lg p-3 sm:p-4 text-center shadow-sm">
+                <div className="text-xl sm:text-2xl font-bold text-green-600">
                   {totalLikes}
                 </div>
-                <div className="text-sm text-gray-600">Likes recibidos</div>
+                <div className="text-xs sm:text-sm text-gray-600">Likes recibidos</div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-red-600">
+              <div className="bg-white rounded-lg p-3 sm:p-4 text-center shadow-sm">
+                <div className="text-xl sm:text-2xl font-bold text-red-600">
                   {votingStatsLoading ? "..." : votingStats.userVotesCount}
                 </div>
-                <div className="text-sm text-gray-600">Votos dados</div>
+                <div className="text-xs sm:text-sm text-gray-600">Votos dados</div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-yellow-600">
+              <div className="bg-white rounded-lg p-3 sm:p-4 text-center shadow-sm">
+                <div className="text-xl sm:text-2xl font-bold text-yellow-600">
                   {totalViews}
                 </div>
-                <div className="text-sm text-gray-600">Lecturas</div>
+                <div className="text-xs sm:text-sm text-gray-600">Lecturas</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Current Contest Status */}
@@ -405,12 +409,6 @@ const UnifiedProfile = () => {
                       <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">
                         {story.contests?.title || "Concurso"}
                       </span>
-                      {story.is_winner && (
-                        <div className="flex items-center bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">
-                          <Trophy className="h-3 w-3 mr-1" />
-                          Ganador
-                        </div>
-                      )}
                     </div>
 
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
