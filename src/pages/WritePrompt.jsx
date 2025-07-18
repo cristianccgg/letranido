@@ -188,13 +188,19 @@ const WritePrompt = () => {
 
       // ✅ submitStory del contexto actualiza automáticamente userStories
       const result = await submitStory(storyData);
+      
+      console.log('📝 Submit story result:', result);
 
       if (result.success) {
+        console.log('✅ Story created with ID:', result.storyId);
+        
         // Actualizar el consentimiento con el story_id
-        await supabase
+        const updateResult = await supabase
           .from('submission_consents')
           .update({ story_id: result.storyId })
           .eq('id', consentData.id);
+          
+        console.log('📝 Consent update result:', updateResult);
 
         // 📊 TRACK EVENT: Story published
         trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
