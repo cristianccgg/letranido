@@ -154,36 +154,14 @@ const WritePrompt = () => {
     noAIConfirmed, 
     shareWinnerContentAccepted 
   }) => {
-    // Primero guardar los consentimientos legales
     try {
-      const { data: consentData, error: consentError } = await supabase
-        .from('submission_consents')
-        .insert({
-          user_id: user.id,
-          terms_accepted: termsAccepted,
-          original_confirmed: originalConfirmed,
-          no_ai_confirmed: noAIConfirmed,
-          share_winner_content_accepted: shareWinnerContentAccepted,
-          mature_content_marked: hasMatureContent,
-          ip_address: null, // Se puede obtener del cliente si es necesario
-          user_agent: navigator.userAgent
-        })
-        .select()
-        .single();
-
-      if (consentError) {
-        console.error('Error guardando consentimientos:', consentError);
-        alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
-        return;
-      }
-
+      // Primero crear la historia
       const storyData = {
         title: title.trim(),
         content: text.trim(),
         wordCount,
         contestId: contestToUse.id,
         hasMatureContent,
-        consentId: consentData.id, // Vincular el consentimiento
       };
 
       // ✅ submitStory del contexto actualiza automáticamente userStories
@@ -194,13 +172,30 @@ const WritePrompt = () => {
       if (result.success) {
         console.log('✅ Story created with ID:', result.storyId);
         
-        // Actualizar el consentimiento con el story_id
-        const updateResult = await supabase
+        // Ahora guardar los consentimientos legales con el story_id
+        const { data: consentData, error: consentError } = await supabase
           .from('submission_consents')
-          .update({ story_id: result.storyId })
-          .eq('id', consentData.id);
-          
-        console.log('📝 Consent update result:', updateResult);
+          .insert({
+            user_id: user.id,
+            story_id: result.storyId, // Insertar directamente con story_id
+            terms_accepted: termsAccepted,
+            original_confirmed: originalConfirmed,
+            no_ai_confirmed: noAIConfirmed,
+            share_winner_content_accepted: shareWinnerContentAccepted,
+            mature_content_marked: hasMatureContent,
+            ip_address: null, // Se puede obtener del cliente si es necesario
+            user_agent: navigator.userAgent
+          })
+          .select()
+          .single();
+
+        if (consentError) {
+          console.error('❌ Error guardando consentimientos:', consentError);
+          alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
+          return;
+        }
+
+        console.log('✅ Consent created with story_id:', consentData.id);
 
         // 📊 TRACK EVENT: Story published
         trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
