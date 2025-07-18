@@ -1,9 +1,18 @@
 // pages/PrivacyPolicy.jsx - POLÍTICA DE PRIVACIDAD
 import { Shield, Eye, Database, Mail, Lock, AlertTriangle } from "lucide-react";
+import SEOHead from "../components/SEO/SEOHead";
 
 const PrivacyPolicy = () => {
   return (
     <div className="max-w-4xl mx-auto py-12">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Política de Privacidad"
+        description="Conoce cómo Letranido protege tu privacidad. Información detallada sobre qué datos recopilamos, cómo los usamos y tus derechos como usuario."
+        keywords="política de privacidad, protección datos, privacidad usuario, gdpr, derechos usuario, letranido"
+        url="/privacy"
+      />
+      
       <div className="prose prose-gray max-w-none">
         {/* Header */}
         <div className="text-center mb-12">

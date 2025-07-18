@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 
-const GA_MEASUREMENT_ID = 'G-4NRYHC1FDJ';
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-4NRYHC1FDJ';
 
 export const useGoogleAnalytics = () => {
   const { cookieConsent } = useGlobalApp();

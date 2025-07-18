@@ -1,6 +1,7 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
@@ -230,9 +231,11 @@ function NotFoundPage() {
 // ✅ COMPONENTE PRINCIPAL SIMPLIFICADO
 function App() {
   return (
-    <GlobalAppProvider>
-      <AppContent />
-    </GlobalAppProvider>
+    <ErrorBoundary>
+      <GlobalAppProvider>
+        <AppContent />
+      </GlobalAppProvider>
+    </ErrorBoundary>
   );
 }
 

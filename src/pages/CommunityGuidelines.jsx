@@ -8,10 +8,19 @@ import {
   Trophy,
   Flag,
 } from "lucide-react";
+import SEOHead from "../components/SEO/SEOHead";
 
 const CommunityGuidelines = () => {
   return (
     <div className="max-w-4xl mx-auto py-12">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Guías de la Comunidad"
+        description="Conoce las guías de la comunidad de Letranido. Reglas sobre derechos de autor, comportamiento respetuoso, contenido apropiado y moderación."
+        keywords="guías comunidad, reglas comunidad, comportamiento escritores, moderación, derechos autor, letranido"
+        url="/community-guidelines"
+      />
+      
       <div className="prose prose-gray max-w-none">
         {/* Header */}
         <div className="text-center mb-12">

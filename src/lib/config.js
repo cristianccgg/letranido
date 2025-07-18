@@ -1,0 +1,93 @@
+// lib/config.js - Configuración centralizada de la aplicación
+
+// Configuración del sitio
+export const SITE_CONFIG = {
+  name: 'Letranido',
+  title: 'Letranido - Comunidad de Escritura Creativa',
+  description: 'Únete a Letranido, la comunidad de escritores creativos. Participa en concursos mensuales, comparte tus historias originales y conecta con otros escritores apasionados.',
+  url: import.meta.env.VITE_SITE_URL || 'https://letranido.com',
+  domain: 'letranido.com',
+  keywords: 'escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido',
+};
+
+// Configuración de Supabase
+export const SUPABASE_CONFIG = {
+  url: import.meta.env.VITE_SUPABASE_URL,
+  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  serviceRoleKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
+};
+
+// Configuración de Email
+export const EMAIL_CONFIG = {
+  apiKey: import.meta.env.VITE_RESEND_API_KEY,
+  from: import.meta.env.VITE_FROM_EMAIL || 'noreply@letranido.com',
+  mode: import.meta.env.VITE_EMAIL_MODE || 'test',
+  adminEmail: import.meta.env.VITE_ADMIN_EMAIL || 'admin@letranido.com',
+  replyTo: 'info@letranido.com',
+};
+
+// Configuración de Analytics
+export const ANALYTICS_CONFIG = {
+  gaId: import.meta.env.VITE_GA_MEASUREMENT_ID,
+  enableInDevelopment: import.meta.env.DEV ? false : true,
+};
+
+// Configuración de aplicación
+export const APP_CONFIG = {
+  environment: import.meta.env.MODE || 'development',
+  isDevelopment: import.meta.env.DEV,
+  isProduction: import.meta.env.PROD,
+  version: '1.0.0',
+};
+
+// URLs importantes
+export const URLS = {
+  home: SITE_CONFIG.url,
+  contest: `${SITE_CONFIG.url}/contest/current`,
+  write: `${SITE_CONFIG.url}/write`,
+  terms: `${SITE_CONFIG.url}/terms`,
+  privacy: `${SITE_CONFIG.url}/privacy`,
+  guidelines: `${SITE_CONFIG.url}/community-guidelines`,
+};
+
+// Validar configuración crítica
+export const validateConfig = () => {
+  const errors = [];
+  
+  if (!SUPABASE_CONFIG.url) {
+    errors.push('VITE_SUPABASE_URL is required');
+  }
+  
+  if (!SUPABASE_CONFIG.anonKey) {
+    errors.push('VITE_SUPABASE_ANON_KEY is required');
+  }
+  
+  if (EMAIL_CONFIG.mode === 'production' && !EMAIL_CONFIG.apiKey) {
+    errors.push('VITE_RESEND_API_KEY is required for production email mode');
+  }
+  
+  if (errors.length > 0) {
+    console.error('❌ Configuration errors:', errors);
+    throw new Error(`Configuration validation failed: ${errors.join(', ')}`);
+  }
+  
+  console.log('✅ Configuration validation passed');
+  return true;
+};
+
+// Configuración por defecto para desarrollo
+export const DEV_DEFAULTS = {
+  siteUrl: 'http://localhost:5173',
+  fromEmail: 'dev@letranido.com',
+  adminEmail: 'admin@letranido.com',
+};
+
+export default {
+  SITE_CONFIG,
+  SUPABASE_CONFIG,
+  EMAIL_CONFIG,
+  ANALYTICS_CONFIG,
+  APP_CONFIG,
+  URLS,
+  validateConfig,
+};

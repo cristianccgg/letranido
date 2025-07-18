@@ -8,8 +8,9 @@ const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 export const EMAIL_CONFIG = {
   from: import.meta.env.VITE_FROM_EMAIL || 'noreply@letranido.com',
   mode: import.meta.env.VITE_EMAIL_MODE || 'test', // 'test' | 'production'
-  adminEmail: import.meta.env.VITE_ADMIN_EMAIL || 'cristianccggg@gmail.com',
+  adminEmail: import.meta.env.VITE_ADMIN_EMAIL || 'admin@letranido.com',
   replyTo: 'info@letranido.com',
+  siteUrl: import.meta.env.VITE_SITE_URL || 'https://letranido.com',
 };
 
 // Función para determinar destinatarios según el modo

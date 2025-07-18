@@ -1,9 +1,18 @@
 // pages/TermsOfService.jsx - TÉRMINOS COMPLETOS
 import { Shield, FileText, Users, Trophy, AlertTriangle } from "lucide-react";
+import SEOHead from "../components/SEO/SEOHead";
 
 const TermsOfService = () => {
   return (
     <div className="max-w-4xl mx-auto py-12">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Términos de Servicio"
+        description="Lee los términos de servicio de Letranido. Conoce las reglas sobre originalidad, derechos de autor, concursos y el comportamiento esperado en nuestra comunidad de escritores."
+        keywords="términos de servicio, reglas, derechos de autor, originalidad, concursos escritura, comunidad escritores, letranido"
+        url="/terms"
+      />
+      
       <div className="prose prose-gray max-w-none">
         {/* Header */}
         <div className="text-center mb-12">

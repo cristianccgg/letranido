@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /dashboard/
+
+# Disallow auth pages
+Disallow: /auth/
+Disallow: /login/
+Disallow: /register/
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow user-specific pages that shouldn't be indexed
+Disallow: /profile/edit
+Disallow: /settings/
+Disallow: /unsubscribe/
+
+# Allow important pages
+Allow: /
+Allow: /contest/
+Allow: /rules/
+Allow: /terms/
+Allow: /privacy/
+Allow: /community-guidelines/
+
+# Sitemap location
+Sitemap: https://letranido.com/sitemap.xml
+
+# Crawl delay (be respectful)
+Crawl-delay: 1

@@ -23,6 +23,7 @@ import {
   User,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import SEOHead from "../components/SEO/SEOHead";
 import VotingGuidance from "../components/voting/VotingGuidance";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -484,6 +485,19 @@ const CurrentContest = () => {
   // ✅ RENDER PRINCIPAL
   return (
     <div className="max-w-6xl mx-auto space-y-6 overflow-hidden">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title={`${currentContest?.title || 'Concurso Actual'} - Concurso de Escritura`}
+        description={currentContest ? 
+          `Participa en "${currentContest.title}" - ${currentContest.description} | Concurso de escritura creativa en Letranido.` :
+          'Participa en el concurso actual de escritura creativa. Lee historias originales, vota por tus favoritas y únete a nuestra comunidad.'
+        }
+        keywords={`concurso escritura, ${currentContest?.category || 'ficción'}, historias originales, votación, literatura, ${currentContest?.title || 'concurso actual'}`}
+        url="/contest/current"
+        type="article"
+        publishedTime={currentContest?.created_at}
+      />
+      
       {/* Header del concurso - Más compacto */}
       <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 rounded-xl p-4 md:p-6 text-center relative overflow-hidden">
         {/* Elementos decorativos sutiles - Ocultos en mobile */}

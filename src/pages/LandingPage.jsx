@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
+import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
@@ -213,6 +214,14 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="Inicio"
+        description="Únete a Letranido, la comunidad de escritores creativos. Participa en concursos mensuales, comparte tus historias originales y conecta con otros escritores apasionados."
+        keywords="escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido, literatura"
+        url="/"
+      />
+      
       {/* Hero Section - Elegante y moderno */}
       <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
         {/* Elementos decorativos modernos */}

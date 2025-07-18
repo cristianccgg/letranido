@@ -79,7 +79,7 @@ const createEmailTemplate = (title, content, ctaButton = '') => `
     <div class="footer">
       <p>Este email fue enviado por <strong>Letranido</strong></p>
       <p>
-        <a href="https://letranido.com/profile" style="color: #6366f1;">Gestionar preferencias</a> | 
+        <a href="${EMAIL_CONFIG.siteUrl}/profile" style="color: #6366f1;">Gestionar preferencias</a> | 
         <a href="mailto:info@letranido.com" style="color: #6366f1;">Contacto</a>
       </p>
       <p style="margin-top: 15px; font-size: 12px;">
@@ -123,7 +123,7 @@ export const newContestTemplate = (contest) => {
   
   const button = `
     <div style="text-align: center;">
-      <a href="https://letranido.com/write/${contest.id}" class="button">
+      <a href="${EMAIL_CONFIG.siteUrl}/write/${contest.id}" class="button">
         ✍️ Escribir mi historia
       </a>
     </div>
@@ -164,7 +164,7 @@ export const submissionReminderTemplate = (contest, daysLeft) => {
   
   const button = `
     <div style="text-align: center;">
-      <a href="https://letranido.com/write/${contest.id}" class="button">
+      <a href="${EMAIL_CONFIG.siteUrl}/write/${contest.id}" class="button">
         ✍️ Escribir ahora
       </a>
     </div>
@@ -208,7 +208,7 @@ export const votingStartedTemplate = (contest, storiesCount) => {
   
   const button = `
     <div style="text-align: center;">
-      <a href="https://letranido.com/contest/current" class="button">
+      <a href="${EMAIL_CONFIG.siteUrl}/contest/current" class="button">
         📚 Leer y votar
       </a>
     </div>
@@ -259,7 +259,7 @@ export const resultsTemplate = (contest, winners) => {
   
   const button = `
     <div style="text-align: center;">
-      <a href="https://letranido.com/contest/current" class="button">
+      <a href="${EMAIL_CONFIG.siteUrl}/contest/current" class="button">
         🏆 Ver resultados completos
       </a>
     </div>
@@ -275,28 +275,28 @@ export const getTemplateByPhase = (phase, data) => {
       return {
         subject: `🎯 Nuevo concurso disponible: "${data.contest.title}"`,
         html: newContestTemplate(data.contest),
-        text: `Nuevo concurso disponible: "${data.contest.title}". Visita https://letranido.com/write/${data.contest.id} para participar.`
+        text: `Nuevo concurso disponible: "${data.contest.title}". Visita ${EMAIL_CONFIG.siteUrl}/write/${data.contest.id} para participar.`
       };
       
     case 'submission_reminder':
       return {
         subject: `⏰ Últimos ${data.daysLeft} días para participar en "${data.contest.title}"`,
         html: submissionReminderTemplate(data.contest, data.daysLeft),
-        text: `Quedan ${data.daysLeft} días para participar en "${data.contest.title}". Visita https://letranido.com/write/${data.contest.id}`
+        text: `Quedan ${data.daysLeft} días para participar en "${data.contest.title}". Visita ${EMAIL_CONFIG.siteUrl}/write/${data.contest.id}`
       };
       
     case 'voting_started':
       return {
         subject: `🗳️ ¡Votación iniciada! Lee y vota por las mejores historias`,
         html: votingStartedTemplate(data.contest, data.storiesCount),
-        text: `La votación para "${data.contest.title}" ha comenzado. ${data.storiesCount} historias esperan tu voto. Visita https://letranido.com/contest/current`
+        text: `La votación para "${data.contest.title}" ha comenzado. ${data.storiesCount} historias esperan tu voto. Visita ${EMAIL_CONFIG.siteUrl}/contest/current`
       };
       
     case 'results':
       return {
         subject: `🏆 ¡Resultados del concurso "${data.contest.title}"!`,
         html: resultsTemplate(data.contest, data.winners),
-        text: `Resultados del concurso "${data.contest.title}" disponibles. Visita https://letranido.com/contest/current`
+        text: `Resultados del concurso "${data.contest.title}" disponibles. Visita ${EMAIL_CONFIG.siteUrl}/contest/current`
       };
       
     default:

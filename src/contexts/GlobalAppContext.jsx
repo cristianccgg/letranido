@@ -8,6 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { supabase } from "../lib/supabase";
+import logger, { devLog } from "../lib/logger";
 
 // ✅ ESTADO INICIAL COMPLETO
 const initialState = {
@@ -337,7 +338,7 @@ export function GlobalAppProvider({ children }) {
         } = await supabase.auth.getSession();
 
         if (error) {
-          console.error("Error getting session:", error);
+          logger.error('AUTH', 'Error getting session:', error);
           dispatch({
             type: actions.SET_AUTH_STATE,
             payload: {
@@ -359,11 +360,11 @@ export function GlobalAppProvider({ children }) {
             .single();
 
           if (profileError) {
-            console.warn("⚠️ Error fetching user profile:", profileError);
+            logger.warn('AUTH', 'Error fetching user profile:', profileError);
 
             // Forzar logout en errores de autorización
             if (profileError.status === 401 || profileError.status === 403) {
-              console.log("🚨 Error de autorización, forzando logout");
+              logger.warn('AUTH', 'Authorization error, forcing logout');
               await supabase.auth.signOut();
               return;
             }
