@@ -233,7 +233,7 @@ const LandingPage = () => {
           <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-16 lg:pt-20 lg:pb-8 text-center">
+        <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-8 lg:py-8 text-center">
           {/* Logo/Título con más personalidad */}
           <div className="mb-2 flex flex-col items-center">
             <div className="flex items-center">
