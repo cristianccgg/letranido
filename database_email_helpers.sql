@@ -140,10 +140,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 6. Comentarios para documentación
+-- 6. Función para obtener usuarios que necesitan recordatorio (NO han enviado historia al concurso)
+CREATE OR REPLACE FUNCTION get_reminder_email_recipients(contest_id_param uuid)
+RETURNS TABLE(
+  user_id uuid,
+  email text,
+  display_name text,
+  created_at timestamptz
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    up.id,
+    up.email,
+    up.display_name,
+    up.created_at
+  FROM public.user_profiles up
+  WHERE 
+    up.email IS NOT NULL 
+    AND up.email != ''
+    AND up.contest_notifications = true
+    AND up.email_notifications = true
+    AND NOT EXISTS (
+      SELECT 1 FROM public.stories s 
+      WHERE s.user_id = up.id 
+      AND s.contest_id = contest_id_param
+      AND s.deleted_at IS NULL  -- Excluir historias eliminadas
+    )
+  ORDER BY up.created_at DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 7. Comentarios para documentación
 COMMENT ON FUNCTION get_contest_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails sobre concursos';
 COMMENT ON FUNCTION get_general_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails generales (newsletter, tips)';
 COMMENT ON FUNCTION get_essential_email_recipients() IS 'Obtiene todos los usuarios con email válido para emails esenciales';
+COMMENT ON FUNCTION get_reminder_email_recipients(uuid) IS 'Obtiene usuarios que necesitan recordatorio - NO han enviado historia al concurso específico';
 COMMENT ON FUNCTION get_notification_stats() IS 'Obtiene estadísticas de suscripciones a notificaciones';
 COMMENT ON FUNCTION validate_email_recipient(text, text) IS 'Valida si un email puede recibir un tipo específico de notificación';
 
@@ -151,5 +183,6 @@ COMMENT ON FUNCTION validate_email_recipient(text, text) IS 'Valida si un email 
 -- SELECT * FROM get_contest_email_recipients();
 -- SELECT * FROM get_general_email_recipients();
 -- SELECT * FROM get_essential_email_recipients();
+-- SELECT * FROM get_reminder_email_recipients('uuid-del-concurso');
 -- SELECT * FROM get_notification_stats();
 -- SELECT validate_email_recipient('usuario@example.com', 'contest');

@@ -719,8 +719,12 @@ const LandingPage = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <PenTool className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Badges de Escritura</h3>
-                <p className="text-gray-600 text-sm mb-4">Primera Pluma, Escritor Constante, Veterano</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Badges de Escritura
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Primera Pluma, Escritor Constante, Veterano
+                </p>
                 <div className="flex justify-center space-x-1">
                   <div className="w-3 h-3 bg-indigo-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
@@ -735,8 +739,12 @@ const LandingPage = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Trophy className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Badges de Victoria</h3>
-                <p className="text-gray-600 text-sm mb-4">Ganador, Finalista, Veterano Ganador</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Badges de Victoria
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Ganador, Finalista, Veterano Ganador
+                </p>
                 <div className="flex justify-center space-x-1">
                   <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
@@ -751,8 +759,12 @@ const LandingPage = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Notificaciones</h3>
-                <p className="text-gray-600 text-sm mb-4">Te avisamos cuando consigas un nuevo badge</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Notificaciones
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Te avisamos cuando consigas un nuevo badge
+                </p>
                 <div className="flex justify-center">
                   <div className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
                     ¡Nuevo badge!
@@ -768,10 +780,11 @@ const LandingPage = () => {
               ¡Empieza tu colección de badges hoy!
             </h3>
             <p className="text-gray-700 mb-6 text-lg">
-              Tu primera historia te dará el badge "Primera Pluma". ¿Qué esperas?
+              Tu primera historia te dará el badge "Primera Pluma". ¿Qué
+              esperas?
             </p>
             <Link
-              to="/contest/current"
+              to="/write/:promptId?"
               className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
             >
               <Trophy className="h-5 w-5 mr-3" />
@@ -832,8 +845,8 @@ const LandingPage = () => {
                 Badges y Reconocimiento
               </h3>
               <p className="text-gray-600 md:text-lg lg:text-xl">
-                Consigue badges únicos por escribir, ganar concursos y participar. 
-                ¡Muestra tus logros y motiva a otros!
+                Consigue badges únicos por escribir, ganar concursos y
+                participar. ¡Muestra tus logros y motiva a otros!
               </p>
             </div>
           </div>

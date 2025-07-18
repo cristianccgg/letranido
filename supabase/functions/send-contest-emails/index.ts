@@ -130,8 +130,50 @@ serve(async (req) => {
     let users, usersError;
     
     // Use the new granular notification system
-    if (emailType === "new_contest" || emailType === "submission_reminder" || emailType === "voting_started" || emailType === "results") {
-      // Contest-related emails go to BOTH registered users AND newsletter subscribers
+    if (emailType === "submission_reminder") {
+      // Para recordatorios, usar la nueva función que filtra usuarios que NO han enviado historia
+      console.log("📧 Obteniendo usuarios para recordatorio (sin historia enviada)...");
+      if (!contest?.id) {
+        throw new Error("Se requiere contest_id para recordatorios");
+      }
+      
+      const { data: reminderUsers, error: reminderError } = await supabaseClient
+        .rpc("get_reminder_email_recipients", { contest_id_param: contest.id });
+      
+      console.log("📧 Obteniendo newsletter subscribers...");
+      const { data: newsletterUsers, error: newsletterError } = await supabaseClient
+        .from("newsletter_subscribers")
+        .select("email, created_at")
+        .eq("is_active", true);
+      
+      if (reminderError) {
+        console.error("Error obteniendo usuarios para recordatorio:", reminderError);
+        usersError = reminderError;
+      } else if (newsletterError) {
+        console.error("Error obteniendo newsletter subscribers:", newsletterError);
+        usersError = newsletterError;
+      } else {
+        // Combinar usuarios que necesitan recordatorio + newsletter subscribers
+        const allUsers = [...(reminderUsers || [])];
+        const reminderEmails = new Set(reminderUsers?.map(u => u.email) || []);
+        
+        // Agregar newsletter subscribers que no estén ya en la lista de recordatorios
+        (newsletterUsers || []).forEach(subscriber => {
+          if (!reminderEmails.has(subscriber.email)) {
+            allUsers.push({
+              user_id: null, // No tienen user_id porque no están registrados
+              email: subscriber.email,
+              display_name: subscriber.email.split('@')[0], // Usar parte del email como nombre
+              created_at: subscriber.created_at
+            });
+          }
+        });
+        
+        users = allUsers;
+        console.log(`📧 Reminder: ${reminderUsers?.length || 0} users without stories + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
+      }
+    } else if (emailType === "new_contest" || emailType === "voting_started" || emailType === "results") {
+      // Para otros emails de concurso, usar la función original
       console.log("📧 Obteniendo usuarios registrados con contest_notifications...");
       const { data: registeredUsers, error: registeredError } = await supabaseClient
         .rpc("get_contest_email_recipients");
