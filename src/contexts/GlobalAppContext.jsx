@@ -1522,15 +1522,14 @@ export function GlobalAppProvider({ children }) {
         if (contestError) throw new Error("Concurso no encontrado");
 
         // Verificar no hay historia duplicada
-        const { data: existingStory, error: checkError } = await supabase
+        const { data: existingStories, error: checkError } = await supabase
           .from("stories")
           .select("id")
           .eq("contest_id", storyData.contestId)
-          .eq("user_id", state.user.id)
-          .single();
+          .eq("user_id", state.user.id);
 
-        if (checkError && checkError.code !== "PGRST116") throw checkError;
-        if (existingStory)
+        if (checkError) throw checkError;
+        if (existingStories && existingStories.length > 0)
           throw new Error("Ya has enviado una historia para este concurso");
 
         // Insertar historia
