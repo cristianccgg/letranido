@@ -519,9 +519,6 @@ const Layout = ({ children }) => {
                       Regístrate para participar en concursos y votar por tus
                       historias favoritas.
                     </div>
-                    <div className="mt-2 text-xs text-yellow-600 font-medium">
-                      🚀 ¡Únete ahora y obtén la insignia de Fundador!
-                    </div>
                   </div>
                 </>
               )}
