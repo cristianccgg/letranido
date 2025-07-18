@@ -21,6 +21,7 @@ import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
 import UserAvatar from "../ui/UserAvatar";
 import CookieBanner from "../ui/CookieBanner";
+import NotificationBell from "../ui/NotificationBell";
 import logo from "../../assets/images/letranido-logo.png";
 
 const Layout = ({ children }) => {
@@ -247,6 +248,11 @@ const Layout = ({ children }) => {
 
             {/* Auth Section */}
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
+              {/* Notification Bell - Solo para usuarios autenticados */}
+              {isAuthenticated && location.pathname !== "/reset-password" && (
+                <NotificationBell userId={user?.id} />
+              )}
+              
               {isAuthenticated && location.pathname !== "/reset-password" ? (
                 <div className="relative">
                   <button
