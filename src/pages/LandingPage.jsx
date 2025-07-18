@@ -337,40 +337,40 @@ const LandingPage = () => {
                   Ver reglas
                 </button>
               </div>
+
+              {/* Estadísticas integradas en el hero */}
+              <div className="mt-12">
+                <div className="max-w-4xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-white/20 hover:border-purple-200">
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                        {stats.totalUsers}
+                      </div>
+                      <div className="text-gray-700 md:text-lg lg:text-xl font-medium">
+                        Escritores en la comunidad
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                        {stats.totalStories}
+                      </div>
+                      <div className="text-gray-700 md:text-lg lg:text-xl font-medium">
+                        Historias publicadas
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                        {stats.totalWords.toLocaleString()}
+                      </div>
+                      <div className="text-gray-700 md:text-lg lg:text-xl font-medium">
+                        Palabras escritas
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Estadísticas - modernas y elegantes */}
-      <section className="py-8 lg:py-12 bg-gradient-to-r from-slate-50 to-indigo-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-indigo-100 hover:border-purple-200">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                {stats.totalUsers}
-              </div>
-              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
-                Escritores en la comunidad
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                {stats.totalStories}
-              </div>
-              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
-                Historias publicadas
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                {stats.totalWords.toLocaleString()}
-              </div>
-              <div className="text-gray-600 md:text-lg lg:text-xl font-medium">
-                Palabras escritas
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -690,19 +690,107 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <NewsletterSignup />
+      {/* Sección de Badges - Movida aquí */}
+      <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+        {/* Elementos decorativos */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
+          <div className="absolute top-32 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+          <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 relative">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
+              <Trophy className="h-10 w-10 text-indigo-600" />
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              Sistema de Badges
+            </h2>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto">
+              Colecciona badges únicos que celebran tu crecimiento como escritor
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {/* Badge de Escritura */}
+            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <PenTool className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Badges de Escritura</h3>
+                <p className="text-gray-600 text-sm mb-4">Primera Pluma, Escritor Constante, Veterano</p>
+                <div className="flex justify-center space-x-1">
+                  <div className="w-3 h-3 bg-indigo-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                  <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Badge de Ganador */}
+            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Trophy className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Badges de Victoria</h3>
+                <p className="text-gray-600 text-sm mb-4">Ganador, Finalista, Veterano Ganador</p>
+                <div className="flex justify-center space-x-1">
+                  <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notificaciones */}
+            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Notificaciones</h3>
+                <p className="text-gray-600 text-sm mb-4">Te avisamos cuando consigas un nuevo badge</p>
+                <div className="flex justify-center">
+                  <div className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                    ¡Nuevo badge!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA motivacional */}
+          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              ¡Empieza tu colección de badges hoy!
+            </h3>
+            <p className="text-gray-700 mb-6 text-lg">
+              Tu primera historia te dará el badge "Primera Pluma". ¿Qué esperas?
+            </p>
+            <Link
+              to="/contest/current"
+              className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+            >
+              <Trophy className="h-5 w-5 mr-3" />
+              Conseguir mi primer badge
+              <ArrowRight className="h-5 w-5 ml-3" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Features Section - Modernizada */}
       <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-              ¿Por qué elegir Letranido?
+              Más que una plataforma, somos una comunidad
             </h2>
             <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
-              La plataforma perfecta para escritores creativos de todos los
-              niveles
+              Donde cada historia importa y cada escritor encuentra su lugar
             </p>
           </div>
 
@@ -741,16 +829,19 @@ const LandingPage = () => {
                 <Trophy className="h-8 w-8 text-pink-600" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
-                Sistema de Reconocimiento
+                Badges y Reconocimiento
               </h3>
               <p className="text-gray-600 md:text-lg lg:text-xl">
-                Gana badges especiales, reconocimiento y construye tu reputación
-                como escritor.
+                Consigue badges únicos por escribir, ganar concursos y participar. 
+                ¡Muestra tus logros y motiva a otros!
               </p>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
 
       {/* Modal de reglas */}
       <ContestRulesModal
