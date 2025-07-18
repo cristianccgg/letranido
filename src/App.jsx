@@ -19,6 +19,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
 import EmailUnsubscribe from "./pages/EmailUnsubscribe";
 import Preferences from "./pages/Preferences";
+import ResetPassword from "./pages/ResetPassword";
 import MaintenancePage from "./pages/MaintenancePage";
 
 // ✅ Componente interno que usa el contexto unificado
@@ -29,27 +30,12 @@ function AppContent() {
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
 
-  // 🔧 DEBUG: Agregar logs para entender el estado
-  console.log("🔍 AppContent render:", {
-    authInitialized,
-    initialized,
-    maintenanceActive,
-    maintenanceLoading,
-    showingLoading: !authInitialized || !initialized,
-  });
 
   // ✅ VERIFICAR MODO MANTENIMIENTO PRIMERO
   // Si el mantenimiento está activo, mostrar página de mantenimiento de forma inteligente
   if (!maintenanceLoading && maintenanceActive) {
     const currentPath = window.location.pathname;
     
-    // 🔧 DEBUG: Log para troubleshooting
-    console.log('🔍 Maintenance check:', {
-      currentPath,
-      maintenanceActive,
-      user: user?.email || 'no user',
-      isAdmin: user?.is_admin || false
-    });
     
     // Páginas que los admins pueden ver durante mantenimiento
     const adminAllowedPages = [
@@ -180,6 +166,9 @@ function AppContent() {
 
           {/* User Preferences */}
           <Route path="/preferences" element={<Preferences />} />
+
+          {/* Password Reset */}
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Legal */}
           <Route path="/terms" element={<TermsOfService />} />

@@ -6,6 +6,7 @@ import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalyt
 
 const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const [mode, setMode] = useState(initialMode);
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -13,6 +14,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
     confirmPassword: "",
     emailNotifications: true, // Por defecto habilitado
   });
+  // const [resetSuccess, setResetSuccess] = useState(false); // Movido al contexto global
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
@@ -21,8 +23,10 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const { 
     login, 
     register, 
+    resetPassword,
     isLoading, 
     authModalErrors: serverErrors,
+    resetPasswordSuccess,
     clearAuthModalErrors 
   } = useGlobalApp();
 
@@ -36,11 +40,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const [prevMode, setPrevMode] = useState(mode);
   
   useEffect(() => {
-    console.log("🔍 AuthModal useEffect - mode:", mode, "prevMode:", prevMode);
-    
     // Solo limpiar si realmente cambió el modo
     if (mode !== prevMode) {
-      console.log("🔄 Limpiando formulario - modo cambió de", prevMode, "a", mode);
       setFormData({
         email: "",
         password: "",
@@ -52,6 +53,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       setValidationErrors({});
       setShowPassword(false);
       setShowConfirmPassword(false);
+      // setResetSuccess(false); // Ahora está en el contexto global
       setPrevMode(mode);
     }
   }, [mode, prevMode, clearAuthModalErrors]);
@@ -59,18 +61,20 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Email validation
+    // Email validation (always required)
     if (!formData.email) {
       newErrors.email = "El email es requerido";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "El email no es válido";
     }
 
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "La contraseña es requerida";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+    // Password validation (not required for reset-password)
+    if (mode !== "reset-password") {
+      if (!formData.password) {
+        newErrors.password = "La contraseña es requerida";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+      }
     }
 
     // Registration-specific validations
@@ -100,22 +104,23 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       return;
     }
 
+
     try {
       let result;
 
       if (mode === "login") {
         result = await login(formData.email, formData.password);
-      } else {
-        console.log("📧 Enviando registro con emailNotifications:", formData.emailNotifications);
+      } else if (mode === "register") {
         result = await register(
           formData.email,
           formData.name,
           formData.password,
           formData.emailNotifications
         );
+      } else if (mode === "reset-password") {
+        result = await resetPassword(formData.email);
       }
 
-      console.log("🔍 Auth result:", result);
       
       if (result.success) {
         // 📊 TRACK EVENT: User signup (only for register mode)
@@ -126,18 +131,21 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           });
         }
 
-        console.log("✅ Login exitoso, cerrando modal");
-        // Cerrar modal solo en caso de éxito
-        onSuccess?.();
-        onClose();
+        if (mode === "reset-password") {
+          // setResetSuccess(true); // Ahora se maneja en el contexto global
+          // No cerrar modal para mostrar mensaje de éxito
+          // El usuario recibirá el email y debe seguir el enlace
+        } else {
+          // Cerrar modal solo en caso de éxito
+          onSuccess?.();
+          onClose();
+        }
       } else {
-        console.log("❌ Login falló, manteniendo modal abierto para mostrar errores");
         // NO cerrar el modal en caso de error para que el usuario vea el mensaje
         // El error ya se estableció en el contexto global desde la función login
       }
     } catch (error) {
       console.error("Auth error:", error);
-      console.error("❌ Error inesperado en AuthModal");
     }
   };
 
@@ -156,11 +164,10 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   };
 
   if (!isOpen) {
-    console.log("🚫 AuthModal no renderiza - isOpen:", isOpen);
     return null;
   }
   
-  console.log("✅ AuthModal renderizando - isLoading:", isLoading, "validationErrors:", validationErrors, "serverErrors:", serverErrors);
+  // console.log("✅ AuthModal renderizando - isLoading:", isLoading, "validationErrors:", validationErrors, "serverErrors:", serverErrors);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -168,7 +175,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
-            {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+            {mode === "login" ? "Iniciar Sesión" : mode === "register" ? "Crear Cuenta" : "Recuperar Contraseña"}
           </h2>
           <button
             onClick={onClose}
@@ -180,6 +187,17 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Success Message for Reset Password */}
+          {mode === "reset-password" && resetPasswordSuccess && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-green-800 text-sm">
+                ✅ Te hemos enviado un email con instrucciones para restablecer tu contraseña. 
+                <br />
+                <strong>Revisa tu bandeja de entrada y haz clic en el enlace del email.</strong>
+              </p>
+            </div>
+          )}
+
           {/* General Error */}
           {errors.general && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -213,63 +231,76 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           )}
 
           {/* Email field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Correo electrónico
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
-                  errors.email ? "border-red-300 bg-red-50" : "border-gray-300"
-                }`}
-                placeholder="tu@email.com"
-                disabled={isLoading}
-              />
+          {!(mode === "reset-password" && resetPasswordSuccess) && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Correo electrónico
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
+                    errors.email ? "border-red-300 bg-red-50" : "border-gray-300"
+                  }`}
+                  placeholder="tu@email.com"
+                  disabled={isLoading}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
-            {errors.email && (
-              <p className="text-red-600 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
+          )}
 
-          {/* Password field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
-                className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
-                  errors.password
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
-              </button>
+          {/* Password field (not shown for reset-password) */}
+          {mode !== "reset-password" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Contraseña
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
+                    errors.password
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
-            {errors.password && (
-              <p className="text-red-600 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
+          )}
+
+          {/* Instructions for reset password */}
+          {mode === "reset-password" && !resetPasswordSuccess && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-blue-800 text-sm">
+                📧 Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+              </p>
+            </div>
+          )}
 
           {/* Confirm Password field (only for register) */}
           {mode === "register" && (
@@ -336,34 +367,54 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           )}
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
-          >
-            {isLoading ? (
-              <>
-                <Loader className="h-5 w-5 animate-spin mr-2" />
-                {mode === "login" ? "Iniciando sesión..." : "Creando cuenta..."}
-              </>
-            ) : mode === "login" ? (
-              "Iniciar Sesión"
-            ) : (
-              "Crear Cuenta"
-            )}
-          </button>
+          {!(mode === "reset-password" && resetPasswordSuccess) && (
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+            >
+              {isLoading ? (
+                <>
+                  <Loader className="h-5 w-5 animate-spin mr-2" />
+                  {mode === "login" ? "Iniciando sesión..." : mode === "register" ? "Creando cuenta..." : "Enviando email..."}
+                </>
+              ) : mode === "login" ? (
+                "Iniciar Sesión"
+              ) : mode === "register" ? (
+                "Crear Cuenta"
+              ) : (
+                "Enviar email de recuperación"
+              )}
+            </button>
+          )}
+
+          {/* Forgot Password Link (only for login) */}
+          {mode === "login" && (
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("reset-password");
+                }}
+                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                disabled={isLoading}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+          )}
 
           {/* Mode Toggle */}
           <div className="text-center pt-4 border-t border-gray-200">
             <p className="text-gray-600 text-sm">
-              {mode === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}
+              {mode === "login" ? "¿No tienes cuenta?" : mode === "register" ? "¿Ya tienes cuenta?" : "¿Ya recordaste tu contraseña?"}
               <button
                 type="button"
                 onClick={() => setMode(mode === "login" ? "register" : "login")}
                 className="text-primary-600 hover:text-primary-700 font-medium ml-1"
                 disabled={isLoading}
               >
-                {mode === "login" ? "Créala aquí" : "Inicia sesión"}
+                {mode === "login" ? "Créala aquí" : mode === "register" ? "Inicia sesión" : "Inicia sesión"}
               </button>
             </p>
           </div>

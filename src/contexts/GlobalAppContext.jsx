@@ -55,6 +55,7 @@ const initialState = {
   showAuthModal: false,
   authModalMode: "login",
   authModalErrors: {},
+  resetPasswordSuccess: false,
 
   // Cookie Consent State
   cookieConsent: null,
@@ -285,6 +286,10 @@ function globalAppReducer(state, action) {
           action.payload.errors !== undefined
             ? action.payload.errors
             : state.authModalErrors,
+        resetPasswordSuccess:
+          action.payload.resetSuccess !== undefined
+            ? action.payload.resetSuccess
+            : state.resetPasswordSuccess,
       };
 
     case actions.SET_COOKIE_CONSENT:
@@ -1744,6 +1749,7 @@ export function GlobalAppProvider({ children }) {
   // ✅ FUNCIONES PARA AUTH MODAL (deben ir antes de las funciones de auth)
   const openAuthModal = useCallback((mode = "login") => {
     console.log("📱 Abriendo modal de auth:", mode);
+    console.trace("📍 Trace de openAuthModal");
     dispatch({
       type: actions.SET_AUTH_MODAL,
       payload: { show: true, mode },
@@ -1752,9 +1758,10 @@ export function GlobalAppProvider({ children }) {
 
   const closeAuthModal = useCallback(() => {
     console.log("📱 Cerrando modal de auth");
+    console.trace("📍 Trace de closeAuthModal");
     dispatch({
       type: actions.SET_AUTH_MODAL,
-      payload: { show: false, errors: {} },
+      payload: { show: false, mode: "login", errors: {} },
     });
   }, []);
 
@@ -1771,6 +1778,15 @@ export function GlobalAppProvider({ children }) {
     dispatch({
       type: actions.SET_AUTH_MODAL,
       payload: { errors: {} },
+    });
+  }, []);
+
+  // Función específica para mantener el modal abierto después del reset exitoso
+  const keepAuthModalOpen = useCallback(() => {
+    console.log("🔄 Manteniendo modal abierto para reset exitoso");
+    dispatch({
+      type: actions.SET_AUTH_MODAL,
+      payload: { show: true, mode: "reset-password", errors: {}, resetSuccess: true },
     });
   }, []);
 
@@ -2232,6 +2248,77 @@ export function GlobalAppProvider({ children }) {
       dispatch({ type: actions.RESET_ALL_USER_DATA });
     }
   }, []);
+
+  // ✅ FUNCIÓN DE RECUPERACIÓN DE CONTRASEÑA
+  const resetPassword = useCallback(
+    async (email) => {
+      console.log("🔄 Iniciando resetPassword, seteando loading=true");
+      dispatch({
+        type: actions.SET_AUTH_STATE,
+        payload: { loading: true },
+      });
+
+      try {
+        console.log("🔄 Enviando email de recuperación para:", email);
+
+        const { error } = await supabase.auth.resetPasswordForEmail(
+          email.trim().toLowerCase(),
+          {
+            redirectTo: `${window.location.origin}/reset-password`,
+          }
+        );
+        
+        // Log removido para producción
+
+        if (error) {
+          console.error("❌ Error enviando email de recuperación:", error);
+          const errorMessage = getErrorMessage(error.message);
+          setAuthModalError("general", errorMessage);
+          
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: { loading: false },
+          });
+          
+          return { success: false, error: errorMessage };
+        }
+
+        console.log("✅ Email de recuperación enviado exitosamente");
+        console.log("🔄 Seteando loading=false Y manteniendo authInitialized=true");
+        
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: { 
+            loading: false,
+            initialized: true  // Mantener como inicializado
+          },
+        });
+        
+        // Log removido para producción
+
+        // Mantener el modal abierto en modo reset-password para mostrar el mensaje de éxito
+        keepAuthModalOpen();
+
+        return { success: true };
+      } catch (error) {
+        console.error("💥 Error inesperado en resetPassword:", error);
+        const errorMessage = "Error inesperado. Intenta nuevamente.";
+        setAuthModalError("general", errorMessage);
+        console.log("🔄 Seteando loading=false (error) Y manteniendo authInitialized=true");
+        
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: { 
+            loading: false,
+            initialized: true  // Mantener como inicializado
+          },
+        });
+        
+        return { success: false, error: errorMessage };
+      }
+    },
+    [setAuthModalError]
+  );
 
   // ✅ FUNCIONES DE COMENTARIOS
   const getStoryComments = useCallback(async (storyId) => {
@@ -2841,14 +2928,17 @@ export function GlobalAppProvider({ children }) {
   );
 
   // Cerrar modal automáticamente cuando el usuario se autentica exitosamente
+  // PERO NO si está en modo reset-password (el usuario debe completar el reset)
   useEffect(() => {
-    if (state.isAuthenticated && state.showAuthModal) {
+    if (state.isAuthenticated && state.showAuthModal && state.authModalMode !== "reset-password") {
       console.log(
         "🎉 Usuario autenticado exitosamente, cerrando modal automáticamente"
       );
       closeAuthModal();
     }
-  }, [state.isAuthenticated, state.showAuthModal, closeAuthModal]);
+    // IMPORTANTE: NO cerrar el modal si el usuario se desloguea durante reset-password
+    // Esto es normal porque resetPasswordForEmail invalida la sesión
+  }, [state.isAuthenticated, state.showAuthModal, state.authModalMode, closeAuthModal]);
 
   // ✅ UTILIDADES DE CONTESTS
 
@@ -2936,6 +3026,7 @@ export function GlobalAppProvider({ children }) {
     // Funciones de autenticación
     login,
     register,
+    resetPassword,
     logout,
     updateUser,
 
@@ -2980,6 +3071,7 @@ export function GlobalAppProvider({ children }) {
     closeAuthModal,
     setAuthModalError,
     clearAuthModalErrors,
+    keepAuthModalOpen,
 
     // Funciones de Cookie Consent
     setCookieConsent,

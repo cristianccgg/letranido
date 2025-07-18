@@ -48,10 +48,6 @@ const Layout = ({ children }) => {
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
 
-  // Debug logging
-  useEffect(() => {
-    console.log("🔍 Layout - authModalVisible changed:", authModalVisible);
-  }, [authModalVisible]);
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
   const hasUserParticipated =
@@ -142,11 +138,16 @@ const Layout = ({ children }) => {
       : []),
   ];
 
-  const navigation = isAuthenticated
+  // No mostrar navegación de usuario autenticado en página de reset
+  const navigation = (isAuthenticated && location.pathname !== "/reset-password")
     ? authenticatedNavigation
     : publicNavigation;
 
   const handleAuthClick = (mode) => {
+    // No abrir modal si estamos en la página de reset de contraseña
+    if (location.pathname === "/reset-password") {
+      return;
+    }
     openAuthModal(mode);
   };
 
@@ -187,6 +188,9 @@ const Layout = ({ children }) => {
               <span className="text-lg sm:text-xl font-bold text-gray-900">
                 Letranido
               </span>
+              {location.pathname === "/reset-password" && (
+                <span className="text-gray-500 text-sm ml-2">- Restablecer contraseña</span>
+              )}
             </Link>
 
             {/* Desktop Navigation */}
@@ -240,7 +244,7 @@ const Layout = ({ children }) => {
 
             {/* Auth Section */}
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
-              {isAuthenticated ? (
+              {isAuthenticated && location.pathname !== "/reset-password" ? (
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -330,7 +334,7 @@ const Layout = ({ children }) => {
                     </>
                   )}
                 </div>
-              ) : (
+              ) : location.pathname !== "/reset-password" ? (
                 <div className="items-center space-x-2 md:space-x-3 hidden md:flex">
                   <button
                     onClick={() => handleAuthClick("login")}
@@ -345,7 +349,7 @@ const Layout = ({ children }) => {
                     Registrarse
                   </button>
                 </div>
-              )}
+              ) : null}
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -410,7 +414,7 @@ const Layout = ({ children }) => {
               })}
 
               {/* Mobile Auth Section */}
-              {isAuthenticated ? (
+              {isAuthenticated && location.pathname !== "/reset-password" ? (
                 <>
                   <div className="border-t border-gray-200 my-2"></div>
                   <Link
@@ -534,18 +538,14 @@ const Layout = ({ children }) => {
 
       <GlobalFooter />
 
-      {/* Auth Modal */}
-      {authModalVisible && (
+      {/* Auth Modal - NO mostrar en página de reset de contraseña */}
+      {authModalVisible && location.pathname !== "/reset-password" && (
         <AuthModal
           isOpen={authModalVisible}
           onClose={() => {
-            console.log("🚪 Layout - onClose called, cerrando modal");
             closeAuthModal();
           }}
           onSuccess={() => {
-            console.log(
-              "✅ Layout - onSuccess called, modal se cerrará automáticamente"
-            );
             // No cerramos aquí, el contexto global se encarga
           }}
           initialMode={authModalMode}
