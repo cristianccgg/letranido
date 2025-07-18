@@ -228,16 +228,14 @@ export const useNotifications = (userId) => {
     };
   }, [userId, loadNotifications]);
 
-  // Actualizar contador periódicamente (por si acaso)
-  useEffect(() => {
-    if (!userId) return;
-
-    const interval = setInterval(() => {
-      loadUnreadCount();
-    }, 30000); // Cada 30 segundos
-
-    return () => clearInterval(interval);
-  }, [userId, loadUnreadCount]);
+  // Actualizar contador periódicamente - DESHABILITADO para ahorrar recursos
+  // useEffect(() => {
+  //   if (!userId) return;
+  //   const interval = setInterval(() => {
+  //     loadUnreadCount();
+  //   }, 30000); // Cada 30 segundos
+  //   return () => clearInterval(interval);
+  // }, [userId, loadUnreadCount]);
 
   return {
     // Estado
