@@ -22,6 +22,7 @@ import Preferences from "./pages/Preferences";
 import ResetPassword from "./pages/ResetPassword";
 import MaintenancePage from "./pages/MaintenancePage";
 import FAQ from "./pages/FAQ";
+import WritingResources from "./pages/WritingResources";
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -173,6 +174,9 @@ function AppContent() {
 
           {/* FAQ */}
           <Route path="/faq" element={<FAQ />} />
+          
+          {/* Writing Resources */}
+          <Route path="/writing-resources" element={<WritingResources />} />
 
           {/* Legal */}
           <Route path="/terms" element={<TermsOfService />} />

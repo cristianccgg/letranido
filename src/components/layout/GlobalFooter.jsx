@@ -6,6 +6,7 @@ import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ Cambiado
 import ContestActionButton from "../ui/ContestActionButton";
 import ContestPhaseBadge from "../ui/ContestPhaseBadge";
 import ContestRulesModal from "../forms/ContestRulesModal";
+import logo from "../../assets/images/letranido-logo.png";
 
 const GlobalFooter = () => {
   // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
@@ -166,10 +167,12 @@ const GlobalFooter = () => {
                 Una comunidad donde la creatividad literaria no tiene límites.
                 Únete a escritores apasionados de todo el mundo.
               </p>
-              
+
               {/* Redes sociales */}
               <div>
-                <h4 className="font-semibold mb-3 text-white">Redes sociales</h4>
+                <h4 className="font-semibold mb-3 text-white">
+                  Redes sociales
+                </h4>
                 <div className="flex items-center gap-3">
                   <a
                     href="https://www.instagram.com/letranido/"

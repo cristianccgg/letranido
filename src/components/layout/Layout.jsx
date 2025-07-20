@@ -2,19 +2,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  PenTool,
-  BookOpen,
-  Users,
   User,
   Menu,
   X,
-  BarChart3,
-  CheckCircle,
-  Shield,
   ChevronDown,
   LogOut,
   Settings,
-  Trophy,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
@@ -105,24 +98,21 @@ const Layout = ({ children }) => {
 
   const writeButtonState = getWriteButtonState();
 
-  // ✅ NAVEGACIÓN DINÁMICA SIMPLIFICADA
+  // ✅ NAVEGACIÓN DINÁMICA SIMPLIFICADA - Sin iconos
   const authenticatedNavigation = [
     {
       name: "Inicio",
       href: "/",
-      icon: BookOpen,
     },
     {
       name: getWriteButtonText(),
       href: writeButtonState.href,
-      icon: hasUserParticipated ? CheckCircle : PenTool,
       disabled: writeButtonState.disabled,
       className: hasUserParticipated ? "text-green-600" : "",
     },
     {
       name: getGalleryText(),
       href: "/contest/current",
-      icon: BookOpen,
     },
     // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
@@ -130,21 +120,22 @@ const Layout = ({ children }) => {
           {
             name: "Historial",
             href: "/contest-history",
-            icon: Trophy,
           },
         ]
       : []),
     {
       name: "FAQ",
       href: "/faq",
-      icon: BookOpen,
+    },
+    {
+      name: "Recursos",
+      href: "/writing-resources",
     },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
           {
             name: "Admin",
             href: "/admin",
-            icon: Shield,
             className: "text-red-600 hover:text-red-700",
           },
         ]
@@ -155,17 +146,14 @@ const Layout = ({ children }) => {
     {
       name: "Inicio",
       href: "/",
-      icon: BookOpen,
     },
     {
       name: "Escribir Historia",
       href: "/write",
-      icon: PenTool,
     },
     {
       name: "Concurso Actual",
       href: "/contest/current",
-      icon: BookOpen,
     },
     // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
@@ -173,14 +161,16 @@ const Layout = ({ children }) => {
           {
             name: "Historial",
             href: "/contest-history",
-            icon: Trophy,
           },
         ]
       : []),
     {
       name: "FAQ",
       href: "/faq",
-      icon: BookOpen,
+    },
+    {
+      name: "Recursos",
+      href: "/writing-resources",
     },
   ];
 
@@ -245,14 +235,13 @@ const Layout = ({ children }) => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-4 lg:space-x-8 flex-1 justify-center min-w-0">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 const isActive = location.pathname === item.href;
 
                 if (item.disabled) {
                   return (
                     <div
                       key={item.name}
-                      className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed opacity-60 ${
+                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed opacity-60 ${
                         item.className || "text-gray-400"
                       }`}
                       title={
@@ -261,7 +250,6 @@ const Layout = ({ children }) => {
                           : ""
                       }
                     >
-                      <Icon className="h-4 w-4" />
                       <span>{item.name}</span>
                     </div>
                   );
@@ -276,7 +264,7 @@ const Layout = ({ children }) => {
                         ? handleWriteClick
                         : undefined
                     }
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    className={`flex items-center px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                       isActive
                         ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
                         : `hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 ${
@@ -285,7 +273,6 @@ const Layout = ({ children }) => {
                           }`
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
                     <span>{item.name}</span>
                   </Link>
                 );
@@ -428,18 +415,16 @@ const Layout = ({ children }) => {
           <div className="md:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon;
                 const isActive = location.pathname === item.href;
 
                 if (item.disabled) {
                   return (
                     <div
                       key={item.name}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium cursor-not-allowed opacity-60 ${
+                      className={`flex items-center px-3 py-2 rounded-md text-base font-medium cursor-not-allowed opacity-60 ${
                         item.className || "text-gray-400"
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
                       <span>{item.name}</span>
                     </div>
                   );
@@ -457,7 +442,7 @@ const Layout = ({ children }) => {
                       }
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
+                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                       isActive
                         ? "text-primary-600 bg-primary-50"
                         : `text-gray-600 hover:text-gray-900 hover:bg-gray-100 ${
@@ -465,7 +450,6 @@ const Layout = ({ children }) => {
                           }`
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
                     <span>{item.name}</span>
                   </button>
                 );
