@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Sparkles,
   Calendar,
-  Zap,
   TrendingUp,
   Heart,
   BookOpen,
@@ -259,14 +258,22 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Subtítulo con mejor tipografía */}
-          <p className="text-xl md:text-xl lg:text-2xl flex flex-col text-gray-900 mb-8 max-w-2xl mx-auto font-dancing-script font-semibold">
-            Crea historias increíbles. <br className="md:hidden" />
-            Recibe feedback valioso. Ayuda a otros a brillar. <br />
-            <span className="text-indigo-600 tracking-wide">
-              Crece en comunidad, en un verdadero nido de escritura.
-            </span>
-          </p>
+          {/* Propuesta de valor optimizada */}
+          <div className="mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl lg:text-3xl text-gray-900 mb-6 font-dancing-script font-semibold leading-relaxed">
+              <span className="text-indigo-600 font-bold">
+                La única plataforma
+              </span>{" "}
+              donde tu escritura mejora cada mes
+            </p>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-6 leading-relaxed">
+              Recibe feedback específico de escritores hispanos reales. <br />
+              Mantén 100% de los derechos sobre tus historias. <br />
+              <span className="text-purple-600 font-semibold">
+                Crece en una comunidad que realmente lee y valora tu trabajo.
+              </span>
+            </p>
+          </div>
 
           {currentContest && (
             <div className="space-y-6">
@@ -287,18 +294,24 @@ const LandingPage = () => {
                   {currentContest.description}
                 </p>
 
-                {/* Contador con más estilo */}
+                {/* Contador con urgencia integrada */}
                 <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                     <Clock className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm md:text-base lg:text-lg text-indigo-700 font-medium block tracking-wide">
-                      Cierre en
-                    </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm md:text-base lg:text-lg text-indigo-700 font-medium tracking-wide">
+                        Cierre en
+                      </span>
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    </div>
                     <span className="text-xl md:text-2xl lg:text-3xl font-bold text-indigo-900 tracking-tight">
                       {timeLeft}
                     </span>
+                    <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
+                      ¡No te quedes sin participar!
+                    </div>
                   </div>
                 </div>
               </div>
@@ -611,6 +624,64 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Features Section - Original */}
+      <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              Más que una plataforma, somos una comunidad
+            </h2>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
+              Donde cada historia importa y cada escritor encuentra su lugar
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <PenTool className="h-8 w-8 text-indigo-600" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+                Concursos Mensuales
+              </h3>
+              <p className="text-gray-600 md:text-lg lg:text-xl">
+                Participa en desafíos creativos cada mes. Nuevos prompts, nuevas
+                oportunidades de brillar.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Users className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+                Comunidad Activa
+              </h3>
+              <p className="text-gray-600 md:text-lg lg:text-xl">
+                Conecta con otros escritores, recibe feedback constructivo y haz
+                crecer tu audiencia.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Trophy className="h-8 w-8 text-pink-600" />
+              </div>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+                Badges y Reconocimiento
+              </h3>
+              <p className="text-gray-600 md:text-lg lg:text-xl">
+                Consigue badges únicos por escribir, ganar concursos y
+                participar. ¡Muestra tus logros y motiva a otros!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sección de Derechos de Autor */}
       <section className="py-12 lg:py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="max-w-4xl mx-auto px-4">
@@ -791,64 +862,6 @@ const LandingPage = () => {
               Conseguir mi primer badge
               <ArrowRight className="h-5 w-5 ml-3" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section - Modernizada */}
-      <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-              Más que una plataforma, somos una comunidad
-            </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
-              Donde cada historia importa y cada escritor encuentra su lugar
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <PenTool className="h-8 w-8 text-indigo-600" />
-              </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
-                Concursos Mensuales
-              </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
-                Participa en desafíos creativos cada mes. Nuevos prompts, nuevas
-                oportunidades de brillar.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Users className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
-                Comunidad Activa
-              </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
-                Conecta con otros escritores, recibe feedback constructivo y haz
-                crecer tu audiencia.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Trophy className="h-8 w-8 text-pink-600" />
-              </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
-                Badges y Reconocimiento
-              </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
-                Consigue badges únicos por escribir, ganar concursos y
-                participar. ¡Muestra tus logros y motiva a otros!
-              </p>
-            </div>
           </div>
         </div>
       </section>
