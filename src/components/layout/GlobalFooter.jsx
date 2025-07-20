@@ -1,6 +1,7 @@
 // components/layout/GlobalFooter.jsx - ACTUALIZADO PARA CONTEXTO UNIFICADO
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Instagram } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ Cambiado
 import ContestActionButton from "../ui/ContestActionButton";
 import ContestPhaseBadge from "../ui/ContestPhaseBadge";
@@ -161,16 +162,25 @@ const GlobalFooter = () => {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-xl font-bold mb-4">Letranido</h3>
-              <p className="text-primary-200 mb-4 max-w-md">
+              <p className="text-primary-200 mb-6 max-w-md">
                 Una comunidad donde la creatividad literaria no tiene límites.
                 Únete a escritores apasionados de todo el mundo.
               </p>
-              <div className="flex items-center gap-4 text-sm text-primary-300">
-                <span>
-                  📚 {currentContest?.participants_count || 0} escritores
-                  activos
-                </span>
-                <span>🏆 Concursos mensuales</span>
+              
+              {/* Redes sociales */}
+              <div>
+                <h4 className="font-semibold mb-3 text-white">Redes sociales</h4>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="https://www.instagram.com/letranido/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-primary-200 hover:text-white transition-colors"
+                  >
+                    <Instagram className="h-4 w-4" />
+                    Instagram
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -209,6 +219,14 @@ const GlobalFooter = () => {
             <div>
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-primary-200">
+                <li>
+                  <Link
+                    to="/faq"
+                    className="hover:text-white transition-colors"
+                  >
+                    Preguntas frecuentes
+                  </Link>
+                </li>
                 <li>
                   <Link
                     to="/community-guidelines"

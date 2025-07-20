@@ -21,6 +21,7 @@ import EmailUnsubscribe from "./pages/EmailUnsubscribe";
 import Preferences from "./pages/Preferences";
 import ResetPassword from "./pages/ResetPassword";
 import MaintenancePage from "./pages/MaintenancePage";
+import FAQ from "./pages/FAQ";
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -169,6 +170,9 @@ function AppContent() {
 
           {/* Password Reset */}
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* FAQ */}
+          <Route path="/faq" element={<FAQ />} />
 
           {/* Legal */}
           <Route path="/terms" element={<TermsOfService />} />

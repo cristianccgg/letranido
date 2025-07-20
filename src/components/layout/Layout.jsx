@@ -108,17 +108,37 @@ const Layout = ({ children }) => {
   // ✅ NAVEGACIÓN DINÁMICA SIMPLIFICADA
   const authenticatedNavigation = [
     {
+      name: "Inicio",
+      href: "/",
+      icon: BookOpen,
+    },
+    {
       name: getWriteButtonText(),
       href: writeButtonState.href,
       icon: hasUserParticipated ? CheckCircle : PenTool,
       disabled: writeButtonState.disabled,
       className: hasUserParticipated ? "text-green-600" : "",
     },
-    { name: getGalleryText(), href: "/contest/current", icon: BookOpen },
+    {
+      name: getGalleryText(),
+      href: "/contest/current",
+      icon: BookOpen,
+    },
     // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
-      ? [{ name: "Historial", href: "/contest-history", icon: Trophy }]
+      ? [
+          {
+            name: "Historial",
+            href: "/contest-history",
+            icon: Trophy,
+          },
+        ]
       : []),
+    {
+      name: "FAQ",
+      href: "/faq",
+      icon: BookOpen,
+    },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
           {
@@ -132,11 +152,36 @@ const Layout = ({ children }) => {
   ];
 
   const publicNavigation = [
-    { name: "Concurso Actual", href: "/contest/current", icon: BookOpen },
+    {
+      name: "Inicio",
+      href: "/",
+      icon: BookOpen,
+    },
+    {
+      name: "Escribir Historia",
+      href: "/write",
+      icon: PenTool,
+    },
+    {
+      name: "Concurso Actual",
+      href: "/contest/current",
+      icon: BookOpen,
+    },
     // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
-      ? [{ name: "Historial", href: "/contest-history", icon: Trophy }]
+      ? [
+          {
+            name: "Historial",
+            href: "/contest-history",
+            icon: Trophy,
+          },
+        ]
       : []),
+    {
+      name: "FAQ",
+      href: "/faq",
+      icon: BookOpen,
+    },
   ];
 
   // No mostrar navegación de usuario autenticado en página de reset
@@ -178,7 +223,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 relative z-30">
+      <header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 shadow-lg border-b border-indigo-200 relative z-30">
         <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full">
           <div className="flex justify-between items-center h-16 min-w-0 max-w-7xl mx-auto">
             {/* Logo */}
@@ -227,15 +272,16 @@ const Layout = ({ children }) => {
                     key={item.name}
                     to={item.href}
                     onClick={
-                      item.name.includes("Escribir")
+                      item.name.includes("Escribir") && isAuthenticated
                         ? handleWriteClick
                         : undefined
                     }
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                       isActive
-                        ? "text-primary-600 bg-primary-50"
-                        : `hover:text-gray-900 hover:bg-gray-100 ${
-                            item.className || "text-gray-600"
+                        ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
+                        : `hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 ${
+                            item.className ||
+                            "text-gray-700 hover:text-gray-900"
                           }`
                     }`}
                   >
@@ -252,7 +298,7 @@ const Layout = ({ children }) => {
               {isAuthenticated && location.pathname !== "/reset-password" && (
                 <NotificationBell userId={user?.id} />
               )}
-              
+
               {isAuthenticated && location.pathname !== "/reset-password" ? (
                 <div className="relative">
                   <button
@@ -353,9 +399,12 @@ const Layout = ({ children }) => {
                   </button>
                   <button
                     onClick={() => handleAuthClick("register")}
-                    className="btn-primary cursor-pointer text-sm md:text-base px-3 md:px-4 py-2"
+                    className="relative overflow-hidden group bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-bold px-3 md:px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer text-sm md:text-base"
                   >
-                    Registrarse
+                    <span className="relative z-10 flex items-center gap-2">
+                      ✨ Únete Gratis
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </div>
               ) : null}
@@ -376,7 +425,7 @@ const Layout = ({ children }) => {
 
         {/* Mobile Navigation - Simplificado */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
+          <div className="md:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -401,7 +450,7 @@ const Layout = ({ children }) => {
                     key={item.name}
                     onClick={(e) => {
                       e.preventDefault();
-                      if (item.name.includes("Escribir")) {
+                      if (item.name.includes("Escribir") && isAuthenticated) {
                         handleWriteClick(e);
                       } else {
                         navigate(item.href);
@@ -509,16 +558,20 @@ const Layout = ({ children }) => {
                       setIsMobileMenuOpen(false);
                       handleAuthClick("register");
                     }}
-                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                    className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-xl text-base font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
-                    <User className="h-5 w-5" />
-                    <span>Registrarse gratis</span>
+                    <span className="text-lg">✨</span>
+                    <span>Únete Gratis</span>
                   </button>
 
                   <div className="px-3 py-2 border-t border-gray-200 mt-2">
                     <div className="text-sm text-gray-500">
-                      Regístrate para participar en concursos y votar por tus
-                      historias favoritas.
+                      <span className="font-medium text-indigo-600">
+                        ¡Empieza tu aventura!
+                      </span>
+                      <br />
+                      Participa en concursos, gana badges y conecta con otros
+                      escritores.
                     </div>
                   </div>
                 </>
