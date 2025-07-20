@@ -162,7 +162,13 @@ const GlobalFooter = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-xl font-bold mb-4">Letranido</h3>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity"
+              >
+                <h3 className="text-xl font-bold text-white">Letranido</h3>
+                <img src={logo} alt="Letranido" className="h-6 w-auto" />
+              </Link>
               <p className="text-primary-200 mb-6 max-w-md">
                 Una comunidad donde la creatividad literaria no tiene límites.
                 Únete a escritores apasionados de todo el mundo.
