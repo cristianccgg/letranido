@@ -117,7 +117,7 @@ export const sendNewContestNotification = async (contest) => {
     </div>
     
     <div class="footer">
-        <p>¿Preguntas? Contáctanos en <a href="mailto:hola@letranido.com">hola@letranido.com</a></p>
+        <p>¿Preguntas? Contáctanos en <a href="mailto:info@letranido.com">info@letranido.com</a></p>
         <div class="unsubscribe">
             <p>Recibiste este email porque te suscribiste a las notificaciones de concursos de Letranido.</p>
             <p><a href="https://letranido.com/unsubscribe?email={{email}}&token={{unsubscribe_token}}">Cancelar suscripción</a></p>
@@ -143,7 +143,7 @@ ${contest.word_limit ? `📝 Límite: ${contest.word_limit} palabras` : ''}
 ¡Es tu momento de brillar! Lee el prompt, deja volar tu creatividad y comparte tu historia con nuestra comunidad de escritores.
 
 ---
-¿Preguntas? Contáctanos en hola@letranido.com
+¿Preguntas? Contáctanos en info@letranido.com
 
 Para cancelar suscripción: https://letranido.com/unsubscribe
 `;
@@ -161,7 +161,7 @@ Para cancelar suscripción: https://letranido.com/unsubscribe
         const batchPromises = batch.map(async (email) => {
           try {
             const result = await resend.emails.send({
-              from: 'Letranido <concursos@letranido.com>', // Cambiar por tu dominio verificado
+              from: 'Letranido <noreply@letranido.com>', // Cambiar por tu dominio verificado
               to: email,
               subject: `🎯 Nuevo concurso: ${contest.title}`,
               html: emailHtml.replace(/{{email}}/g, email).replace(/{{unsubscribe_token}}/g, 'temp-token'),
@@ -235,7 +235,7 @@ Para cancelar suscripción: https://letranido.com/unsubscribe
 export const sendWelcomeEmail = async (email) => {
   try {
     const result = await resend.emails.send({
-      from: 'Letranido <hola@letranido.com>',
+      from: 'Letranido <noreply@letranido.com>',
       to: email,
       subject: '🎉 ¡Bienvenido a Letranido!',
       html: `

@@ -424,7 +424,7 @@ const FAQ = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 p-2 bg-blue-50 rounded">
                   <Mail className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm">Email: soporte@letranido.com</span>
+                  <span className="text-sm">Email: info@letranido.com</span>
                 </div>
               </div>
               <p className="text-sm text-gray-600">
@@ -442,7 +442,7 @@ const FAQ = () => {
               </p>
               <ul className="space-y-1 ml-4">
                 <li>• Usa el botón "Reportar" en cada historia o comentario</li>
-                <li>• Envía un email a moderacion@letranido.com</li>
+                <li>• Envía un email a legal@letranido.com</li>
                 <li>• Describe específicamente qué regla se está violando</li>
               </ul>
               <p className="text-sm text-gray-600">
@@ -569,7 +569,7 @@ const FAQ = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:soporte@letranido.com"
+              href="mailto:info@letranido.com"
               className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <Mail className="h-5 w-5 mr-2" />

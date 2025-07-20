@@ -151,11 +151,11 @@ class ErrorBoundary extends Component {
                 Si el problema persiste, puedes contactarnos:
               </p>
               <a
-                href="mailto:support@letranido.com"
+                href="mailto:info@letranido.com"
                 className="inline-flex items-center text-primary-600 hover:text-primary-700 text-sm font-medium"
               >
                 <Mail className="h-4 w-4 mr-1" />
-                support@letranido.com
+                info@letranido.com
               </a>
             </div>
 

@@ -20,7 +20,7 @@ const CommunityGuidelines = () => {
         keywords="guías comunidad, reglas comunidad, comportamiento escritores, moderación, derechos autor, letranido"
         url="/community-guidelines"
       />
-      
+
       <div className="prose prose-gray max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
@@ -537,7 +537,7 @@ const CommunityGuidelines = () => {
             </p>
             <ol className="text-green-800 space-y-2 text-sm">
               <li>
-                <strong>1.</strong> Envía un email a appeals@letranido.com
+                <strong>1.</strong> Envía un email a legal@letranido.com
               </li>
               <li>
                 <strong>2.</strong> Incluye el ID de tu historia y una
@@ -620,46 +620,11 @@ const CommunityGuidelines = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-blue-800 text-sm">
               <strong>Tu voz importa:</strong> Envía sugerencias para mejorar
-              estas guías a community@letranido.com. Las mejores ideas serán
+              estas guías a info@letranido.com. Las mejores ideas serán
               implementadas.
             </p>
           </div>
         </section>
-
-        {/* Footer de Contacto */}
-        <div className="border-t border-gray-200 pt-8 mt-12">
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6">
-            <h3 className="font-bold text-gray-900 mb-4 text-center">
-              🤝 Construyamos juntos una comunidad excepcional
-            </h3>
-
-            <div className="grid md:grid-cols-3 gap-4 text-center text-sm">
-              <div>
-                <div className="text-lg mb-2">📧</div>
-                <strong>Preguntas generales:</strong>
-                <br />
-                community@letranido.com
-              </div>
-              <div>
-                <div className="text-lg mb-2">🚨</div>
-                <strong>Reportar problemas:</strong>
-                <br />
-                reports@letranido.com
-              </div>
-              <div>
-                <div className="text-lg mb-2">⚖️</div>
-                <strong>Apelaciones:</strong>
-                <br />
-                appeals@letranido.com
-              </div>
-            </div>
-
-            <p className="text-center text-gray-600 text-sm mt-4">
-              <strong>Tiempo de respuesta:</strong> 24-48 horas para reportes
-              urgentes, 3-5 días hábiles para consultas generales.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

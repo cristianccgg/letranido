@@ -78,7 +78,7 @@ export const validateConfig = () => {
 // Configuración por defecto para desarrollo
 export const DEV_DEFAULTS = {
   siteUrl: 'http://localhost:5173',
-  fromEmail: 'dev@letranido.com',
+  fromEmail: 'noreply@letranido.com',
   adminEmail: 'admin@letranido.com',
 };
 
