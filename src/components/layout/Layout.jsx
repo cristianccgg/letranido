@@ -1,14 +1,7 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  User,
-  Menu,
-  X,
-  ChevronDown,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { User, Menu, X, ChevronDown, LogOut, Settings } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
