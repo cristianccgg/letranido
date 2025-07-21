@@ -248,31 +248,46 @@ const LandingPage = () => {
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 py-12 md:py-8 lg:py-8 text-center">
-          {/* Logo/Título con más personalidad */}
-          <div className="mb-2 flex flex-col items-center">
-            <div className="flex items-center">
+          {/* Logo/Título con tagline */}
+          <div className="mb-8 flex flex-col items-center">
+            <div className="flex items-center mb-0">
               <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
                 Letranido
               </h1>
               <img src={logo} alt="Letranido" className="h-15 md:h-25 w-auto" />
             </div>
+
+            {/* Tagline */}
+            <p className="text-xl md:text-2xl lg:text-3xl text-gray-800 mb-6 font-dancing-script font-semibold">
+              Tu nido creativo de escritura
+            </p>
+
+            {/* Qué es - explicación clara y directa */}
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-6 max-w-2xl leading-relaxed">
+              Participa en{" "}
+              <span className="text-indigo-600 font-semibold">
+                concursos mensuales de escritura
+              </span>{" "}
+              y conecta con una comunidad apasionada por las historias
+            </p>
           </div>
 
-          {/* Propuesta de valor optimizada */}
+          {/* Beneficios específicos - más concisos */}
           <div className="mb-8 max-w-3xl mx-auto">
-            <p className="text-xl md:text-2xl lg:text-3xl text-gray-900 mb-6 font-dancing-script font-semibold leading-relaxed">
-              <span className="text-indigo-600 font-bold">
-                La única plataforma
-              </span>{" "}
-              donde tu escritura mejora cada mes
-            </p>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-6 leading-relaxed">
-              Recibe feedback específico de escritores hispanos reales. <br />
-              Mantén 100% de los derechos sobre tus historias. <br />
-              <span className="text-purple-600 font-semibold">
-                Crece en una comunidad que realmente lee y valora tu trabajo.
-              </span>
-            </p>
+            <div className="grid md:grid-cols-3 gap-4 text-sm md:text-base">
+              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100">
+                <span className="text-indigo-600">📝</span>
+                <span className="font-medium">Feedback real</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-100">
+                <span className="text-purple-600">©️</span>
+                <span className="font-medium">Tus derechos 100%</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-pink-100">
+                <span className="text-pink-600">🌟</span>
+                <span className="font-medium">Comunidad activa</span>
+              </div>
+            </div>
           </div>
 
           {currentContest && (
