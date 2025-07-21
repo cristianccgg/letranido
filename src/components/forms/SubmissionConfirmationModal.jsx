@@ -10,6 +10,7 @@ const SubmissionConfirmationModal = ({
   wordCount,
   prompt,
   isSubmitting,
+  isEditing = false,
 }) => {
   const [hasMatureContent, setHasMatureContent] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -43,7 +44,7 @@ const SubmissionConfirmationModal = ({
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold flex items-center">
                 <Send className="h-5 w-5 mr-2" />
-                Confirmar Envío
+                {isEditing ? "Confirmar Actualización" : "Confirmar Envío"}
               </h2>
               <button
                 onClick={onClose}
@@ -200,7 +201,10 @@ const SubmissionConfirmationModal = ({
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               )}
               <Send className="h-4 w-4 mr-1" />
-              {isSubmitting ? "Enviando..." : "Enviar Historia"}
+              {isSubmitting 
+                ? (isEditing ? "Actualizando..." : "Enviando...") 
+                : (isEditing ? "Actualizar Historia" : "Enviar Historia")
+              }
             </button>
           </div>
           {!canSubmit && !isSubmitting && (

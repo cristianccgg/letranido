@@ -221,8 +221,8 @@ const Layout = ({ children }) => {
               to="/"
               className="flex items-center space-x-1 sm:space-x-0 flex-shrink-0"
             >
-              <img src={logo} alt="Letranido" className="lg:h-18 h-15 w-auto" />
-              <span className="text-lg sm:text-xl lg:text-4xl  text-primary-600 font-dm-serif">
+              <img src={logo} alt="Letranido" className="xl:h-18 h-15 w-auto" />
+              <span className="text-lg sm:text-xl xl:text-4xl text-primary-600 font-dm-serif">
                 Letranido
               </span>
               {location.pathname === "/reset-password" && (
@@ -233,7 +233,7 @@ const Layout = ({ children }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-4 lg:space-x-8 flex-1 justify-center min-w-0">
+            <nav className="hidden lg:flex space-x-4 xl:space-x-8 flex-1 justify-center min-w-0">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
 
@@ -377,7 +377,7 @@ const Layout = ({ children }) => {
                   )}
                 </div>
               ) : location.pathname !== "/reset-password" ? (
-                <div className="items-center space-x-2 md:space-x-3 hidden md:flex">
+                <div className="items-center space-x-2 lg:space-x-3 hidden lg:flex">
                   <button
                     onClick={() => handleAuthClick("login")}
                     className="text-gray-600 cursor-pointer hover:text-gray-900 font-medium text-sm md:text-base"
@@ -398,7 +398,7 @@ const Layout = ({ children }) => {
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               >
                 {isMobileMenuOpen ? (
                   <X className="h-6 w-6" />
@@ -412,7 +412,7 @@ const Layout = ({ children }) => {
 
         {/* Mobile Navigation - Simplificado */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
+          <div className="lg:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;

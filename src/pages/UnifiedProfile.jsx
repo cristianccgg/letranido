@@ -455,6 +455,24 @@ const UnifiedProfile = () => {
                           Leer →
                         </Link>
 
+                        {/* Botón editar - solo durante período de envío */}
+                        {(() => {
+                          const contestPhase = story.contests
+                            ? getContestPhase(story.contests)
+                            : "no contests";
+                          const canEdit = contestPhase === "submission";
+
+                          return canEdit;
+                        })() && (
+                          <Link
+                            to={`/write/${story.contest_id}?edit=${story.id}`}
+                            className="text-blue-600 hover:scale-110 hover:text-blue-700 p-1 rounded hover:bg-blue-50 transition-colors"
+                            title="Editar historia"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </Link>
+                        )}
+
                         {/* Botón eliminar - solo durante período de envío O si es admin */}
                         {(() => {
                           const contestPhase = story.contests

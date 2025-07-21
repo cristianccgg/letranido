@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Clock, Send, AlertCircle, PenTool } from "lucide-react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Clock, Send, AlertCircle, PenTool, Edit3 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
 import { supabase } from "../lib/supabase";
@@ -11,11 +11,15 @@ import LiteraryEditor from "../components/ui/LiteraryEditor";
 const WritePrompt = () => {
   const { promptId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editStoryId = searchParams.get('edit');
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [wordCount, setWordCount] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [originalStory, setOriginalStory] = useState(null);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO
   const {
@@ -32,12 +36,64 @@ const WritePrompt = () => {
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA
   const hasUserParticipated =
-    isAuthenticated && currentContest && userStories.length > 0
+    isAuthenticated && currentContest && userStories.length > 0 && !isEditing
       ? userStories.some((story) => story.contest_id === currentContest.id)
       : false;
 
   // ✅ DETERMINAR CONCURSO A USAR
   const contestToUse = currentContest; // Simplificado: siempre usar el actual
+
+  // ✅ CARGAR HISTORIA PARA EDICIÓN
+  useEffect(() => {
+    if (editStoryId && isAuthenticated) {
+      const loadStoryForEdit = async () => {
+        try {
+          const { data: story, error } = await supabase
+            .from('stories')
+            .select(`
+              *,
+              contests (
+                id,
+                title,
+                submission_deadline,
+                voting_deadline
+              )
+            `)
+            .eq('id', editStoryId)
+            .eq('user_id', user.id) // Solo cargar si es del usuario actual
+            .single();
+
+          if (error) {
+            console.error('Error cargando historia para editar:', error);
+            alert('No se pudo cargar la historia para editar');
+            navigate('/profile');
+            return;
+          }
+
+          // Verificar que el concurso está en fase de envío
+          if (story.contests) {
+            const contestPhase = new Date() <= new Date(story.contests.submission_deadline) ? 'submission' : 'voting';
+            if (contestPhase !== 'submission') {
+              alert('Solo puedes editar historias durante el período de envío');
+              navigate('/profile');
+              return;
+            }
+          }
+
+          setOriginalStory(story);
+          setTitle(story.title);
+          setText(story.content);
+          setIsEditing(true);
+        } catch (error) {
+          console.error('Error inesperado:', error);
+          alert('Error cargando la historia');
+          navigate('/profile');
+        }
+      };
+
+      loadStoryForEdit();
+    }
+  }, [editStoryId, isAuthenticated, user?.id, navigate]);
 
   // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS (sin HTML)
   useEffect(() => {
@@ -155,68 +211,145 @@ const WritePrompt = () => {
     shareWinnerContentAccepted 
   }) => {
     try {
-      // Primero crear la historia
-      const storyData = {
-        title: title.trim(),
-        content: text.trim(),
-        wordCount,
-        contestId: contestToUse.id,
-        hasMatureContent,
-      };
-
-      // ✅ submitStory del contexto actualiza automáticamente userStories
-      const result = await submitStory(storyData);
-      
-      console.log('📝 Submit story result:', result);
-
-      if (result.success) {
-        console.log('✅ Story created with ID:', result.storyId);
+      if (isEditing && originalStory) {
+        // MODO EDICIÓN: Actualizar historia existente
+        console.log('🔄 Actualizando historia:', {
+          storyId: originalStory.id,
+          userId: user.id,
+          title: title.trim(),
+          wordCount,
+          hasMatureContent
+        });
         
-        // Ahora guardar los consentimientos legales con el story_id
-        const { data: consentData, error: consentError } = await supabase
+        const { data: updatedStory, error: updateError } = await supabase
+          .from('stories')
+          .update({
+            title: title.trim(),
+            content: text.trim(),
+            word_count: wordCount,
+            is_mature: hasMatureContent
+          })
+          .eq('id', originalStory.id)
+          .eq('user_id', user.id)
+          .select();
+
+        if (updateError) {
+          console.error('❌ Error actualizando historia:', updateError);
+          console.error('❌ Detalles del error:', {
+            message: updateError.message,
+            details: updateError.details,
+            hint: updateError.hint,
+            code: updateError.code
+          });
+          alert(`Error actualizando la historia: ${updateError.message}`);
+          return;
+        }
+
+        if (!updatedStory || updatedStory.length === 0) {
+          console.error('❌ No se encontró la historia para actualizar');
+          alert('No se pudo encontrar la historia para actualizar');
+          return;
+        }
+
+        // Actualizar consentimientos legales
+        const { error: consentError } = await supabase
           .from('submission_consents')
-          .insert({
-            user_id: user.id,
-            story_id: result.storyId, // Insertar directamente con story_id
+          .update({
             terms_accepted: termsAccepted,
             original_confirmed: originalConfirmed,
             no_ai_confirmed: noAIConfirmed,
             share_winner_content_accepted: shareWinnerContentAccepted,
             mature_content_marked: hasMatureContent,
-            ip_address: null, // Se puede obtener del cliente si es necesario
             user_agent: navigator.userAgent
           })
-          .select()
-          .single();
+          .eq('story_id', originalStory.id);
 
         if (consentError) {
-          console.error('❌ Error guardando consentimientos:', consentError);
-          alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
-          return;
+          console.error('❌ Error actualizando consentimientos:', consentError);
+          // No es crítico, continuamos
         }
 
-        console.log('✅ Consent created with story_id:', consentData.id);
-
-        // 📊 TRACK EVENT: Story published
+        // 📊 TRACK EVENT: Story updated
         trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
           contest_id: contestToUse.id,
           word_count: wordCount,
           has_mature_content: hasMatureContent,
-          contest_title: contestToUse.title
+          contest_title: contestToUse.title,
+          action: 'updated'
         });
-
-        // Limpiar borrador
-        localStorage.removeItem(`story-draft-${contestToUse.id}`);
 
         // Cerrar modal
         setShowConfirmationModal(false);
 
         // Redirigir con mensaje
-        navigate("/contest/current", {
-          state: { message: result.message },
+        navigate("/profile", {
+          state: { message: "Historia actualizada exitosamente" },
         });
+
       } else {
-        alert(result.error);
+        // MODO CREACIÓN: Nueva historia
+        const storyData = {
+          title: title.trim(),
+          content: text.trim(),
+          wordCount,
+          contestId: contestToUse.id,
+          hasMatureContent,
+        };
+
+        // ✅ submitStory del contexto actualiza automáticamente userStories
+        const result = await submitStory(storyData);
+        
+        console.log('📝 Submit story result:', result);
+
+        if (result.success) {
+          console.log('✅ Story created with ID:', result.storyId);
+          
+          // Ahora guardar los consentimientos legales con el story_id
+          const { data: consentData, error: consentError } = await supabase
+            .from('submission_consents')
+            .insert({
+              user_id: user.id,
+              story_id: result.storyId, // Insertar directamente con story_id
+              terms_accepted: termsAccepted,
+              original_confirmed: originalConfirmed,
+              no_ai_confirmed: noAIConfirmed,
+              share_winner_content_accepted: shareWinnerContentAccepted,
+              mature_content_marked: hasMatureContent,
+              ip_address: null, // Se puede obtener del cliente si es necesario
+              user_agent: navigator.userAgent
+            })
+            .select()
+            .single();
+
+          if (consentError) {
+            console.error('❌ Error guardando consentimientos:', consentError);
+            alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
+            return;
+          }
+
+          console.log('✅ Consent created with story_id:', consentData.id);
+
+          // 📊 TRACK EVENT: Story published
+          trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
+            contest_id: contestToUse.id,
+            word_count: wordCount,
+            has_mature_content: hasMatureContent,
+            contest_title: contestToUse.title
+          });
+
+          // Limpiar borrador
+          localStorage.removeItem(`story-draft-${contestToUse.id}`);
+
+          // Cerrar modal
+          setShowConfirmationModal(false);
+
+          // Redirigir con mensaje
+          navigate("/contest/current", {
+            state: { message: result.message },
+          });
+        } else {
+          alert(result.error);
+        }
       }
     } catch (error) {
       console.error('Error en el proceso de envío:', error);
@@ -346,8 +479,16 @@ const WritePrompt = () => {
               )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
-              {contestToUse.title}
+              {isEditing ? "Editando historia" : contestToUse.title}
             </h1>
+            {isEditing && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                <p className="text-blue-800 text-sm flex items-center">
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Estás editando tu historia para: <strong className="ml-1">{contestToUse.title}</strong>
+                </p>
+              </div>
+            )}
             <p className="text-gray-600 leading-relaxed">
               {contestToUse.description}
             </p>
@@ -430,7 +571,12 @@ const WritePrompt = () => {
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
               <Send className="h-4 w-4 mr-2" />
-              {isAuthenticated ? "Enviar historia" : "Registrarse y continuar"}
+              {isEditing 
+                ? "Actualizar historia" 
+                : isAuthenticated 
+                  ? "Enviar historia" 
+                  : "Registrarse y continuar"
+              }
             </button>
           </div>
         </div>
@@ -472,6 +618,7 @@ const WritePrompt = () => {
           wordCount={wordCount}
           prompt={contestToUse}
           isSubmitting={false}
+          isEditing={isEditing}
         />
       )}
     </div>
