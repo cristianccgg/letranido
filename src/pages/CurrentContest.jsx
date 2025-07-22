@@ -77,7 +77,10 @@ const CurrentContest = () => {
   const storiesSectionRef = useRef(null);
 
   // ✅ DETERMINAR QUE CONCURSO MOSTRAR (Memoizado para evitar re-renders)
-  const contestToLoad = useMemo(() => id || currentContest?.id, [id, currentContest?.id]);
+  const contestToLoad = useMemo(
+    () => id || currentContest?.id,
+    [id, currentContest?.id]
+  );
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
@@ -659,7 +662,7 @@ const CurrentContest = () => {
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <UserWithTopBadge 
+                                <UserWithTopBadge
                                   userId={story.user_id}
                                   userName={story.author}
                                   className="truncate"
@@ -951,7 +954,7 @@ const CurrentContest = () => {
                                 />
                                 <span>
                                   por{" "}
-                                  <UserWithTopBadge 
+                                  <UserWithTopBadge
                                     userId={story.user_id}
                                     userName={story.author}
                                     className="inline-flex"

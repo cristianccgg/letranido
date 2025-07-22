@@ -1,5 +1,5 @@
 // pages/LandingPage.jsx - VERSIÓN CORREGIDA SIN HISTORIAS
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -204,8 +204,8 @@ const LandingPage = () => {
     );
   }
 
-  // Configuración del segundo botón según la fase
-  const getSecondaryButton = () => {
+  // Configuración del segundo botón según la fase (Optimizado con useMemo)
+  const secondaryButton = useMemo(() => {
     if (!currentContestPhase || !currentContest) return null;
     if (currentContestPhase === "submission") {
       return {
@@ -223,9 +223,7 @@ const LandingPage = () => {
     }
     // No mostrar en results
     return null;
-  };
-
-  const secondaryButton = getSecondaryButton();
+  }, [currentContestPhase, currentContest]);
 
   return (
     <div className="min-h-screen">
