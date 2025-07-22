@@ -1,5 +1,5 @@
 // pages/CurrentContest.jsx - VERSIÓN CORREGIDA Y LIMPIA
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Trophy,
@@ -76,8 +76,8 @@ const CurrentContest = () => {
   // Refs para scroll
   const storiesSectionRef = useRef(null);
 
-  // ✅ DETERMINAR QUE CONCURSO MOSTRAR
-  const contestToLoad = id || currentContest?.id;
+  // ✅ DETERMINAR QUE CONCURSO MOSTRAR (Memoizado para evitar re-renders)
+  const contestToLoad = useMemo(() => id || currentContest?.id, [id, currentContest?.id]);
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
@@ -171,25 +171,8 @@ const CurrentContest = () => {
     }
   }, [galleryStories.length]);
 
-  // ✅ DETECTAR CAMBIOS EN GALLERYSTORIES Y FORZAR RE-RENDER INMEDIATO
-  const [forceRender, setForceRender] = useState(0);
-
-  useLayoutEffect(() => {
-    if (contest?.id === currentContest?.id && galleryStories.length > 0) {
-      console.log(
-        "🔄 GalleryStories cambió, forzando re-render de CurrentContest"
-      );
-      setForceRender((prev) => prev + 1);
-    }
-  }, [galleryStories, contest?.id, currentContest?.id]);
-
-  // ✅ FORZAR RE-RENDER CUANDO SE NAVEGA DE VUELTA
-  useLayoutEffect(() => {
-    console.log(
-      "🔄 CurrentContest montado/actualizado - Force render:",
-      forceRender
-    );
-  }, [forceRender]);
+  // ✅ NOTA: Removidos useLayoutEffect innecesarios que causaban ciclos de re-renders
+  // Los datos se sincronizan automáticamente vía galleryStories del contexto
 
   // ✅ REFRESH COMPLETO
   const handleRefresh = async () => {
@@ -210,6 +193,7 @@ const CurrentContest = () => {
   };
 
   // ✅ HANDLE VOTE SIMPLIFICADO - SOLO CONTEXTO GLOBAL (SE SINCRONIZA AUTOMÁTICAMENTE)
+  // eslint-disable-next-line no-unused-vars
   const handleVote = async (storyId) => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
@@ -237,7 +221,7 @@ const CurrentContest = () => {
   };
 
   // ✅ FILTROS Y ORDENAMIENTO - USAR SOLO GALLERYSTORIES (FUENTE ÚNICA DE VERDAD)
-  const filteredAndSortedStories = (() => {
+  const filteredAndSortedStories = useMemo(() => {
     // Usar SIEMPRE galleryStories como fuente única de verdad
     console.log("🔍 CurrentContest usando galleryStories:", {
       contestId: contest?.id,
@@ -290,7 +274,7 @@ const CurrentContest = () => {
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
     }
-  })();
+  }, [galleryStories, searchTerm, sortBy, contest?.id, storiesLoading]);
 
   // ✅ FUNCIONES DE COMPARTIR
   // Generar datos para compartir
@@ -320,7 +304,7 @@ const CurrentContest = () => {
   };
 
   // ✅ FUNCIONES DE UTILIDAD
-  const getPhaseInfo = () => {
+  const getPhaseInfo = useCallback(() => {
     if (!contest) return null;
 
     const phase = getContestPhase(contest);
@@ -430,9 +414,9 @@ const CurrentContest = () => {
           showStories: false,
         };
     }
-  };
+  }, [contest, currentContest?.id, getContestPhase]);
 
-  const phaseInfo = getPhaseInfo();
+  const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
   // ✅ LOADING STATES
   if (globalLoading || contestsLoading || (!initialized && !error)) {
@@ -658,7 +642,7 @@ const CurrentContest = () => {
                   {/* Grid de participantes */}
                   {!storiesLoading && !error && stories.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {stories.map((story, index) => (
+                      {stories.map((story) => (
                         <div
                           key={story.id}
                           className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"

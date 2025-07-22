@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   PenTool,
   Trophy,
@@ -127,16 +127,20 @@ const UnifiedProfile = () => {
     }
   };
 
-  // ✅ ESTADÍSTICAS CALCULADAS - sin cargas separadas
-  const totalLikes = userStories.reduce(
-    (total, story) => total + (story.likes_count || 0),
-    0
-  );
-  const totalViews = userStories.reduce(
-    (total, story) => total + (story.views_count || 0),
-    0
-  );
-  const totalWins = userStories.filter((story) => story.is_winner).length;
+  // ✅ ESTADÍSTICAS CALCULADAS - optimizadas con useMemo
+  const { totalLikes, totalViews, totalWins } = useMemo(() => {
+    return {
+      totalLikes: userStories.reduce(
+        (total, story) => total + (story.likes_count || 0),
+        0
+      ),
+      totalViews: userStories.reduce(
+        (total, story) => total + (story.views_count || 0),
+        0
+      ),
+      totalWins: userStories.filter((story) => story.is_winner).length
+    };
+  }, [userStories]);
 
   // ✅ LOADING SIMPLIFICADO - Solo mostrar loading si realmente está cargando Y hay usuario
   const showLoading = userStoriesLoading && user;
