@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Clock, Send, AlertCircle, PenTool, Edit3 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
+import { useDraftManager } from "../hooks/useDraftManager";
+import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
 
 const WritePrompt = () => {
-  const { promptId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editStoryId = searchParams.get('edit');
@@ -34,14 +35,18 @@ const WritePrompt = () => {
   // ✅ GOOGLE ANALYTICS
   const { trackEvent } = useGoogleAnalytics();
 
-  // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA
-  const hasUserParticipated =
-    isAuthenticated && currentContest && userStories.length > 0 && !isEditing
-      ? userStories.some((story) => story.contest_id === currentContest.id)
-      : false;
-
   // ✅ DETERMINAR CONCURSO A USAR
   const contestToUse = currentContest; // Simplificado: siempre usar el actual
+
+  // ✅ DRAFT MANAGER
+  const { saveDraft, loadDraft, saveTempDraft, clearDraft } = useDraftManager(contestToUse?.id);
+
+  // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA (Optimizada con useMemo)
+  const hasUserParticipated = useMemo(() => {
+    return isAuthenticated && currentContest && userStories.length > 0 && !isEditing
+      ? userStories.some((story) => story.contest_id === currentContest.id)
+      : false;
+  }, [isAuthenticated, currentContest, userStories, isEditing]);
 
   // ✅ CARGAR HISTORIA PARA EDICIÓN
   useEffect(() => {
@@ -110,49 +115,22 @@ const WritePrompt = () => {
       .filter((word) => word.length > 0);
     setWordCount(words.length);
 
-    // Auto-guardar solo si hay contenido
-    if (title.trim() || text.trim()) {
-      const saveData = { title, text };
-      localStorage.setItem(
-        `story-draft-${contestToUse.id}`,
-        JSON.stringify(saveData)
-      );
-    }
-  }, [text, title, contestToUse?.id]);
+    // Auto-guardar con debounce (500ms)
+    const timeoutId = setTimeout(() => {
+      saveDraft(title, text);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [text, title, contestToUse?.id, saveDraft]);
 
   // ✅ CARGAR BORRADOR
   useEffect(() => {
-    if (!contestToUse?.id) return;
+    if (!contestToUse?.id || isEditing) return;
 
-    const savedDraft = localStorage.getItem(`story-draft-${contestToUse.id}`);
-    if (savedDraft) {
-      try {
-        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
-        if (savedTitle) setTitle(savedTitle);
-        if (savedText) setText(savedText);
-      } catch (err) {
-        console.error("Error cargando borrador:", err);
-      }
-    }
-
-    // Verificar borrador temporal (después de registro)
-    const tempDraft = localStorage.getItem(
-      `story-draft-temp-${contestToUse.id}`
-    );
-    if (tempDraft && !savedDraft) {
-      try {
-        const { title: savedTitle, text: savedText } = JSON.parse(tempDraft);
-        if (savedTitle) setTitle(savedTitle);
-        if (savedText) setText(savedText);
-
-        // Mover a borrador normal y limpiar temporal
-        localStorage.setItem(`story-draft-${contestToUse.id}`, tempDraft);
-        localStorage.removeItem(`story-draft-temp-${contestToUse.id}`);
-      } catch (err) {
-        console.error("Error cargando borrador temporal:", err);
-      }
-    }
-  }, [contestToUse?.id]);
+    const draft = loadDraft();
+    if (draft.title) setTitle(draft.title);
+    if (draft.text) setText(draft.text);
+  }, [contestToUse?.id, loadDraft, isEditing]);
 
   const handleSubmit = () => {
     // ✅ VALIDACIONES BÁSICAS
@@ -189,11 +167,7 @@ const WritePrompt = () => {
     if (!isAuthenticated) {
       // Guardar contenido antes de auth
       if (contestToUse?.id && (title.trim() || text.trim())) {
-        const tempDraft = { title, text };
-        localStorage.setItem(
-          `story-draft-temp-${contestToUse.id}`,
-          JSON.stringify(tempDraft)
-        );
+        saveTempDraft(title, text);
       }
       setShowAuthModal(true);
       return;
@@ -213,7 +187,7 @@ const WritePrompt = () => {
     try {
       if (isEditing && originalStory) {
         // MODO EDICIÓN: Actualizar historia existente
-        console.log('🔄 Actualizando historia:', {
+        logger.log('🔄 Actualizando historia:', {
           storyId: originalStory.id,
           userId: user.id,
           title: title.trim(),
@@ -234,8 +208,8 @@ const WritePrompt = () => {
           .select();
 
         if (updateError) {
-          console.error('❌ Error actualizando historia:', updateError);
-          console.error('❌ Detalles del error:', {
+          logger.error('❌ Error actualizando historia:', updateError);
+          logger.error('❌ Detalles del error:', {
             message: updateError.message,
             details: updateError.details,
             hint: updateError.hint,
@@ -246,7 +220,7 @@ const WritePrompt = () => {
         }
 
         if (!updatedStory || updatedStory.length === 0) {
-          console.error('❌ No se encontró la historia para actualizar');
+          logger.error('❌ No se encontró la historia para actualizar');
           alert('No se pudo encontrar la historia para actualizar');
           return;
         }
@@ -265,7 +239,7 @@ const WritePrompt = () => {
           .eq('story_id', originalStory.id);
 
         if (consentError) {
-          console.error('❌ Error actualizando consentimientos:', consentError);
+          logger.error('❌ Error actualizando consentimientos:', consentError);
           // No es crítico, continuamos
         }
 
@@ -299,10 +273,10 @@ const WritePrompt = () => {
         // ✅ submitStory del contexto actualiza automáticamente userStories
         const result = await submitStory(storyData);
         
-        console.log('📝 Submit story result:', result);
+        logger.log('📝 Submit story result:', result);
 
         if (result.success) {
-          console.log('✅ Story created with ID:', result.storyId);
+          logger.log('✅ Story created with ID:', result.storyId);
           
           // Ahora guardar los consentimientos legales con el story_id
           const { data: consentData, error: consentError } = await supabase
@@ -322,12 +296,12 @@ const WritePrompt = () => {
             .single();
 
           if (consentError) {
-            console.error('❌ Error guardando consentimientos:', consentError);
+            logger.error('❌ Error guardando consentimientos:', consentError);
             alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
             return;
           }
 
-          console.log('✅ Consent created with story_id:', consentData.id);
+          logger.log('✅ Consent created with story_id:', consentData.id);
 
           // 📊 TRACK EVENT: Story published
           trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
@@ -338,7 +312,7 @@ const WritePrompt = () => {
           });
 
           // Limpiar borrador
-          localStorage.removeItem(`story-draft-${contestToUse.id}`);
+          clearDraft();
 
           // Cerrar modal
           setShowConfirmationModal(false);
@@ -361,19 +335,9 @@ const WritePrompt = () => {
     setShowAuthModal(false);
 
     // Restaurar contenido guardado después del registro
-    const savedDraft = localStorage.getItem(
-      `story-draft-temp-${contestToUse?.id}`
-    );
-    if (savedDraft) {
-      try {
-        const { title: savedTitle, text: savedText } = JSON.parse(savedDraft);
-        if (savedTitle) setTitle(savedTitle);
-        if (savedText) setText(savedText);
-        localStorage.removeItem(`story-draft-temp-${contestToUse?.id}`);
-      } catch (err) {
-        console.error("Error restaurando borrador:", err);
-      }
-    }
+    const draft = loadDraft();
+    if (draft.title) setTitle(draft.title);
+    if (draft.text) setText(draft.text);
   };
 
   const getWordCountColor = () => {
