@@ -25,6 +25,7 @@ import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
+import SEOHead from "../components/SEO/SEOHead";
 
 const StoryPage = () => {
   const { id } = useParams();
@@ -335,7 +336,18 @@ const StoryPage = () => {
 
   // ✅ RENDER PRINCIPAL
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <>
+      <SEOHead
+        title={story?.title || "Historia"}
+        description={story?.story ? `${story.story.substring(0, 160)}...` : "Lee esta historia creativa de nuestra comunidad de escritores en Letranido."}
+        keywords={`historia ${story?.contest?.category || 'creativa'}, escritura creativa, ${story?.author?.display_name || 'autor'}, letranido`}
+        url={`/story/${id}`}
+        canonicalUrl={`https://letranido.com/story/${id}`}
+        type="article"
+        author={story?.author?.display_name}
+        publishedTime={story?.created_at}
+      />
+      <div className="max-w-4xl mx-auto space-y-8">
       {/* Back Navigation */}
       <div className="flex items-center justify-between">
         <button
@@ -628,7 +640,8 @@ const StoryPage = () => {
         />
       )}
 
-    </div>
+      </div>
+    </>
   );
 };
 

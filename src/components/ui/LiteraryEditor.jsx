@@ -50,13 +50,37 @@ const LiteraryEditor = ({
         setIsActive(!!range);
       });
 
-      // Aplicar estilos personalizados
+      // Prevenir auto-corrección de doble espacio a punto
+      quillRef.current.keyboard.addBinding({
+        key: ' ',
+        handler: function(range, context) {
+          // Si hay dos espacios seguidos al final, prevenir la auto-corrección
+          const text = this.quill.getText();
+          const cursorPos = range.index;
+          
+          if (cursorPos > 0 && text[cursorPos - 1] === ' ') {
+            // Insertar espacio normal sin auto-corrección
+            this.quill.insertText(cursorPos, ' ', 'user');
+            this.quill.setSelection(cursorPos + 1);
+            return false; // Prevenir el comportamiento por defecto
+          }
+          
+          return true; // Permitir comportamiento normal para espacios únicos
+        }
+      });
+
+      // Aplicar estilos personalizados y desactivar auto-corrección
       const editor = quillRef.current.root;
       editor.style.fontFamily = '"Crimson Text", "Times New Roman", serif';
       editor.style.fontSize = "16px";
       editor.style.lineHeight = "1.6";
       editor.style.minHeight = `${rows * 1.5}em`;
       editor.style.color = "#111827";
+      
+      // Desactivar auto-corrección y auto-capitalización para escritura literaria
+      editor.setAttribute('autocorrect', 'off');
+      editor.setAttribute('autocapitalize', 'off');
+      editor.setAttribute('spellcheck', 'false');
 
       // Establecer valor inicial
       if (value) {
@@ -128,6 +152,7 @@ const LiteraryEditor = ({
             border-top: none;
             border-radius: 0 0 0.5rem 0.5rem;
             font-size: 16px;
+            overflow: hidden;
           }
           
           .literary-editor .ql-editor {
@@ -136,11 +161,22 @@ const LiteraryEditor = ({
             font-size: 16px;
             line-height: 1.6;
             color: #111827;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
           }
           
           .literary-editor .ql-editor.ql-blank::before {
             color: #9ca3af;
             font-style: normal;
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            right: 16px;
+            pointer-events: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           
           .literary-editor .ql-toolbar .ql-formats {

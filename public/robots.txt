@@ -21,10 +21,15 @@ Disallow: /unsubscribe/
 # Allow important pages
 Allow: /
 Allow: /contest/
-Allow: /rules/
-Allow: /terms/
-Allow: /privacy/
-Allow: /community-guidelines/
+Allow: /contest-history
+Allow: /write
+Allow: /story/
+Allow: /terms
+Allow: /privacy
+Allow: /community-guidelines
+Allow: /cookie-policy
+Allow: /faq
+Allow: /writing-resources
 
 # Sitemap location
 Sitemap: https://letranido.com/sitemap.xml

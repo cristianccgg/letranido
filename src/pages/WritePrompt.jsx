@@ -9,6 +9,7 @@ import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
+import SEOHead from "../components/SEO/SEOHead";
 
 const WritePrompt = () => {
   const navigate = useNavigate();
@@ -420,7 +421,15 @@ const WritePrompt = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
+      <SEOHead
+        title={isEditing ? "Editar Historia" : "Escribir Historia"}
+        description={currentContest ? `Participa en el concurso de ${currentContest.category} de ${currentContest.month}. Escribe tu historia basada en el prompt: "${currentContest.prompt}"` : "Escribe tu historia para el concurso actual de escritura creativa en Letranido."}
+        keywords="escribir historia, concurso escritura, prompt creativo, participar concurso, letranido"
+        url="/write"
+        canonicalUrl="https://letranido.com/write"
+      />
+      <div className="max-w-4xl mx-auto">
       {/* Información del concurso */}
       <div className="card mb-8">
         <div className="flex items-start justify-between mb-4">
@@ -585,7 +594,8 @@ const WritePrompt = () => {
           isEditing={isEditing}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

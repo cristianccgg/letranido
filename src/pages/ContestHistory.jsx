@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
+import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
   const { contests, contestsLoading, getStoriesByContest } = useGlobalApp();
@@ -125,7 +126,15 @@ const ContestHistory = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <>
+      <SEOHead
+        title="Historial de Concursos"
+        description="Explora todos los concursos de escritura pasados de Letranido. Descubre las historias ganadoras, participantes destacados y la evolución de nuestra comunidad creativa."
+        keywords="historial concursos escritura, concursos pasados letranido, historias ganadoras, escritores destacados"
+        url="/contest-history"
+        canonicalUrl="https://letranido.com/contest-history"
+      />
+      <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -323,7 +332,8 @@ const ContestHistory = () => {
           Participar en el concurso actual
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -157,8 +157,8 @@ export const submissionReminderTemplate = (contest, daysLeft) => {
     <p><strong>Recuerda:</strong></p>
     <ul>
       <li>📝 Entre ${contest.min_words} y ${contest.max_words} palabras</li>
-      <li>🎯 Sigue el tema propuesto</li>
-      <li>✨ ¡Deja volar tu creatividad!</li>
+      <li>🎯 Usa el prompt como inspiración (síguelo exactamente, adaptalo o reinterpretalo)</li>
+      <li>✨ ¡Total libertad creativa!</li>
     </ul>
   `;
   

@@ -410,13 +410,25 @@ serve(async (req) => {
 
 // Templates HTML mejorados para Letranido
 function generateNewContestHTML(contest: any): string {
-  const deadline = new Date(contest.submission_deadline).toLocaleDateString(
+  // Arreglar timezone igual que en el frontend
+  const deadlineString = contest.submission_deadline;
+  let deadlineDate;
+  
+  if (deadlineString.includes('+00:00')) {
+    const cleanDate = deadlineString.replace('+00:00', '');
+    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
+  } else {
+    deadlineDate = new Date(deadlineString);
+  }
+  
+  const deadline = deadlineDate.toLocaleDateString(
     "es-ES",
     {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
+      timeZone: "America/Bogota"
     }
   );
 
@@ -458,7 +470,7 @@ function generateNewContestHTML(contest: any): string {
         </div>
         
         <div style="text-align: center; margin: 35px 0;">
-          <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¿Estás listo para el desafío? ¡Deja volar tu imaginación!</p>
+          <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¿Estás listo para el desafío? Usa el prompt como inspiración y desarrolla tu historia única.</p>
           <a href="https://letranido.com/write/${contest.id}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); transition: all 0.3s ease;">
             ✍️ Escribir mi historia
           </a>
@@ -486,7 +498,19 @@ function generateNewContestHTML(contest: any): string {
 
 function generateReminderHTML(contest: any, daysLeft: number): string {
   const urgencyEmoji = daysLeft <= 1 ? "🚨" : daysLeft <= 3 ? "⏰" : "⏳";
-  const deadline = new Date(contest.submission_deadline).toLocaleDateString(
+  
+  // Arreglar timezone igual que en el frontend
+  const deadlineString = contest.submission_deadline;
+  let deadlineDate;
+  
+  if (deadlineString.includes('+00:00')) {
+    const cleanDate = deadlineString.replace('+00:00', '');
+    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
+  } else {
+    deadlineDate = new Date(deadlineString);
+  }
+  
+  const deadline = deadlineDate.toLocaleDateString(
     "es-ES",
     {
       weekday: "long",
@@ -494,6 +518,7 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
       month: "long",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Bogota"
     }
   );
 
@@ -526,8 +551,8 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
           <h4 style="color: #1e293b; margin: 0 0 15px 0; font-size: 16px;">💡 Recordatorio rápido:</h4>
           <ul style="color: #475569; margin: 0; padding-left: 20px; line-height: 1.6;">
             <li><strong>${contest.min_words} - ${contest.max_words} palabras</strong></li>
-            <li>Sigue el tema propuesto</li>
-            <li>¡Deja volar tu creatividad!</li>
+            <li>Usa el prompt como inspiración (síguelo exactamente, adaptalo o reinterpretalo)</li>
+            <li>¡Total libertad creativa!</li>
           </ul>
         </div>
         
@@ -561,7 +586,18 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
 }
 
 function generateVotingHTML(contest: any, storiesCount: number): string {
-  const votingDeadline = new Date(contest.voting_deadline).toLocaleDateString(
+  // Arreglar timezone igual que en el frontend
+  const deadlineString = contest.voting_deadline;
+  let deadlineDate;
+  
+  if (deadlineString.includes('+00:00')) {
+    const cleanDate = deadlineString.replace('+00:00', '');
+    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
+  } else {
+    deadlineDate = new Date(deadlineString);
+  }
+  
+  const votingDeadline = deadlineDate.toLocaleDateString(
     "es-ES",
     {
       weekday: "long",
@@ -569,6 +605,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
       month: "long",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Bogota"
     }
   );
 

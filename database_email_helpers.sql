@@ -165,7 +165,6 @@ BEGIN
       SELECT 1 FROM public.stories s 
       WHERE s.user_id = up.id 
       AND s.contest_id = contest_id_param
-      AND s.deleted_at IS NULL  -- Excluir historias eliminadas
     )
   ORDER BY up.created_at DESC;
 END;

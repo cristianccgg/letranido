@@ -1,5 +1,5 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
@@ -150,14 +150,21 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
 
-          {/* ✅ RUTAS SIMPLIFICADAS - Menos componentes diferentes */}
+          {/* ✅ RUTAS PRINCIPALES - Con canonical URLs */}
           <Route path="/profile" element={<UnifiedProfile />} />
-          <Route path="/dashboard" element={<UnifiedProfile />} />
           <Route path="/profile/:userId" element={<UnifiedProfile />} />
+          
+          {/* Redirects para evitar contenido duplicado */}
+          <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
 
           <Route path="/write/:promptId?" element={<WritePrompt />} />
-          <Route path="/history" element={<ContestHistory />} />
+          
+          {/* Ruta principal para historial */}
           <Route path="/contest-history" element={<ContestHistory />} />
+          
+          {/* Redirect para evitar contenido duplicado */}
+          <Route path="/history" element={<Navigate to="/contest-history" replace />} />
+          
           <Route path="/contest/current" element={<CurrentContest />} />
           <Route path="/contest/:id" element={<CurrentContest />} />
           <Route path="/story/:id" element={<StoryPage />} />
@@ -178,15 +185,14 @@ function AppContent() {
           {/* Writing Resources */}
           <Route path="/writing-resources" element={<WritingResources />} />
 
-          {/* Legal */}
+          {/* Legal - Con rutas canónicas */}
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route
-            path="/community-guidelines"
-            element={<CommunityGuidelines />}
-          />
+          <Route path="/community-guidelines" element={<CommunityGuidelines />} />
+          
+          {/* Redirect para evitar contenido duplicado */}
+          <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
 
           {/* ✅ RUTA 404 MEJORADA */}
           <Route path="*" element={<NotFoundPage />} />
@@ -219,7 +225,7 @@ function NotFoundPage() {
             Ver concurso actual
           </a>
         )}
-        <a href="/history" className="btn-secondary">
+        <a href="/contest-history" className="btn-secondary">
           Ver historial de concursos
         </a>
       </div>

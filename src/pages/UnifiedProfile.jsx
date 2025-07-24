@@ -24,6 +24,7 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import UserBadgesSection from "../components/ui/UserBadgesSection";
+import SEOHead from "../components/SEO/SEOHead";
 
 const UnifiedProfile = () => {
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -182,7 +183,15 @@ const UnifiedProfile = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-4">
+    <>
+      <SEOHead
+        title={user?.display_name ? `Perfil de ${user.display_name}` : "Mi Perfil"}
+        description={user?.bio || `Perfil de escritor en Letranido. Descubre las historias y participaciones de ${user?.display_name || 'este usuario'} en nuestra comunidad de escritura creativa.`}
+        keywords="perfil escritor, historias usuario, comunidad escritura, letranido"
+        url="/profile"
+        canonicalUrl="https://letranido.com/profile"
+      />
+      <div className="max-w-6xl mx-auto space-y-8 px-4">
       {/* Profile Header */}
       <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-4 sm:p-8">
         <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
@@ -612,7 +621,8 @@ const UnifiedProfile = () => {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

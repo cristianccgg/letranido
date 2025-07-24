@@ -1,0 +1,12 @@
+# Redirects para evitar contenido duplicado y mejorar SEO
+
+# Redirects para rutas duplicadas (301 permanente)
+/dashboard /profile 301
+/history /contest-history 301  
+/privacy-policy /privacy 301
+
+# Redirect del viejo path de historial en sitemap
+/contest/history /contest-history 301
+
+# SPA fallback para todas las otras rutas
+/* /index.html 200
