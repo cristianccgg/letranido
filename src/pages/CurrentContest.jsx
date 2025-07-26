@@ -545,6 +545,27 @@ const CurrentContest = () => {
         </div>
       </div>
 
+      {/* Banner motivacional para fase de votación */}
+      {phaseInfo?.phase === "voting" && (
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Trophy className="h-6 w-6 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold">🗳️ ¡Votación Activa!</h3>
+                <p className="text-green-100 text-sm">
+                  Ayuda a los escritores con comentarios constructivos. Tu feedback es valioso para nuestra comunidad literaria.
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">{phaseInfo.description}</div>
+              <div className="text-green-100 text-sm">para votar</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Guidance de votación */}
       {phaseInfo?.phase === "voting" && (
         <VotingGuidance

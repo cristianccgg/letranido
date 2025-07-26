@@ -207,14 +207,14 @@ const SimpleComments = ({ storyId, storyTitle }) => {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Escribe un comentario constructivo sobre esta historia..."
+                placeholder="¿Qué te pareció la historia? Comparte tu opinión constructiva: destaca lo que más te gustó, sugiere mejoras o comenta sobre el estilo, personajes o trama..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                 rows={3}
                 disabled={submitting}
               />
               <div className="flex justify-between items-center mt-2">
                 <div className="text-xs text-gray-500">
-                  Sé respetuoso y constructivo en tus comentarios
+                  💡 Tu feedback constructivo ayuda a la comunidad literaria
                 </div>
                 <button
                   type="submit"

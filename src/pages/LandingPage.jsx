@@ -169,22 +169,22 @@ const LandingPage = () => {
     }
     const updateTime = () => {
       const now = new Date();
-      
+
       // ARREGLO: Si la fecha viene en UTC pero debería ser Colombia
       // Crear la fecha como si fuera Colombia (UTC+0 -> Colombia -5)
       const deadlineString = currentContest.submission_deadline;
       let deadline;
-      
-      if (deadlineString.includes('+00:00')) {
+
+      if (deadlineString.includes("+00:00")) {
         // Si viene en UTC, la interpretamos como si fuera hora de Colombia
-        const cleanDate = deadlineString.replace('+00:00', '');
-        deadline = new Date(cleanDate + '-05:00'); // Colombia timezone
+        const cleanDate = deadlineString.replace("+00:00", "");
+        deadline = new Date(cleanDate + "-05:00"); // Colombia timezone
       } else {
         deadline = new Date(deadlineString);
       }
-      
+
       const diff = deadline - now;
-      
+
       if (diff <= 0) {
         setTimeLeft("Concurso cerrado");
         return;
@@ -287,7 +287,8 @@ const LandingPage = () => {
               <span className="text-indigo-600 font-semibold">
                 prompt diferente
               </span>{" "}
-              que puedes interpretar como quieras: síguelo exactamente, adaptalo o úsalo como inspiración
+              que puedes interpretar como quieras: síguelo exactamente, adaptalo
+              o úsalo como inspiración
             </p>
           </div>
 
@@ -620,7 +621,8 @@ const LandingPage = () => {
                 1. Escribe tu historia
               </h3>
               <p className="text-gray-600 md:text-lg lg:text-xl mb-3">
-                Usa el prompt mensual como quieras: síguelo exactamente, reinterpretalo o úsalo como inspiración.
+                Usa el prompt mensual como quieras: síguelo exactamente,
+                reinterpretalo o úsalo como inspiración.
               </p>
               <p className="text-sm text-gray-500 font-medium">
                 ✨ Total libertad creativa
@@ -636,8 +638,8 @@ const LandingPage = () => {
                 2. Vota por tus favoritas
               </h3>
               <p className="text-gray-600 md:text-lg lg:text-xl">
-                Cuando termine el periodo de envío, podrás leer y votar por las
-                historias.
+                Cuando termine el periodo de envío, podrás leer, votar y
+                comentar por las historias que más te gusten.
               </p>
             </div>
 
@@ -707,7 +709,8 @@ const LandingPage = () => {
                 Concursos Mensuales
               </h3>
               <p className="text-sm md:text-lg lg:text-xl text-gray-600">
-                Participa en desafíos creativos cada mes. Nuevos escenarios, situaciones y conceptos para explorar con tu escritura.
+                Participa en desafíos creativos cada mes. Nuevos escenarios,
+                situaciones y conceptos para explorar con tu escritura.
               </p>
             </div>
 

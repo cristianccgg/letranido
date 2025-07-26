@@ -616,7 +616,8 @@ const StoryPage = () => {
             </p>
           </Link>
 
-          {isAuthenticated && (
+          {isAuthenticated && story?.contest?.submission_deadline && 
+           new Date() <= new Date(story.contest.submission_deadline) && (
             <Link
               to="/write"
               className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors group"
