@@ -244,23 +244,27 @@ const StoryPage = () => {
   const formatStoryContent = (content) => {
     if (!content) return "";
     
-    // Si el contenido ya tiene HTML (nuevo formato), procesarlo
+    // Si el contenido ya tiene HTML (de Quill), devolverlo directamente
+    if (content.includes('<p>') || content.includes('<div>')) {
+      return content;
+    }
+    
+    // Si contiene otros tags HTML o markdown, procesarlo
     if (content.includes('<') || content.includes('*')) {
       return content
-        .replace(/\n/g, "<br>")
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>")
-        .replace(/(<br>\s*){2,}/g, "</p><p>") // Convertir dobles saltos a párrafos
-        .replace(/^/, "<p>") // Agregar párrafo inicial
-        .replace(/$/, "</p>") // Agregar párrafo final
-        .replace(/<p><\/p>/g, ""); // Limpiar párrafos vacíos
+        .split('\n\n')
+        .filter(paragraph => paragraph.trim())
+        .map(paragraph => `<p>${paragraph.trim().replace(/\n/g, '<br>')}</p>`)
+        .join("");
     }
     
     // Si es texto plano (formato anterior), convertir a párrafos
     return content
-      .split("\n")
+      .split("\n\n")
       .filter(paragraph => paragraph.trim())
-      .map(paragraph => `<p>${paragraph.trim()}</p>`)
+      .map(paragraph => `<p>${paragraph.trim().replace(/\n/g, '<br>')}</p>`)
       .join("");
   };
 
@@ -513,9 +517,14 @@ const StoryPage = () => {
 
         <style jsx>{`
           .story-content p {
-            margin-bottom: 1rem;
+            margin: 0;
             color: #374151;
             text-align: justify;
+            line-height: 1.7;
+          }
+          
+          .story-content p:empty {
+            height: 1.7em;
           }
           
           .story-content em {
@@ -526,10 +535,6 @@ const StoryPage = () => {
           .story-content strong {
             font-weight: 600;
             color: #1F2937;
-          }
-          
-          .story-content br {
-            line-height: 1.7;
           }
         `}</style>
 
