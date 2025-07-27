@@ -343,14 +343,69 @@ const StoryPage = () => {
     <>
       <SEOHead
         title={story?.title || "Historia"}
-        description={story?.story ? `${story.story.substring(0, 160)}...` : "Lee esta historia creativa de nuestra comunidad de escritores en Letranido."}
-        keywords={`historia ${story?.contest?.category || 'creativa'}, escritura creativa, ${story?.author?.display_name || 'autor'}, letranido`}
+        description={
+          story?.story 
+            ? `"${story.story.replace(/<[^>]*>/g, '').substring(0, 140)}..." - Historia de ${story.author?.display_name || 'un escritor'} para el concurso "${story.contest?.title || 'creativo'}" en Letranido.`
+            : "Lee esta historia creativa de nuestra comunidad de escritores en Letranido. Descubre nuevas voces y talentos literarios."
+        }
+        keywords={`${story?.title?.split(' ').slice(0, 3).join(', ') || 'historia'}, ${story?.contest?.title || 'escritura creativa'}, ${story?.author?.display_name || 'autor'}, concurso literario, ficción, letranido`}
         url={`/story/${id}`}
         canonicalUrl={`https://letranido.com/story/${id}`}
         type="article"
         author={story?.author?.display_name}
         publishedTime={story?.created_at}
+        modifiedTime={story?.updated_at}
       />
+      
+      {/* Structured Data for Story */}
+      {story && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            "name": story.title,
+            "author": {
+              "@type": "Person",
+              "name": story.author?.display_name || story.author,
+              "url": `https://letranido.com/profile/${story.user_id}`
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Letranido",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://letranido.com/letranido-logo.png"
+              }
+            },
+            "description": story.story?.replace(/<[^>]*>/g, '').substring(0, 200) + "...",
+            "text": story.story?.replace(/<[^>]*>/g, ''),
+            "wordCount": story.word_count,
+            "datePublished": story.created_at,
+            "dateModified": story.updated_at || story.created_at,
+            "genre": "Fiction",
+            "inLanguage": "es",
+            "isPartOf": {
+              "@type": "Contest",
+              "name": story.contest?.title,
+              "description": story.contest?.description
+            },
+            "interactionStatistic": [
+              {
+                "@type": "InteractionCounter",
+                "interactionType": "https://schema.org/LikeAction",
+                "userInteractionCount": story.likes_count || 0
+              },
+              {
+                "@type": "InteractionCounter", 
+                "interactionType": "https://schema.org/ViewAction",
+                "userInteractionCount": story.views || 0
+              }
+            ],
+            "url": `https://letranido.com/story/${story.id}`,
+            "mainEntityOfPage": `https://letranido.com/story/${story.id}`
+          })}
+        </script>
+      )}
       <div className="max-w-4xl mx-auto space-y-8">
       {/* Back Navigation */}
       <div className="flex items-center justify-between">

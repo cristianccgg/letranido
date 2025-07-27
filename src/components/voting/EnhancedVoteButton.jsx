@@ -1,6 +1,6 @@
 // components/voting/EnhancedVoteButton.jsx - Solo clases Tailwind puras
-import { useState } from "react";
-import { Heart, Lock, Clock, User, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, Lock, Clock, User, CheckCircle, Sparkles } from "lucide-react";
 
 const EnhancedVoteButton = ({
   isLiked = false,
@@ -16,6 +16,8 @@ const EnhancedVoteButton = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showSparkles, setShowSparkles] = useState(false);
+  const [previousCount, setPreviousCount] = useState(likesCount);
 
   const getSizeClasses = () => {
     switch (size) {
@@ -41,6 +43,18 @@ const EnhancedVoteButton = ({
   };
 
   const sizeClasses = getSizeClasses();
+
+  // Detectar cambios en el conteo para animaciones
+  useEffect(() => {
+    if (likesCount !== previousCount) {
+      if (likesCount > previousCount) {
+        // Si aumentó, mostrar animación de celebración
+        setShowSparkles(true);
+        setTimeout(() => setShowSparkles(false), 1200);
+      }
+      setPreviousCount(likesCount);
+    }
+  }, [likesCount, previousCount]);
 
   const handleClick = async () => {
     if (disabled) return;
@@ -159,15 +173,20 @@ const EnhancedVoteButton = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         disabled={disabled || (!isAuthenticated && !onAuthRequired) || !canVote}
-        className={buttonState.className}
+        className={`${buttonState.className} ${isAnimating && isLiked ? 'animate-heart-burst' : ''} transition-all duration-300`}
         title={showTooltip ? buttonState.tooltip : undefined}
+        style={{
+          transform: isHovered && canVote ? 'scale(1.05)' : 'scale(1)',
+        }}
       >
-        {buttonState.icon}
+        <span className={`${isAnimating && isLiked ? 'animate-heart-burst' : ''} transition-transform duration-200`}>
+          {buttonState.icon}
+        </span>
 
         <span
           className={`${sizeClasses.text} ${
-            isAnimating ? "animate-bounce" : ""
-          }`}
+            likesCount > previousCount ? "animate-count-bounce" : ""
+          } transition-all duration-300`}
         >
           {likesCount}
           {size !== "small" && (
@@ -199,6 +218,15 @@ const EnhancedVoteButton = ({
             {votingInfo.votingEndsAt.toLocaleDateString("es-ES")}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
           </div>
+        </div>
+      )}
+
+      {/* Sparkles de celebración */}
+      {showSparkles && (
+        <div className="absolute inset-0 pointer-events-none">
+          <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-yellow-400 animate-sparkle" />
+          <Sparkles className="absolute -top-1 -left-2 h-3 w-3 text-pink-400 animate-sparkle" style={{ animationDelay: '0.2s' }} />
+          <Sparkles className="absolute -bottom-1 right-0 h-3 w-3 text-purple-400 animate-sparkle" style={{ animationDelay: '0.4s' }} />
         </div>
       )}
     </div>

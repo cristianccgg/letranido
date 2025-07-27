@@ -1,33 +1,40 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
+import { useToast, ToastContainer } from "./components/ui/Toast";
+
+// Páginas críticas - carga inmediata
 import LandingPage from "./pages/LandingPage";
-import UnifiedProfile from "./pages/UnifiedProfile";
-import WritePrompt from "./pages/WritePrompt";
-import ContestHistory from "./pages/ContestHistory"; // ✅ CAMBIADO DE Gallery
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
-import ContestAdminPanel from "./components/admin/ContestAdminPanel";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import CookiePolicy from "./pages/CookiePolicy";
-import CommunityGuidelines from "./pages/CommunityGuidelines";
-import EmailUnsubscribe from "./pages/EmailUnsubscribe";
-import Preferences from "./pages/Preferences";
-import ResetPassword from "./pages/ResetPassword";
-import MaintenancePage from "./pages/MaintenancePage";
-import FAQ from "./pages/FAQ";
-import WritingResources from "./pages/WritingResources";
+import WritePrompt from "./pages/WritePrompt";
+
+// Páginas menos críticas - lazy loading
+const UnifiedProfile = lazy(() => import("./pages/UnifiedProfile"));
+const ContestHistory = lazy(() => import("./pages/ContestHistory"));
+const ContestAdminPanel = lazy(() => import("./components/admin/ContestAdminPanel"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const CommunityGuidelines = lazy(() => import("./pages/CommunityGuidelines"));
+const EmailUnsubscribe = lazy(() => import("./pages/EmailUnsubscribe"));
+const Preferences = lazy(() => import("./pages/Preferences"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const WritingResources = lazy(() => import("./pages/WritingResources"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
   const { initialized, authInitialized, user } = useGlobalApp();
   const { isActive: maintenanceActive, message, estimatedDuration, activatedAt, loading: maintenanceLoading } = useMaintenanceMode();
+  const { toasts, removeToast } = useToast();
   
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
@@ -147,12 +154,17 @@ function AppContent() {
     <Router>
       <ScrollToTop />
       <Layout>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
 
-          {/* ✅ RUTAS PRINCIPALES - Con canonical URLs */}
-          <Route path="/profile" element={<UnifiedProfile />} />
-          <Route path="/profile/:userId" element={<UnifiedProfile />} />
+            {/* ✅ RUTAS PRINCIPALES - Con canonical URLs */}
+            <Route path="/profile" element={<UnifiedProfile />} />
+            <Route path="/profile/:userId" element={<UnifiedProfile />} />
           
           {/* Redirects para evitar contenido duplicado */}
           <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
@@ -197,7 +209,11 @@ function AppContent() {
           {/* ✅ RUTA 404 MEJORADA */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </Layout>
+      
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </Router>
   );
 }

@@ -28,6 +28,7 @@ import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
+import AnimatedCounter from "../components/ui/AnimatedCounter";
 import logo from "../assets/images/letranido-logo.png";
 
 const LandingPage = () => {
@@ -57,22 +58,36 @@ const LandingPage = () => {
 
   // ✅ CARGAR SOLO ESTADÍSTICAS BÁSICAS
   useEffect(() => {
-    const loadBasicStats = async () => {
-      if (!initialized) return;
+    console.log(
+      "🔄 useEffect triggered - initialized:",
+      initialized,
+      "currentContest:",
+      !!currentContest
+    );
 
+    const loadBasicStats = async () => {
+      console.log("📊 loadBasicStats called - initialized:", initialized);
+      if (!initialized) {
+        console.log("❌ Not initialized, returning");
+        return;
+      }
+
+      console.log("✅ Starting to load stats...");
       try {
         // Obtener total de usuarios registrados
         let totalUsers = 0;
         try {
+          console.log("📤 Fetching user count...");
           const { count, error: usersError } = await supabase
             .from("user_profiles")
             .select("*", { count: "exact", head: true });
 
+          console.log("📥 User count response:", { count, error: usersError });
           if (!usersError) {
             totalUsers = count || 0;
           }
         } catch (err) {
-          console.error("Error cargando total de usuarios:", err);
+          console.error("❌ Error cargando total de usuarios:", err);
         }
 
         // Estadísticas de todas las historias publicadas
@@ -80,11 +95,16 @@ const LandingPage = () => {
         let totalWords = 0;
 
         try {
+          console.log("📤 Fetching stories stats...");
           const { data: stories, error } = await supabase
             .from("stories")
             .select("word_count")
             .not("published_at", "is", null); // Solo historias publicadas
 
+          console.log("📥 Stories response:", {
+            storiesCount: stories?.length,
+            error,
+          });
           if (!error && stories && stories.length > 0) {
             totalStories = stories.length;
             totalWords = stories.reduce(
@@ -93,16 +113,22 @@ const LandingPage = () => {
             );
           }
         } catch (err) {
-          console.error("Error cargando estadísticas totales:", err);
+          console.error("❌ Error cargando estadísticas totales:", err);
         }
 
+        console.log("📊 Final stats:", {
+          totalUsers,
+          totalStories,
+          totalWords,
+        });
         setStats({
           totalUsers,
           totalStories,
           totalWords,
         });
+        console.log("✅ Stats set successfully");
       } catch (error) {
-        console.error("Error cargando stats básicas:", error);
+        console.error("❌ Error cargando stats básicas:", error);
       }
     };
 
@@ -273,7 +299,11 @@ const LandingPage = () => {
               <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
                 Letranido
               </h1>
-              <img src={logo} alt="Letranido" className="h-15 md:h-25 w-auto" />
+              <img
+                src={logo}
+                alt="Logo de Letranido - Pluma en nido, símbolo de escritura creativa"
+                className="h-15 md:h-25 w-auto transition-all duration-300 hover:scale-110 hover:rotate-3 hover:drop-shadow-lg cursor-pointer"
+              />
             </div>
 
             {/* Tagline */}
@@ -376,9 +406,10 @@ const LandingPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowRulesModal(true)}
+                  aria-label="Ver reglas del concurso actual"
                   className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-xl border-2 border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 hover:shadow-lg transition-all duration-300 shadow-sm hover:scale-105"
                 >
-                  <BookOpen className="h-5 w-5 mr-2" />
+                  <BookOpen className="h-5 w-5 mr-2" aria-hidden="true" />
                   Ver reglas
                 </button>
               </div>
@@ -386,28 +417,47 @@ const LandingPage = () => {
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12">
                 <div className="max-w-4xl mx-auto">
-                  <div className="grid grid-cols-3 gap-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl transition-all duration-300 border-2 border-white/20 hover:border-purple-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-white/20 hover:border-purple-200 hover:bg-gradient-to-r hover:from-white hover:to-purple-50">
                     <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                        {stats.totalUsers}
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key={`users-${stats.totalUsers}`}
+                          end={stats.totalUsers}
+                          duration={2000}
+                          startDelay={200}
+                          className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
+                        />
                       </div>
                       <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
                         Escritores en la comunidad
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                        {stats.totalStories}
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key={`stories-${stats.totalStories}`}
+                          end={stats.totalStories}
+                          duration={2200}
+                          startDelay={400}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
+                        />
                       </div>
-                      <div className="text-gray-700 md:text-lg lg:text-x text-sm  font-medium">
+                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
                         Historias publicadas
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                        {stats.totalWords.toLocaleString()}
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key={`words-${stats.totalWords}`}
+                          end={stats.totalWords}
+                          duration={2500}
+                          startDelay={600}
+                          formatNumber={true}
+                          className="bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
+                        />
                       </div>
-                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm  font-medium">
+                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
                         Palabras escritas
                       </div>
                     </div>

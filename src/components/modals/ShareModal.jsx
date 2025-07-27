@@ -68,7 +68,7 @@ const ShareModal = ({ isOpen, onClose, shareData }) => {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       // Fallback para navegadores que no soportan clipboard API
       const textArea = document.createElement('textarea');
       textArea.value = `${text}\n${url}`;

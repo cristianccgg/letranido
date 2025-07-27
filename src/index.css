@@ -42,6 +42,11 @@
   --animate-fade-in: fade-in 0.2s ease-out;
   --animate-scale-in: scale-in 0.2s ease-out;
   --animate-wiggle: wiggle 0.5s ease-in-out;
+  --animate-heart-burst: heart-burst 0.8s ease-out;
+  --animate-bounce-in: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --animate-count-bounce: count-bounce 0.4s ease-out;
+  --animate-sparkle: sparkle 1.2s ease-in-out;
+  --animate-skeleton-wave: skeleton-wave 1.5s ease-in-out infinite;
 
   /* Animation keyframes */
   --keyframes-heart-beat: {
@@ -138,6 +143,77 @@
     }
     75% {
       transform: rotate(3deg);
+    }
+  }
+
+  --keyframes-heart-burst: {
+    0% {
+      transform: scale(1);
+    }
+    20% {
+      transform: scale(1.3);
+    }
+    40% {
+      transform: scale(1.1);
+    }
+    60% {
+      transform: scale(1.25);
+    }
+    80% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  --keyframes-bounce-in: {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  --keyframes-count-bounce: {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    30% {
+      transform: translateY(-8px) scale(1.1);
+    }
+    60% {
+      transform: translateY(-4px) scale(1.05);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  --keyframes-sparkle: {
+    0%, 100% {
+      opacity: 0;
+      transform: scale(0) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1) rotate(180deg);
+    }
+  }
+
+  --keyframes-skeleton-wave: {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
     }
   }
 

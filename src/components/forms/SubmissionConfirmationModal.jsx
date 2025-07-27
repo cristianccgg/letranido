@@ -6,7 +6,6 @@ const SubmissionConfirmationModal = ({
   onClose,
   onConfirm,
   title,
-  text,
   wordCount,
   prompt,
   isSubmitting,

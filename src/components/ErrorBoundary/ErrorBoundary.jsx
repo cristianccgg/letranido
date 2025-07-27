@@ -12,7 +12,7 @@ class ErrorBoundary extends Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     // Actualiza el state para mostrar la UI de error
     return { hasError: true };
   }

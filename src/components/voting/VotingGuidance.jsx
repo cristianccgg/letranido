@@ -7,7 +7,6 @@ const VotingGuidance = ({
   userVotesCount = 0,
   totalStories = 0,
   contestMonth = "este mes",
-  onClose,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 

@@ -28,6 +28,14 @@
     <link rel="manifest" href="/favicon_io/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/assets/images/letranido-logo.png" as="image" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+    
+    <!-- Critical CSS will be inlined by Vite -->
+    <link rel="modulepreload" href="/src/main.jsx" />
+
     <!-- Default meta tags (will be overridden by SEOHead component) -->
     <title>Letranido - Comunidad de Escritura Creativa</title>
     <meta
