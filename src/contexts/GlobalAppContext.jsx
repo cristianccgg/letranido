@@ -1280,30 +1280,15 @@ export function GlobalAppProvider({ children }) {
           return { canVote: false, reason: "Concurso no encontrado" };
         }
 
-        // Determinar la fase actual
-        const now = new Date();
-        const submissionDeadline = new Date(
-          contest.submission_deadline || contest.end_date
-        );
-        const votingDeadline = new Date(
-          contest.voting_deadline || contest.end_date
-        );
-
-        let currentPhase;
-        if (now <= submissionDeadline) {
-          currentPhase = "submission";
-        } else if (now <= votingDeadline) {
-          currentPhase = "voting";
-        } else {
-          currentPhase = "results";
-        }
+        // ✅ CORREGIDO: Usar la función getContestPhase ya corregida
+        const currentPhase = getContestPhase(contest);
 
         if (currentPhase === "submission") {
           return {
             canVote: false,
             reason: "La votación aún no ha comenzado",
             phase: "submission",
-            votingStartsAt: submissionDeadline,
+            votingStartsAt: new Date(contest.submission_deadline),
           };
         } else if (currentPhase === "results") {
           return {
@@ -1316,7 +1301,7 @@ export function GlobalAppProvider({ children }) {
             canVote: true,
             reason: "Votación activa",
             phase: "voting",
-            votingEndsAt: votingDeadline,
+            votingEndsAt: new Date(contest.voting_deadline),
           };
         }
       } catch (err) {
@@ -2748,9 +2733,28 @@ export function GlobalAppProvider({ children }) {
   const getContestPhase = useCallback((contest) => {
     if (!contest) return "unknown";
 
+    // ✅ CORREGIDO: Usar hora de Colombia (UTC-5) para comparaciones
     const now = new Date();
-    const submissionDeadline = new Date(contest.submission_deadline);
+    
+    // Convertir las fechas del concurso a hora de Colombia si no tienen zona horaria
+    const submissionDeadline = new Date(contest.submission_deadline);  
     const votingDeadline = new Date(contest.voting_deadline);
+    
+    // ✅ DEBUGGING: Log para diagnosticar problemas de timing
+    if (import.meta.env.DEV) {
+      console.log("🕐 Contest Phase Debug:", {
+        contest: contest.title,
+        now: now.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+        nowUTC: now.toISOString(),
+        submissionDeadline: submissionDeadline.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+        submissionDeadlineUTC: submissionDeadline.toISOString(),
+        votingDeadline: votingDeadline.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+        votingDeadlineUTC: votingDeadline.toISOString(),
+        isSubmissionTime: now <= submissionDeadline,
+        isVotingTime: now > submissionDeadline && now <= votingDeadline,
+        currentPhase: now <= submissionDeadline ? "submission" : now <= votingDeadline ? "voting" : "results"
+      });
+    }
 
     if (now <= submissionDeadline) {
       return "submission";

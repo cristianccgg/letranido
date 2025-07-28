@@ -174,12 +174,27 @@ const ContestAdminPanel = () => {
       year: "numeric",
     });
 
-    // Sugerir fechas por defecto
+    // ✅ CORREGIDO: Sugerir fechas por defecto en hora de Colombia
     const submissionEnd = new Date(now);
     submissionEnd.setDate(now.getDate() + 20); // 20 días para envíos
+    submissionEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
 
     const votingEnd = new Date(submissionEnd);
     votingEnd.setDate(submissionEnd.getDate() + 7); // 7 días para votación
+    votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+
+    // Función para convertir a formato datetime-local (sin zona horaria)
+    const toDateTimeLocal = (date) => {
+      // Para datetime-local necesitamos formato YYYY-MM-DDTHH:mm
+      // pero interpretado como hora local de Colombia
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
 
     setContestForm({
       title: "",
@@ -188,8 +203,8 @@ const ContestAdminPanel = () => {
       month: thisMonth,
       min_words: 100,
       max_words: 1000,
-      submission_deadline: submissionEnd.toISOString().slice(0, 16),
-      voting_deadline: votingEnd.toISOString().slice(0, 16),
+      submission_deadline: toDateTimeLocal(submissionEnd),
+      voting_deadline: toDateTimeLocal(votingEnd),
       prize: "Insignia de Oro + Destacado del mes",
       status: "submission",
     });
@@ -363,23 +378,36 @@ const ContestAdminPanel = () => {
 
   // Cambio de estado simple (sin badges)
   const changeContestStatus = async (contest, newStatus) => {
+    // ✅ CORREGIDO: Usar hora de Colombia para calcular fechas
     const now = new Date();
     let updates = { status: newStatus };
+
+    // Función helper para convertir fecha local de Colombia a UTC para BD
+    const toColombiaUTC = (localDate) => {
+      // Colombia está en UTC-5
+      const colombiaOffset = 5 * 60; // 5 horas en minutos
+      const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+      return utcDate.toISOString();
+    };
 
     // Ajustar fechas según el nuevo estado
     if (newStatus === "submission") {
       const submissionEnd = new Date(now);
       submissionEnd.setDate(now.getDate() + 7);
+      submissionEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+      
       const votingEnd = new Date(submissionEnd);
       votingEnd.setDate(votingEnd.getDate() + 5);
+      votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
 
-      updates.submission_deadline = submissionEnd.toISOString();
-      updates.voting_deadline = votingEnd.toISOString();
+      updates.submission_deadline = toColombiaUTC(submissionEnd);
+      updates.voting_deadline = toColombiaUTC(votingEnd);
     } else if (newStatus === "voting") {
-      updates.submission_deadline = now.toISOString(); // ya no se puede enviar
+      updates.submission_deadline = toColombiaUTC(now); // ya no se puede enviar
       const votingEnd = new Date(now);
       votingEnd.setDate(now.getDate() + 5);
-      updates.voting_deadline = votingEnd.toISOString();
+      votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+      updates.voting_deadline = toColombiaUTC(votingEnd);
     }
 
     const result = await updateContest(contest.id, updates);
@@ -487,6 +515,21 @@ const ContestAdminPanel = () => {
     setCreateLoading(true);
     try {
       // ✅ CORREGIDO: Solo usar columnas que existen en la tabla
+      // ⚠️ IMPORTANTE: Convertir fechas a ISO con zona horaria de Colombia
+      const toColombiaISO = (dateTimeLocal) => {
+        if (!dateTimeLocal) return null;
+        
+        // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
+        // Necesitamos interpretarlo como hora de Colombia y convertir a UTC para la BD
+        const localDate = new Date(dateTimeLocal);
+        
+        // Obtener offset de Colombia (UTC-5, pero puede variar por horario de verano)
+        const colombiaOffset = 5 * 60; // 5 horas en minutos
+        const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+        
+        return utcDate.toISOString();
+      };
+
       const contestData = {
         title: contestForm.title.trim(),
         description: contestForm.description.trim(),
@@ -494,8 +537,8 @@ const ContestAdminPanel = () => {
         month: contestForm.month,
         min_words: contestForm.min_words,
         max_words: contestForm.max_words,
-        submission_deadline: contestForm.submission_deadline,
-        voting_deadline: contestForm.voting_deadline,
+        submission_deadline: toColombiaISO(contestForm.submission_deadline),
+        voting_deadline: toColombiaISO(contestForm.voting_deadline),
         prize: contestForm.prize,
         status: contestForm.status,
         // created_at y updated_at se manejan automáticamente por la BD
@@ -521,6 +564,26 @@ const ContestAdminPanel = () => {
   // Editar concurso existente
   const handleEditContest = (contest) => {
     setEditingContest(contest);
+
+    // ✅ CORREGIDO: Convertir fechas UTC de BD a formato datetime-local de Colombia
+    const utcToColombiaLocal = (utcISOString) => {
+      if (!utcISOString) return "";
+      
+      const utcDate = new Date(utcISOString);
+      // Restar 5 horas para convertir de UTC a Colombia (UTC-5)
+      const colombiaOffset = 5 * 60; // 5 horas en minutos
+      const colombiaDate = new Date(utcDate.getTime() - (colombiaOffset * 60 * 1000));
+      
+      // Formatear para datetime-local
+      const year = colombiaDate.getFullYear();
+      const month = String(colombiaDate.getMonth() + 1).padStart(2, '0');
+      const day = String(colombiaDate.getDate()).padStart(2, '0');
+      const hours = String(colombiaDate.getHours()).padStart(2, '0');
+      const minutes = String(colombiaDate.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
     setContestForm({
       title: contest.title,
       description: contest.description,
@@ -528,12 +591,8 @@ const ContestAdminPanel = () => {
       month: contest.month,
       min_words: contest.min_words,
       max_words: contest.max_words,
-      submission_deadline: new Date(contest.submission_deadline)
-        .toISOString()
-        .slice(0, 16),
-      voting_deadline: new Date(contest.voting_deadline)
-        .toISOString()
-        .slice(0, 16),
+      submission_deadline: utcToColombiaLocal(contest.submission_deadline),
+      voting_deadline: utcToColombiaLocal(contest.voting_deadline),
       prize: contest.prize || "Insignia de Oro + Destacado del mes",
       status: contest.status,
     });
@@ -549,6 +608,21 @@ const ContestAdminPanel = () => {
     setUpdateLoading(true);
     try {
       // ✅ CORREGIDO: Solo usar columnas que existen en la tabla
+      // ⚠️ IMPORTANTE: Convertir fechas a ISO con zona horaria de Colombia
+      const toColombiaISO = (dateTimeLocal) => {
+        if (!dateTimeLocal) return null;
+        
+        // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
+        // Necesitamos interpretarlo como hora de Colombia y convertir a UTC para la BD
+        const localDate = new Date(dateTimeLocal);
+        
+        // Obtener offset de Colombia (UTC-5, pero puede variar por horario de verano)
+        const colombiaOffset = 5 * 60; // 5 horas en minutos
+        const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+        
+        return utcDate.toISOString();
+      };
+
       const updateData = {
         title: contestForm.title.trim(),
         description: contestForm.description.trim(),
@@ -556,8 +630,8 @@ const ContestAdminPanel = () => {
         month: contestForm.month,
         min_words: contestForm.min_words,
         max_words: contestForm.max_words,
-        submission_deadline: contestForm.submission_deadline,
-        voting_deadline: contestForm.voting_deadline,
+        submission_deadline: toColombiaISO(contestForm.submission_deadline),
+        voting_deadline: toColombiaISO(contestForm.voting_deadline),
         prize: contestForm.prize,
         status: contestForm.status,
         // updated_at se maneja automáticamente por la BD
