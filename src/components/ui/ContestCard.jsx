@@ -3,16 +3,16 @@ import { Calendar, Clock, ChevronDown } from "lucide-react";
 import ContestActionButton from "./ContestActionButton";
 import { Link } from "react-router-dom";
 
-const ContestCard = ({ 
-  contest, 
-  phase, 
-  timeLeft, 
+const ContestCard = ({
+  contest,
+  phase,
+  timeLeft,
   isNext = false,
   isEnabled = true, // ✅ Nuevo prop para habilitar/deshabilitar botones
-  onRulesClick 
+  onRulesClick,
 }) => {
   if (!contest) return null;
-  
+
   // Estado para expansión (solo para siguiente concurso)
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -20,10 +20,10 @@ const ContestCard = ({
   const getButtons = () => {
     if (isNext) {
       // Concurso siguiente (siempre en fase submission)
-      const buttonClass = isEnabled 
+      const buttonClass = isEnabled
         ? "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-medium hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300"
         : "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-400 font-medium cursor-not-allowed";
-      
+
       const primaryButtonClass = isEnabled
         ? "flex-1"
         : "flex-1 opacity-50 cursor-not-allowed";
@@ -39,7 +39,7 @@ const ContestCard = ({
             forcedPhase="submission" // ✅ Forzar fase submission para el próximo concurso
             disabled={!isEnabled}
           />
-          
+
           <Link
             to={isEnabled ? `/contest/${contest.id}#stories-section` : "#"}
             className={`${buttonClass} flex-1`}
@@ -47,7 +47,7 @@ const ContestCard = ({
           >
             Ver participantes
           </Link>
-          
+
           <button
             onClick={isEnabled ? onRulesClick : undefined}
             className={`${buttonClass} flex-1`}
@@ -128,13 +128,13 @@ const ContestCard = ({
   };
 
   // Determinar el color del badge según si es el siguiente concurso
-  const badgeClass = isNext 
+  const badgeClass = isNext
     ? "bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"
     : "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500";
 
   // Determinar el texto del badge
-  const badgeText = isNext 
-    ? `¡${contest.month} ya disponible!`
+  const badgeText = isNext
+    ? `${contest.month}`
     : `Concurso de ${contest.month}`;
 
   // Si es siguiente concurso, renderizar versión expandible
@@ -149,7 +149,9 @@ const ContestCard = ({
           <div className="flex-1">
             {/* Título y badge en la misma línea */}
             <div className="flex items-center gap-4 mb-2">
-              <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}>
+              <span
+                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
+              >
                 <Calendar className="h-4 w-4 mr-2" />
                 {badgeText}
               </span>
@@ -157,7 +159,7 @@ const ContestCard = ({
                 {contest.title}
               </h2>
             </div>
-            
+
             {/* Texto de invitación a expandir */}
             <p className="text-gray-500 text-sm italic">
               Haz clic para ver más detalles y participar
@@ -177,9 +179,7 @@ const ContestCard = ({
         {/* Contenido expandible */}
         <div
           className={`transition-all duration-500 overflow-hidden ${
-            isExpanded
-              ? "opacity-100 max-h-96"
-              : "opacity-0 max-h-0"
+            isExpanded ? "opacity-100 max-h-96" : "opacity-0 max-h-0"
           }`}
         >
           <div className="px-6 pb-6 space-y-6">
@@ -214,26 +214,27 @@ const ContestCard = ({
             )}
 
             {/* Mensaje para concurso siguiente */}
-            <div className={`rounded-xl p-4 ${
-              isEnabled 
-                ? "bg-gradient-to-r from-green-50 via-white to-emerald-50 border border-green-200"
-                : "bg-gradient-to-r from-gray-50 via-white to-gray-50 border border-gray-200"
-            }`}>
+            <div
+              className={`rounded-xl p-4 ${
+                isEnabled
+                  ? "bg-gradient-to-r from-green-50 via-white to-emerald-50 border border-green-200"
+                  : "bg-gradient-to-r from-gray-50 via-white to-gray-50 border border-gray-200"
+              }`}
+            >
               <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${
-                  isEnabled 
-                    ? "bg-green-500 animate-pulse" 
-                    : "bg-gray-400"
-                }`}></div>
-                <span className={`font-medium ${
-                  isEnabled 
-                    ? "text-green-700" 
-                    : "text-gray-500"
-                }`}>
-                  {isEnabled 
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    isEnabled ? "bg-green-500 animate-pulse" : "bg-gray-400"
+                  }`}
+                ></div>
+                <span
+                  className={`font-medium ${
+                    isEnabled ? "text-green-700" : "text-gray-500"
+                  }`}
+                >
+                  {isEnabled
                     ? `¡Ya puedes escribir tu historia para ${contest.month}!`
-                    : `Próximo concurso: ${contest.month}. Se activará cuando termine la votación actual.`
-                  }
+                    : `Próximo concurso: ${contest.month}. Se activará cuando empiece la votación actual.`}
                 </span>
               </div>
             </div>
@@ -250,7 +251,9 @@ const ContestCard = ({
   return (
     <div className="bg-white/95 backdrop-blur-md border-2 border-indigo-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300">
       <div className="mb-4">
-        <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}>
+        <span
+          className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
+        >
           <Calendar className="h-4 w-4 mr-2" />
           {badgeText}
         </span>
@@ -273,7 +276,9 @@ const ContestCard = ({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm md:text-base text-indigo-700 font-medium tracking-wide">
-                {phase === "submission" ? "Envíos cierran en" : "Votación termina en"}
+                {phase === "submission"
+                  ? "Envíos cierran en"
+                  : "Votación termina en"}
               </span>
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </div>
@@ -281,7 +286,9 @@ const ContestCard = ({
               {timeLeft}
             </span>
             <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
-              {phase === "submission" ? "¡No te quedes sin participar!" : "¡Vota por tus favoritas!"}
+              {phase === "submission"
+                ? "¡No te quedes sin participar!"
+                : "¡Vota por tus favoritas!"}
             </div>
           </div>
         </div>

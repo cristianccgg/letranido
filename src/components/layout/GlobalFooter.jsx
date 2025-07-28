@@ -275,7 +275,7 @@ const GlobalFooter = () => {
           {/* Copyright */}
           <div className="mt-8 pt-8 border-t border-primary-500 text-center text-primary-300">
             <p>
-              &copy; 2024 Letranido. Hecho con ❤️ para la comunidad escritora.
+              &copy; 2025 Letranido. Hecho con ❤️ para la comunidad escritora.
             </p>
           </div>
         </div>

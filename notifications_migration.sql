@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  type VARCHAR(50) NOT NULL, -- 'badge', 'comment', 'like', 'contest_winner', etc.
+  type VARCHAR(50) NOT NULL, -- 'badge', 'like', 'contest_winner', etc.
   title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   data JSONB DEFAULT '{}'::jsonb, -- Datos adicionales (badge_id, story_id, etc.)
@@ -141,51 +141,9 @@ CREATE TRIGGER trigger_notify_new_badge
   FOR EACH ROW
   EXECUTE FUNCTION notify_new_badge();
 
--- 8. Trigger para notificaciones de comentarios
-CREATE OR REPLACE FUNCTION notify_new_comment() RETURNS TRIGGER AS $$
-BEGIN
-  -- Solo notificar si el comentario no es del autor de la historia
-  IF NEW.user_id != (SELECT user_id FROM stories WHERE id = NEW.story_id) THEN
-    DECLARE
-      story_info RECORD;
-      commenter_name TEXT;
-    BEGIN
-      -- Obtener información de la historia
-      SELECT title, user_id INTO story_info
-      FROM stories 
-      WHERE id = NEW.story_id;
-
-      -- Obtener nombre del comentarista
-      SELECT COALESCE(display_name, email) INTO commenter_name
-      FROM user_profiles 
-      WHERE id = NEW.user_id;
-
-      -- Crear notificación para el autor de la historia
-      PERFORM create_notification(
-        story_info.user_id,
-        'comment',
-        'Nuevo comentario en tu historia',
-        commenter_name || ' comentó en "' || story_info.title || '"',
-        jsonb_build_object(
-          'story_id', NEW.story_id,
-          'comment_id', NEW.id,
-          'commenter_id', NEW.user_id,
-          'commenter_name', commenter_name
-        )
-      );
-    END;
-  END IF;
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Crear trigger para comentarios
-DROP TRIGGER IF EXISTS trigger_notify_new_comment ON comments;
-CREATE TRIGGER trigger_notify_new_comment
-  AFTER INSERT ON comments
-  FOR EACH ROW
-  EXECUTE FUNCTION notify_new_comment();
+-- 8. Notificaciones de comentarios ELIMINADAS
+-- DROP TRIGGER IF EXISTS trigger_notify_new_comment ON comments;
+-- DROP FUNCTION IF EXISTS notify_new_comment();
 
 -- 9. Trigger para notificaciones de votos/likes
 CREATE OR REPLACE FUNCTION notify_new_vote() RETURNS TRIGGER AS $$
@@ -245,5 +203,4 @@ CREATE TRIGGER trigger_notify_new_vote
 -- ✅ MIGRACIÓN COMPLETADA
 -- Las notificaciones se crearán automáticamente para:
 -- - Nuevos badges conseguidos
--- - Comentarios en tus historias  
 -- - Votos en tus historias

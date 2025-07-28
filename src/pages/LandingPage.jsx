@@ -194,11 +194,11 @@ const LandingPage = () => {
       setTimeLeft("");
       return;
     }
-    
+
     const updateTime = () => {
       const now = new Date();
       let deadline;
-      
+
       // Usar la fecha correcta según la fase del concurso
       if (currentContestPhase === "submission") {
         deadline = new Date(currentContest.submission_deadline);
@@ -215,7 +215,7 @@ const LandingPage = () => {
         setTimeLeft("Concurso cerrado");
         return;
       }
-      
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
         (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -226,7 +226,7 @@ const LandingPage = () => {
         `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`
       );
     };
-    
+
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
@@ -242,7 +242,7 @@ const LandingPage = () => {
       setNextTimeLeft("");
       return;
     }
-    
+
     const updateNextTime = () => {
       const now = new Date();
       const deadline = new Date(nextContest.submission_deadline);
@@ -252,9 +252,11 @@ const LandingPage = () => {
         setNextTimeLeft("Concurso cerrado");
         return;
       }
-      
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
@@ -394,7 +396,9 @@ const LandingPage = () => {
                 <ContestCard
                   contest={nextContest}
                   phase="submission" // El siguiente siempre está en submission
-                  timeLeft={currentContestPhase === "voting" ? nextTimeLeft : null} // Contador real cuando esté habilitado
+                  timeLeft={
+                    currentContestPhase === "voting" ? nextTimeLeft : null
+                  } // Contador real cuando esté habilitado
                   isNext={true}
                   isEnabled={currentContestPhase === "voting"} // Solo habilitado si actual está en votación
                   onRulesClick={() => setShowRulesModal(true)}

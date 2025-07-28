@@ -37,8 +37,6 @@ const NotificationBell = ({ userId, className = "" }) => {
     switch (type) {
       case 'badge':
         return <Trophy className="w-5 h-5 text-yellow-500" />;
-      case 'comment':
-        return <MessageCircle className="w-5 h-5 text-blue-500" />;
       case 'like':
         return <Heart className="w-5 h-5 text-red-500" />;
       case 'contest_winner':
@@ -58,10 +56,7 @@ const NotificationBell = ({ userId, className = "" }) => {
     // Redirigir según el tipo
     const data = notification.data || {};
     
-    if (notification.type === 'comment' && data.story_id) {
-      // Ir a la historia con el comentario
-      window.location.href = `/story/${data.story_id}#comments`;
-    } else if (notification.type === 'like' && data.story_id) {
+    if (notification.type === 'like' && data.story_id) {
       // Ir a la historia
       window.location.href = `/story/${data.story_id}`;
     } else if (notification.type === 'badge') {
