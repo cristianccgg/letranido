@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { Clock, Send, AlertCircle, PenTool, Edit3 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
@@ -14,6 +14,7 @@ import SEOHead from "../components/SEO/SEOHead";
 const WritePrompt = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { promptId } = useParams(); // ✅ Obtener ID del concurso desde URL
   const editStoryId = searchParams.get('edit');
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
@@ -26,28 +27,47 @@ const WritePrompt = () => {
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO
   const {
     currentContest,
+    contests, // ✅ Para encontrar concurso específico
     contestsLoading,
     isAuthenticated,
     user,
     submitStory, // ✅ Función integrada en el contexto
     userStories,
+    getContestPhase, // ✅ Para verificar si se pueden enviar historias
   } = useGlobalApp();
 
   // ✅ GOOGLE ANALYTICS
   const { trackEvent } = useGoogleAnalytics();
 
   // ✅ DETERMINAR CONCURSO A USAR
-  const contestToUse = currentContest; // Simplificado: siempre usar el actual
+  const contestToUse = useMemo(() => {
+    // Si hay un promptId en la URL, buscar ese concurso específico
+    if (promptId && contests.length > 0) {
+      const specificContest = contests.find(c => c.id === promptId);
+      if (specificContest) {
+        console.log(`📝 Usando concurso específico de URL: "${specificContest.title}"`);
+        return specificContest;
+      }
+    }
+    // Fallback al concurso actual
+    console.log(`📝 Usando concurso actual: "${currentContest?.title}"`);
+    return currentContest;
+  }, [promptId, contests, currentContest]);
 
   // ✅ DRAFT MANAGER
   const { saveDraft, loadDraft, saveTempDraft, clearDraft } = useDraftManager(contestToUse?.id);
 
+  // ✅ VERIFICAR SI EL CONCURSO PERMITE ENVÍOS
+  const contestPhase = useMemo(() => {
+    return contestToUse ? getContestPhase(contestToUse) : null;
+  }, [contestToUse, getContestPhase]);
+
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA (Optimizada con useMemo)
   const hasUserParticipated = useMemo(() => {
-    return isAuthenticated && currentContest && userStories.length > 0 && !isEditing
-      ? userStories.some((story) => story.contest_id === currentContest.id)
+    return isAuthenticated && contestToUse && userStories.length > 0 && !isEditing
+      ? userStories.some((story) => story.contest_id === contestToUse.id)
       : false;
-  }, [isAuthenticated, currentContest, userStories, isEditing]);
+  }, [isAuthenticated, contestToUse, userStories, isEditing]);
 
   // ✅ CARGAR HISTORIA PARA EDICIÓN
   useEffect(() => {
@@ -318,8 +338,8 @@ const WritePrompt = () => {
           // Cerrar modal
           setShowConfirmationModal(false);
 
-          // Redirigir con mensaje
-          navigate("/contest/current", {
+          // Redirigir al concurso específico con mensaje
+          navigate(`/contest/${contestToUse.id}`, {
             state: { message: result.message },
           });
         } else {
@@ -350,24 +370,63 @@ const WritePrompt = () => {
   };
 
   const getTimeLeft = () => {
-    if (!contestToUse?.submission_deadline) return "Cargando...";
+    if (!contestToUse) return "Cargando...";
 
     const now = new Date();
-    const deadline = new Date(contestToUse.submission_deadline);
-    const diff = deadline - now;
-
-    if (diff <= 0) return "Concurso cerrado";
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-    if (days > 0) return `${days} días, ${hours} horas`;
-    return `${hours} horas`;
+    
+    // Si es el concurso actual, usar submission_deadline
+    if (contestToUse.id === currentContest?.id) {
+      if (!contestToUse.submission_deadline) return "Cargando...";
+      const deadline = new Date(contestToUse.submission_deadline);
+      const diff = deadline - now;
+      
+      if (diff <= 0) return "Período de envío cerrado";
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      if (days > 0) return `${days} días, ${hours} horas`;
+      return `${hours} horas`;
+    }
+    
+    // Para próximos concursos, mostrar hasta cuándo pueden enviar
+    const currentPhase = currentContest ? getContestPhase(currentContest) : null;
+    if (currentPhase === "voting" && contestToUse.voting_deadline) {
+      const deadline = new Date(contestToUse.voting_deadline);
+      const diff = deadline - now;
+      
+      if (diff <= 0) return "Concurso cerrado";
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      if (days > 0) return `Disponible por ${days} días, ${hours} horas más`;
+      return `Disponible por ${hours} horas más`;
+    }
+    
+    return "No disponible aún";
   };
 
   const isSubmissionClosed = () => {
-    if (!contestToUse?.submission_deadline) return false;
-    return new Date() > new Date(contestToUse.submission_deadline);
+    if (!contestToUse) return true;
+    
+    // Si es el concurso actual, usar la fase calculada
+    if (contestToUse.id === currentContest?.id) {
+      return contestPhase !== "submission";
+    }
+    
+    // Para próximos concursos: permitir envíos si el concurso actual está en votación
+    // y este concurso aún no ha empezado su período de votación
+    const currentPhase = currentContest ? getContestPhase(currentContest) : null;
+    if (currentPhase === "voting") {
+      const now = new Date();
+      const contestVotingDeadline = new Date(contestToUse.voting_deadline);
+      // Permitir envíos si aún no ha terminado la votación de este concurso
+      return now > contestVotingDeadline;
+    }
+    
+    // En otros casos, usar la lógica normal
+    return contestPhase !== "submission";
   };
 
   // ✅ LOADING SIMPLIFICADO
@@ -411,7 +470,7 @@ const WritePrompt = () => {
           <p>Tu historia fue enviada exitosamente.</p>
         </div>
         <button
-          onClick={() => navigate("/contest/current")}
+          onClick={() => navigate(`/contest/${contestToUse.id}`)}
           className="btn-primary"
         >
           Ver participaciones

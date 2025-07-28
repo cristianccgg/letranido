@@ -3137,10 +3137,10 @@ const findCurrentContest = (contests) => {
   console.log(`🔍 Concursos de prueba activos: ${testContests.length}`);
   console.log(`🔍 Concursos de producción activos: ${productionContests.length}`);
   
-  // PRIORIDAD 1: Concursos de prueba (más reciente)
+  // PRIORIDAD 1: Concursos de prueba (más reciente cronológicamente)
   if (testContests.length > 0) {
     const current = testContests
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
     console.log(`🎭 Usando concurso de prueba: "${current.title}"`);
     return current;
   }
@@ -3164,9 +3164,9 @@ const findCurrentContest = (contests) => {
       return current;
     }
     
-    // Si no hay concursos activos por fecha, usar el más reciente
+    // Si no hay concursos activos por fecha, usar el más reciente cronológicamente
     const current = productionContests
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
     console.log(`🏗️ Usando concurso de producción (fallback): "${current.title}"`);
     return current;
   }
@@ -3209,7 +3209,7 @@ const findNextContest = (contests, currentContest) => {
     // Priorizar siguiente concurso de prueba
     if (testContests.length > 0) {
       const next = testContests
-        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))[0];
+        .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
       console.log(`🎭 Siguiente concurso de prueba: "${next.title}"`);
       return next;
     }
@@ -3217,7 +3217,7 @@ const findNextContest = (contests, currentContest) => {
     // Fallback a concurso de producción
     if (productionContests.length > 0) {
       const next = productionContests
-        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))[0];
+        .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
       console.log(`🏗️ Siguiente concurso de producción (desde prueba): "${next.title}"`);
       return next;
     }
@@ -3225,19 +3225,19 @@ const findNextContest = (contests, currentContest) => {
   
   // Para concursos de producción, buscar el siguiente concurso de producción
   if (productionContests.length > 0) {
-    // Buscar el siguiente concurso por orden de creación (el más reciente que no sea el actual)
+    // Buscar el siguiente concurso por orden cronológico (submission_deadline)
     const next = productionContests
-      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-      .find(contest => new Date(contest.created_at) > new Date(currentContest?.created_at || 0));
+      .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))
+      .find(contest => new Date(contest.submission_deadline) > new Date(currentContest?.submission_deadline || 0));
     
     if (next) {
-      console.log(`📅 Siguiente concurso por orden: "${next.title}"`);
+      console.log(`📅 Siguiente concurso por orden cronológico: "${next.title}"`);
       return next;
     }
     
-    // Si no hay siguiente por fecha de creación, tomar el más reciente disponible
+    // Si no hay siguiente por fechas, tomar el más reciente por submission_deadline
     const fallbackNext = productionContests
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
     
     if (fallbackNext) {
       console.log(`🔄 Siguiente concurso (fallback): "${fallbackNext.title}"`);

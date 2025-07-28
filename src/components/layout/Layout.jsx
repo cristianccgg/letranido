@@ -21,6 +21,7 @@ const Layout = ({ children }) => {
     user,
     isAuthenticated,
     currentContest,
+    nextContest, // ✅ Añadido para dual contests
     currentContestPhase,
     userStories,
     userStoriesLoading,
@@ -37,10 +38,32 @@ const Layout = ({ children }) => {
   const isLanding = location.pathname === "/";
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
-  const hasUserParticipated =
+  const hasUserParticipatedInCurrent =
     isAuthenticated && currentContest && !userStoriesLoading
       ? userStories.some((story) => story.contest_id === currentContest.id)
       : false;
+
+  const hasUserParticipatedInNext =
+    isAuthenticated && nextContest && !userStoriesLoading
+      ? userStories.some((story) => story.contest_id === nextContest.id)
+      : false;
+
+  // ✅ LÓGICA INTELIGENTE: ¿Puede escribir en algún concurso?
+  const canWriteInAnyContest = () => {
+    if (!isAuthenticated) return true; // Siempre puede empezar a escribir (se registrará)
+    
+    // Si no participó en el actual, puede escribir ahí
+    if (currentContest && !hasUserParticipatedInCurrent && currentContestPhase === "submission") {
+      return true;
+    }
+    
+    // Si el actual está en votación y hay próximo concurso disponible, puede escribir ahí
+    if (currentContestPhase === "voting" && nextContest && !hasUserParticipatedInNext) {
+      return true;
+    }
+    
+    return false;
+  };
 
   // ✅ VERIFICAR SI HAY CONCURSOS FINALIZADOS PARA MOSTRAR HISTORIAL
   const hasFinishedContests = contests.some(
@@ -56,23 +79,45 @@ const Layout = ({ children }) => {
     }
   };
 
-  // ✅ LÓGICA DE BOTONES SIMPLIFICADA
+  // ✅ LÓGICA DE BOTONES INTELIGENTE PARA DUAL CONTESTS
   const getWriteButtonText = () => {
     if (userStoriesLoading) return "Verificando...";
     if (!isAuthenticated) return "Escribir";
-    if (hasUserParticipated) return "Ya participaste";
+    
+    if (canWriteInAnyContest()) {
+      // Mostrar para qué concurso puede escribir
+      if (currentContest && !hasUserParticipatedInCurrent && currentContestPhase === "submission") {
+        return "Escribir"; // Para el concurso actual
+      } else if (currentContestPhase === "voting" && nextContest && !hasUserParticipatedInNext) {
+        return `Escribir (${nextContest.month})`; // Para el próximo concurso
+      }
+      return "Escribir";
+    }
+    
     if (currentContestPhase === "results") return "Ver resultados";
-    return "Escribir";
+    return "Ya participaste";
   };
 
   const getWriteButtonState = () => {
     if (userStoriesLoading) return { disabled: true, href: "#" };
     if (!isAuthenticated) return { disabled: false, href: "/write" };
-    if (hasUserParticipated)
-      return { disabled: true, href: "/contest/current" };
-    if (currentContestPhase === "results")
+    
+    if (canWriteInAnyContest()) {
+      // Determinar a qué concurso debe ir
+      if (currentContest && !hasUserParticipatedInCurrent && currentContestPhase === "submission") {
+        return { disabled: false, href: `/write/${currentContest.id}` };
+      } else if (currentContestPhase === "voting" && nextContest && !hasUserParticipatedInNext) {
+        return { disabled: false, href: `/write/${nextContest.id}` };
+      }
+      return { disabled: false, href: "/write" };
+    }
+    
+    if (currentContestPhase === "results") {
       return { disabled: false, href: "/contest/current" };
-    return { disabled: false, href: "/write" };
+    }
+    
+    // Ya participó en todo lo disponible
+    return { disabled: true, href: "#" };
   };
 
   const getGalleryText = () => {
@@ -101,7 +146,7 @@ const Layout = ({ children }) => {
       name: getWriteButtonText(),
       href: writeButtonState.href,
       disabled: writeButtonState.disabled,
-      className: hasUserParticipated ? "text-green-600" : "",
+      className: !canWriteInAnyContest() && isAuthenticated ? "text-green-600" : "",
     },
     {
       name: getGalleryText(),
@@ -185,7 +230,7 @@ const Layout = ({ children }) => {
     if (!isAuthenticated) {
       e.preventDefault();
       handleAuthClick("register");
-    } else if (writeButtonState.disabled && hasUserParticipated) {
+    } else if (writeButtonState.disabled) {
       e.preventDefault();
     }
   };
@@ -238,8 +283,8 @@ const Layout = ({ children }) => {
                         item.className || "text-gray-400"
                       }`}
                       title={
-                        hasUserParticipated
-                          ? "Ya enviaste tu historia para este concurso"
+                        !canWriteInAnyContest() && isAuthenticated
+                          ? "Ya participaste en todos los concursos disponibles"
                           : ""
                       }
                     >
@@ -492,9 +537,9 @@ const Layout = ({ children }) => {
                       </div>
                     </div>
                     <div className="text-xs text-gray-400">{user?.email}</div>
-                    {hasUserParticipated && (
+                    {!canWriteInAnyContest() && isAuthenticated && (
                       <div className="text-xs text-green-600 mt-1">
-                        ✓ Ya participaste en el concurso actual
+                        ✓ Ya participaste en todos los concursos disponibles
                       </div>
                     )}
                   </div>

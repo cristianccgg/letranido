@@ -27,6 +27,7 @@ import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import NextContestPreview from "../components/ui/NextContestPreview";
+import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
 import logo from "../assets/images/letranido-logo.png";
@@ -186,19 +187,27 @@ const LandingPage = () => {
     loadLastContestWinners();
   }, [initialized, contests, currentContest, getStoriesByContest]);
 
-  // Contador de tiempo restante para cierre de submissions (con segundos)
+  // Contador de tiempo restante (dinámico según la fase del concurso)
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
-    if (!currentContest?.submission_deadline) {
+    if (!currentContest) {
       setTimeLeft("");
       return;
     }
+    
     const updateTime = () => {
       const now = new Date();
-
-      // La fecha viene correctamente desde la BD en UTC
-      // donde 19:00:00+00 = medianoche UTC = 7pm Colombia
-      const deadline = new Date(currentContest.submission_deadline);
+      let deadline;
+      
+      // Usar la fecha correcta según la fase del concurso
+      if (currentContestPhase === "submission") {
+        deadline = new Date(currentContest.submission_deadline);
+      } else if (currentContestPhase === "voting") {
+        deadline = new Date(currentContest.voting_deadline);
+      } else {
+        setTimeLeft("Concurso cerrado");
+        return;
+      }
 
       const diff = deadline - now;
 
@@ -206,6 +215,7 @@ const LandingPage = () => {
         setTimeLeft("Concurso cerrado");
         return;
       }
+      
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
         (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -216,13 +226,53 @@ const LandingPage = () => {
         `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`
       );
     };
+    
     updateTime();
-    const interval = setInterval(updateTime, 1000); // 👈 cada segundo
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, [currentContest?.submission_deadline]);
+  }, [currentContest, currentContestPhase]);
 
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
+
+  // ✅ Contador para el siguiente concurso
+  const [nextTimeLeft, setNextTimeLeft] = useState("");
+  useEffect(() => {
+    if (!nextContest?.submission_deadline || currentContestPhase !== "voting") {
+      setNextTimeLeft("");
+      return;
+    }
+    
+    const updateNextTime = () => {
+      const now = new Date();
+      const deadline = new Date(nextContest.submission_deadline);
+      const diff = deadline - now;
+
+      if (diff <= 0) {
+        setNextTimeLeft("Concurso cerrado");
+        return;
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        setNextTimeLeft(`${days}d ${hours}h ${minutes}m`);
+      } else if (hours > 0) {
+        setNextTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+      } else if (minutes > 0) {
+        setNextTimeLeft(`${minutes}m ${seconds}s`);
+      } else {
+        setNextTimeLeft(`${seconds}s`);
+      }
+    };
+
+    updateNextTime();
+    const interval = setInterval(updateNextTime, 1000);
+    return () => clearInterval(interval);
+  }, [nextContest?.submission_deadline, currentContestPhase]);
 
   // Configuración del segundo botón según la fase (Optimizado con useMemo)
   const secondaryButton = useMemo(() => {
@@ -330,80 +380,34 @@ const LandingPage = () => {
 
           {currentContest && (
             <div className="space-y-6">
-              {/* Prompt en card con más personalidad */}
-              <div className="bg-white/95 backdrop-blur-md border-2 border-indigo-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300">
-                <div className="mb-4">
-                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Concurso de {currentContest.month}
-                  </span>
-                </div>
-
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 leading-tight tracking-tight">
-                  {currentContest.title}
-                </h2>
-
-                <p className="text-gray-700 md:text-lg lg:text-xl mb-6 leading-relaxed">
-                  {currentContest.description}
-                </p>
-
-                {/* Contador con urgencia integrada */}
-                <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                    <Clock className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm md:text-base lg:text-lg text-indigo-700 font-medium tracking-wide">
-                        Cierre en
-                      </span>
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    </div>
-                    <span className="text-xl md:text-2xl lg:text-3xl font-bold text-indigo-900 tracking-tight">
-                      {timeLeft}
-                    </span>
-                    <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
-                      ¡No te quedes sin participar!
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Siguiente concurso preview */}
-              <NextContestPreview
-                nextContest={nextContest}
-                currentContest={currentContest}
+              {/* Tarjeta del concurso actual */}
+              <ContestCard
+                contest={currentContest}
+                phase={currentContestPhase}
+                timeLeft={timeLeft}
+                isNext={false}
+                onRulesClick={() => setShowRulesModal(true)}
               />
 
-              {/* Botones con más estilo */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <ContestActionButton
-                  variant="primary"
-                  size="large"
-                  showDescription={false}
-                  className="w-full"
+              {/* Tarjeta del siguiente concurso - igual diseño que actual */}
+              {nextContest && (
+                <ContestCard
+                  contest={nextContest}
+                  phase="submission" // El siguiente siempre está en submission
+                  timeLeft={currentContestPhase === "voting" ? nextTimeLeft : null} // Contador real cuando esté habilitado
+                  isNext={true}
+                  isEnabled={currentContestPhase === "voting"} // Solo habilitado si actual está en votación
+                  onRulesClick={() => setShowRulesModal(true)}
                 />
+              )}
 
-                {secondaryButton && (
-                  <Link
-                    to={secondaryButton.href}
-                    className="inline-flex w-full items-center justify-center px-6 py-3 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-semibold hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-lg transition-all duration-300 shadow-sm hover:scale-105"
-                  >
-                    <secondaryButton.icon className="h-5 w-5 mr-2" />
-                    {secondaryButton.text}
-                  </Link>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setShowRulesModal(true)}
-                  aria-label="Ver reglas del concurso actual"
-                  className="inline-flex w-full cursor-pointer items-center justify-center px-6 py-3 rounded-xl border-2 border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 hover:shadow-lg transition-all duration-300 shadow-sm hover:scale-105"
-                >
-                  <BookOpen className="h-5 w-5 mr-2" aria-hidden="true" />
-                  Ver reglas
-                </button>
-              </div>
+              {/* Mantener NextContestPreview solo si NO hay nextContest (para newsletter, etc.) */}
+              {!nextContest && (
+                <NextContestPreview
+                  nextContest={nextContest}
+                  currentContest={currentContest}
+                />
+              )}
 
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12">

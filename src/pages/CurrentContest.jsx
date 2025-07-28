@@ -77,10 +77,22 @@ const CurrentContest = () => {
   const storiesSectionRef = useRef(null);
 
   // ✅ DETERMINAR QUE CONCURSO MOSTRAR (Memoizado para evitar re-renders)
-  const contestToLoad = useMemo(
-    () => id || currentContest?.id,
-    [id, currentContest?.id]
-  );
+  const contestToLoad = useMemo(() => {
+    // Si hay ID en la URL, SIEMPRE usar ese ID específico
+    if (id) {
+      console.log("🎯 CurrentContest: Cargando concurso específico por ID:", id);
+      return id;
+    }
+    
+    // Solo si no hay ID, usar el concurso actual por defecto
+    if (currentContest?.id) {
+      console.log("🏆 CurrentContest: Cargando concurso actual por defecto:", currentContest.id);
+      return currentContest.id;
+    }
+    
+    console.log("❌ CurrentContest: No hay ID ni concurso actual disponible");
+    return null;
+  }, [id, currentContest?.id]);
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   ChevronRight,
   Calendar,
@@ -10,9 +11,12 @@ import {
   CheckCircle,
   AlertCircle,
   Loader,
+  PenTool,
+  Users,
 } from "lucide-react";
+import ContestActionButton from "./ContestActionButton";
 
-const NextContestPreview = ({ nextContest, currentContest }) => {
+const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
 
@@ -237,6 +241,58 @@ const NextContestPreview = ({ nextContest, currentContest }) => {
                 <li>• ¡Deja volar tu creatividad!</li>
               </ul>
             </div>*/}
+
+            {/* Botones de acción del concurso */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+              <div className={`flex-1 ${!isEnabled ? 'opacity-50' : ''}`}>
+                <ContestActionButton
+                  variant="primary"
+                  size="default"
+                  showDescription={false}
+                  className="w-full"
+                  contestId={nextContest?.id}
+                  disabled={!isEnabled}
+                />
+              </div>
+              
+              <Link
+                to={isEnabled && nextContest ? `/contest/${nextContest.id}#stories-section` : "#"}
+                className={`inline-flex items-center justify-center px-4 py-2 rounded-lg border-2 font-medium transition-all duration-300 ${
+                  isEnabled 
+                    ? "bg-white border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"
+                    : "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+                onClick={!isEnabled ? (e) => e.preventDefault() : undefined}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Ver participantes
+              </Link>
+            </div>
+
+            {/* Estado del concurso */}
+            <div className={`rounded-lg p-3 mb-4 ${
+              isEnabled 
+                ? "bg-green-50 border border-green-200"
+                : "bg-gray-50 border border-gray-200"
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  isEnabled 
+                    ? "bg-green-500 animate-pulse" 
+                    : "bg-gray-400"
+                }`}></div>
+                <span className={`text-sm font-medium ${
+                  isEnabled 
+                    ? "text-green-700" 
+                    : "text-gray-500"
+                }`}>
+                  {isEnabled 
+                    ? `¡Ya puedes escribir tu historia para ${nextContest?.month}!`
+                    : `Se activará cuando termine la votación del concurso actual.`
+                  }
+                </span>
+              </div>
+            </div>
 
             {/* Newsletter Signup integrado */}
             <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-xl p-4 mt-2">

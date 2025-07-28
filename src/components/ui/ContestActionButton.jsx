@@ -23,6 +23,8 @@ const ContestActionButton = ({
   customText,
   disabled = false,
   forceWhiteStyle = false, // ✅ NUEVO: Para forzar estilo blanco en footer
+  contestId = null, // ✅ NUEVO: ID del concurso específico 
+  forcedPhase = null, // ✅ NUEVO: Forzar una fase específica
 }) => {
   // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
   const {
@@ -30,6 +32,7 @@ const ContestActionButton = ({
     user,
     currentContest,
     currentContestPhase,
+    contests, // ✅ Para poder encontrar contest específico
     userStories, // ✅ Podemos usar directamente las historias del usuario
     userStoriesLoading,
   } = useGlobalApp(); // ✅ Cambiado de useAuthStore + useAppState
@@ -38,10 +41,17 @@ const ContestActionButton = ({
   const [loadingParticipation, setLoadingParticipation] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  // ✅ Determinar el concurso y fase a usar
+  const targetContestId = contestId || currentContest?.id;
+  const targetPhase = forcedPhase || currentContestPhase;
+  const targetContest = contestId 
+    ? contests.find(c => c.id === contestId) || currentContest
+    : currentContest;
+
   // ✅ Verificar participación usando los datos ya cargados del contexto (OPTIMIZADO)
   useEffect(() => {
     // ✅ Si no hay usuario o concurso, no hay participación
-    if (!currentContest || !user || !isAuthenticated) {
+    if (!targetContestId || !user || !isAuthenticated) {
       setHasUserParticipated(false);
       setLoadingParticipation(false);
       return;
@@ -57,13 +67,13 @@ const ContestActionButton = ({
 
     // ✅ Verificar directamente en las historias ya cargadas
     const hasParticipated = userStories.some(
-      (story) => story.contest_id === currentContest.id
+      (story) => story.contest_id === targetContestId
     );
 
     // Solo actualizar y loggear si realmente cambió
     if (hasParticipated !== hasUserParticipated) {
       console.log("🔍 Verificación de participación:", {
-        contestId: currentContest.id,
+        contestId: targetContestId,
         userId: user.id,
         hasParticipated,
         userStoriesCount: userStories.length,
@@ -72,7 +82,7 @@ const ContestActionButton = ({
       setHasUserParticipated(hasParticipated);
     }
   }, [
-    currentContest?.id,
+    targetContestId,
     user?.id,
     isAuthenticated,
     userStories.length, // Solo longitud para evitar renders innecesarios
@@ -93,7 +103,7 @@ const ContestActionButton = ({
       };
     }
 
-    if (!currentContest) {
+    if (!targetContest) {
       return {
         text: "Ver concursos",
         description: "Explora los concursos anteriores",
@@ -118,7 +128,7 @@ const ContestActionButton = ({
     }
 
     // ✅ Lógica según la fase del concurso y participación
-    switch (currentContestPhase) {
+    switch (targetPhase) {
       case "submission":
         // ✅ SOLO para usuarios autenticados verificamos participación
         if (isAuthenticated && hasUserParticipated) {
@@ -137,9 +147,9 @@ const ContestActionButton = ({
         return {
           text: customText || "Escribir mi historia",
           description: isAuthenticated
-            ? `Participa en el concurso de ${currentContest.month}`
+            ? `Participa en el concurso de ${targetContest.month}`
             : "Comienza a escribir (registro al enviar)",
-          href: `/write/${currentContest.id}`,
+          href: `/write/${targetContest.id}`,
           onClick: null,
           icon: PenTool,
           disabled: false,

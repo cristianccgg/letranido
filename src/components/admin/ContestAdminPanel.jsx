@@ -382,12 +382,11 @@ const ContestAdminPanel = () => {
     const now = new Date();
     let updates = { status: newStatus };
 
-    // Función helper para convertir fecha local de Colombia a UTC para BD
+    // Función helper para convertir fecha local del navegador a UTC para BD
     const toColombiaUTC = (localDate) => {
-      // Convertir fecha local de Colombia a UTC
-      // Como localDate ya está en hora de Colombia, necesitamos agregar 5 horas para UTC
-      const utcDate = new Date(localDate.getTime() + (5 * 60 * 60 * 1000));
-      return utcDate.toISOString();
+      // La fecha localDate ya está en la zona horaria del navegador
+      // Solo necesitamos convertirla a UTC directamente
+      return localDate.toISOString();
     };
 
     // Ajustar fechas según el nuevo estado
@@ -403,10 +402,14 @@ const ContestAdminPanel = () => {
       updates.submission_deadline = toColombiaUTC(submissionEnd);
       updates.voting_deadline = toColombiaUTC(votingEnd);
     } else if (newStatus === "voting") {
-      updates.submission_deadline = toColombiaUTC(now); // ya no se puede enviar
-      const votingEnd = new Date(now);
-      votingEnd.setDate(now.getDate() + 5);
-      votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+      // ✅ CORREGIDO: Para test de votación, establecer fechas apropiadas
+      // submission_deadline debe estar en el pasado inmediato
+      const submissionPast = new Date(now.getTime() - (5 * 60 * 1000)); // 5 minutos atrás
+      
+      // voting_deadline debe estar en el futuro cercano para pruebas
+      const votingEnd = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 horas adelante
+      
+      updates.submission_deadline = toColombiaUTC(submissionPast);
       updates.voting_deadline = toColombiaUTC(votingEnd);
     }
 
