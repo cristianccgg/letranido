@@ -196,18 +196,9 @@ const LandingPage = () => {
     const updateTime = () => {
       const now = new Date();
 
-      // ARREGLO: Si la fecha viene en UTC pero debería ser Colombia
-      // Crear la fecha como si fuera Colombia (UTC+0 -> Colombia -5)
-      const deadlineString = currentContest.submission_deadline;
-      let deadline;
-
-      if (deadlineString.includes("+00:00")) {
-        // Si viene en UTC, la interpretamos como si fuera hora de Colombia
-        const cleanDate = deadlineString.replace("+00:00", "");
-        deadline = new Date(cleanDate + "-05:00"); // Colombia timezone
-      } else {
-        deadline = new Date(deadlineString);
-      }
+      // La fecha viene correctamente desde la BD en UTC
+      // donde 19:00:00+00 = medianoche UTC = 7pm Colombia
+      const deadline = new Date(currentContest.submission_deadline);
 
       const diff = deadline - now;
 
