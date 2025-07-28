@@ -2337,7 +2337,11 @@ export function GlobalAppProvider({ children }) {
           likes_count,
           is_featured,
           created_at,
-          updated_at
+          updated_at,
+          user_profiles!inner(
+            display_name,
+            email
+          )
         `
         )
         .eq("story_id", storyId)

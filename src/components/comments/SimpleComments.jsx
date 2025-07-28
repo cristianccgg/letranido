@@ -38,7 +38,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           const transformedComments = result.comments.map(comment => ({
             id: comment.id,
             content: comment.content,
-            author: "Usuario", // Por ahora mostrar "Usuario" genérico
+            author: comment.user_profiles?.display_name || comment.user_profiles?.email || "Usuario",
             author_id: comment.user_id,
             created_at: comment.created_at,
             likes_count: comment.likes_count || 0,
