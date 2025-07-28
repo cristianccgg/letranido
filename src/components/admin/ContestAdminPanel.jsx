@@ -384,9 +384,9 @@ const ContestAdminPanel = () => {
 
     // Función helper para convertir fecha local de Colombia a UTC para BD
     const toColombiaUTC = (localDate) => {
-      // Colombia está en UTC-5
-      const colombiaOffset = 5 * 60; // 5 horas en minutos
-      const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+      // Convertir fecha local de Colombia a UTC
+      // Como localDate ya está en hora de Colombia, necesitamos agregar 5 horas para UTC
+      const utcDate = new Date(localDate.getTime() + (5 * 60 * 60 * 1000));
       return utcDate.toISOString();
     };
 
@@ -520,14 +520,14 @@ const ContestAdminPanel = () => {
         if (!dateTimeLocal) return null;
         
         // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
-        // Necesitamos interpretarlo como hora de Colombia y convertir a UTC para la BD
-        const localDate = new Date(dateTimeLocal);
+        // Necesitamos interpretarlo explícitamente como hora de Colombia y convertir a UTC para la BD
         
-        // Obtener offset de Colombia (UTC-5, pero puede variar por horario de verano)
-        const colombiaOffset = 5 * 60; // 5 horas en minutos
-        const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+        // Crear la fecha especificando que es hora de Colombia (UTC-5)
+        // Agregamos la zona horaria de Colombia para que se interprete correctamente
+        const colombiaDateTime = dateTimeLocal + '-05:00'; // Formato ISO con zona horaria de Colombia
+        const colombiaDate = new Date(colombiaDateTime);
         
-        return utcDate.toISOString();
+        return colombiaDate.toISOString();
       };
 
       const contestData = {
@@ -613,14 +613,14 @@ const ContestAdminPanel = () => {
         if (!dateTimeLocal) return null;
         
         // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
-        // Necesitamos interpretarlo como hora de Colombia y convertir a UTC para la BD
-        const localDate = new Date(dateTimeLocal);
+        // Necesitamos interpretarlo explícitamente como hora de Colombia y convertir a UTC para la BD
         
-        // Obtener offset de Colombia (UTC-5, pero puede variar por horario de verano)
-        const colombiaOffset = 5 * 60; // 5 horas en minutos
-        const utcDate = new Date(localDate.getTime() + (colombiaOffset * 60 * 1000));
+        // Crear la fecha especificando que es hora de Colombia (UTC-5)
+        // Agregamos la zona horaria de Colombia para que se interprete correctamente
+        const colombiaDateTime = dateTimeLocal + '-05:00'; // Formato ISO con zona horaria de Colombia
+        const colombiaDate = new Date(colombiaDateTime);
         
-        return utcDate.toISOString();
+        return colombiaDate.toISOString();
       };
 
       const updateData = {
