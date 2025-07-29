@@ -33,7 +33,15 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
       icon: Clock,
       title: contest?.submission_deadline
         ? `Cierra: ${new Date(contest.submission_deadline).toLocaleDateString(
-            "es-ES"
+            "es-ES",
+            {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'America/Bogota'
+            }
           )}`
         : "Cierre: fecha no disponible",
       description: "Envía tu historia antes de la fecha límite",

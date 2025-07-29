@@ -234,6 +234,7 @@ const LandingPage = () => {
 
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
+  const [rulesModalContest, setRulesModalContest] = useState(null);
 
   // ✅ Contador para el siguiente concurso
   const [nextTimeLeft, setNextTimeLeft] = useState("");
@@ -388,7 +389,10 @@ const LandingPage = () => {
                 phase={currentContestPhase}
                 timeLeft={timeLeft}
                 isNext={false}
-                onRulesClick={() => setShowRulesModal(true)}
+                onRulesClick={() => {
+                  setRulesModalContest(currentContest);
+                  setShowRulesModal(true);
+                }}
               />
 
               {/* Tarjeta del siguiente concurso - igual diseño que actual */}
@@ -401,7 +405,10 @@ const LandingPage = () => {
                   } // Contador real cuando esté habilitado
                   isNext={true}
                   isEnabled={currentContestPhase === "voting"} // Solo habilitado si actual está en votación
-                  onRulesClick={() => setShowRulesModal(true)}
+                  onRulesClick={() => {
+                    setRulesModalContest(nextContest);
+                    setShowRulesModal(true);
+                  }}
                 />
               )}
 
@@ -985,7 +992,7 @@ const LandingPage = () => {
       <ContestRulesModal
         isOpen={showRulesModal}
         onClose={() => setShowRulesModal(false)}
-        contest={currentContest}
+        contest={rulesModalContest || currentContest}
       />
     </div>
   );

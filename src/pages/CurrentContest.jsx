@@ -1282,7 +1282,7 @@ const CurrentContest = () => {
           onClose={() => setShowRulesModal(false)}
           contest={{
             ...contest,
-            endDate: new Date(contest.voting_deadline || contest.end_date),
+            endDate: new Date(contest.submission_deadline || contest.end_date),
           }}
         />
       )}
