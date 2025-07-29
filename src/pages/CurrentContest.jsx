@@ -38,6 +38,7 @@ const CurrentContest = () => {
     user,
     isAuthenticated,
     currentContest,
+    nextContest,
     contests,
     contestsLoading,
     galleryStories,
@@ -332,8 +333,10 @@ const CurrentContest = () => {
     const phase = getContestPhase(contest);
     const now = new Date();
 
-    // 🆕 Detectar si es un concurso histórico (no es el concurso actual)
-    const isHistoricalContest = contest.id !== currentContest?.id;
+    // 🔧 CORREGIDO: Lógica mejorada para determinar tipo de concurso
+    const isCurrentContest = contest.id === currentContest?.id;
+    const isNextContest = contest.id === nextContest?.id;
+    const isHistoricalContest = !isCurrentContest && !isNextContest;
 
     switch (phase) {
       case "submission": {
@@ -353,21 +356,25 @@ const CurrentContest = () => {
           };
         }
 
+        // 🔧 CORREGIDO: Para concursos actuales o siguientes en fase de envío, NO mostrar historias
         const submissionEnd = new Date(contest.submission_deadline);
         const daysLeft = Math.ceil(
           (submissionEnd - now) / (1000 * 60 * 60 * 24)
         );
+        
         return {
           phase: "submission",
-          title: "📝 Período de Envío",
+          title: isNextContest ? "📝 Próximo Concurso - Período de Envío" : "📝 Período de Envío",
           description: `Quedan ${Math.max(0, daysLeft)} días para participar`,
           bgColor: "bg-blue-50",
           borderColor: "border-blue-200",
           textColor: "text-blue-800",
           buttonText: "Escribir mi historia",
           buttonLink: `/write/${contest.id}`,
-          showStories: false,
-          message: "Las historias se mostrarán cuando inicie la votación",
+          showStories: false, // 🔧 IMPORTANTE: Siempre false durante envíos
+          message: isNextContest 
+            ? "Este concurso estará disponible para leer cuando termine el período de envío"
+            : "Las historias se mostrarán cuando inicie la votación",
         };
       }
       case "voting": {
@@ -436,7 +443,7 @@ const CurrentContest = () => {
           showStories: false,
         };
     }
-  }, [contest, currentContest?.id, getContestPhase]);
+  }, [contest, currentContest?.id, nextContest?.id, getContestPhase]);
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
