@@ -131,7 +131,7 @@ const EmailUnsubscribe = () => {
               {result.success && (
                 <div className="mt-4 space-y-2">
                   <Link
-                    to="/email/preferences"
+                    to="/preferences"
                     className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
                   >
                     Gestionar otras preferencias →
@@ -179,7 +179,7 @@ const EmailUnsubscribe = () => {
 
               <div className="text-center pt-4">
                 <Link
-                  to="/email/preferences"
+                  to="/preferences"
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium"
                 >
                   ¿Prefieres gestionar tus preferencias?

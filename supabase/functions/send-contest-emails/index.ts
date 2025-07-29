@@ -486,10 +486,7 @@ function generateNewContestHTML(contest: any): string {
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
           <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
-            Cancelar suscripción a emails
-          </a> • 
-          <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">
-            Gestionar preferencias
+            Gestionar preferencias de email
           </a>
         </p>
       </div>
@@ -575,10 +572,7 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
           <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
-            Cancelar suscripción a emails
-          </a> • 
-          <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">
-            Gestionar preferencias
+            Gestionar preferencias de email
           </a>
         </p>
       </div>
@@ -674,10 +668,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
           <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
-            Cancelar suscripción a emails
-          </a> • 
-          <a href="https://letranido.com/email/preferences" style="color: #6b7280; text-decoration: underline;">
-            Gestionar preferencias
+            Gestionar preferencias de email
           </a>
         </p>
       </div>
