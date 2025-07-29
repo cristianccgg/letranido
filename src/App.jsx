@@ -21,6 +21,7 @@ const ContestHistory = lazy(() => import("./pages/ContestHistory"));
 const ContestAdminPanel = lazy(() => import("./components/admin/ContestAdminPanel"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const DMCA = lazy(() => import("./pages/DMCA"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const CommunityGuidelines = lazy(() => import("./pages/CommunityGuidelines"));
 const EmailUnsubscribe = lazy(() => import("./pages/EmailUnsubscribe"));
@@ -200,6 +201,7 @@ function AppContent() {
           {/* Legal - Con rutas canónicas */}
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/dmca" element={<DMCA />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/community-guidelines" element={<CommunityGuidelines />} />
           

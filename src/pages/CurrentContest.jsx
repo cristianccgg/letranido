@@ -81,23 +81,13 @@ const CurrentContest = () => {
   const contestToLoad = useMemo(() => {
     // Si hay ID en la URL, SIEMPRE usar ese ID específico
     if (id) {
-      console.log(
-        "🎯 CurrentContest: Cargando concurso específico por ID:",
-        id
-      );
       return id;
     }
 
     // Solo si no hay ID, usar el concurso actual por defecto
     if (currentContest?.id) {
-      console.log(
-        "🏆 CurrentContest: Cargando concurso actual por defecto:",
-        currentContest.id
-      );
       return currentContest.id;
     }
-
-    console.log("❌ CurrentContest: No hay ID ni concurso actual disponible");
     return null;
   }, [id, currentContest?.id]);
 
@@ -133,8 +123,6 @@ const CurrentContest = () => {
       setError(null);
 
       try {
-        console.log("🏆 Cargando datos del concurso:", contestToLoad);
-
         let contestData;
 
         // 1. Obtener datos del concurso
@@ -158,12 +146,9 @@ const CurrentContest = () => {
         }
 
         setContest(contestData);
-        console.log("✅ Concurso cargado:", contestData.title);
 
         // 2. Cargar historias usando SIEMPRE galleryStories para máxima reactividad
-        console.log("🔄 Cargando historias vía galleryStories");
         await loadGalleryStories({ contestId: contestData.id });
-        console.log("✅ GalleryStories cargadas para CurrentContest");
       } catch (err) {
         console.error("💥 Error general cargando concurso:", err);
         setError("Error inesperado: " + err.message);
@@ -227,11 +212,6 @@ const CurrentContest = () => {
 
       if (result.success) {
         // ✅ NO NECESITAMOS ACTUALIZACIÓN LOCAL - SE SINCRONIZA AUTOMÁTICAMENTE VIA useEffect
-        console.log(
-          `${
-            result.liked ? "❤️" : "💔"
-          } Voto procesado, sincronización automática`
-        );
       } else {
         console.error("Error voting:", result.error);
         alert("Error al procesar el voto: " + result.error);
@@ -244,19 +224,6 @@ const CurrentContest = () => {
 
   // ✅ FILTROS Y ORDENAMIENTO - USAR SOLO GALLERYSTORIES (FUENTE ÚNICA DE VERDAD)
   const filteredAndSortedStories = useMemo(() => {
-    // Usar SIEMPRE galleryStories como fuente única de verdad
-    console.log("🔍 CurrentContest usando galleryStories:", {
-      contestId: contest?.id,
-      galleryStoriesCount: galleryStories.length,
-      storiesLoading,
-      // Debug: mostrar likes de las historias para verificar sincronización
-      storiesWithLikes: galleryStories.map((s) => ({
-        id: s.id.slice(-6),
-        likes: s.likes_count,
-        views: s.views_count, // ← Agregar views para debug
-        isLiked: s.isLiked,
-      })),
-    });
 
     // Si galleryStories está vacía, mostrar array vacío (loading se maneja aparte)
     if (galleryStories.length === 0) {
@@ -687,18 +654,6 @@ const CurrentContest = () => {
                       <strong>{stories.length}</strong> historias disponibles
                     </span>
                   </div>
-                  {votingStats.currentContestVotes > 0 &&
-                    stories.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium">
-                          {Math.round(
-                            (votingStats.currentContestVotes / stories.length) *
-                              100
-                          )}
-                          % votadas
-                        </span>
-                      </div>
-                    )}
                 </div>
               </div>
             </div>

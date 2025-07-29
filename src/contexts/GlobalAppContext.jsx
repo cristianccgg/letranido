@@ -2812,21 +2812,6 @@ export function GlobalAppProvider({ children }) {
     const submissionDeadline = new Date(contest.submission_deadline);  
     const votingDeadline = new Date(contest.voting_deadline);
     
-    // ✅ DEBUGGING: Log para diagnosticar problemas de timing
-    if (import.meta.env.DEV) {
-      console.log("🕐 Contest Phase Debug:", {
-        contest: contest.title,
-        now: now.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
-        nowUTC: now.toISOString(),
-        submissionDeadline: submissionDeadline.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
-        submissionDeadlineUTC: submissionDeadline.toISOString(),
-        votingDeadline: votingDeadline.toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
-        votingDeadlineUTC: votingDeadline.toISOString(),
-        isSubmissionTime: now <= submissionDeadline,
-        isVotingTime: now > submissionDeadline && now <= votingDeadline,
-        currentPhase: now <= submissionDeadline ? "submission" : now <= votingDeadline ? "voting" : "results"
-      });
-    }
 
     if (now <= submissionDeadline) {
       return "submission";
