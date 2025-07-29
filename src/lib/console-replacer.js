@@ -94,8 +94,6 @@ export const overrideConsoleForProduction = () => {
         originalError(...args);
       }
     };
-    
-    console.log('🔇 Console logs disabled for production');
   }
 };
 
