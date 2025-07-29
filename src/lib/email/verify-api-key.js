@@ -8,7 +8,6 @@ export const verifyResendApiKey = async () => {
   
   try {
     console.log('🔍 Verificando API key con Resend...');
-    console.log('📧 API Key (primeros 10 chars):', apiKey.substring(0, 10));
     
     // Hacer una petición simple a Resend para verificar la key
     const response = await fetch('https://api.resend.com/domains', {

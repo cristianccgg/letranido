@@ -4,9 +4,7 @@ export const debugResendConfig = () => {
   
   console.log('🔍 Debug de configuración Resend:');
   console.log('- API Key existe:', !!apiKey);
-  console.log('- API Key longitud:', apiKey?.length || 0);
-  console.log('- API Key empieza con "re_":', apiKey?.startsWith('re_') || false);
-  console.log('- API Key (primeros 10 chars):', apiKey?.substring(0, 10) || 'No encontrada');
+  console.log('- API Key válida:', apiKey?.startsWith('re_') || false);
   
   // Verificar todas las variables de entorno relacionadas
   console.log('📧 Variables de entorno:');

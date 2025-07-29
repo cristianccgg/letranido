@@ -1,19 +1,17 @@
 // pages/EmailUnsubscribe.jsx - Página para cancelar suscripción a emails
 import { useState, useEffect } from 'react';
 import { Mail, CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 import { supabase } from '../lib/supabase';
 
 const EmailUnsubscribe = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useGlobalApp();
+  const { user } = useGlobalApp();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [email, setEmail] = useState('');
 
-  const token = searchParams.get('token');
   const userEmail = searchParams.get('email');
 
   useEffect(() => {
@@ -36,7 +34,7 @@ const EmailUnsubscribe = () => {
     setLoading(true);
     try {
       // Primero verificar que el usuario existe
-      const { data: user, error: findError } = await supabase
+      const { error: findError } = await supabase
         .from('user_profiles')
         .select('email, email_notifications, contest_notifications, general_notifications, newsletter_contests')
         .eq('email', email.toLowerCase().trim())
@@ -46,16 +44,13 @@ const EmailUnsubscribe = () => {
         throw new Error('Usuario no encontrado: ' + findError.message);
       }
 
-      console.log('Usuario encontrado:', user);
-
-      // Actualizar preferencias de email - desactivar todas las notificaciones
-      // Usar service role para bypasear RLS
-      const { data: updateResult, error } = await fetch(
+      // Usar función de Supabase segura (sin exponer service role key)
+      const updateResult = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`,
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY}`,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -72,19 +67,14 @@ const EmailUnsubscribe = () => {
 
       const result = await updateResult.json();
 
-      console.log('Resultado del UPDATE:', updateResult);
-      console.log('Error del UPDATE:', error);
-
-      if (error) {
-        throw error;
+      if (!result.success) {
+        throw new Error(result.message || 'Error desconocido en la desuscripción');
       }
 
-      console.log('Actualización exitosa');
-
-      // Verificar que realmente se actualizó
-      const { data: updatedUser, error: verifyError } = await supabase
+      // Verificar que realmente se actualizó (opcional, para validación)
+      const { error: verifyError } = await supabase
         .from('user_profiles')
-        .select('email, email_notifications, contest_notifications, general_notifications, newsletter_contests')
+        .select('email')
         .eq('email', email.toLowerCase().trim())
         .single();
 
@@ -92,7 +82,6 @@ const EmailUnsubscribe = () => {
         throw new Error('Error verificando actualización: ' + verifyError.message);
       }
 
-      console.log('Usuario después de actualizar:', updatedUser);
 
       setResult({
         success: true,
