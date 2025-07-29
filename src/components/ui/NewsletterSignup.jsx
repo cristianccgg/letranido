@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Mail, Bell, CheckCircle, AlertCircle, Loader } from "lucide-react";
 const subscribeToNewsletter = async (email) => {
   const response = await fetch(
-    "https://pvcqonrukrsecgmczwqu.supabase.co/functions/v1/send-contest-emails",
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`,
     {
       method: "POST",
       headers: {
