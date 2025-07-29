@@ -1,6 +1,6 @@
 // components/forms/AuthModal.jsx - ACTUALIZADO PARA CONTEXTO GLOBAL
 import { useState, useEffect } from "react";
-import { X, Eye, EyeOff, User, Mail, Lock, Loader } from "lucide-react";
+import { X, Eye, EyeOff, User, Mail, Lock, Loader, AlertTriangle } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalytics";
 
@@ -13,6 +13,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
     name: "",
     confirmPassword: "",
     emailNotifications: true, // Por defecto habilitado
+    termsAccepted: false, // Debe ser aceptado explícitamente
   });
   // const [resetSuccess, setResetSuccess] = useState(false); // Movido al contexto global
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +49,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
         name: "",
         confirmPassword: "",
         emailNotifications: true,
+        termsAccepted: false,
       });
       clearAuthModalErrors();
       setValidationErrors({});
@@ -90,6 +92,11 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
       } else if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Las contraseñas no coinciden";
       }
+
+      // ✅ VALIDACIÓN LEGAL REQUERIDA
+      if (!formData.termsAccepted) {
+        newErrors.termsAccepted = "Debes aceptar los términos legales para continuar";
+      }
     }
 
     // Establecer errores de validación en estado local
@@ -115,7 +122,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           formData.email,
           formData.name,
           formData.password,
-          formData.emailNotifications
+          formData.emailNotifications,
+          formData.termsAccepted
         );
       } else if (mode === "reset-password") {
         result = await resetPassword(formData.email);
@@ -366,6 +374,63 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                   Puedes desuscribirte en cualquier momento desde tu perfil o desde los emails.
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Terms and Privacy consent (only for register) - REQUIRED */}
+          {mode === "register" && (
+            <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="termsAccepted"
+                  checked={formData.termsAccepted || false}
+                  onChange={(e) => handleInputChange("termsAccepted", e.target.checked)}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1 flex-shrink-0"
+                  required
+                />
+                <div className="flex-1">
+                  <label htmlFor="termsAccepted" className="text-sm font-medium text-gray-900">
+                    ⚖️ Aceptación de términos legales <span className="text-red-600">*</span>
+                  </label>
+                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">
+                    He leído y acepto los{" "}
+                    <a 
+                      href="/terms" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-700 underline font-medium"
+                    >
+                      Términos de Servicio
+                    </a>
+                    , la{" "}
+                    <a 
+                      href="/privacy" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-700 underline font-medium"
+                    >
+                      Política de Privacidad
+                    </a>
+                    {" "}y la{" "}
+                    <a 
+                      href="/dmca" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-700 underline font-medium"
+                    >
+                      Política DMCA
+                    </a>
+                    . Entiendo que solo puedo publicar contenido 100% original de mi autoría.
+                  </p>
+                </div>
+              </div>
+              {errors.termsAccepted && (
+                <div className="mt-2 flex items-center text-red-600">
+                  <AlertTriangle className="h-4 w-4 mr-1 flex-shrink-0" />
+                  <p className="text-xs">{errors.termsAccepted}</p>
+                </div>
+              )}
             </div>
           )}
 

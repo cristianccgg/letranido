@@ -430,11 +430,14 @@ const PrivacyPolicy = () => {
             </h3>
             <div className="text-blue-800 space-y-2">
               <p>
-                <strong>Email principal:</strong> info@letranido.com
+                <strong>Email legal:</strong> legal@letranido.com
               </p>
               <p>
                 <strong>Asunto sugerido:</strong> "Consulta de Privacidad - [Tu
                 consulta]"
+              </p>
+              <p>
+                <strong>Email general:</strong> info@letranido.com (solo consultas no legales)
               </p>
               <p>
                 <strong>Tiempo de respuesta:</strong> 3-5 días hábiles

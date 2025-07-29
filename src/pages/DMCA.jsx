@@ -94,7 +94,7 @@ const DMCA = () => {
               📧 Información de Contacto DMCA
             </h3>
             <div className="text-blue-800 space-y-2">
-              <p><strong>Email:</strong> dmca@letranido.com</p>
+              <p><strong>Email:</strong> legal@letranido.com</p>
               <p><strong>Asunto requerido:</strong> "DMCA Takedown Notice - [Título de la obra]"</p>
               <p><strong>Respuesta garantizada en:</strong> 24-48 horas</p>
               <p><strong>Idiomas aceptados:</strong> Español, Inglés</p>
@@ -262,14 +262,14 @@ const DMCA = () => {
             </h3>
             <div className="text-blue-800 space-y-2">
               <p><strong>Nombre:</strong> Agente Legal Letranido</p>
-              <p><strong>Email:</strong> dmca@letranido.com</p>
+              <p><strong>Email:</strong> legal@letranido.com</p>
               <p><strong>Dirección:</strong> Bogotá, Colombia</p>
               <p><strong>Horario de atención:</strong> 24/7 para reportes urgentes</p>
               
               <div className="mt-4 pt-4 border-t border-blue-300">
                 <p className="text-blue-700 text-sm">
                   <strong>Para consultas generales:</strong> info@letranido.com<br/>
-                  <strong>Para asuntos legales únicamente:</strong> dmca@letranido.com
+                  <strong>Para asuntos legales únicamente:</strong> legal@letranido.com
                 </p>
               </div>
             </div>

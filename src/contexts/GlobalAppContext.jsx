@@ -1973,12 +1973,25 @@ export function GlobalAppProvider({ children }) {
   );
 
   const register = useCallback(
-    async (email, name, password, emailNotifications = true) => {
+    async (email, name, password, emailNotifications = true, termsAccepted = false) => {
       console.log(
-        "🔍 register() recibió emailNotifications:",
-        emailNotifications,
-        typeof emailNotifications
+        "🔍 register() recibió parámetros:",
+        { emailNotifications, termsAccepted }
       );
+
+      // ✅ VALIDACIÓN CRÍTICA: Términos deben ser aceptados
+      if (!termsAccepted) {
+        console.error("❌ Intento de registro sin aceptar términos");
+        dispatch({
+          type: actions.SET_AUTH_STATE,
+          payload: { loading: false },
+        });
+        setAuthModalError("Debes aceptar los términos y condiciones para registrarte");
+        return { 
+          success: false, 
+          error: "Términos y condiciones no aceptados" 
+        };
+      }
 
       dispatch({
         type: actions.SET_AUTH_STATE,
@@ -2041,6 +2054,8 @@ export function GlobalAppProvider({ children }) {
               );
               const updateData = {
                 email_notifications: emailNotifications,
+                // ✅ IMPORTANTE: Actualizar términos aceptados también
+                terms_accepted_at: termsAccepted ? new Date().toISOString() : null,
               };
 
               // Solo guardar email si el usuario quiere notificaciones
@@ -2080,6 +2095,8 @@ export function GlobalAppProvider({ children }) {
                 general_notifications: true,
                 newsletter_contests: true,
                 // marketing_notifications se mantiene en su default (existe pero no se usa en UI)
+                // ✅ REGISTRO LEGAL - Timestamp de aceptación de términos
+                terms_accepted_at: termsAccepted ? new Date().toISOString() : null,
                 created_at: new Date().toISOString(),
               };
 

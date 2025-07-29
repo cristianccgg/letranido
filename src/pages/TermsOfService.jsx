@@ -296,7 +296,7 @@ const TermsOfService = () => {
           </h3>
           <p>
             Si crees que tu contenido fue removido incorrectamente, puedes
-            apelar contactándonos en [email de contacto] dentro de 30 días.
+            apelar contactándonos en <strong>legal@letranido.com</strong> dentro de 30 días.
           </p>
         </section>
 
@@ -320,7 +320,7 @@ const TermsOfService = () => {
             <p className="text-red-800 text-sm">
               <strong>IMPORTANTE:</strong> Si crees que tu contenido protegido por derechos de autor 
               ha sido utilizado sin autorización, puedes enviar una notificación DMCA a 
-              <strong> admin@letranido.com</strong> con la siguiente información:
+              <strong> legal@letranido.com</strong> con la siguiente información:
             </p>
             <ul className="text-red-700 text-sm mt-2 space-y-1 list-disc pl-4">
               <li>Identificación del material protegido por derechos de autor</li>
@@ -362,14 +362,111 @@ const TermsOfService = () => {
           </p>
         </section>
 
-        {/* 8. Contacto */}
+        {/* 8. Resolución de Disputas y Arbitraje */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Contacto</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+            <Shield className="h-6 w-6 mr-2 text-orange-600" />
+            8. Resolución de Disputas y Arbitraje
+          </h2>
+
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+            <h3 className="font-semibold text-orange-900 mb-3">
+              ⚖️ Acuerdo de Arbitraje Vinculante
+            </h3>
+            <p className="text-orange-800 text-sm mb-3">
+              <strong>Al usar Letranido, aceptas que cualquier disputa legal será resuelta mediante arbitraje, 
+              no en los tribunales ordinarios.</strong> Este acuerdo es vinculante y afecta tus derechos legales.
+            </p>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2">8.1 Disputas Cubiertas</h3>
+          <p className="mb-4">
+            Este acuerdo de arbitraje cubre <strong>todas las disputas</strong> relacionadas con:
+          </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>El uso de la plataforma Letranido</li>
+            <li>Violaciones de estos términos de servicio</li>
+            <li>Disputas de derechos de autor o propiedad intelectual</li>
+            <li>Reclamaciones por daños o pérdidas</li>
+            <li>Cuestiones de privacidad o protección de datos</li>
+            <li>Suspensión o eliminación de cuentas</li>
+            <li>Cualquier controversia contractual o extracontractual</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mb-2">8.2 Proceso de Arbitraje</h3>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+            <ul className="space-y-2 text-sm">
+              <li><strong>Sede:</strong> Bogotá, Colombia</li>
+              <li><strong>Reglas:</strong> Centro de Arbitraje y Conciliación de la Cámara de Comercio de Bogotá</li>
+              <li><strong>Idioma:</strong> Español</li>
+              <li><strong>Ley aplicable:</strong> Legislación colombiana</li>
+              <li><strong>Número de árbitros:</strong> 1 árbitro para disputas menores a $10,000 USD; 3 árbitros para disputas mayores</li>
+              <li><strong>Procedimiento:</strong> Escrito, con audiencia oral opcional a solicitud de cualquier parte</li>
+            </ul>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2">8.3 Costos del Arbitraje</h3>
+          <ul className="list-disc pl-6 mb-4">
+            <li><strong>Costos administrativos:</strong> Compartidos al 50% entre las partes</li>
+            <li><strong>Honorarios del árbitro:</strong> Compartidos al 50% entre las partes</li>
+            <li><strong>Costos legales:</strong> Cada parte paga sus propios abogados</li>
+            <li><strong>Excepción:</strong> Si el árbitro determina que una reclamación fue frívola o de mala fe, 
+            la parte perdedora pagará todos los costos</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mb-2">8.4 Limitaciones Importantes</h3>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-red-900 mb-2">🚫 Renuncia a Derechos</h4>
+            <ul className="text-red-800 text-sm space-y-1">
+              <li>• <strong>No jurado:</strong> Renuncias al derecho a un juicio por jurado</li>
+              <li>• <strong>No tribunal:</strong> Renuncias al derecho a litigar en tribunales ordinarios</li>
+              <li>• <strong>No demandas colectivas:</strong> Renuncias al derecho a participar en demandas colectivas o class actions</li>
+              <li>• <strong>No representación de grupo:</strong> Cada disputa debe ser individual</li>
+              <li>• <strong>Confidencialidad:</strong> El proceso de arbitraje es confidencial</li>
+            </ul>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2">8.5 Excepciones al Arbitraje</h3>
+          <p className="mb-4">
+            Las siguientes disputas <strong>NO</strong> están sujetas a arbitraje y pueden resolverse en tribunales ordinarios:
+          </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Reclamaciones en tribunales de menor cuantía (cuando sea aplicable)</li>
+            <li>Solicitudes de medidas cautelares urgentes para prevenir daño irreparable</li>
+            <li>Disputas sobre propiedad intelectual que requieran medidas inmediatas</li>
+            <li>Investigaciones gubernamentales o procedimientos regulatorios</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mb-2">8.6 Período de Limitación</h3>
+          <p className="mb-4">
+            <strong>Cualquier disputa debe iniciarse dentro de UN (1) AÑO</strong> después de que surja la causa de acción. 
+            Después de ese período, la reclamación estará permanentemente excluida.
+          </p>
+
+          <h3 className="text-lg font-semibold mb-2">8.7 Separabilidad</h3>
+          <p className="mb-4">
+            Si cualquier parte de esta cláusula de arbitraje se considera inválida o inaplicable, 
+            el resto permanecerá en vigor. Si la renuncia a demandas colectivas se considera inválida, 
+            toda la cláusula de arbitraje será nula.
+          </p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-800 text-sm">
+              <strong>💡 Consejo:</strong> Si no estás de acuerdo con esta cláusula de arbitraje, 
+              no uses Letranido. Al continuar usando la plataforma, confirmas tu aceptación 
+              de resolver disputas mediante arbitraje.
+            </p>
+          </div>
+        </section>
+
+        {/* 9. Contacto */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Contacto</h2>
 
           <p>Para preguntas sobre estos términos, contacta:</p>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
             <p className="text-blue-800">
-              <strong>Email:</strong> admin@letranido.com
+              <strong>Email:</strong> legal@letranido.com
               <br />
               <strong>Respuesta:</strong> Dentro de 5 días hábiles
               <br />
