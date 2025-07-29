@@ -570,7 +570,6 @@ const CurrentContest = () => {
         <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Trophy className="h-6 w-6 mt-1 flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="text-lg font-semibold mb-2">
                   🗳️ ¡Votación Activa!
@@ -1082,7 +1081,6 @@ const CurrentContest = () => {
                                   size="xs"
                                 />
                                 <span className="truncate max-w-32 md:max-w-none">
-                                  por{" "}
                                   <UserWithTopBadge
                                     userId={story.user_id}
                                     userName={story.author}
