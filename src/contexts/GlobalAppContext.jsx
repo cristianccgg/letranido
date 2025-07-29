@@ -1601,7 +1601,7 @@ export function GlobalAppProvider({ children }) {
   const toggleLike = useCallback(
     async (storyId) => {
       if (!state.user) {
-        return { success: false, error: "Debes iniciar sesión para dar like" };
+        return { success: false, error: "Debes iniciar sesión para votar" };
       }
 
       try {

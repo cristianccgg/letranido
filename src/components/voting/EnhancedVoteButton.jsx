@@ -160,7 +160,7 @@ const EnhancedVoteButton = ({
           } ${isHovered ? "animate-pulse" : ""}`}
         />
       ),
-      tooltip: "Dar like a esta historia",
+      tooltip: "Votar por esta historia",
     };
   };
 
@@ -190,7 +190,7 @@ const EnhancedVoteButton = ({
         >
           {likesCount}
           {size !== "small" && (
-            <span className="ml-1">{likesCount === 1 ? "like" : "likes"}</span>
+            <span className="ml-1">{likesCount === 1 ? "voto" : "votos"}</span>
           )}
         </span>
 

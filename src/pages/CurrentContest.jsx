@@ -575,7 +575,7 @@ const CurrentContest = () => {
                   🗳️ ¡Votación Activa!
                 </h3>
                 <p className="text-green-100 text-sm mb-3">
-                  Puedes dar "like" a todas las historias que te gusten. ¡No hay
+                  Puedes votar por todas las historias que te gusten. ¡No hay
                   límite - reconoce a todos los talentos que te inspiraron!
                 </p>
                 <div className="bg-white/15 rounded-lg p-3 mb-3 border border-white/20">
@@ -1165,7 +1165,7 @@ const CurrentContest = () => {
                                 <>
                                   {!isAuthenticated && (
                                     <span className="text-xs text-blue-600 break-words">
-                                      Lee la historia para dar like
+                                      Lee la historia para votar
                                     </span>
                                   )}
 

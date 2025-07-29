@@ -15,6 +15,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isCompactNav, setIsCompactNav] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
   const {
@@ -89,7 +90,8 @@ const Layout = ({ children }) => {
       if (currentContest && !hasUserParticipatedInCurrent && currentContestPhase === "submission") {
         return "Escribir"; // Para el concurso actual
       } else if (currentContestPhase === "voting" && nextContest && !hasUserParticipatedInNext) {
-        return `Escribir (${nextContest.month})`; // Para el próximo concurso
+        // Texto más compacto para pantallas medianas
+        return isCompactNav ? `Escribir (${nextContest.month.slice(0, 3)})` : `Escribir (${nextContest.month})`;
       }
       return "Escribir";
     }
@@ -124,13 +126,13 @@ const Layout = ({ children }) => {
     if (!currentContestPhase) return "Galería";
     switch (currentContestPhase) {
       case "submission":
-        return "Concurso Actual (Envío)";
+        return isCompactNav ? "Actual (Envío)" : "Concurso Actual (Envío)";
       case "voting":
-        return "Concurso Actual (Votación)";
+        return isCompactNav ? "Actual (Votación)" : "Concurso Actual (Votación)";
       case "results":
-        return "Concurso Actual (Resultados)";
+        return isCompactNav ? "Actual (Resultados)" : "Concurso Actual (Resultados)";
       default:
-        return "Concurso Actual";
+        return isCompactNav ? "Actual" : "Concurso Actual";
     }
   };
 
@@ -235,7 +237,7 @@ const Layout = ({ children }) => {
     }
   };
 
-  // Cerrar dropdown cuando se presiona Escape
+  // Manejar responsive navigation y cerrar dropdown cuando se presiona Escape
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -244,8 +246,20 @@ const Layout = ({ children }) => {
       }
     };
 
+    const handleResize = () => {
+      setIsCompactNav(window.innerWidth < 1280);
+    };
+
+    // Set initial state
+    handleResize();
+
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleResize);
+    
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
@@ -271,7 +285,7 @@ const Layout = ({ children }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex space-x-4 xl:space-x-8 flex-1 justify-center min-w-0">
+            <nav className="hidden lg:flex space-x-2 xl:space-x-4 flex-1 justify-center min-w-0">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
 
@@ -279,7 +293,7 @@ const Layout = ({ children }) => {
                   return (
                     <div
                       key={item.name}
-                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed opacity-60 ${
+                      className={`flex items-center px-2 xl:px-3 py-2 rounded-md text-xs xl:text-sm font-medium cursor-not-allowed opacity-60 whitespace-nowrap ${
                         item.className || "text-gray-400"
                       }`}
                       title={
@@ -288,7 +302,7 @@ const Layout = ({ children }) => {
                           : ""
                       }
                     >
-                      <span>{item.name}</span>
+                      <span className="truncate">{item.name}</span>
                     </div>
                   );
                 }
@@ -302,7 +316,7 @@ const Layout = ({ children }) => {
                         ? handleWriteClick
                         : undefined
                     }
-                    className={`flex items-center px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                       isActive
                         ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
                         : `hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 ${
@@ -311,7 +325,7 @@ const Layout = ({ children }) => {
                           }`
                     }`}
                   >
-                    <span>{item.name}</span>
+                    <span className="truncate">{item.name}</span>
                   </Link>
                 );
               })}

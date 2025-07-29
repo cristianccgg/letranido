@@ -26,9 +26,9 @@ const VotingGuidance = ({
             </div>
 
             <div className="text-sm text-gray-700 mb-3">
-              <strong>¿Cómo votar?</strong> Puedes dar "like" a todas las
-              historias que te gusten. No hay límite - ¡reconoce a todos los
-              talentos que te inspiraron!
+              <strong>¿Cómo votar?</strong> Puedes votar por todas las historias
+              que te gusten. No hay límite - ¡reconoce a todos los talentos que
+              te inspiraron!
             </div>
 
             {/* Stats rápidas */}
@@ -86,7 +86,7 @@ const VotingGuidance = ({
                     • Votar por múltiples historias
                   </li>
                   <li className="hover:text-green-600 transition-colors">
-                    • Cambiar tu voto (quitar/poner like)
+                    • Cambiar tu voto (quitar/poner voto)
                   </li>
                   <li className="hover:text-green-600 transition-colors">
                     • Leer todas las que quieras
@@ -126,7 +126,7 @@ const VotingGuidance = ({
                     ¿Cómo se decide el ganador?
                   </strong>
                   <p className="text-gray-700 mt-1">
-                    Las historias se ordenan por número de likes recibidos. En
+                    Las historias se ordenan por número de votos recibidos. En
                     caso de empate, gana quien alcanzó esa cantidad primero. ¡Tu
                     voto cuenta!
                   </p>

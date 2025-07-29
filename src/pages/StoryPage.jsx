@@ -469,7 +469,7 @@ const StoryPage = () => {
                     <span>{story.author.wins} victorias</span>
                     <span className="mx-2">•</span>
                     <Heart className="h-4 w-4 mr-1" />
-                    <span>{story.author.totalLikes} likes totales</span>
+                    <span>{story.author.totalLikes} votos totales</span>
                   </div>
                 </div>
               </div>
