@@ -245,9 +245,9 @@ const ContestActionButton = ({
 
     // Size classes
     const sizeClasses = {
-      small: "px-4 py-2 text-sm",
-      default: "px-5 py-3 text-sm",
-      large: "px-8 py-4 text-base",
+      small: "px-3 py-2 text-xs md:px-4 md:text-sm",
+      default: "px-4 py-2 text-xs md:px-5 md:py-3 md:text-sm",
+      large: "px-6 py-3 text-sm md:px-8 md:py-4 md:text-base",
     };
 
     // Variant classes - ✅ Modernizadas con gradientes elegantes

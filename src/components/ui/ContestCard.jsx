@@ -29,12 +29,12 @@ const ContestCard = ({
         : "flex-1 opacity-50 cursor-not-allowed";
 
       return (
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 w-full">
           <ContestActionButton
             variant="primary"
             size="default"
             showDescription={false}
-            className={`${isEnabled ? "" : "opacity-50 cursor-not-allowed"} flex-1`}
+            className={`${isEnabled ? "" : "opacity-50 cursor-not-allowed"} flex-1 min-w-0`}
             contestId={contest.id}
             forcedPhase="submission" // ✅ Forzar fase submission para el próximo concurso
             disabled={!isEnabled}
@@ -42,7 +42,7 @@ const ContestCard = ({
 
           <Link
             to={isEnabled ? `/contest/${contest.id}#stories-section` : "#"}
-            className={`${buttonClass} flex-1`}
+            className={`${buttonClass} flex-1 min-w-0 text-center`}
             onClick={!isEnabled ? (e) => e.preventDefault() : undefined}
           >
             Ver participantes
@@ -50,7 +50,7 @@ const ContestCard = ({
 
           <button
             onClick={isEnabled ? onRulesClick : undefined}
-            className={`${buttonClass} flex-1`}
+            className={`${buttonClass} flex-1 min-w-0`}
             disabled={!isEnabled}
           >
             Reglas
@@ -150,12 +150,12 @@ const ContestCard = ({
             {/* Título y badge en la misma línea */}
             <div className="flex items-center gap-4 mb-2">
               <span
-                className={`inline-flex items-center px-4 py-2 rounded-full text-[8px] lg:text-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
+                className={`inline-flex items-center px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm lg:text-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
               >
-                <Calendar className="h-4 w-4 mr-2" />
+                <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                 {badgeText}
               </span>
-              <h2 className="text-lg text-nowrap md:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight tracking-tight">
+              <h2 className="text-sm md:text-lg lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight tracking-tight break-words">
                 {contest.title}
               </h2>
             </div>
@@ -179,7 +179,7 @@ const ContestCard = ({
         {/* Contenido expandible */}
         <div
           className={`transition-all duration-500 overflow-hidden ${
-            isExpanded ? "opacity-100 max-h-96" : "opacity-0 max-h-0"
+            isExpanded ? "opacity-100 max-h-[600px]" : "opacity-0 max-h-0"
           }`}
         >
           <div className="px-6 pb-6 space-y-6">
@@ -192,21 +192,21 @@ const ContestCard = ({
 
             {/* Contador para siguiente concurso cuando esté habilitado */}
             {timeLeft && isEnabled && (
-              <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                  <Clock className="h-5 w-5 text-white" />
+              <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 shadow-lg hover:shadow-xl transition-all duration-300 w-full">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+                  <Clock className="h-4 w-4 md:h-5 md:w-5 text-white" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm md:text-base text-indigo-700 font-medium tracking-wide">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-xs md:text-sm lg:text-base text-indigo-700 font-medium tracking-wide">
                       Envíos cierran en
                     </span>
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   </div>
-                  <span className="text-xl md:text-2xl font-bold text-indigo-900 tracking-tight">
+                  <div className="text-lg md:text-xl lg:text-2xl font-bold text-indigo-900 tracking-tight break-words">
                     {timeLeft}
-                  </span>
-                  <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
+                  </div>
+                  <div className="text-xs md:text-sm text-red-600 font-medium mt-1 animate-pulse">
                     ¡No te quedes sin participar!
                   </div>
                 </div>
