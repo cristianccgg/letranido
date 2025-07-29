@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import {
   PenTool,
@@ -157,29 +157,9 @@ const UnifiedProfile = () => {
     );
   }
 
-  // Si no hay usuario, mostrar mensaje de login
+  // Si no hay usuario, redirigir a home para evitar errores de redirect en bots
   if (!user) {
-    return (
-      <div className="max-w-4xl mx-auto py-12 text-center">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Inicia sesión para ver tu perfil
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Accede a tu cuenta para ver tus historias, estadísticas y
-            participación en concursos.
-          </p>
-          <ContestActionButton
-            variant="primary"
-            customText="Iniciar sesión"
-            onAuthRequired={() => {
-              /* El botón manejará esto */
-            }}
-          />
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   return (
