@@ -2325,10 +2325,10 @@ export function GlobalAppProvider({ children }) {
     try {
       console.log("📝 Fetching comments for story:", storyId);
 
-      const { data, error } = await supabase
+      // Primero obtener los comentarios
+      const { data: comments, error: commentsError } = await supabase
         .from("comments")
-        .select(
-          `
+        .select(`
           id,
           content,
           user_id,
@@ -2337,23 +2337,48 @@ export function GlobalAppProvider({ children }) {
           likes_count,
           is_featured,
           created_at,
-          updated_at,
-          user_profiles!inner(
-            display_name,
-            email
-          )
-        `
-        )
+          updated_at
+        `)
         .eq("story_id", storyId)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("❌ Error fetching comments:", error);
-        return { success: false, error: error.message, comments: [] };
+      if (commentsError) {
+        console.error("❌ Error fetching comments:", commentsError);
+        return { success: false, error: commentsError.message, comments: [] };
       }
 
-      console.log("✅ Comments loaded:", data?.length || 0);
-      return { success: true, comments: data || [] };
+      if (!comments || comments.length === 0) {
+        console.log("✅ No comments found");
+        return { success: true, comments: [] };
+      }
+
+      // Obtener IDs únicos de usuarios
+      const userIds = [...new Set(comments.map(c => c.user_id).filter(Boolean))];
+      
+      // Obtener perfiles de usuarios (temporalmente deshabilitado)
+      let profiles = null;
+      try {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("user_profiles") // Intentar con user_profiles
+          .select("id, display_name, email")
+          .in("id", userIds);
+        
+        if (!profilesError) {
+          profiles = profilesData;
+        }
+      } catch (err) {
+        console.warn("⚠️ Tabla de perfiles no encontrada, usando nombres por defecto");
+      }
+
+      // Combinar comentarios con perfiles
+      const commentsWithProfiles = comments.map(comment => ({
+        ...comment,
+        profiles: profiles?.find(p => p.id === comment.user_id) || null
+      }));
+
+      console.log("✅ Comments loaded:", commentsWithProfiles?.length || 0);
+      console.log("📊 Comments data:", commentsWithProfiles);
+      return { success: true, comments: commentsWithProfiles || [] };
     } catch (err) {
       console.error("💥 Error fetching comments:", err);
       return { success: false, error: err.message, comments: [] };

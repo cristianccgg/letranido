@@ -6,12 +6,32 @@ import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
 import { UserWithTopBadge } from "../ui/UserNameWithBadges";
 
+// Hook para detectar tamaño de pantalla
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
 const SimpleComments = ({ storyId, storyTitle }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [reportModal, setReportModal] = useState({ isOpen: false, commentId: null, commentContent: '' });
+
+  // Hook para detectar móvil
+  const isMobile = useIsMobile();
 
   // ✅ USO DEL CONTEXTO GLOBAL CON FUNCIONES DE COMENTARIOS
   const { 
@@ -22,6 +42,14 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     deleteComment,
     reportComment
   } = useGlobalApp();
+
+  // Placeholders responsive
+  const getPlaceholder = () => {
+    if (isMobile) {
+      return "¿Qué te pareció? Comparte tu opinión constructiva...";
+    }
+    return "¿Qué te pareció la historia? Comparte tu opinión constructiva: destaca lo que más te gustó, sugiere mejoras o comenta sobre el estilo, personajes o trama...";
+  };
 
   // ✅ CARGAR COMENTARIOS REALES
   useEffect(() => {
@@ -37,7 +65,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           const transformedComments = result.comments.map(comment => ({
             id: comment.id,
             content: comment.content,
-            author: comment.user_profiles?.display_name || comment.user_profiles?.email || "Usuario",
+            author: comment.profiles?.display_name || comment.profiles?.email || "Usuario",
             author_id: comment.user_id,
             created_at: comment.created_at,
             parent_id: comment.parent_id,
@@ -172,7 +200,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="¿Qué te pareció la historia? Comparte tu opinión constructiva: destaca lo que más te gustó, sugiere mejoras o comenta sobre el estilo, personajes o trama..."
+                placeholder={getPlaceholder()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                 rows={3}
                 disabled={submitting}
