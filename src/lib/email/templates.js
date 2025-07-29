@@ -113,7 +113,8 @@ export const newContestTemplate = (contest) => {
         month: 'long', 
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: 'America/Bogota'
       })}</li>
       <li>🏆 <strong>Categoría:</strong> ${contest.category}</li>
     </ul>
@@ -148,7 +149,8 @@ export const submissionReminderTemplate = (contest, daysLeft) => {
         month: 'long', 
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: 'America/Bogota'
       })}</strong></p>
     </div>
     
@@ -202,7 +204,8 @@ export const votingStartedTemplate = (contest, storiesCount) => {
       month: 'long', 
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'America/Bogota'
     })}</p>
   `;
   
