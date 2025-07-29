@@ -7,7 +7,6 @@ import {
   Calendar,
   Users,
   Clock,
-  Star,
   Heart,
   Eye,
   ChevronDown,
@@ -20,11 +19,9 @@ import {
   AlertCircle,
   Loader,
   BookOpen,
-  User,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import SEOHead from "../components/SEO/SEOHead";
-import VotingGuidance from "../components/voting/VotingGuidance";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
@@ -72,6 +69,9 @@ const CurrentContest = () => {
   const [sortBy, setSortBy] = useState("random");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Contador de tiempo real
+  const [timeLeft, setTimeLeft] = useState("");
 
   // Refs para scroll
   const storiesSectionRef = useRef(null);
@@ -293,7 +293,6 @@ const CurrentContest = () => {
         return filtered.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
-      case "random":
       default:
         return filtered.sort(() => Math.random() - 0.5);
     }
@@ -441,6 +440,52 @@ const CurrentContest = () => {
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
+  // ✅ CONTADOR DE TIEMPO REAL (similar a landing page)
+  useEffect(() => {
+    if (!contest) {
+      setTimeLeft("");
+      return;
+    }
+
+    const updateTime = () => {
+      const now = new Date();
+      let deadline;
+      const phase = getContestPhase(contest);
+
+      // Determinar fecha límite según la fase
+      if (phase === "submission") {
+        deadline = new Date(contest.submission_deadline);
+      } else if (phase === "voting") {
+        deadline = new Date(contest.voting_deadline);
+      } else {
+        setTimeLeft("Concurso cerrado");
+        return;
+      }
+
+      const diff = deadline - now;
+
+      if (diff <= 0) {
+        setTimeLeft("Tiempo agotado");
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft(
+        `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`
+      );
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, [contest, getContestPhase]);
+
   // ✅ LOADING STATES
   if (globalLoading || contestsLoading || (!initialized && !error)) {
     return (
@@ -535,30 +580,54 @@ const CurrentContest = () => {
             {contest.description}
           </p>
 
-          {/* Stats del concurso - Modernizadas */}
+          {/* Stats del concurso - Dinámicas */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm">
+            {/* Historias enviadas */}
             <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <Users className="h-4 w-4 text-white" />
+                <BookOpen className="h-4 w-4 text-white" />
               </div>
               <span className="truncate font-semibold text-indigo-700">
-                {contest.participants_count || 0} participantes
+                {storiesLoading ? "..." : stories.length} historia
+                {stories.length !== 1 ? "s" : ""}
               </span>
             </div>
+
+            {/* Contador en tiempo real */}
             <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <Star className="h-4 w-4 text-white" />
+                <Clock className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-purple-700">
-                {contest.category}
-              </span>
+              <div className="flex flex-col">
+                <span className="truncate font-semibold text-purple-700 tabular-nums">
+                  {timeLeft || "Cargando..."}
+                </span>
+                <span className="text-xs text-purple-500">
+                  {(() => {
+                    const phase = getContestPhase(contest);
+                    if (phase === "submission") return "para enviar";
+                    if (phase === "voting") return "para votar";
+                    return "restante";
+                  })()}
+                </span>
+              </div>
             </div>
+
+            {/* Palabras escritas */}
             <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 border border-pink-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <PenTool className="h-4 w-4 text-white" />
               </div>
               <span className="truncate font-semibold text-pink-700">
-                {contest.min_words}-{contest.max_words} palabras
+                {storiesLoading
+                  ? "..."
+                  : stories
+                      .reduce(
+                        (total, story) => total + (story.word_count || 0),
+                        0
+                      )
+                      .toLocaleString()}{" "}
+                palabras
               </span>
             </div>
           </div>
@@ -626,33 +695,37 @@ const CurrentContest = () => {
             </div>
 
             <div className="text-center lg:text-right flex-shrink-0">
-              <div className="text-2xl font-bold">{phaseInfo.description}</div>
-              <div className="text-green-100 text-sm">para votar</div>
-
-              {/* Mensaje motivacional dinámico */}
+              {/* Solo mensajes motivacionales sin redundancia de tiempo */}
               {votingStats.currentContestVotes === 0 && (
-                <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
-                  <span className="text-sm font-medium">
+                <div className="bg-white/20 rounded-lg px-4 py-3">
+                  <span className="text-lg font-bold text-white">
                     👋 ¡Empieza a votar!
                   </span>
+                  <div className="text-green-100 text-sm mt-1">
+                    Descubre historias increíbles
+                  </div>
                 </div>
               )}
               {votingStats.currentContestVotes > 0 &&
                 votingStats.currentContestVotes < stories.length && (
-                  <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
-                    <span className="text-sm font-medium">
-                      🚀 ¡Quedan{" "}
-                      {stories.length - votingStats.currentContestVotes} por
-                      descubrir!
+                  <div className="bg-white/20 rounded-lg px-4 py-3">
+                    <span className="text-lg font-bold text-white">
+                      🚀 ¡Sigue leyendo!
                     </span>
+                    <div className="text-green-100 text-sm mt-1">
+                      {stories.length - votingStats.currentContestVotes} historia{stories.length - votingStats.currentContestVotes !== 1 ? "s" : ""} por descubrir
+                    </div>
                   </div>
                 )}
               {votingStats.currentContestVotes > 0 &&
                 votingStats.currentContestVotes === stories.length && (
-                  <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
-                    <span className="text-sm font-medium">
-                      🎉 ¡Has leído todas!
+                  <div className="bg-white/20 rounded-lg px-4 py-3">
+                    <span className="text-lg font-bold text-white">
+                      🎉 ¡Increíble!
                     </span>
+                    <div className="text-green-100 text-sm mt-1">
+                      Has leído todas las historias
+                    </div>
                   </div>
                 )}
             </div>
@@ -821,55 +894,6 @@ const CurrentContest = () => {
                   )}
                 </div>
               </div>
-
-              {/* Estadísticas estilo landing page - Modernizadas */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 hover:border-purple-200 p-6 md:p-8 overflow-hidden transition-all duration-300 hover:scale-[1.02]">
-                <div className="grid grid-cols-3 gap-6 md:gap-8">
-                  <div className="text-center min-w-0">
-                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                      {storiesLoading ? "..." : stories.length}
-                    </div>
-                    <div className="text-gray-500 text-sm md:text-base">
-                      Historias enviadas
-                    </div>
-                  </div>
-
-                  <div className="text-center min-w-0">
-                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                      {Math.max(
-                        0,
-                        Math.floor(
-                          (new Date(contest.submission_deadline) - new Date()) /
-                            (1000 * 60 * 60 * 24)
-                        )
-                      )}
-                    </div>
-                    <div className="text-gray-500 text-sm md:text-base">
-                      Días restantes
-                    </div>
-                  </div>
-
-                  <div className="text-center min-w-0">
-                    <div className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                      {storiesLoading
-                        ? "..."
-                        : (() => {
-                            const totalWords = stories.reduce(
-                              (total, story) => total + (story.word_count || 0),
-                              0
-                            );
-                            return totalWords >= 1000
-                              ? `${Math.floor(totalWords / 1000)}k`
-                              : totalWords.toLocaleString();
-                          })()}{" "}
-                      +
-                    </div>
-                    <div className="text-gray-500 text-sm md:text-base">
-                      Palabras escritas
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -1035,181 +1059,202 @@ const CurrentContest = () => {
                     <div className="grid gap-3">
                       {filteredAndSortedStories.map((story, index) => {
                         // Verificar si el usuario ya votó por esta historia
-                        const hasVoted = story.isLiked || (isAuthenticated && votingStats.userVotedStories?.some(vote => vote.storyId === story.id));
-                        
+                        const hasVoted =
+                          story.isLiked ||
+                          (isAuthenticated &&
+                            votingStats.userVotedStories?.some(
+                              (vote) => vote.storyId === story.id
+                            ));
+
                         return (
-                        <div
-                          key={story.id}
-                          className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
-                            hasVoted 
-                              ? 'bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90' 
-                              : 'bg-white/95 border-indigo-100 hover:border-purple-200'
-                          }`}
-                          onClick={() => navigate(`/story/${story.id}`)}
-                        >
-                          {/* Header responsive */}
-                          <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
-                            <div className="flex-1 min-w-0">
-                              {/* Posición si es resultados - más compacta */}
-                              {sortBy === "popular" &&
-                                phaseInfo?.phase === "results" &&
-                                index < 3 && (
-                                  <div className="flex items-center mb-2">
-                                    {index === 0 && (
-                                      <div className="flex items-center text-yellow-600 text-sm">
-                                        <Crown className="h-4 w-4 mr-1" />
-                                        <span className="font-bold">1º</span>
-                                      </div>
-                                    )}
-                                    {index === 1 && (
-                                      <div className="flex items-center text-gray-600 text-sm">
-                                        <Medal className="h-4 w-4 mr-1" />
-                                        <span className="font-bold">2º</span>
-                                      </div>
-                                    )}
-                                    {index === 2 && (
-                                      <div className="flex items-center text-orange-600 text-sm">
-                                        <Award className="h-4 w-4 mr-1" />
-                                        <span className="font-bold">3º</span>
-                                      </div>
-                                    )}
+                          <div
+                            key={story.id}
+                            className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
+                              hasVoted
+                                ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90"
+                                : "bg-white/95 border-indigo-100 hover:border-purple-200"
+                            }`}
+                            onClick={() => navigate(`/story/${story.id}`)}
+                          >
+                            {/* Header responsive */}
+                            <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
+                              <div className="flex-1 min-w-0">
+                                {/* Posición si es resultados - más compacta */}
+                                {sortBy === "popular" &&
+                                  phaseInfo?.phase === "results" &&
+                                  index < 3 && (
+                                    <div className="flex items-center mb-2">
+                                      {index === 0 && (
+                                        <div className="flex items-center text-yellow-600 text-sm">
+                                          <Crown className="h-4 w-4 mr-1" />
+                                          <span className="font-bold">1º</span>
+                                        </div>
+                                      )}
+                                      {index === 1 && (
+                                        <div className="flex items-center text-gray-600 text-sm">
+                                          <Medal className="h-4 w-4 mr-1" />
+                                          <span className="font-bold">2º</span>
+                                        </div>
+                                      )}
+                                      {index === 2 && (
+                                        <div className="flex items-center text-orange-600 text-sm">
+                                          <Award className="h-4 w-4 mr-1" />
+                                          <span className="font-bold">3º</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                {/* Badge sutil para historias votadas - centrado */}
+                                {hasVoted && (
+                                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 bg-gray-400/90 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm">
+                                    <Heart className="h-4 w-4 fill-current" />
+                                    <span>Tu voto</span>
                                   </div>
                                 )}
 
-                              {/* Badge sutil para historias votadas - centrado */}
-                              {hasVoted && (
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 bg-gray-400/90 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm">
-                                  <Heart className="h-4 w-4 fill-current" />
-                                  <span>Tu voto</span>
-                                </div>
-                              )}
-                              
-                              <h3 className={`text-base md:text-lg font-semibold cursor-pointer line-clamp-2 mb-2 ${
-                                hasVoted 
-                                  ? 'text-gray-500' 
-                                  : 'text-gray-900 hover:text-primary-600'
-                              }`}>
-                                <a href={`/story/${story.id}`}>{story.title}</a>
-                              </h3>
+                                <h3
+                                  className={`text-base md:text-lg font-semibold cursor-pointer line-clamp-2 mb-2 ${
+                                    hasVoted
+                                      ? "text-gray-500"
+                                      : "text-gray-900 hover:text-primary-600"
+                                  }`}
+                                >
+                                  <a href={`/story/${story.id}`}>
+                                    {story.title}
+                                  </a>
+                                </h3>
 
-                              <div className={`flex flex-wrap items-center gap-1 md:gap-2 text-xs ${
-                                hasVoted ? 'text-gray-400' : 'text-gray-500'
-                              }`}>
-                                <UserAvatar
-                                  user={{
-                                    name: story.author,
-                                    email: `${story.author}@mock.com`,
-                                  }}
-                                  size="xs"
-                                />
-                                <span className="truncate max-w-32 md:max-w-none">
-                                  <UserWithTopBadge
-                                    userId={story.user_id}
-                                    userName={story.author}
-                                    className="inline-flex"
+                                <div
+                                  className={`flex flex-wrap items-center gap-1 md:gap-2 text-xs ${
+                                    hasVoted ? "text-gray-400" : "text-gray-500"
+                                  }`}
+                                >
+                                  <UserAvatar
+                                    user={{
+                                      name: story.author,
+                                      email: `${story.author}@mock.com`,
+                                    }}
+                                    size="xs"
                                   />
-                                </span>
-                                <span className="hidden sm:inline">•</span>
-                                <span className="whitespace-nowrap">
-                                  {getReadingTime(story.word_count)}
-                                </span>
-                                <span className="hidden sm:inline">•</span>
-                                <span className="whitespace-nowrap">
-                                  {story.word_count}p
-                                </span>
-                                {story.is_mature && (
+                                  <span className="truncate max-w-32 md:max-w-none">
+                                    <UserWithTopBadge
+                                      userId={story.user_id}
+                                      userName={story.author}
+                                      className="inline-flex"
+                                    />
+                                  </span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span className="whitespace-nowrap">
+                                    {getReadingTime(story.word_count)}
+                                  </span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span className="whitespace-nowrap">
+                                    {story.word_count}p
+                                  </span>
+                                  {story.is_mature && (
+                                    <>
+                                      <span className="hidden sm:inline">
+                                        •
+                                      </span>
+                                      <span
+                                        className={`font-medium whitespace-nowrap ${
+                                          hasVoted
+                                            ? "text-gray-400"
+                                            : "text-red-600"
+                                        }`}
+                                      >
+                                        18+
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Botones de acción - Stack en móvil */}
+                              <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                                <a
+                                  href={`/story/${story.id}`}
+                                  className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs md:text-sm font-medium rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm whitespace-nowrap"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <BookOpen className="h-3 w-3 mr-1" />
+                                  Leer
+                                </a>
+                                {getShareData() && (
+                                  <div onClick={(e) => e.stopPropagation()}>
+                                    <ShareDropdown
+                                      shareData={getShareData()}
+                                      size="small"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Excerpt más corto - Con overflow controlado */}
+                            <div
+                              className={`text-sm mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden ${
+                                hasVoted ? "text-gray-400" : "text-gray-600"
+                              }`}
+                              dangerouslySetInnerHTML={{
+                                __html: story.excerpt,
+                              }}
+                            />
+
+                            {/* Actions compactas - Layout móvil */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                              <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                {/* Likes display compacto */}
+                                <div
+                                  className={`flex items-center gap-1 text-sm min-w-0 ${
+                                    hasVoted ? "text-gray-400" : "text-red-600"
+                                  }`}
+                                >
+                                  <Heart className="h-3 w-3 fill-current flex-shrink-0" />
+                                  <span className="font-medium truncate">
+                                    {story.likes_count || 0}
+                                  </span>
+                                </div>
+
+                                {/* Views compacto */}
+                                <div
+                                  className={`flex items-center gap-1 text-sm min-w-0 ${
+                                    hasVoted ? "text-gray-400" : "text-gray-500"
+                                  }`}
+                                >
+                                  <Eye className="h-3 w-3 flex-shrink-0" />
+                                  <span className="truncate">
+                                    {story.views_count || 0}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Info de votación - responsive */}
+                              <div className="flex items-center justify-start sm:justify-end">
+                                {phaseInfo?.isHistorical ? (
+                                  <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
+                                    📚 Solo lectura
+                                  </span>
+                                ) : (
                                   <>
-                                    <span className="hidden sm:inline">•</span>
-                                    <span className={`font-medium whitespace-nowrap ${
-                                      hasVoted ? 'text-gray-400' : 'text-red-600'
-                                    }`}>
-                                      18+
-                                    </span>
+                                    {!isAuthenticated && (
+                                      <span className="text-xs text-blue-600 break-words">
+                                        Lee la historia para votar
+                                      </span>
+                                    )}
+
+                                    {isAuthenticated &&
+                                      story.user_id === user?.id && (
+                                        <span className="text-xs text-purple-600 whitespace-nowrap">
+                                          Tu historia
+                                        </span>
+                                      )}
                                   </>
                                 )}
                               </div>
                             </div>
-
-                            {/* Botones de acción - Stack en móvil */}
-                            <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
-                              <a
-                                href={`/story/${story.id}`}
-                                className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs md:text-sm font-medium rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm whitespace-nowrap"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <BookOpen className="h-3 w-3 mr-1" />
-                                Leer
-                              </a>
-                              {getShareData() && (
-                                <div onClick={(e) => e.stopPropagation()}>
-                                  <ShareDropdown
-                                    shareData={getShareData()}
-                                    size="small"
-                                  />
-                                </div>
-                              )}
-                            </div>
                           </div>
-
-                          {/* Excerpt más corto - Con overflow controlado */}
-                          <div
-                            className={`text-sm mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden ${
-                              hasVoted ? 'text-gray-400' : 'text-gray-600'
-                            }`}
-                            dangerouslySetInnerHTML={{
-                              __html: story.excerpt,
-                            }}
-                          />
-
-                          {/* Actions compactas - Layout móvil */}
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                              {/* Likes display compacto */}
-                              <div className={`flex items-center gap-1 text-sm min-w-0 ${
-                                hasVoted ? 'text-gray-400' : 'text-red-600'
-                              }`}>
-                                <Heart className="h-3 w-3 fill-current flex-shrink-0" />
-                                <span className="font-medium truncate">
-                                  {story.likes_count || 0}
-                                </span>
-                              </div>
-
-                              {/* Views compacto */}
-                              <div className={`flex items-center gap-1 text-sm min-w-0 ${
-                                hasVoted ? 'text-gray-400' : 'text-gray-500'
-                              }`}>
-                                <Eye className="h-3 w-3 flex-shrink-0" />
-                                <span className="truncate">
-                                  {story.views_count || 0}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Info de votación - responsive */}
-                            <div className="flex items-center justify-start sm:justify-end">
-                              {phaseInfo?.isHistorical ? (
-                                <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
-                                  📚 Solo lectura
-                                </span>
-                              ) : (
-                                <>
-                                  {!isAuthenticated && (
-                                    <span className="text-xs text-blue-600 break-words">
-                                      Lee la historia para votar
-                                    </span>
-                                  )}
-
-                                  {isAuthenticated &&
-                                    story.user_id === user?.id && (
-                                      <span className="text-xs text-purple-600 whitespace-nowrap">
-                                        Tu historia
-                                      </span>
-                                    )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
                         );
                       })}
                     </div>
