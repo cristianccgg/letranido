@@ -941,17 +941,17 @@ const CurrentContest = () => {
                       {filteredAndSortedStories.map((story, index) => (
                         <div
                           key={story.id}
-                          className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                          className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
                           onClick={() => navigate(`/story/${story.id}`)}
                         >
-                          {/* Header compacto */}
-                          <div className="flex items-center justify-between mb-2">
+                          {/* Header responsive */}
+                          <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
                             <div className="flex-1 min-w-0">
                               {/* Posición si es resultados - más compacta */}
                               {sortBy === "popular" &&
                                 phaseInfo?.phase === "results" &&
                                 index < 3 && (
-                                  <div className="flex items-center mb-1">
+                                  <div className="flex items-center mb-2">
                                     {index === 0 && (
                                       <div className="flex items-center text-yellow-600 text-sm">
                                         <Crown className="h-4 w-4 mr-1" />
@@ -973,11 +973,11 @@ const CurrentContest = () => {
                                   </div>
                                 )}
 
-                              <h3 className="text-lg font-semibold text-gray-900 hover:text-primary-600 cursor-pointer truncate">
+                              <h3 className="text-base md:text-lg font-semibold text-gray-900 hover:text-primary-600 cursor-pointer line-clamp-2 mb-2">
                                 <a href={`/story/${story.id}`}>{story.title}</a>
                               </h3>
 
-                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                              <div className="flex flex-wrap items-center gap-1 md:gap-2 text-xs text-gray-500">
                                 <UserAvatar
                                   user={{
                                     name: story.author,
@@ -985,7 +985,7 @@ const CurrentContest = () => {
                                   }}
                                   size="xs"
                                 />
-                                <span>
+                                <span className="truncate max-w-32 md:max-w-none">
                                   por{" "}
                                   <UserWithTopBadge
                                     userId={story.user_id}
@@ -993,14 +993,14 @@ const CurrentContest = () => {
                                     className="inline-flex"
                                   />
                                 </span>
-                                <span className="mx-1">•</span>
-                                <span>{getReadingTime(story.word_count)} </span>
-                                <span className="mx-1">•</span>
-                                <span>{story.word_count}</span>
+                                <span className="hidden sm:inline">•</span>
+                                <span className="whitespace-nowrap">{getReadingTime(story.word_count)}</span>
+                                <span className="hidden sm:inline">•</span>
+                                <span className="whitespace-nowrap">{story.word_count}p</span>
                                 {story.is_mature && (
                                   <>
-                                    <span className="mx-1">•</span>
-                                    <span className="text-red-600 font-medium">
+                                    <span className="hidden sm:inline">•</span>
+                                    <span className="text-red-600 font-medium whitespace-nowrap">
                                       18+
                                     </span>
                                   </>
@@ -1008,8 +1008,16 @@ const CurrentContest = () => {
                               </div>
                             </div>
 
-                            {/* Botones de acción */}
-                            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                            {/* Botones de acción - Stack en móvil */}
+                            <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                              <a
+                                href={`/story/${story.id}`}
+                                className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs md:text-sm font-medium rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm whitespace-nowrap"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <BookOpen className="h-3 w-3 mr-1" />
+                                Leer
+                              </a>
                               {getShareData() && (
                                 <div onClick={(e) => e.stopPropagation()}>
                                   <ShareDropdown
@@ -1018,63 +1026,58 @@ const CurrentContest = () => {
                                   />
                                 </div>
                               )}
-                              <a
-                                href={`/story/${story.id}`}
-                                className="btn-primary text-sm px-3 py-1"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                Leer
-                              </a>
                             </div>
                           </div>
 
-                          {/* Excerpt más corto */}
+                          {/* Excerpt más corto - Con overflow controlado */}
                           <div
-                            className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed"
+                            className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden"
                             dangerouslySetInnerHTML={{
                               __html: story.excerpt,
                             }}
                           />
 
-                          {/* Actions compactas */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              {/* Likes display compacto - SIN FUNCIONALIDAD DE CLICK */}
-                              <div className="flex items-center space-x-1 text-red-600 text-sm">
-                                <Heart className="h-3 w-3 fill-current" />
-                                <span className="font-medium">
+                          {/* Actions compactas - Layout móvil */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                              {/* Likes display compacto */}
+                              <div className="flex items-center gap-1 text-red-600 text-sm min-w-0">
+                                <Heart className="h-3 w-3 fill-current flex-shrink-0" />
+                                <span className="font-medium truncate">
                                   {story.likes_count || 0}
                                 </span>
                               </div>
 
                               {/* Views compacto */}
-                              <div className="flex items-center space-x-1 text-gray-500 text-sm">
-                                <Eye className="h-3 w-3" />
-                                <span>{story.views_count || 0}</span>
+                              <div className="flex items-center gap-1 text-gray-500 text-sm min-w-0">
+                                <Eye className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{story.views_count || 0}</span>
                               </div>
                             </div>
 
-                            {/* Info de votación - mostrar mensaje según contexto */}
-                            {phaseInfo?.isHistorical ? (
-                              <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
-                                📚 Solo lectura
-                              </span>
-                            ) : (
-                              <>
-                                {!isAuthenticated && (
-                                  <span className="text-xs text-blue-600">
-                                    Lee la historia para dar like
-                                  </span>
-                                )}
-
-                                {isAuthenticated &&
-                                  story.user_id === user?.id && (
-                                    <span className="text-xs text-purple-600">
-                                      Tu historia
+                            {/* Info de votación - responsive */}
+                            <div className="flex items-center justify-start sm:justify-end">
+                              {phaseInfo?.isHistorical ? (
+                                <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
+                                  📚 Solo lectura
+                                </span>
+                              ) : (
+                                <>
+                                  {!isAuthenticated && (
+                                    <span className="text-xs text-blue-600 break-words">
+                                      Lee la historia para dar like
                                     </span>
                                   )}
-                              </>
-                            )}
+
+                                  {isAuthenticated &&
+                                    story.user_id === user?.id && (
+                                      <span className="text-xs text-purple-600 whitespace-nowrap">
+                                        Tu historia
+                                      </span>
+                                    )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
