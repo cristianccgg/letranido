@@ -25,9 +25,9 @@ const ShareDropdown = ({ shareData, className = "", size = "default" }) => {
   };
 
   const buttonSizes = {
-    small: "px-3 py-1.5 text-sm",
-    default: "px-4 py-2 text-sm",
-    large: "px-5 py-3 text-base",
+    small: "px-3 py-1.5 text-xs",
+    default: "px-4 py-2 text-xs",
+    large: "px-5 py-3 text-xs",
   };
 
   const iconSizes = {

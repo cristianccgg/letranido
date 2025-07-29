@@ -212,15 +212,15 @@ const StoryPage = () => {
     if (!story?.contest) return null;
 
     // Verificar si el usuario participó en este concurso
-    const userParticipated = userStories.some(userStory => 
-      userStory.contest_id === story.contest.id
+    const userParticipated = userStories.some(
+      (userStory) => userStory.contest_id === story.contest.id
     );
 
     // URL del concurso (no de la historia específica)
     const contestUrl = `${window.location.origin}/contest/${story.contest.id}`;
 
     // Generar texto según si el usuario participó o no
-    return userParticipated 
+    return userParticipated
       ? {
           title: `Letranido - ${story.contest.title}`,
           text: `¡Participé con mi historia en el concurso "${story.contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
@@ -233,7 +233,6 @@ const StoryPage = () => {
         };
   };
 
-
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
     const wordsPerMinute = 200;
@@ -243,28 +242,28 @@ const StoryPage = () => {
 
   const formatStoryContent = (content) => {
     if (!content) return "";
-    
+
     // Si el contenido ya tiene HTML (de Quill), devolverlo directamente
-    if (content.includes('<p>') || content.includes('<div>')) {
+    if (content.includes("<p>") || content.includes("<div>")) {
       return content;
     }
-    
+
     // Si contiene otros tags HTML o markdown, procesarlo
-    if (content.includes('<') || content.includes('*')) {
+    if (content.includes("<") || content.includes("*")) {
       return content
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>")
-        .split('\n\n')
-        .filter(paragraph => paragraph.trim())
-        .map(paragraph => `<p>${paragraph.trim().replace(/\n/g, '<br>')}</p>`)
+        .split("\n\n")
+        .filter((paragraph) => paragraph.trim())
+        .map((paragraph) => `<p>${paragraph.trim().replace(/\n/g, "<br>")}</p>`)
         .join("");
     }
-    
+
     // Si es texto plano (formato anterior), convertir a párrafos
     return content
       .split("\n\n")
-      .filter(paragraph => paragraph.trim())
-      .map(paragraph => `<p>${paragraph.trim().replace(/\n/g, '<br>')}</p>`)
+      .filter((paragraph) => paragraph.trim())
+      .map((paragraph) => `<p>${paragraph.trim().replace(/\n/g, "<br>")}</p>`)
       .join("");
   };
 
@@ -344,11 +343,11 @@ const StoryPage = () => {
       <SEOHead
         title={story?.title || "Historia"}
         description={
-          story?.story 
-            ? `"${story.story.replace(/<[^>]*>/g, '').substring(0, 140)}..." - Historia de ${story.author?.display_name || 'un escritor'} para el concurso "${story.contest?.title || 'creativo'}" en Letranido.`
+          story?.story
+            ? `"${story.story.replace(/<[^>]*>/g, "").substring(0, 140)}..." - Historia de ${story.author?.display_name || "un escritor"} para el concurso "${story.contest?.title || "creativo"}" en Letranido.`
             : "Lee esta historia creativa de nuestra comunidad de escritores en Letranido. Descubre nuevas voces y talentos literarios."
         }
-        keywords={`${story?.title?.split(' ').slice(0, 3).join(', ') || 'historia'}, ${story?.contest?.title || 'escritura creativa'}, ${story?.author?.display_name || 'autor'}, concurso literario, ficción, letranido`}
+        keywords={`${story?.title?.split(" ").slice(0, 3).join(", ") || "historia"}, ${story?.contest?.title || "escritura creativa"}, ${story?.author?.display_name || "autor"}, concurso literario, ficción, letranido`}
         url={`/story/${id}`}
         canonicalUrl={`https://letranido.com/story/${id}`}
         type="article"
@@ -356,351 +355,335 @@ const StoryPage = () => {
         publishedTime={story?.created_at}
         modifiedTime={story?.updated_at}
       />
-      
+
       {/* Structured Data for Story */}
       {story && (
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CreativeWork",
-            "name": story.title,
-            "author": {
+            name: story.title,
+            author: {
               "@type": "Person",
-              "name": story.author?.display_name || story.author,
-              "url": `https://letranido.com/profile/${story.user_id}`
+              name: story.author?.display_name || story.author,
+              url: `https://letranido.com/profile/${story.user_id}`,
             },
-            "publisher": {
+            publisher: {
               "@type": "Organization",
-              "name": "Letranido",
-              "logo": {
+              name: "Letranido",
+              logo: {
                 "@type": "ImageObject",
-                "url": "https://letranido.com/letranido-logo.png"
-              }
+                url: "https://letranido.com/letranido-logo.png",
+              },
             },
-            "description": story.story?.replace(/<[^>]*>/g, '').substring(0, 200) + "...",
-            "text": story.story?.replace(/<[^>]*>/g, ''),
-            "wordCount": story.word_count,
-            "datePublished": story.created_at,
-            "dateModified": story.updated_at || story.created_at,
-            "genre": "Fiction",
-            "inLanguage": "es",
-            "isPartOf": {
+            description:
+              story.story?.replace(/<[^>]*>/g, "").substring(0, 200) + "...",
+            text: story.story?.replace(/<[^>]*>/g, ""),
+            wordCount: story.word_count,
+            datePublished: story.created_at,
+            dateModified: story.updated_at || story.created_at,
+            genre: "Fiction",
+            inLanguage: "es",
+            isPartOf: {
               "@type": "Contest",
-              "name": story.contest?.title,
-              "description": story.contest?.description
+              name: story.contest?.title,
+              description: story.contest?.description,
             },
-            "interactionStatistic": [
+            interactionStatistic: [
               {
                 "@type": "InteractionCounter",
-                "interactionType": "https://schema.org/LikeAction",
-                "userInteractionCount": story.likes_count || 0
+                interactionType: "https://schema.org/LikeAction",
+                userInteractionCount: story.likes_count || 0,
               },
               {
-                "@type": "InteractionCounter", 
-                "interactionType": "https://schema.org/ViewAction",
-                "userInteractionCount": story.views || 0
-              }
+                "@type": "InteractionCounter",
+                interactionType: "https://schema.org/ViewAction",
+                userInteractionCount: story.views || 0,
+              },
             ],
-            "url": `https://letranido.com/story/${story.id}`,
-            "mainEntityOfPage": `https://letranido.com/story/${story.id}`
+            url: `https://letranido.com/story/${story.id}`,
+            mainEntityOfPage: `https://letranido.com/story/${story.id}`,
           })}
         </script>
       )}
       <div className="max-w-4xl mx-auto space-y-8">
-      {/* Back Navigation */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate("/contest/current")}
-          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5 mr-1" />
-          Volver
-        </button>
+        {/* Back Navigation */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate("/contest/current")}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1" />
+            Volver
+          </button>
 
-        <div className="flex items-center gap-2">
-          {/* Botón compartir se movió al lado de likes y vistas */}
+          <div className="flex items-center gap-2">
+            {/* Botón compartir se movió al lado de likes y vistas */}
+          </div>
         </div>
-      </div>
 
-      {/* Story Header */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Contest Banner */}
-        <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-4">
-          <div className="flex items-center justify-between text-white">
-            <div className="flex items-center">
-              <Trophy className="h-5 w-5 mr-2" />
-              <span className="font-medium">
-                Concurso de {story.contest.month} - {story.contest.category}
-              </span>
+        {/* Story Header */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* Contest Banner */}
+          <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-4">
+            <div className="flex items-center justify-between text-white">
+              <div className="flex items-center">
+                <Trophy className="h-5 w-5 mr-2" />
+                <span className="font-medium">
+                  Concurso de {story.contest.month} - {story.contest.category}
+                </span>
+              </div>
+
+              <Link
+                to="/contest/current"
+                className="text-primary-100 hover:text-white text-sm flex items-center"
+              >
+                Ver concurso
+                <ExternalLink className="h-4 w-4 ml-1" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Main Header */}
+          <div className="p-8">
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+              {story.title}
+            </h1>
+
+            {/* Author Info */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+              <div className="flex items-center mb-4 md:mb-0">
+                <div className="mr-4">
+                  <UserAvatar user={story.author} size="lg" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    <UserWithTopBadge
+                      userId={story.user_id}
+                      userName={story.author.name}
+                    />
+                  </h3>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Award className="h-4 w-4 mr-1" />
+                    <span>{story.author.wins} victorias</span>
+                    <span className="mx-2">•</span>
+                    <Heart className="h-4 w-4 mr-1" />
+                    <span>{story.author.totalLikes} likes totales</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Story Stats */}
+              <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>{getReadingTime(story.word_count)} min de lectura</span>
+                </div>
+                <div className="flex items-center">
+                  <PenTool className="h-4 w-4 mr-1" />
+                  <span>{story.word_count} palabras</span>
+                </div>
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>{formatDate(story.created_at)}</span>
+                </div>
+              </div>
             </div>
 
+            {/* Mature Content Warning */}
+            {story.is_mature && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-red-800 mb-1">
+                      Contenido para adultos (18+)
+                    </h4>
+                    <p className="text-red-700 text-sm">
+                      Esta historia contiene temas maduros. La discreción del
+                      lector es aconsejada.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Voting Section */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-4">
+                <EnhancedVoteButton
+                  isLiked={isLiked}
+                  likesCount={likesCount}
+                  canVote={votingInfo.canVote}
+                  votingInfo={votingInfo}
+                  isAuthenticated={isAuthenticated}
+                  onVote={handleVote}
+                  onAuthRequired={() => setShowAuthModal(true)}
+                  size="default"
+                  showTooltip={true}
+                />
+
+                <div className="flex items-center text-gray-600 text-xs">
+                  <Eye className="h-5 w-5 mr-2" />
+                  <span>{story.views_count || 0} vistas</span>
+                </div>
+
+                {/* Compartir */}
+                {getShareData() && (
+                  <ShareDropdown shareData={getShareData()} size="default" />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Story Content */}
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div
+            ref={storyContentRef}
+            className="prose prose-lg max-w-none story-content"
+            style={{
+              fontSize: "18px",
+              lineHeight: "1.7",
+              fontFamily: '"Crimson Text", "Times New Roman", serif',
+            }}
+            dangerouslySetInnerHTML={{
+              __html: formatStoryContent(story.content),
+            }}
+          />
+
+          <style jsx>{`
+            .story-content p {
+              margin: 0;
+              color: #374151;
+              text-align: justify;
+              line-height: 1.7;
+            }
+
+            .story-content p:empty {
+              height: 1.7em;
+            }
+
+            .story-content em {
+              font-style: italic;
+              color: #4b5563;
+            }
+
+            .story-content strong {
+              font-weight: 600;
+              color: #1f2937;
+            }
+          `}</style>
+
+          {/* Story Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="mb-4 md:mb-0">
+                <p className="text-gray-600 text-sm mb-2">
+                  Esta historia participó en el concurso{" "}
+                  <strong>"{story.contest.title}"</strong>
+                </p>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>Publicada el {formatDate(story.created_at)}</span>
+                  <span>•</span>
+                  <span>{story.word_count} palabras</span>
+                  <span>•</span>
+                  <span>
+                    {getReadingTime(story.word_count)} minutos de lectura
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <EnhancedVoteButton
+                  isLiked={isLiked}
+                  likesCount={likesCount}
+                  canVote={votingInfo.canVote}
+                  votingInfo={votingInfo}
+                  isAuthenticated={isAuthenticated}
+                  onVote={handleVote}
+                  onAuthRequired={() => setShowAuthModal(true)}
+                  size="large"
+                  showTooltip={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <SimpleComments storyId={story.id} storyTitle={story.title} />
+        </div>
+
+        {/* Related Actions */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">
+            ¿Qué hacer ahora?
+          </h3>
+
+          <div className="grid md:grid-cols-3 gap-4">
             <Link
               to="/contest/current"
-              className="text-primary-100 hover:text-white text-sm flex items-center"
-            >
-              Ver concurso
-              <ExternalLink className="h-4 w-4 ml-1" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Main Header */}
-        <div className="p-8">
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-            {story.title}
-          </h1>
-
-          {/* Author Info */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <div className="flex items-center mb-4 md:mb-0">
-              <div className="mr-4">
-                <UserAvatar user={story.author} size="lg" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-lg">
-                  <UserWithTopBadge 
-                    userId={story.user_id}
-                    userName={story.author.name}
-                  />
-                </h3>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Award className="h-4 w-4 mr-1" />
-                  <span>{story.author.wins} victorias</span>
-                  <span className="mx-2">•</span>
-                  <Heart className="h-4 w-4 mr-1" />
-                  <span>{story.author.totalLikes} likes totales</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Story Stats */}
-            <div className="flex items-center gap-6 text-sm text-gray-600">
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                <span>{getReadingTime(story.word_count)} min de lectura</span>
-              </div>
-              <div className="flex items-center">
-                <PenTool className="h-4 w-4 mr-1" />
-                <span>{story.word_count} palabras</span>
-              </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>{formatDate(story.created_at)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Mature Content Warning */}
-          {story.is_mature && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start">
-                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
-                <div>
-                  <h4 className="font-medium text-red-800 mb-1">
-                    Contenido para adultos (18+)
-                  </h4>
-                  <p className="text-red-700 text-sm">
-                    Esta historia contiene temas maduros. La discreción del
-                    lector es aconsejada.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Voting Section */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-4">
-              <EnhancedVoteButton
-                isLiked={isLiked}
-                likesCount={likesCount}
-                canVote={votingInfo.canVote}
-                votingInfo={votingInfo}
-                isAuthenticated={isAuthenticated}
-                onVote={handleVote}
-                onAuthRequired={() => setShowAuthModal(true)}
-                size="default"
-                showTooltip={true}
-              />
-
-              <div className="flex items-center text-gray-600">
-                <Eye className="h-5 w-5 mr-2" />
-                <span>{story.views_count || 0} vistas</span>
-              </div>
-
-              {/* Compartir */}
-              {getShareData() && (
-                <ShareDropdown shareData={getShareData()} size="default" />
-              )}
-            </div>
-
-            {/* Contest Phase Info */}
-            {story.contest.status && (
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  story.contest.status === "submission"
-                    ? "bg-blue-100 text-blue-800"
-                    : story.contest.status === "voting"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {story.contest.status === "submission" && "📝 Período de envío"}
-                {story.contest.status === "voting" && "🗳️ Votación activa"}
-                {story.contest.status === "results" && "🏆 Resultados"}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Story Content */}
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <div
-          ref={storyContentRef}
-          className="prose prose-lg max-w-none story-content"
-          style={{
-            fontSize: "18px",
-            lineHeight: "1.7",
-            fontFamily: '"Crimson Text", "Times New Roman", serif',
-          }}
-          dangerouslySetInnerHTML={{
-            __html: formatStoryContent(story.content)
-          }}
-        />
-
-        <style jsx>{`
-          .story-content p {
-            margin: 0;
-            color: #374151;
-            text-align: justify;
-            line-height: 1.7;
-          }
-          
-          .story-content p:empty {
-            height: 1.7em;
-          }
-          
-          .story-content em {
-            font-style: italic;
-            color: #4B5563;
-          }
-          
-          .story-content strong {
-            font-weight: 600;
-            color: #1F2937;
-          }
-        `}</style>
-
-        {/* Story Footer */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-4 md:mb-0">
-              <p className="text-gray-600 text-sm mb-2">
-                Esta historia participó en el concurso{" "}
-                <strong>"{story.contest.title}"</strong>
-              </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span>Publicada el {formatDate(story.created_at)}</span>
-                <span>•</span>
-                <span>{story.word_count} palabras</span>
-                <span>•</span>
-                <span>
-                  {getReadingTime(story.word_count)} minutos de lectura
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <EnhancedVoteButton
-                isLiked={isLiked}
-                likesCount={likesCount}
-                canVote={votingInfo.canVote}
-                votingInfo={votingInfo}
-                isAuthenticated={isAuthenticated}
-                onVote={handleVote}
-                onAuthRequired={() => setShowAuthModal(true)}
-                size="large"
-                showTooltip={false}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Comments Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <SimpleComments storyId={story.id} storyTitle={story.title} />
-      </div>
-
-      {/* Related Actions */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">
-          ¿Qué hacer ahora?
-        </h3>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <Link
-            to="/contest/current"
-            className="bg-primary-50 border border-primary-200 rounded-lg p-4 hover:bg-primary-100 transition-colors group"
-          >
-            <div className="flex items-center mb-2">
-              <Trophy className="h-5 w-5 text-primary-600 mr-2" />
-              <span className="font-medium text-primary-900">
-                Ver concurso actual
-              </span>
-            </div>
-            <p className="text-primary-700 text-sm">
-              Descubre más historias del concurso de {story.contest.month}
-            </p>
-          </Link>
-
-          <Link
-            to="/gallery"
-            className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors group"
-          >
-            <div className="flex items-center mb-2">
-              <BookOpen className="h-5 w-5 text-green-600 mr-2" />
-              <span className="font-medium text-green-900">
-                Explorar galería
-              </span>
-            </div>
-            <p className="text-green-700 text-sm">
-              Lee más historias increíbles de nuestra comunidad
-            </p>
-          </Link>
-
-          {isAuthenticated && story?.contest?.submission_deadline && 
-           new Date() <= new Date(story.contest.submission_deadline) && (
-            <Link
-              to="/write"
-              className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors group"
+              className="bg-primary-50 border border-primary-200 rounded-lg p-4 hover:bg-primary-100 transition-colors group"
             >
               <div className="flex items-center mb-2">
-                <PenTool className="h-5 w-5 text-blue-600 mr-2" />
-                <span className="font-medium text-blue-900">
-                  Escribir mi historia
+                <Trophy className="h-5 w-5 text-primary-600 mr-2" />
+                <span className="font-medium text-primary-900">
+                  Ver concurso actual
                 </span>
               </div>
-              <p className="text-blue-700 text-sm">
-                ¿Te inspiraste? Crea tu propia historia
+              <p className="text-primary-700 text-sm">
+                Descubre más historias del concurso de {story.contest.month}
               </p>
             </Link>
-          )}
+
+            <Link
+              to="/gallery"
+              className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors group"
+            >
+              <div className="flex items-center mb-2">
+                <BookOpen className="h-5 w-5 text-green-600 mr-2" />
+                <span className="font-medium text-green-900">
+                  Explorar galería
+                </span>
+              </div>
+              <p className="text-green-700 text-sm">
+                Lee más historias increíbles de nuestra comunidad
+              </p>
+            </Link>
+
+            {isAuthenticated &&
+              story?.contest?.submission_deadline &&
+              new Date() <= new Date(story.contest.submission_deadline) && (
+                <Link
+                  to="/write"
+                  className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors group"
+                >
+                  <div className="flex items-center mb-2">
+                    <PenTool className="h-5 w-5 text-blue-600 mr-2" />
+                    <span className="font-medium text-blue-900">
+                      Escribir mi historia
+                    </span>
+                  </div>
+                  <p className="text-blue-700 text-sm">
+                    ¿Te inspiraste? Crea tu propia historia
+                  </p>
+                </Link>
+              )}
+          </div>
         </div>
-      </div>
 
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={() => setShowAuthModal(false)}
-          initialMode="register"
-        />
-      )}
-
+        {/* Auth Modal */}
+        {showAuthModal && (
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={() => setShowAuthModal(false)}
+            initialMode="register"
+          />
+        )}
       </div>
     </>
   );

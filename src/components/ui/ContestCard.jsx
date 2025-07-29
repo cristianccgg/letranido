@@ -150,12 +150,12 @@ const ContestCard = ({
             {/* Título y badge en la misma línea */}
             <div className="flex items-center gap-4 mb-2">
               <span
-                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
+                className={`inline-flex items-center px-4 py-2 rounded-full text-[8px] lg:text-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 {badgeText}
               </span>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight tracking-tight">
+              <h2 className="text-lg text-nowrap md:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight tracking-tight">
                 {contest.title}
               </h2>
             </div>
