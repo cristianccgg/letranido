@@ -361,10 +361,12 @@ const CurrentContest = () => {
         const daysLeft = Math.ceil(
           (submissionEnd - now) / (1000 * 60 * 60 * 24)
         );
-        
+
         return {
           phase: "submission",
-          title: isNextContest ? "📝 Próximo Concurso - Período de Envío" : "📝 Período de Envío",
+          title: isNextContest
+            ? "📝 Próximo Concurso - Período de Envío"
+            : "📝 Período de Envío",
           description: `Quedan ${Math.max(0, daysLeft)} días para participar`,
           bgColor: "bg-blue-50",
           borderColor: "border-blue-200",
@@ -372,7 +374,7 @@ const CurrentContest = () => {
           buttonText: "Escribir mi historia",
           buttonLink: `/write/${contest.id}`,
           showStories: false, // 🔧 IMPORTANTE: Siempre false durante envíos
-          message: isNextContest 
+          message: isNextContest
             ? "Este concurso estará disponible para leer cuando termine el período de envío"
             : "Las historias se mostrarán cuando inicie la votación",
         };
@@ -613,7 +615,7 @@ const CurrentContest = () => {
                   {(() => {
                     const phase = getContestPhase(contest);
                     if (phase === "submission") return "para enviar";
-                    if (phase === "voting") return "para votar";
+                    if (phase === "voting") return "para cerrar votación";
                     return "restante";
                   })()}
                 </span>
@@ -625,7 +627,7 @@ const CurrentContest = () => {
               <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <PenTool className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-pink-700">
+              <span className="truncate font-semibold text-pink-700 text-xs">
                 {storiesLoading
                   ? "..."
                   : stories
@@ -634,7 +636,7 @@ const CurrentContest = () => {
                         0
                       )
                       .toLocaleString()}{" "}
-                palabras
+                palabras <br /> escritas
               </span>
             </div>
           </div>
@@ -720,7 +722,12 @@ const CurrentContest = () => {
                       🚀 ¡Sigue leyendo!
                     </span>
                     <div className="text-green-100 text-sm mt-1">
-                      {stories.length - votingStats.currentContestVotes} historia{stories.length - votingStats.currentContestVotes !== 1 ? "s" : ""} por descubrir
+                      {stories.length - votingStats.currentContestVotes}{" "}
+                      historia
+                      {stories.length - votingStats.currentContestVotes !== 1
+                        ? "s"
+                        : ""}{" "}
+                      por descubrir
                     </div>
                   </div>
                 )}
