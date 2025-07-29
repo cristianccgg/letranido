@@ -617,7 +617,7 @@ const CurrentContest = () => {
                             (votingStats.currentContestVotes / stories.length) *
                               100
                           )}
-                          % leídas
+                          % votadas
                         </span>
                       </div>
                     )}
@@ -1033,10 +1033,18 @@ const CurrentContest = () => {
                     </div>
                   ) : (
                     <div className="grid gap-3">
-                      {filteredAndSortedStories.map((story, index) => (
+                      {filteredAndSortedStories.map((story, index) => {
+                        // Verificar si el usuario ya votó por esta historia
+                        const hasVoted = story.isLiked || (isAuthenticated && votingStats.userVotedStories?.some(vote => vote.storyId === story.id));
+                        
+                        return (
                         <div
                           key={story.id}
-                          className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
+                          className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
+                            hasVoted 
+                              ? 'bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90' 
+                              : 'bg-white/95 border-indigo-100 hover:border-purple-200'
+                          }`}
                           onClick={() => navigate(`/story/${story.id}`)}
                         >
                           {/* Header responsive */}
@@ -1068,11 +1076,25 @@ const CurrentContest = () => {
                                   </div>
                                 )}
 
-                              <h3 className="text-base md:text-lg font-semibold text-gray-900 hover:text-primary-600 cursor-pointer line-clamp-2 mb-2">
+                              {/* Badge sutil para historias votadas - centrado */}
+                              {hasVoted && (
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 bg-gray-400/90 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm">
+                                  <Heart className="h-4 w-4 fill-current" />
+                                  <span>Tu voto</span>
+                                </div>
+                              )}
+                              
+                              <h3 className={`text-base md:text-lg font-semibold cursor-pointer line-clamp-2 mb-2 ${
+                                hasVoted 
+                                  ? 'text-gray-500' 
+                                  : 'text-gray-900 hover:text-primary-600'
+                              }`}>
                                 <a href={`/story/${story.id}`}>{story.title}</a>
                               </h3>
 
-                              <div className="flex flex-wrap items-center gap-1 md:gap-2 text-xs text-gray-500">
+                              <div className={`flex flex-wrap items-center gap-1 md:gap-2 text-xs ${
+                                hasVoted ? 'text-gray-400' : 'text-gray-500'
+                              }`}>
                                 <UserAvatar
                                   user={{
                                     name: story.author,
@@ -1098,7 +1120,9 @@ const CurrentContest = () => {
                                 {story.is_mature && (
                                   <>
                                     <span className="hidden sm:inline">•</span>
-                                    <span className="text-red-600 font-medium whitespace-nowrap">
+                                    <span className={`font-medium whitespace-nowrap ${
+                                      hasVoted ? 'text-gray-400' : 'text-red-600'
+                                    }`}>
                                       18+
                                     </span>
                                   </>
@@ -1129,7 +1153,9 @@ const CurrentContest = () => {
 
                           {/* Excerpt más corto - Con overflow controlado */}
                           <div
-                            className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden"
+                            className={`text-sm mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden ${
+                              hasVoted ? 'text-gray-400' : 'text-gray-600'
+                            }`}
                             dangerouslySetInnerHTML={{
                               __html: story.excerpt,
                             }}
@@ -1139,7 +1165,9 @@ const CurrentContest = () => {
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                               {/* Likes display compacto */}
-                              <div className="flex items-center gap-1 text-red-600 text-sm min-w-0">
+                              <div className={`flex items-center gap-1 text-sm min-w-0 ${
+                                hasVoted ? 'text-gray-400' : 'text-red-600'
+                              }`}>
                                 <Heart className="h-3 w-3 fill-current flex-shrink-0" />
                                 <span className="font-medium truncate">
                                   {story.likes_count || 0}
@@ -1147,7 +1175,9 @@ const CurrentContest = () => {
                               </div>
 
                               {/* Views compacto */}
-                              <div className="flex items-center gap-1 text-gray-500 text-sm min-w-0">
+                              <div className={`flex items-center gap-1 text-sm min-w-0 ${
+                                hasVoted ? 'text-gray-400' : 'text-gray-500'
+                              }`}>
                                 <Eye className="h-3 w-3 flex-shrink-0" />
                                 <span className="truncate">
                                   {story.views_count || 0}
@@ -1180,7 +1210,8 @@ const CurrentContest = () => {
                             </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </>

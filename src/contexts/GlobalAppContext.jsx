@@ -139,7 +139,27 @@ function globalAppReducer(state, action) {
       };
 
     case actions.SET_CURRENT_CONTEST:
-      return { ...state, currentContest: action.payload };
+      // Recalcular currentContestVotes cuando cambia el concurso actual
+      let newCurrentContestVotes = 0;
+      if (action.payload && state.votingStats.userVotedStories.length > 0) {
+        // Contar votos que pertenecen al nuevo concurso actual
+        newCurrentContestVotes = state.votingStats.userVotedStories.filter(
+          vote => {
+            // Buscar si este voto pertenece al nuevo concurso actual
+            // Necesitamos verificar via contestId si está disponible
+            return vote.contestId === action.payload.id;
+          }
+        ).length;
+      }
+      
+      return { 
+        ...state, 
+        currentContest: action.payload,
+        votingStats: {
+          ...state.votingStats,
+          currentContestVotes: newCurrentContestVotes
+        }
+      };
 
     case actions.SET_NEXT_CONTEST:
       return { ...state, nextContest: action.payload };
@@ -821,17 +841,36 @@ export function GlobalAppProvider({ children }) {
           allVotes?.map((vote) => ({
             storyId: vote.story_id,
             storyTitle: vote.stories?.title || "Historia sin título",
+            contestId: vote.stories?.contest_id,
             contestTitle: vote.stories?.contests?.title || "Concurso",
             contestMonth: vote.stories?.contests?.month || "Mes",
             votedAt: vote.created_at,
           })) || [];
 
-        // Contar votos en concurso actual
+        // Contar votos en concurso actual - mejorado para debug
         let currentContestVotes = 0;
         if (state.currentContest && allVotes) {
           currentContestVotes = allVotes.filter(
             (vote) => vote.stories?.contest_id === state.currentContest.id
           ).length;
+          
+          console.log("🔍 Debug contador de votos:", {
+            currentContestId: state.currentContest.id,
+            currentContestTitle: state.currentContest.title,
+            totalVotesFromDB: allVotes.length,
+            votesInCurrentContest: currentContestVotes,
+            allVotesContestIds: allVotes.map(v => ({
+              storyId: v.story_id, 
+              contestId: v.stories?.contest_id,
+              contestTitle: v.stories?.contests?.title
+            }))
+          });
+        } else {
+          console.log("⚠️ No se puede contar votos del concurso actual:", {
+            hasCurrentContest: !!state.currentContest,
+            hasVotes: !!allVotes,
+            votesLength: allVotes?.length || 0
+          });
         }
 
         const votingStats = {
@@ -844,8 +883,12 @@ export function GlobalAppProvider({ children }) {
         if (isMounted.current) {
           dispatch({ type: actions.SET_VOTING_STATS, payload: votingStats });
           console.log(
-            "✅ loadVotingStats completado, votos cargados:",
-            votingStats.userVotesCount
+            "✅ loadVotingStats completado:",
+            {
+              totalVotos: votingStats.userVotesCount,
+              votosEnConcursoActual: votingStats.currentContestVotes,
+              concursoActual: state.currentContest?.title || 'No definido'
+            }
           );
         }
       } catch (error) {
