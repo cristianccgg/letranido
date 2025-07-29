@@ -123,6 +123,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
       
       if (result.success) {
+        console.log("✅ AuthModal - Resultado exitoso para modo:", mode);
         // 📊 TRACK EVENT: User signup (only for register mode)
         if (mode === "register") {
           trackEvent(AnalyticsEvents.USER_SIGNUP, {
@@ -137,10 +138,12 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           // El usuario recibirá el email y debe seguir el enlace
         } else {
           // Cerrar modal solo en caso de éxito
+          console.log("🚪 AuthModal - Llamando onSuccess y onClose por éxito");
           onSuccess?.();
           onClose();
         }
       } else {
+        console.log("❌ AuthModal - Error en resultado, NO cerrando modal:", result.error);
         // NO cerrar el modal en caso de error para que el usuario vea el mensaje
         // El error ya se estableció en el contexto global desde la función login
       }

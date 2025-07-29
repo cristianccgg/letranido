@@ -2978,6 +2978,7 @@ export function GlobalAppProvider({ children }) {
   // Cerrar modal automáticamente cuando el usuario se autentica exitosamente
   // PERO NO si está en modo reset-password (el usuario debe completar el reset)
   useEffect(() => {
+    console.log("🔍 AuthModal Effect - isAuthenticated:", state.isAuthenticated, "showAuthModal:", state.showAuthModal, "authModalMode:", state.authModalMode);
     if (state.isAuthenticated && state.showAuthModal && state.authModalMode !== "reset-password") {
       console.log(
         "🎉 Usuario autenticado exitosamente, cerrando modal automáticamente"

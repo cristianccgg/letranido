@@ -40,7 +40,8 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     getStoryComments,
     addComment,
     deleteComment,
-    reportComment
+    reportComment,
+    openAuthModal
   } = useGlobalApp();
 
   // Placeholders responsive
@@ -226,7 +227,12 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           <p className="text-gray-600 mb-3">
             Inicia sesión para dejar un comentario sobre "{storyTitle}"
           </p>
-          <button className="btn-primary text-sm">Iniciar sesión</button>
+          <button 
+            className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            onClick={() => openAuthModal("login")}
+          >
+            Iniciar sesión
+          </button>
         </div>
       )}
 

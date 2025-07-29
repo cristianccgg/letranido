@@ -19,7 +19,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import AuthModal from "../components/forms/AuthModal";
+// ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import UserAvatar from "../components/ui/UserAvatar";
@@ -43,6 +43,9 @@ const StoryPage = () => {
     galleryStories,
     userStories,
 
+    // Auth Modal functions
+    openAuthModal,
+
     // Functions
     getStoryById,
     recordStoryView,
@@ -59,7 +62,7 @@ const StoryPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [votingInfo, setVotingInfo] = useState({});
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  // ✅ REMOVED: Modal local reemplazado por modal global del contexto
   const [viewRecorded, setViewRecorded] = useState(false);
 
   // Refs para control
@@ -143,14 +146,36 @@ const StoryPage = () => {
   }, [
     id,
     initialized,
-    isAuthenticated,
-    user?.id,
     getStoryById,
     checkUserLike,
     canVoteInStory,
     recordStoryView,
-    // ✅ REMOVED viewRecorded - CAUSABA LOOP INFINITO
+    // ✅ REMOVED isAuthenticated y user?.id - CAUSABAN RELOAD DURANTE ERRORES DE AUTH
+    // La verificación de autenticación se hace dentro del useEffect condicionalmente
   ]);
+
+  // ✅ USEEFFECT SEPARADO PARA CAMBIOS EN AUTENTICACIÓN (evita reload completo)
+  useEffect(() => {
+    const updateAuthData = async () => {
+      if (!story || !initialized) return;
+      
+      // Solo actualizar datos de autenticación si la historia ya está cargada
+      if (isAuthenticated && user?.id) {
+        try {
+          const likeResult = await checkUserLike(story.id);
+          if (likeResult.success) {
+            setIsLiked(likeResult.isLiked);
+          }
+        } catch (error) {
+          console.error("Error checking user like:", error);
+        }
+      } else {
+        setIsLiked(false);
+      }
+    };
+
+    updateAuthData();
+  }, [isAuthenticated, user?.id, story?.id, checkUserLike, initialized]);
 
   // ✅ ACTUALIZAR STORY LOCAL CUANDO CAMBIE GALLERYSTORIES (para views_count)
   useEffect(() => {
@@ -171,7 +196,7 @@ const StoryPage = () => {
   // ✅ HANDLE VOTE
   const handleVote = async () => {
     if (!isAuthenticated) {
-      setShowAuthModal(true);
+      openAuthModal("register");
       return;
     }
 
@@ -519,7 +544,7 @@ const StoryPage = () => {
                   votingInfo={votingInfo}
                   isAuthenticated={isAuthenticated}
                   onVote={handleVote}
-                  onAuthRequired={() => setShowAuthModal(true)}
+                  onAuthRequired={() => openAuthModal("register")}
                   size="default"
                   showTooltip={true}
                 />
@@ -603,7 +628,7 @@ const StoryPage = () => {
                   votingInfo={votingInfo}
                   isAuthenticated={isAuthenticated}
                   onVote={handleVote}
-                  onAuthRequired={() => setShowAuthModal(true)}
+                  onAuthRequired={() => openAuthModal("register")}
                   size="large"
                   showTooltip={false}
                 />
@@ -675,15 +700,7 @@ const StoryPage = () => {
           </div>
         </div>
 
-        {/* Auth Modal */}
-        {showAuthModal && (
-          <AuthModal
-            isOpen={showAuthModal}
-            onClose={() => setShowAuthModal(false)}
-            onSuccess={() => setShowAuthModal(false)}
-            initialMode="register"
-          />
-        )}
+        {/* ✅ Auth Modal ahora se maneja globalmente en Layout.jsx */}
       </div>
     </>
   );

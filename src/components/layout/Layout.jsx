@@ -636,7 +636,8 @@ const Layout = ({ children }) => {
             closeAuthModal();
           }}
           onSuccess={() => {
-            // No cerramos aquí, el contexto global se encarga
+            // El contexto global se encarga de cerrar automáticamente
+            // cuando isAuthenticated se vuelve true
           }}
           initialMode={authModalMode}
         />
