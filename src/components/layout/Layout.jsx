@@ -102,7 +102,20 @@ const Layout = ({ children }) => {
 
   const getWriteButtonState = () => {
     if (userStoriesLoading) return { disabled: true, href: "#" };
-    if (!isAuthenticated) return { disabled: false, href: "/write" };
+    
+    // Para usuarios no autenticados, usar la misma lógica inteligente
+    if (!isAuthenticated) {
+      // Si el actual está abierto para envíos, dirigir ahí
+      if (currentContest && currentContestPhase === "submission") {
+        return { disabled: false, href: `/write/${currentContest.id}` };
+      }
+      // Si el actual está en votación y hay próximo concurso disponible, dirigir ahí
+      else if (currentContestPhase === "voting" && nextContest) {
+        return { disabled: false, href: `/write/${nextContest.id}` };
+      }
+      // Fallback al write genérico
+      return { disabled: false, href: "/write" };
+    }
     
     if (canWriteInAnyContest()) {
       // Determinar a qué concurso debe ir
@@ -189,7 +202,7 @@ const Layout = ({ children }) => {
     },
     {
       name: "Escribir Historia",
-      href: "/write",
+      href: writeButtonState.href,
     },
     {
       name: "Concurso Actual",
