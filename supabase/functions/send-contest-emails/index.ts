@@ -1,7 +1,6 @@
 // supabase/functions/send-contest-emails/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { handleUserUnsubscribe } from "./handleUserUnsubscribe.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,9 +53,12 @@ serve(async (req) => {
       return await handleNewsletterSubscription(supabaseClient, email);
     }
 
-    // Handle user unsubscribe separately
+    // Handle user unsubscribe separately - DISABLED, preferences page works fine
     if (emailType === "unsubscribe_user") {
-      return await handleUserUnsubscribe(supabaseClient, email);
+      return new Response(
+        JSON.stringify({ success: false, message: "Use preferences page instead" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Get contest data (solo para emails de concurso)
