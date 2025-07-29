@@ -2,10 +2,9 @@
 
 export async function handleUserUnsubscribe(supabaseClient: any, email: string): Promise<Response> {
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "https://www.letranido.com",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Credentials": "true",
   };
 
   try {
