@@ -1,6 +1,6 @@
 // components/comments/SimpleComments.jsx - ACTUALIZADO PARA CONTEXTO GLOBAL
 import { useState, useEffect } from "react";
-import { MessageSquare, Send, Heart, Trash2, Flag, User } from "lucide-react";
+import { MessageSquare, Send, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
@@ -20,7 +20,6 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     getStoryComments,
     addComment,
     deleteComment,
-    toggleCommentLike,
     reportComment
   } = useGlobalApp();
 
@@ -41,8 +40,6 @@ const SimpleComments = ({ storyId, storyTitle }) => {
             author: comment.user_profiles?.display_name || comment.user_profiles?.email || "Usuario",
             author_id: comment.user_id,
             created_at: comment.created_at,
-            likes_count: comment.likes_count || 0,
-            isLiked: false, // TODO: Verificar si el usuario actual ha dado like
             parent_id: comment.parent_id,
             is_featured: comment.is_featured
           }));
@@ -87,8 +84,6 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           author: user.name || user.display_name || "Usuario", // Usar el usuario actual
           author_id: result.comment.user_id,
           created_at: result.comment.created_at,
-          likes_count: result.comment.likes_count || 0,
-          isLiked: false,
           parent_id: result.comment.parent_id,
           is_featured: result.comment.is_featured
         };
@@ -107,36 +102,6 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     }
   };
 
-  const handleLikeComment = async (commentId) => {
-    if (!isAuthenticated) {
-      alert("Debes iniciar sesión para dar like");
-      return;
-    }
-
-    try {
-      const result = await toggleCommentLike(commentId);
-      
-      if (result.success) {
-        setComments((prev) =>
-          prev.map((comment) => {
-            if (comment.id === commentId) {
-              return {
-                ...comment,
-                isLiked: result.liked,
-                likes_count: comment.likes_count + (result.liked ? 1 : -1),
-              };
-            }
-            return comment;
-          })
-        );
-      } else {
-        console.error("Error liking comment:", result.error);
-        alert("Error al procesar el like: " + result.error);
-      }
-    } catch (error) {
-      console.error("Error liking comment:", error);
-    }
-  };
 
   const handleDeleteComment = async (commentId) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este comentario?")) {
@@ -274,24 +239,6 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                     </div>
 
                     <div className="flex items-center gap-1">
-                      {/* Botón de like */}
-                      <button
-                        onClick={() => handleLikeComment(comment.id)}
-                        disabled={!isAuthenticated}
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
-                          comment.isLiked
-                            ? "bg-red-100 text-red-600"
-                            : "hover:bg-gray-200 text-gray-600"
-                        }`}
-                      >
-                        <Heart
-                          className={`h-3 w-3 ${
-                            comment.isLiked ? "fill-current" : ""
-                          }`}
-                        />
-                        {comment.likes_count}
-                      </button>
-
                       {/* Botón de eliminar (solo para el autor) */}
                       {isAuthenticated && user?.id === comment.author_id && (
                         <button
