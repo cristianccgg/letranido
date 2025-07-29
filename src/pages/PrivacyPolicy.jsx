@@ -307,7 +307,7 @@ const PrivacyPolicy = () => {
               </h4>
               <ul className="text-sm text-gray-700 space-y-1">
                 <li>• Configuración de cuenta</li>
-                <li>• Email: privacy@literalab.com</li>
+                <li>• Email: privacy@letranido.com</li>
                 <li>• Respuesta: 30 días máximo</li>
                 <li>• Sin costo para ti</li>
                 <li>• Proceso simple y rápido</li>
