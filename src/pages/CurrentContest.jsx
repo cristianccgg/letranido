@@ -69,7 +69,7 @@ const CurrentContest = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // Filters
-  const [sortBy, setSortBy] = useState("recent");
+  const [sortBy, setSortBy] = useState("random");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -80,16 +80,22 @@ const CurrentContest = () => {
   const contestToLoad = useMemo(() => {
     // Si hay ID en la URL, SIEMPRE usar ese ID específico
     if (id) {
-      console.log("🎯 CurrentContest: Cargando concurso específico por ID:", id);
+      console.log(
+        "🎯 CurrentContest: Cargando concurso específico por ID:",
+        id
+      );
       return id;
     }
-    
+
     // Solo si no hay ID, usar el concurso actual por defecto
     if (currentContest?.id) {
-      console.log("🏆 CurrentContest: Cargando concurso actual por defecto:", currentContest.id);
+      console.log(
+        "🏆 CurrentContest: Cargando concurso actual por defecto:",
+        currentContest.id
+      );
       return currentContest.id;
     }
-    
+
     console.log("❌ CurrentContest: No hay ID ni concurso actual disponible");
     return null;
   }, [id, currentContest?.id]);
@@ -284,10 +290,12 @@ const CurrentContest = () => {
       case "random":
         return filtered.sort(() => Math.random() - 0.5);
       case "recent":
-      default:
         return filtered.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
+      case "random":
+      default:
+        return filtered.sort(() => Math.random() - 0.5);
     }
   }, [galleryStories, searchTerm, sortBy, contest?.id, storiesLoading]);
 
@@ -557,35 +565,100 @@ const CurrentContest = () => {
         </div>
       </div>
 
-      {/* Banner motivacional para fase de votación */}
+      {/* Banner consolidado de votación */}
       {phaseInfo?.phase === "voting" && (
         <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Trophy className="h-6 w-6 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold">🗳️ ¡Votación Activa!</h3>
-                <p className="text-green-100 text-sm">
-                  Ayuda a los escritores con comentarios constructivos. Tu feedback es valioso para nuestra comunidad literaria.
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <Trophy className="h-6 w-6 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">
+                  🗳️ ¡Votación Activa!
+                </h3>
+                <p className="text-green-100 text-sm mb-3">
+                  Puedes dar "like" a todas las historias que te gusten. ¡No hay
+                  límite - reconoce a todos los talentos que te inspiraron!
                 </p>
+                <div className="bg-white/15 rounded-lg p-3 mb-3 border border-white/20">
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm">💬</span>
+                    <div className="text-sm">
+                      <span className="font-medium text-white">
+                        ¡Deja comentarios constructivos!
+                      </span>
+                      <p className="text-green-100 mt-1">
+                        Tu feedback ayuda a los escritores a crecer. Comparte
+                        qué te gustó, qué te emocionó o qué te hizo reflexionar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats integradas */}
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Heart className="h-4 w-4" />
+                    <span className="font-medium">
+                      Has votado por{" "}
+                      <strong>{votingStats.currentContestVotes}</strong>{" "}
+                      historia{votingStats.currentContestVotes !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>
+                      <strong>{stories.length}</strong> historias disponibles
+                    </span>
+                  </div>
+                  {votingStats.currentContestVotes > 0 &&
+                    stories.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium">
+                          {Math.round(
+                            (votingStats.currentContestVotes / stories.length) *
+                              100
+                          )}
+                          % leídas
+                        </span>
+                      </div>
+                    )}
+                </div>
               </div>
             </div>
-            <div className="text-right">
+
+            <div className="text-center lg:text-right flex-shrink-0">
               <div className="text-2xl font-bold">{phaseInfo.description}</div>
               <div className="text-green-100 text-sm">para votar</div>
+
+              {/* Mensaje motivacional dinámico */}
+              {votingStats.currentContestVotes === 0 && (
+                <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
+                  <span className="text-sm font-medium">
+                    👋 ¡Empieza a votar!
+                  </span>
+                </div>
+              )}
+              {votingStats.currentContestVotes > 0 &&
+                votingStats.currentContestVotes < stories.length && (
+                  <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
+                    <span className="text-sm font-medium">
+                      🚀 ¡Quedan{" "}
+                      {stories.length - votingStats.currentContestVotes} por
+                      descubrir!
+                    </span>
+                  </div>
+                )}
+              {votingStats.currentContestVotes > 0 &&
+                votingStats.currentContestVotes === stories.length && (
+                  <div className="mt-2 bg-white/20 rounded-lg px-3 py-2">
+                    <span className="text-sm font-medium">
+                      🎉 ¡Has leído todas!
+                    </span>
+                  </div>
+                )}
             </div>
           </div>
         </div>
-      )}
-
-      {/* Guidance de votación */}
-      {phaseInfo?.phase === "voting" && (
-        <VotingGuidance
-          currentPhase={phaseInfo.phase}
-          userVotesCount={votingStats.currentContestVotes}
-          totalStories={stories.length}
-          contestMonth={contest.month}
-        />
       )}
 
       {/* SECCIÓN DE HISTORIAS SEGÚN LA FASE */}
@@ -804,7 +877,7 @@ const CurrentContest = () => {
           {/* FASES DE VOTACIÓN Y RESULTADOS - Mostrar historias completas */}
           {phaseInfo.showStories && (
             <div className="space-y-6">
-              {/* Header de historias con filtros */}
+              {/* Header de historias */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
@@ -813,6 +886,12 @@ const CurrentContest = () => {
                   {searchTerm && (
                     <p className="text-sm text-gray-600">
                       Mostrando resultados para "{searchTerm}"
+                    </p>
+                  )}
+                  {/* Indicador de orden aleatorio durante votación */}
+                  {phaseInfo?.phase === "voting" && (
+                    <p className="text-sm text-green-600 mt-1">
+                      🎲 Orden aleatorio para votación justa
                     </p>
                   )}
                 </div>
@@ -829,23 +908,40 @@ const CurrentContest = () => {
                     />
                   </button>
 
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Filter className="h-4 w-4" />
-                    <span className="hidden sm:inline">Filtros</span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        showFilters ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                  {/* Solo mostrar filtros si NO es fase de votación */}
+                  {phaseInfo?.phase !== "voting" && (
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Filter className="h-4 w-4" />
+                      <span className="hidden sm:inline">Filtros</span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${
+                          showFilters ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                  )}
+
+                  {/* Búsqueda compacta durante votación */}
+                  {phaseInfo?.phase === "voting" && (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar..."
+                        className="pl-10 pr-4 py-2 w-48 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Panel de filtros - Modernizado */}
-              {showFilters && (
+              {/* Panel de filtros - Solo visible fuera de votación */}
+              {showFilters && phaseInfo?.phase !== "voting" && (
                 <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-2xl p-6 space-y-4 shadow-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Búsqueda */}
@@ -875,8 +971,8 @@ const CurrentContest = () => {
                         onChange={(e) => setSortBy(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       >
-                        <option value="recent">Más recientes</option>
                         <option value="popular">Más populares</option>
+                        <option value="recent">Más recientes</option>
                         <option value="viewed">Más vistas</option>
                         <option value="alphabetical">
                           Alfabético (título)
@@ -888,12 +984,12 @@ const CurrentContest = () => {
                   </div>
 
                   {/* Limpiar filtros */}
-                  {(searchTerm || sortBy !== "recent") && (
+                  {(searchTerm || sortBy !== "popular") && (
                     <div className="flex justify-end">
                       <button
                         onClick={() => {
                           setSearchTerm("");
-                          setSortBy("recent");
+                          setSortBy("popular");
                         }}
                         className="text-sm text-primary-600 hover:text-primary-700"
                       >
@@ -994,9 +1090,13 @@ const CurrentContest = () => {
                                   />
                                 </span>
                                 <span className="hidden sm:inline">•</span>
-                                <span className="whitespace-nowrap">{getReadingTime(story.word_count)}</span>
+                                <span className="whitespace-nowrap">
+                                  {getReadingTime(story.word_count)}
+                                </span>
                                 <span className="hidden sm:inline">•</span>
-                                <span className="whitespace-nowrap">{story.word_count}p</span>
+                                <span className="whitespace-nowrap">
+                                  {story.word_count}p
+                                </span>
                                 {story.is_mature && (
                                   <>
                                     <span className="hidden sm:inline">•</span>
@@ -1051,7 +1151,9 @@ const CurrentContest = () => {
                               {/* Views compacto */}
                               <div className="flex items-center gap-1 text-gray-500 text-sm min-w-0">
                                 <Eye className="h-3 w-3 flex-shrink-0" />
-                                <span className="truncate">{story.views_count || 0}</span>
+                                <span className="truncate">
+                                  {story.views_count || 0}
+                                </span>
                               </div>
                             </div>
 
