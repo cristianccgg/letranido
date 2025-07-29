@@ -14,7 +14,10 @@ Disallow: /register/
 Disallow: /api/
 
 # Disallow user-specific pages that shouldn't be indexed
-Disallow: /profile/edit
+Disallow: /profile
+Disallow: /profile/
+Disallow: /preferences
+Disallow: /preferences/
 Disallow: /settings/
 Disallow: /unsubscribe/
 

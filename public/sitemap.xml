@@ -63,6 +63,12 @@
     <priority>0.3</priority>
   </url>
 
+  <!-- User Profile (Private - not indexed) -->
+  <!-- <url>
+    <loc>https://letranido.com/profile</loc>
+    Note: Profile page requires authentication, removed from sitemap to avoid redirect issues
+  </url> -->
+
   <!-- Additional Pages -->
   <url>
     <loc>https://letranido.com/faq</loc>
