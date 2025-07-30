@@ -22,7 +22,10 @@ const SEOHead = ({
   const siteTitle = title ? `${title} | Letranido` : defaultTitle;
   const siteDescription = description || defaultDescription;
   const siteKeywords = keywords || defaultKeywords;
-  const siteImage = image ? `${baseUrl}${image}` : `${baseUrl}${defaultImage}`;
+  // Asegurar que la imagen esté completamente especificada
+  const siteImage = image 
+    ? (image.startsWith('http') ? image : `${baseUrl}${image}`)
+    : `${baseUrl}${defaultImage}`;
   const siteUrl = url ? `${baseUrl}${url}` : baseUrl;
   const canonical = canonicalUrl || siteUrl;
 
@@ -46,11 +49,14 @@ const SEOHead = ({
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={siteDescription} />
       <meta property="og:image" content={siteImage} />
+      <meta property="og:image:secure_url" content={siteImage} />
+      <meta property="og:image:type" content="image/jpeg" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={title || 'Letranido - Comunidad de Escritura Creativa'} />
       <meta property="og:site_name" content="Letranido" />
       <meta property="og:locale" content="es_ES" />
+      <meta property="og:locale:alternate" content="en_US" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -63,14 +69,23 @@ const SEOHead = ({
       <meta name="twitter:site" content="@letranido" />
       
       {/* Article specific meta (for contest pages, stories, etc.) */}
-      {type === 'article' && publishedTime && (
-        <meta property="article:published_time" content={publishedTime} />
-      )}
-      {type === 'article' && modifiedTime && (
-        <meta property="article:modified_time" content={modifiedTime} />
-      )}
-      {type === 'article' && author && (
-        <meta property="article:author" content={author} />
+      {type === 'article' && (
+        <>
+          {publishedTime && (
+            <meta property="article:published_time" content={publishedTime} />
+          )}
+          {modifiedTime && (
+            <meta property="article:modified_time" content={modifiedTime} />
+          )}
+          {author && (
+            <meta property="article:author" content={author} />
+          )}
+          <meta property="article:section" content="Blog" />
+          <meta property="article:publisher" content="Letranido" />
+          {keywords && keywords.split(', ').slice(0, 5).map(tag => (
+            <meta key={tag} property="article:tag" content={tag.trim()} />
+          ))}
+        </>
       )}
       
       {/* Additional SEO tags */}
@@ -82,7 +97,38 @@ const SEOHead = ({
       
       {/* JSON-LD Structured Data */}
       <script type="application/ld+json">
-        {JSON.stringify({
+        {JSON.stringify(type === 'article' ? {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": title,
+          "description": siteDescription,
+          "image": {
+            "@type": "ImageObject",
+            "url": siteImage,
+            "width": 1200,
+            "height": 630
+          },
+          "author": {
+            "@type": "Person",
+            "name": author || "Equipo Letranido"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Letranido",
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${baseUrl}/logo.png`
+            }
+          },
+          "datePublished": publishedTime,
+          "dateModified": modifiedTime || publishedTime,
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": siteUrl
+          },
+          "url": siteUrl,
+          "keywords": keywords
+        } : {
           "@context": "https://schema.org",
           "@type": "WebSite",
           "name": "Letranido",
