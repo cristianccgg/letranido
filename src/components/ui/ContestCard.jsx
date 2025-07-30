@@ -50,10 +50,10 @@ const ContestCard = ({
 
           <button
             onClick={isEnabled ? onRulesClick : undefined}
-            className={`${buttonClass} flex-1 min-w-0`}
+            className={`${buttonClass} flex-1 min-w-0 cursor-pointer `}
             disabled={!isEnabled}
           >
-            Reglas
+            Ver Reglas
           </button>
         </div>
       );
@@ -76,9 +76,9 @@ const ContestCard = ({
             </Link>
             <button
               onClick={onRulesClick}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
+              className="inline-flex cursor-pointer  items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
             >
-              Reglas
+              Ver Reglas
             </button>
           </div>
         );
@@ -99,9 +99,9 @@ const ContestCard = ({
             </Link>
             <button
               onClick={onRulesClick}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
+              className="inline-flex cursor-pointer items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
             >
-              Reglas
+              Ver Reglas
             </button>
           </div>
         );
@@ -119,7 +119,7 @@ const ContestCard = ({
               onClick={onRulesClick}
               className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
             >
-              Reglas
+              Ver Reglas
             </button>
           </div>
         );
@@ -164,7 +164,7 @@ const ContestCard = ({
                   </span>
                 )}
               </div>
-              
+
               {/* Título con mejor responsive */}
               <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight tracking-tight">
                 {contest.title}
@@ -173,7 +173,9 @@ const ContestCard = ({
 
             {/* Texto de invitación a expandir */}
             <p className="text-gray-500 text-sm italic">
-              {isEnabled ? "¡Ya puedes participar! Haz clic para escribir tu historia" : "Haz clic para ver más detalles"}
+              {isEnabled
+                ? "¡Ya puedes participar! Haz clic para escribir tu historia"
+                : "Haz clic para ver más detalles"}
             </p>
           </div>
 
@@ -274,7 +276,7 @@ const ContestCard = ({
         {contest.title}
       </h2>
 
-      <p className="text-gray-700 md:text-lg mb-6 leading-relaxed">
+      <p className="text-gray-700 max-w-2xl lg:max-w-4xl mx-auto md:text-lg lg:text-2xl mb-6 leading-relaxed">
         {contest.description}
       </p>
 

@@ -336,7 +336,7 @@ const LandingPage = () => {
           <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
+        <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
           {/* Logo/Título con tagline */}
           <div className="mb-0 flex flex-col items-center">
             <div className="flex items-center mb-0">
@@ -422,7 +422,7 @@ const LandingPage = () => {
 
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-white/20 hover:border-purple-200 hover:bg-gradient-to-r hover:from-white hover:to-purple-50">
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
