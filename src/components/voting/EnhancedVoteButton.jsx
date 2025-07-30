@@ -13,6 +13,7 @@ const EnhancedVoteButton = ({
   size = "default", // "small", "default", "large"
   showTooltip = true,
   disabled = false,
+  hideCount = false, // Nueva prop para ocultar el conteo durante votación
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -183,16 +184,18 @@ const EnhancedVoteButton = ({
           {buttonState.icon}
         </span>
 
-        <span
-          className={`${sizeClasses.text} ${
-            likesCount > previousCount ? "animate-count-bounce" : ""
-          } transition-all duration-300`}
-        >
-          {likesCount}
-          {size !== "small" && (
-            <span className="ml-1">{likesCount === 1 ? "voto" : "votos"}</span>
-          )}
-        </span>
+        {!hideCount && (
+          <span
+            className={`${sizeClasses.text} ${
+              likesCount > previousCount ? "animate-count-bounce" : ""
+            } transition-all duration-300`}
+          >
+            {likesCount}
+            {size !== "small" && (
+              <span className="ml-1">{likesCount === 1 ? "voto" : "votos"}</span>
+            )}
+          </span>
+        )}
 
         {/* Indicador visual de voto propio */}
         {isLiked && (

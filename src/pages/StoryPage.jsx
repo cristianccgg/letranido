@@ -42,6 +42,7 @@ const StoryPage = () => {
     globalLoading,
     galleryStories,
     userStories,
+    currentContest,
 
     // Auth Modal functions
     openAuthModal,
@@ -489,13 +490,28 @@ const StoryPage = () => {
                       userName={story.author.name}
                     />
                   </h3>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Award className="h-4 w-4 mr-1" />
-                    <span>{story.author.wins} victorias</span>
-                    <span className="mx-2">•</span>
-                    <Heart className="h-4 w-4 mr-1" />
-                    <span>{story.author.totalLikes} votos totales</span>
-                  </div>
+                  {/* Ocultar estadísticas del autor durante votación para evitar sesgo */}
+                  {(() => {
+                    // Usar currentContest en lugar de story.contest para tener las fechas correctas
+                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                    const isVotingPhase = contestPhase === "voting";
+                    
+                    
+                    if (isVotingPhase) {
+                      // Durante votación, no mostrar estadísticas del autor para evitar sesgo
+                      return null;
+                    } else {
+                      return (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Award className="h-4 w-4 mr-1" />
+                          <span>{story.author.wins} victorias</span>
+                          <span className="mx-2">•</span>
+                          <Heart className="h-4 w-4 mr-1" />
+                          <span>{story.author.totalLikes} votos totales</span>
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
 
@@ -537,27 +553,69 @@ const StoryPage = () => {
             {/* Voting Section */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-4">
-                <EnhancedVoteButton
-                  isLiked={isLiked}
-                  likesCount={likesCount}
-                  canVote={votingInfo.canVote}
-                  votingInfo={votingInfo}
-                  isAuthenticated={isAuthenticated}
-                  onVote={handleVote}
-                  onAuthRequired={() => openAuthModal("register")}
-                  size="default"
-                  showTooltip={true}
-                />
+                {/* Determinar si estamos en fase de votación */}
+                {(() => {
+                  // Usar currentContest en lugar de story.contest para tener las fechas correctas
+                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                  const isVotingPhase = contestPhase === "voting";
+                  
+                  
+                  if (isVotingPhase) {
+                    // Durante votación: ocultar votos y vistas
+                    return (
+                      <>
+                        <EnhancedVoteButton
+                          isLiked={isLiked}
+                          likesCount={0} // Ocultar conteo durante votación
+                          canVote={votingInfo.canVote}
+                          votingInfo={votingInfo}
+                          isAuthenticated={isAuthenticated}
+                          onVote={handleVote}
+                          onAuthRequired={() => openAuthModal("register")}
+                          size="default"
+                          showTooltip={true}
+                          hideCount={true} // Prop para ocultar el número
+                        />
+                        
+                        <div className="flex items-center text-green-600 text-sm">
+                          <span>🗳️ Votación ciega - vota por la historia</span>
+                        </div>
+                        
+                        {/* Compartir */}
+                        {getShareData() && (
+                          <ShareDropdown shareData={getShareData()} size="default" />
+                        )}
+                      </>
+                    );
+                  } else {
+                    // Fuera de votación: mostrar votos y vistas normalmente
+                    return (
+                      <>
+                        <EnhancedVoteButton
+                          isLiked={isLiked}
+                          likesCount={likesCount}
+                          canVote={votingInfo.canVote}
+                          votingInfo={votingInfo}
+                          isAuthenticated={isAuthenticated}
+                          onVote={handleVote}
+                          onAuthRequired={() => openAuthModal("register")}
+                          size="default"
+                          showTooltip={true}
+                        />
 
-                <div className="flex items-center text-gray-600 text-xs">
-                  <Eye className="h-5 w-5 mr-2" />
-                  <span>{story.views_count || 0} vistas</span>
-                </div>
+                        <div className="flex items-center text-gray-600 text-xs">
+                          <Eye className="h-5 w-5 mr-2" />
+                          <span>{story.views_count || 0} vistas</span>
+                        </div>
 
-                {/* Compartir */}
-                {getShareData() && (
-                  <ShareDropdown shareData={getShareData()} size="default" />
-                )}
+                        {/* Compartir */}
+                        {getShareData() && (
+                          <ShareDropdown shareData={getShareData()} size="default" />
+                        )}
+                      </>
+                    );
+                  }
+                })()}
               </div>
             </div>
           </div>
@@ -621,17 +679,27 @@ const StoryPage = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <EnhancedVoteButton
-                  isLiked={isLiked}
-                  likesCount={likesCount}
-                  canVote={votingInfo.canVote}
-                  votingInfo={votingInfo}
-                  isAuthenticated={isAuthenticated}
-                  onVote={handleVote}
-                  onAuthRequired={() => openAuthModal("register")}
-                  size="large"
-                  showTooltip={false}
-                />
+                {/* Botón de voto en el footer - también ocultar conteo durante votación */}
+                {(() => {
+                  // Usar currentContest en lugar de story.contest para tener las fechas correctas
+                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                  const isVotingPhase = contestPhase === "voting";
+                  
+                  return (
+                    <EnhancedVoteButton
+                      isLiked={isLiked}
+                      likesCount={isVotingPhase ? 0 : likesCount} // Ocultar conteo durante votación
+                      canVote={votingInfo.canVote}
+                      votingInfo={votingInfo}
+                      isAuthenticated={isAuthenticated}
+                      onVote={handleVote}
+                      onAuthRequired={() => openAuthModal("register")}
+                      size="large"
+                      showTooltip={false}
+                      hideCount={isVotingPhase} // Prop para ocultar el número
+                    />
+                  );
+                })()}
               </div>
             </div>
           </div>

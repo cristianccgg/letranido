@@ -2829,6 +2829,16 @@ export function GlobalAppProvider({ children }) {
     const submissionDeadline = new Date(contest.submission_deadline);  
     const votingDeadline = new Date(contest.voting_deadline);
     
+    // Validar que las fechas sean válidas
+    if (isNaN(submissionDeadline.getTime()) || isNaN(votingDeadline.getTime())) {
+      console.error("❌ Fechas inválidas en concurso:", {
+        submission_deadline: contest.submission_deadline,
+        voting_deadline: contest.voting_deadline,
+        contest: contest
+      });
+      return "unknown";
+    }
+    
 
     if (now <= submissionDeadline) {
       return "submission";

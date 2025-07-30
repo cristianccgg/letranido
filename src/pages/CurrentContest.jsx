@@ -1254,29 +1254,41 @@ const CurrentContest = () => {
                             {/* Actions compactas - Layout móvil */}
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                               <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                                {/* Likes display compacto */}
-                                <div
-                                  className={`flex items-center gap-1 text-sm min-w-0 ${
-                                    hasVoted ? "text-gray-400" : "text-red-600"
-                                  }`}
-                                >
-                                  <Heart className="h-3 w-3 fill-current flex-shrink-0" />
-                                  <span className="font-medium truncate">
-                                    {story.likes_count || 0}
-                                  </span>
-                                </div>
+                                {/* Ocultar votos y vistas durante votación para evitar sesgo */}
+                                {phaseInfo?.phase !== "voting" && (
+                                  <>
+                                    {/* Likes display compacto */}
+                                    <div
+                                      className={`flex items-center gap-1 text-sm min-w-0 ${
+                                        hasVoted ? "text-gray-400" : "text-red-600"
+                                      }`}
+                                    >
+                                      <Heart className="h-3 w-3 fill-current flex-shrink-0" />
+                                      <span className="font-medium truncate">
+                                        {story.likes_count || 0}
+                                      </span>
+                                    </div>
 
-                                {/* Views compacto */}
-                                <div
-                                  className={`flex items-center gap-1 text-sm min-w-0 ${
-                                    hasVoted ? "text-gray-400" : "text-gray-500"
-                                  }`}
-                                >
-                                  <Eye className="h-3 w-3 flex-shrink-0" />
-                                  <span className="truncate">
-                                    {story.views_count || 0}
-                                  </span>
-                                </div>
+                                    {/* Views compacto */}
+                                    <div
+                                      className={`flex items-center gap-1 text-sm min-w-0 ${
+                                        hasVoted ? "text-gray-400" : "text-gray-500"
+                                      }`}
+                                    >
+                                      <Eye className="h-3 w-3 flex-shrink-0" />
+                                      <span className="truncate">
+                                        {story.views_count || 0}
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                                
+                                {/* Durante votación, mostrar mensaje de votación justa */}
+                                {phaseInfo?.phase === "voting" && (
+                                  <div className="flex items-center gap-1 text-sm text-green-600">
+                                    <span className="text-xs">🗳️ Votación ciega - vota por la historia</span>
+                                  </div>
+                                )}
                               </div>
 
                               {/* Info de votación - responsive */}
