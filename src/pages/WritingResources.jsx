@@ -403,6 +403,30 @@ const WritingResources = () => {
           })}
         </div>
 
+        {/* Blog Section */}
+        <div className="mt-16 bg-gradient-to-r from-purple-100 via-pink-100 to-indigo-100 rounded-2xl p-8 border border-purple-200 shadow-xl">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              📚 Blog de Recursos Especializados
+            </h2>
+            <p className="text-gray-700 text-lg max-w-3xl mx-auto">
+              Descubre reseñas detalladas de libros, análisis de herramientas digitales, 
+              comparativas de cursos y recursos recomendados para potenciar tu escritura.
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/recursos/blog"
+              className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+            >
+              <BookOpen className="h-5 w-5 mr-3" />
+              Explorar Blog de Recursos
+              <ArrowRight className="h-5 w-5 ml-3" />
+            </Link>
+          </div>
+        </div>
+
         {/* Call to Action */}
         <div className="mt-16 text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">

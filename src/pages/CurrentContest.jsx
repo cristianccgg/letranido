@@ -222,7 +222,65 @@ const CurrentContest = () => {
     }
   };
 
-  // ✅ FILTROS Y ORDENAMIENTO - USAR SOLO GALLERYSTORIES (FUENTE ÚNICA DE VERDAD)
+  // ✅ FUNCIÓN PARA RANDOMIZAR CON ORDEN CONSISTENTE
+  const getRandomizedStories = useCallback((stories, contestId, searchTerm) => {
+    if (!stories || !contestId) return [];
+    
+    // Crear clave única que incluya término de búsqueda para mantener consistencia
+    const storageKey = `contest_${contestId}_random_order_${searchTerm || 'all'}`;
+    
+    try {
+      // Intentar obtener orden guardado
+      const savedOrder = localStorage.getItem(storageKey);
+      
+      if (savedOrder) {
+        const orderIds = JSON.parse(savedOrder);
+        // Recrear el orden basado en los IDs guardados
+        const orderedStories = orderIds
+          .map(id => stories.find(s => s.id === id))
+          .filter(Boolean); // Remover historias que ya no existen
+        
+        // Si tenemos todas las historias en el orden guardado, usarlo
+        if (orderedStories.length === stories.length) {
+          return orderedStories;
+        }
+      }
+      
+      // Si no hay orden guardado o está desactualizado, crear nuevo orden
+      const shuffled = [...stories].sort(() => Math.random() - 0.5);
+      const orderIds = shuffled.map(story => story.id);
+      
+      // Guardar el nuevo orden
+      localStorage.setItem(storageKey, JSON.stringify(orderIds));
+      
+      return shuffled;
+    } catch (error) {
+      console.error('Error handling random order:', error);
+      // Fallback a orden aleatorio simple sin persistencia
+      return [...stories].sort(() => Math.random() - 0.5);
+    }
+  }, []);
+
+  // ✅ FUNCIÓN PARA RESETEAR EL ORDEN ALEATORIO
+  const reshuffleStories = useCallback(() => {
+    if (!contest?.id) return;
+    
+    // Eliminar órdenes guardados para este concurso
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith(`contest_${contest.id}_random_order_`)) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Forzar re-render si está en modo random
+    if (sortBy === "random") {
+      // Trigger a re-render by updating a dependency
+      setSortBy("random");
+    }
+  }, [contest?.id, sortBy]);
+
+  // ✅ FILTROS Y ORDENAMIENTO - Con random consistente
   const filteredAndSortedStories = useMemo(() => {
 
     // Si galleryStories está vacía, mostrar array vacío (loading se maneja aparte)
@@ -256,15 +314,15 @@ const CurrentContest = () => {
       case "author":
         return filtered.sort((a, b) => a.author.localeCompare(b.author));
       case "random":
-        return filtered.sort(() => Math.random() - 0.5);
+        return getRandomizedStories(filtered, contest?.id, searchTerm);
       case "recent":
         return filtered.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
       default:
-        return filtered.sort(() => Math.random() - 0.5);
+        return getRandomizedStories(filtered, contest?.id, searchTerm);
     }
-  }, [galleryStories, searchTerm, sortBy, contest?.id, storiesLoading]);
+  }, [galleryStories, searchTerm, sortBy, contest?.id, storiesLoading, getRandomizedStories]);
 
   // ✅ FUNCIONES DE COMPARTIR
   // Generar datos para compartir
@@ -975,9 +1033,22 @@ const CurrentContest = () => {
                     </div>
                   </div>
 
-                  {/* Limpiar filtros */}
-                  {(searchTerm || sortBy !== "popular") && (
-                    <div className="flex justify-end">
+                  {/* Controles adicionales */}
+                  <div className="flex justify-between items-center">
+                    {/* Re-randomizar - solo mostrar cuando esté en modo aleatorio */}
+                    {sortBy === "random" && (
+                      <button
+                        onClick={reshuffleStories}
+                        className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
+                        title="Cambiar el orden aleatorio de las historias"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                        Re-randomizar
+                      </button>
+                    )}
+                    
+                    {/* Limpiar filtros */}
+                    {(searchTerm || sortBy !== "popular") && (
                       <button
                         onClick={() => {
                           setSearchTerm("");
@@ -987,8 +1058,8 @@ const CurrentContest = () => {
                       >
                         Limpiar filtros
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
 

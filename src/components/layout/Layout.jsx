@@ -1,7 +1,7 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, X, ChevronDown, LogOut, Settings } from "lucide-react";
+import { User, Menu, X, ChevronDown, LogOut, Settings, BookOpen, FileText } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
@@ -15,6 +15,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isResourcesMenuOpen, setIsResourcesMenuOpen] = useState(false);
   const [isCompactNav, setIsCompactNav] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -182,7 +183,21 @@ const Layout = ({ children }) => {
     },
     {
       name: "Recursos",
-      href: "/writing-resources",
+      type: "dropdown",
+      items: [
+        {
+          name: "Guías de Escritura",
+          href: "/writing-resources",
+          icon: BookOpen,
+          description: "Técnicas y consejos para mejorar tu escritura"
+        },
+        {
+          name: "Blog de Recursos",
+          href: "/recursos/blog",
+          icon: FileText,
+          description: "Reseñas de libros, herramientas y cursos"
+        }
+      ]
     },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
@@ -223,7 +238,21 @@ const Layout = ({ children }) => {
     },
     {
       name: "Recursos",
-      href: "/writing-resources",
+      type: "dropdown",
+      items: [
+        {
+          name: "Guías de Escritura",
+          href: "/writing-resources",
+          icon: BookOpen,
+          description: "Técnicas y consejos para mejorar tu escritura"
+        },
+        {
+          name: "Blog de Recursos",
+          href: "/recursos/blog",
+          icon: FileText,
+          description: "Reseñas de libros, herramientas y cursos"
+        }
+      ]
     },
   ];
 
@@ -256,6 +285,7 @@ const Layout = ({ children }) => {
       if (event.key === "Escape") {
         setIsUserMenuOpen(false);
         setIsMobileMenuOpen(false);
+        setIsResourcesMenuOpen(false);
       }
     };
 
@@ -300,6 +330,80 @@ const Layout = ({ children }) => {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex space-x-2 xl:space-x-4 flex-1 justify-center min-w-0">
               {navigation.map((item) => {
+                // Handle dropdown items
+                if (item.type === "dropdown") {
+                  const isResourcesActive = item.items.some(subItem => location.pathname === subItem.href);
+                  
+                  return (
+                    <div key={item.name} className="relative">
+                      <button
+                        onClick={() => setIsResourcesMenuOpen(!isResourcesMenuOpen)}
+                        className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                          isResourcesActive
+                            ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
+                            : "hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 text-gray-700 hover:text-gray-900"
+                        }`}
+                      >
+                        <span className="truncate">{item.name}</span>
+                        <ChevronDown className={`ml-1 h-3 w-3 transition-transform duration-200 ${isResourcesMenuOpen ? "rotate-180" : ""}`} />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {isResourcesMenuOpen && (
+                        <>
+                          {/* Overlay para cerrar el menu */}
+                          <div
+                            className="fixed inset-0"
+                            style={{ zIndex: 9998 }}
+                            onClick={() => setIsResourcesMenuOpen(false)}
+                          />
+                          <div
+                            className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2"
+                            style={{
+                              zIndex: 9999,
+                              top: "100%",
+                              backgroundColor: "#ffffff",
+                              border: "1px solid #e5e7eb",
+                              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                            }}
+                          >
+                            {item.items.map((subItem) => {
+                              const IconComponent = subItem.icon;
+                              const isActive = location.pathname === subItem.href;
+                              
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  to={subItem.href}
+                                  onClick={() => setIsResourcesMenuOpen(false)}
+                                  className={`flex items-start px-4 py-3 transition-colors ${
+                                    isActive 
+                                      ? "bg-indigo-50 text-indigo-700" 
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <IconComponent className={`h-5 w-5 mt-0.5 mr-3 flex-shrink-0 ${
+                                    isActive ? "text-indigo-600" : "text-gray-400"
+                                  }`} />
+                                  <div>
+                                    <div className="font-medium text-sm">
+                                      {subItem.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {subItem.description}
+                                    </div>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Handle regular navigation items
                 const isActive = location.pathname === item.href;
 
                 if (item.disabled) {
@@ -480,6 +584,48 @@ const Layout = ({ children }) => {
           <div className="lg:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
+                // Handle dropdown items in mobile
+                if (item.type === "dropdown") {
+                  return (
+                    <div key={item.name} className="space-y-1">
+                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        {item.name}
+                      </div>
+                      {item.items.map((subItem) => {
+                        const IconComponent = subItem.icon;
+                        const isActive = location.pathname === subItem.href;
+                        
+                        return (
+                          <button
+                            key={subItem.name}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigate(subItem.href);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center px-6 py-3 rounded-md text-sm font-medium ${
+                              isActive
+                                ? "text-primary-600 bg-primary-50"
+                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                            }`}
+                          >
+                            <IconComponent className={`h-4 w-4 mr-3 ${
+                              isActive ? "text-primary-600" : "text-gray-400"
+                            }`} />
+                            <div className="text-left">
+                              <div className="font-medium">{subItem.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {subItem.description}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
+                // Handle regular navigation items
                 const isActive = location.pathname === item.href;
 
                 if (item.disabled) {
