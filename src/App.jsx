@@ -30,9 +30,8 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const WritingResources = lazy(() => import("./pages/WritingResources"));
-const BlogUnderConstruction = lazy(() => import("./pages/BlogUnderConstruction"));
-// const Blog = lazy(() => import("./pages/Blog"));
-// const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -201,9 +200,9 @@ function AppContent() {
           {/* Writing Resources */}
           <Route path="/writing-resources" element={<WritingResources />} />
           
-          {/* Blog - Temporalmente en construcción */}
-          <Route path="/recursos/blog" element={<BlogUnderConstruction />} />
-          <Route path="/recursos/blog/*" element={<BlogUnderConstruction />} />
+          {/* Blog */}
+          <Route path="/recursos/blog" element={<Blog />} />
+          <Route path="/recursos/blog/:postId" element={<BlogPost />} />
 
           {/* Legal - Con rutas canónicas */}
           <Route path="/terms" element={<TermsOfService />} />

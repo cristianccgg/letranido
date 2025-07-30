@@ -16,8 +16,8 @@ import AffiliateLink from '../components/ui/AffiliateLink';
 import { getPostBySlug, getRecentPosts, categories } from '../data/blogPosts';
 
 const BlogPost = () => {
-  const { slug } = useParams();
-  const post = getPostBySlug(slug);
+  const { postId } = useParams();
+  const post = getPostBySlug(postId);
   const recentPosts = getRecentPosts(3);
 
   // If post not found, redirect to blog
@@ -53,18 +53,54 @@ const BlogPost = () => {
     }
   };
 
-  // Process content to render as HTML (simple markdown-like processing)
+  // Process content to render as HTML (improved markdown processing)
   const processContent = (content) => {
-    return content
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-gray-900 mb-6 mt-8">$1</h1>')
+    // Split by double newlines to handle paragraphs properly
+    let processed = content
+      // First handle headers (must be done before paragraph processing)
+      .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-gray-900 mb-6 mt-8 first:mt-0">$1</h1>')
       .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-gray-900 mb-4 mt-6">$1</h2>')
       .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold text-gray-900 mb-3 mt-4">$1</h3>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
-      .replace(/^- (.+)$/gm, '<li class="mb-2">$1</li>')
-      .replace(/(<li.*<\/li>)/s, '<ul class="list-disc list-inside space-y-2 mb-4 ml-4">$1</ul>');
+      
+      // Handle links (before bold and italic processing)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">$1</a>')
+      
+      // Handle bold and italic (after links)
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em class="italic text-gray-800">$1</em>')
+      
+      // Handle lists (process each list as a block)
+      .replace(/^- (.+)$/gm, '|||LISTITEM|||$1|||ENDLISTITEM|||')
+      
+      // Split into blocks and process
+      .split('\n\n')
+      .map(block => {
+        // If it's a header, return as is
+        if (block.includes('<h1>') || block.includes('<h2>') || block.includes('<h3>')) {
+          return block;
+        }
+        
+        // If it contains list items, create a proper list
+        if (block.includes('|||LISTITEM|||')) {
+          const listItems = block
+            .split('\n')
+            .filter(line => line.includes('|||LISTITEM|||'))
+            .map(line => line.replace(/\|\|\|LISTITEM\|\|\|(.+)\|\|\|ENDLISTITEM\|\|\|/, '<li class="mb-2 text-gray-700">$1</li>'))
+            .join('\n');
+          return `<ul class="list-disc list-inside space-y-2 mb-6 ml-4">${listItems}</ul>`;
+        }
+        
+        // Regular paragraphs
+        if (block.trim()) {
+          return `<p class="mb-4 text-gray-700 leading-relaxed">${block.replace(/\n/g, '<br>')}</p>`;
+        }
+        
+        return '';
+      })
+      .filter(block => block.trim())
+      .join('\n');
+      
+    return processed;
   };
 
   const categoryData = categories.find(cat => cat.id === post.category);
@@ -75,6 +111,7 @@ const BlogPost = () => {
         title={post.title}
         description={post.excerpt}
         keywords={post.tags.join(', ')}
+        image={post.image}
         url={`/recursos/blog/${post.slug}`}
         type="article"
         publishedTime={post.publishedAt}
@@ -158,38 +195,12 @@ const BlogPost = () => {
 
             {/* Content */}
             <div 
-              className="prose prose-lg max-w-none prose-indigo prose-headings:font-bold prose-p:leading-relaxed prose-p:mb-4 prose-li:mb-1"
+              className="max-w-none"
               dangerouslySetInnerHTML={{ 
-                __html: `<p>${processContent(post.content)}</p>` 
+                __html: processContent(post.content)
               }}
             />
 
-            {/* Affiliate Links Section */}
-            {post.affiliateLinks && post.affiliateLinks.length > 0 && (
-              <div className="mt-12 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-indigo-600" />
-                  Recursos Recomendados
-                </h3>
-                <p className="text-gray-600 mb-6 text-sm">
-                  Estos son los productos y servicios que recomendamos basados en nuestro análisis. 
-                  Algunos enlaces pueden generar una comisión que nos ayuda a mantener el contenido gratuito.
-                </p>
-                <div className="space-y-4">
-                  {post.affiliateLinks.map((link, index) => (
-                    <AffiliateLink
-                      key={index}
-                      href={link.url}
-                      platform={link.platform}
-                      price={link.price}
-                      showDisclaimer={index === 0} // Only show disclaimer on first link
-                    >
-                      {link.title}
-                    </AffiliateLink>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Author bio */}
             <div className="mt-12 pt-8 border-t border-gray-200">
@@ -200,8 +211,8 @@ const BlogPost = () => {
                 <div>
                   <h4 className="font-bold text-gray-900 mb-2">{post.author}</h4>
                   <p className="text-gray-600 text-sm">
-                    El equipo de Letranido está formado por escritores, editores y expertos en literatura 
-                    que se dedican a crear contenido de calidad para la comunidad de escritores en español.
+                    El equipo de Letranido está formado por escritores y lectores apasionados 
+                    que se dedican a crear contenido útil para la comunidad de escritores en español.
                   </p>
                 </div>
               </div>

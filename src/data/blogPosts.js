@@ -3,112 +3,121 @@
 
 export const blogPosts = [
   {
-    id: 'libros-esenciales-escritores-2024',
-    title: '10 Libros Esenciales que Todo Escritor Debe Leer en 2024',
-    slug: 'libros-esenciales-escritores-2024',
-    excerpt: 'Una selección curada de los mejores libros sobre escritura creativa, desde clásicos atemporales hasta lanzamientos recientes que están revolucionando el arte de narrar.',
+    id: "libros-esenciales-escritores-2025",
+    title: "5 Libros Esenciales que Todo Escritor Debe Leer en 2025",
+    slug: "libros-esenciales-escritores-2025",
+    excerpt:
+      "Una selección curada de los mejores libros sobre escritura creativa disponibles en español. Clásicos atemporales que han transformado a miles de escritores.",
     content: `
-# 10 Libros Esenciales que Todo Escritor Debe Leer en 2024
+# 5 Libros Esenciales que Todo Escritor Debe Leer en 2025
 
-Como escritores, nunca dejamos de aprender. Estos 10 libros han sido seleccionados por su impacto duradero en miles de escritores alrededor del mundo.
+Como escritores, nunca dejamos de aprender. Estos 5 libros han sido seleccionados por su impacto duradero en miles de escritores alrededor del mundo y están disponibles en español.
 
-## 1. "El Arte de la Ficción" - John Gardner
+## 1. ["Mientras Escribo" - Stephen King](https://amzn.to/4lSzk1N)
 
-**Por qué es esencial:** Gardner desglosa los elementos fundamentales de la narrativa con una claridad extraordinaria.
-
-**Lo que aprenderás:**
-- Técnicas de construcción de personajes
-- Manejo del tiempo narrativo
-- Creación de ambientes convincentes
-
-## 2. "Zen en el Arte de Escribir" - Ray Bradbury
-
-**Por qué es esencial:** Bradbury nos enseña que escribir debe ser una celebración, no una tortura.
+**Por qué es esencial:** El rey del horror comparte sus secretos más íntimos sobre el proceso creativo en una obra que es mitad memoria, mitad manual de escritura.
 
 **Lo que aprenderás:**
-- Cómo mantener la pasión por escribir
+- Rutinas de escritura efectivas y disciplina diaria
+- Cómo desarrollar tu voz única como escritor
+- Técnicas de revisión y edición profesionales
+- La importancia de leer constantemente
+
+*"Los libros son una magia portátil única"* - Una de las frases más memorables de King que resume su filosofía sobre la lectura y escritura.
+
+## 2. ["El Arte de la Ficción" - David Lodge](https://amzn.to/3GZYVXF)
+
+**Por qué es esencial:** Lodge ofrece una perspectiva académica pero accesible sobre las técnicas narrativas, complementando perfectamente la visión práctica de King.
+
+**Lo que aprenderás:**
+- Análisis profundo de técnicas literarias
+- Cómo funcionan los elementos narrativos clásicos
+- Perspectiva académica sobre la escritura creativa
+- Ejemplos de grandes obras de la literatura
+
+## 3. ["Zen en el Arte de Escribir" - Ray Bradbury](https://amzn.to/3IQzxEd)
+
+**Por qué es esencial:** Bradbury nos enseña que escribir debe ser una celebración, no una tortura. Su enfoque lleno de energía y pasión es contagioso.
+
+**Lo que aprenderás:**
+- Cómo mantener la pasión y el amor por escribir
 - Técnicas para superar el bloqueo creativo
-- La importancia de escribir todos los días
+- La importancia de escribir desde la emoción
+- Cómo alimentar constantemente tu creatividad
 
-## 3. "Mientras Escribo" - Stephen King
+*"Escribe borracho, edita sobrio"* - aunque Bradbury no bebe, se refiere a escribir con pasión y revisar con frialdad.
 
-**Por qué es esencial:** El rey del horror comparte sus secretos más íntimos sobre el proceso creativo.
+## 4. ["Cartas a un Joven Novelista" - Mario Vargas Llosa](https://amzn.to/44WmPfR)
 
-**Lo que aprenderás:**
-- Rutinas de escritura efectivas
-- Cómo desarrollar tu voz única
-- Técnicas de revisión y edición
-
-## 4. "El Viaje del Escritor" - Christopher Vogler
-
-**Por qué es esencial:** Aplica el monomito de Joseph Campbell a la narrativa moderna.
+**Por qué es esencial:** El Premio Nobel peruano comparte su sabiduría sobre la creación literaria en un formato íntimo y personal.
 
 **Lo que aprenderás:**
-- La estructura del viaje del héroe
+- La vocación del escritor y su compromiso
+- Técnicas narrativas desde la perspectiva latinoamericana
+- La importancia de la experiencia vivida en la escritura
+- Cómo convertir la realidad en ficción
+
+## 5. ["El Viaje del Escritor" - Christopher Vogler](https://amzn.to/4l12xq7)
+
+**Por qué es esencial:** Aplica el monomito de Joseph Campbell a la narrativa moderna, ofreciendo una estructura universal para contar historias.
+
+**Lo que aprenderás:**
+- La estructura clásica del viaje del héroe
 - Arquetipos de personajes universales
 - Cómo crear arcos narrativos poderosos
+- Técnicas narrativas probadas en Hollywood
 
-## 5. "Save the Cat! Writes a Novel" - Jessica Brody
+## Mi Recomendación de Lectura
 
-**Por qué es esencial:** Adapta las técnicas probadas del cine a la literatura.
+**Para principiantes:** Empieza con "Zen en el Arte de Escribir" de Bradbury para encender tu pasión.
 
-**Lo que aprenderás:**
-- Los 15 beats de una historia exitosa
-- Técnicas de pacing y tensión
-- Cómo crear momentos memorables
+**Para escritores serios:** "Mientras Escribo" de King es indispensable.
 
-## Para Profundizar
+**Para técnica avanzada:** "El Viaje del Escritor" te dará estructura sólida.
 
-Si estos libros despiertan tu interés, considera también:
+**Para perspectiva literaria:** Vargas Llosa ofrece la visión más profunda sobre el arte.
 
-- **Cursos especializados** en plataformas como Udemy y Coursera
-- **Herramientas digitales** como Scrivener para organizar tus proyectos
-- **Audiolibros** para aprovechar tiempos muertos
+**Para análisis académico:** "El Arte de la Ficción" de Lodge complementa perfectamente la formación técnica.
 
-## ¿Cuál Leerás Primero?
+## ¿Por Qué Estos 5?
 
-Cada uno de estos libros puede transformar tu escritura. Mi recomendación es empezar por Stephen King si buscas inspiración, o John Gardner si prefieres técnica pura.
+Cada libro aborda la escritura desde un ángulo diferente:
+- **King**: La práctica diaria y la disciplina
+- **Lodge ("El Arte de la Ficción")**: El análisis técnico y académico  
+- **Bradbury**: La pasión y la creatividad
+- **Vargas Llosa**: La vocación y el compromiso artístico
+- **Vogler**: La estructura narrativa universal
 
-*¿Qué otros libros agregarías a esta lista? ¡Comparte tus recomendaciones en los comentarios!*
+Juntos forman una educación completa en escritura creativa.
+
+*¿Has leído alguno de estos libros? ¿Cuál ha impactado más tu escritura? ¡Comparte tu experiencia en los comentarios!*
     `,
-    author: 'Equipo Letranido',
-    publishedAt: '2024-01-15',
-    readTime: '8 min',
-    category: 'libros',
-    tags: ['lectura', 'escritura creativa', 'libros recomendados', 'técnicas narrativas'],
-    image: '/src/assets/images/blog/libros-escritores.jpg',
+    author: "Equipo Letranido",
+    publishedAt: "2025-07-30",
+    readTime: "8 min",
+    category: "libros",
+    tags: [
+      "lectura",
+      "escritura creativa",
+      "libros recomendados",
+      "técnicas narrativas",
+    ],
+    image: "/src/assets/images/blog-images/libros.jpg",
     featured: true,
-    affiliateLinks: [
-      {
-        title: 'El Arte de la Ficción - John Gardner',
-        platform: 'amazon',
-        url: 'https://amazon.es/arte-ficcion-john-gardner',
-        price: '€18.95'
-      },
-      {
-        title: 'Mientras Escribo - Stephen King', 
-        platform: 'amazon',
-        url: 'https://amazon.es/mientras-escribo-stephen-king',
-        price: '€16.50'
-      },
-      {
-        title: 'Curso de Escritura Creativa - Udemy',
-        platform: 'udemy',
-        url: 'https://udemy.com/curso-escritura-creativa',
-        price: '€49.99'
-      }
-    ]
+    published: true,
   },
-  
+
   {
-    id: 'herramientas-digitales-escritor-2024',
-    title: 'Herramientas Digitales vs Analógicas: Qué Funciona Mejor para Escritores',
-    slug: 'herramientas-digitales-escritor-2024',
-    excerpt: 'Comparamos las mejores herramientas digitales con métodos tradicionales. Descubre qué combinación puede potenciar tu productividad como escritor.',
+    id: "herramientas-digitales-escritor-2025",
+    title:
+      "Herramientas Digitales vs Analógicas: Qué Funciona Mejor para Escritores",
+    slug: "herramientas-digitales-escritor-2025",
+    excerpt:
+      "Comparamos las mejores herramientas digitales con métodos tradicionales. Descubre qué combinación puede potenciar tu productividad como escritor.",
     content: `
 # Herramientas Digitales vs Analógicas: Qué Funciona Mejor para Escritores
 
-En 2024, los escritores tenemos más opciones que nunca. ¿Pero qué herramientas realmente valen la pena?
+En 2025, los escritores tenemos más opciones que nunca. ¿Pero qué herramientas realmente valen la pena?
 
 ## La Batalla: Digital vs Analógico
 
@@ -172,42 +181,45 @@ Personalmente, combino Notion para planificación, Scrivener para escribir, y un
 
 *¿Cuál es tu combinación favorita? ¡Me encantaría conocer tu flujo de trabajo!*
     `,
-    author: 'Equipo Letranido',
-    publishedAt: '2024-01-20',
-    readTime: '6 min',
-    category: 'herramientas',
-    tags: ['herramientas', 'productividad', 'software', 'escritura digital'],
-    image: '/src/assets/images/blog/herramientas-escritor.jpg',
+    author: "Equipo Letranido",
+    publishedAt: "2025-01-20",
+    readTime: "6 min",
+    category: "herramientas",
+    tags: ["herramientas", "productividad", "software", "escritura digital"],
+    image: "/src/assets/images/blog/herramientas-escritor.jpg",
     featured: false,
     affiliateLinks: [
       {
-        title: 'Scrivener 3 - Licencia Completa',
-        platform: 'literature-lore',
-        url: 'https://literatureandlore.com/scrivener',
-        price: '€59.00'
+        title: "Scrivener 3 - Licencia Completa",
+        platform: "literature-lore",
+        url: "https://literatureandlore.com/scrivener",
+        price: "€59.00",
       },
       {
-        title: 'Moleskine Cuaderno Grande - Rayado',
-        platform: 'amazon',
-        url: 'https://amazon.es/moleskine-cuaderno-grande',
-        price: '€22.95'
+        title: "Moleskine Cuaderno Grande - Rayado",
+        platform: "amazon",
+        url: "https://amazon.es/moleskine-cuaderno-grande",
+        price: "€22.95",
       },
       {
-        title: 'Notion Pro - Plan Anual',
-        platform: 'notion',
-        url: 'https://notion.so/product',
-        price: '€96/año'
-      }
-    ]
+        title: "Notion Pro - Plan Anual",
+        platform: "notion",
+        url: "https://notion.so/product",
+        price: "€96/año",
+      },
+    ],
+    published: false,
   },
 
   {
-    id: 'cursos-escritura-creativa-online-2024',
-    title: 'Los Mejores Cursos de Escritura Creativa Online: Análisis Completo 2024',
-    slug: 'cursos-escritura-creativa-online-2024',
-    excerpt: 'Hemos probado los cursos más populares de escritura creativa online. Te contamos cuáles valen la pena y cuáles debes evitar.',
+    id: "cursos-escritura-creativa-online-2025",
+    title:
+      "Los Mejores Cursos de Escritura Creativa Online: Análisis Completo 2025",
+    slug: "cursos-escritura-creativa-online-2025",
+    excerpt:
+      "Hemos probado los cursos más populares de escritura creativa online. Te contamos cuáles valen la pena y cuáles debes evitar.",
     content: `
-# Los Mejores Cursos de Escritura Creativa Online: Análisis Completo 2024
+# Los Mejores Cursos de Escritura Creativa Online: Análisis Completo 2025
 
 Invertir en tu formación como escritor es una de las mejores decisiones que puedes tomar. Pero con tantas opciones, ¿cómo elegir?
 
@@ -325,46 +337,48 @@ Para presupuestos limitados, **FutureLearn gratis** es un excelente punto de par
 
 *¿Has tomado alguno de estos cursos? ¡Comparte tu experiencia en los comentarios!*
     `,
-    author: 'Equipo Letranido',
-    publishedAt: '2024-01-25', 
-    readTime: '10 min',
-    category: 'educacion',
-    tags: ['cursos online', 'formación', 'escritura creativa', 'educación'],
-    image: '/src/assets/images/blog/cursos-online.jpg',
+    author: "Equipo Letranido",
+    publishedAt: "2025-01-25",
+    readTime: "10 min",
+    category: "educacion",
+    tags: ["cursos online", "formación", "escritura creativa", "educación"],
+    image: "/src/assets/images/blog/cursos-online.jpg",
     featured: true,
     affiliateLinks: [
       {
-        title: 'Coursera - Escritura Creativa Especialización',
-        platform: 'coursera',
-        url: 'https://coursera.org/specializations/creative-writing',
-        price: '€49/mes'
+        title: "Coursera - Escritura Creativa Especialización",
+        platform: "coursera",
+        url: "https://coursera.org/specializations/creative-writing",
+        price: "€49/mes",
       },
       {
-        title: 'MasterClass - Suscripción Anual',
-        platform: 'masterclass',
-        url: 'https://masterclass.com/classes/margaret-atwood-teaches-creative-writing',
-        price: '€180/año'
+        title: "MasterClass - Suscripción Anual",
+        platform: "masterclass",
+        url: "https://masterclass.com/classes/margaret-atwood-teaches-creative-writing",
+        price: "€180/año",
       },
       {
-        title: 'Udemy - Curso Completo de Narrativa',
-        platform: 'udemy',
-        url: 'https://udemy.com/course/curso-narrativa-completo',
-        price: '€19.99'
-      }
-    ]
+        title: "Udemy - Curso Completo de Narrativa",
+        platform: "udemy",
+        url: "https://udemy.com/course/curso-narrativa-completo",
+        price: "€19.99",
+      },
+    ],
+    published: false,
   },
 
   {
-    id: 'kindle-unlimited-escritores-vale-la-pena',
-    title: '¿Vale la Pena Kindle Unlimited para Escritores? Análisis Completo',
-    slug: 'kindle-unlimited-escritores-vale-la-pena',
-    excerpt: 'Analizamos si Kindle Unlimited es una buena inversión para escritores. Costos, beneficios y alternativas en nuestro análisis detallado.',
+    id: "kindle-unlimited-escritores-vale-la-pena",
+    title: "¿Vale la Pena Kindle Unlimited para Escritores? Análisis Completo",
+    slug: "kindle-unlimited-escritores-vale-la-pena",
+    excerpt:
+      "Analizamos si Kindle Unlimited es una buena inversión para escritores. Costos, beneficios y alternativas en nuestro análisis detallado.",
     content: `
 # ¿Vale la Pena Kindle Unlimited para Escritores? Análisis Completo
 
 Como escritores, leemos constantemente. Pero ¿es Kindle Unlimited la mejor opción para nuestro presupuesto y necesidades?
 
-## ¿Qué es Kindle Unlimited?
+## ¿Qué es [Kindle Unlimited](https://amzn.to/4mnQYdS)?
 
 **Precio:** €9.99/mes
 **Catálogo:** Más de 1 millón de títulos
@@ -471,47 +485,51 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
 
 *¿Usas Kindle Unlimited? ¿Qué has encontrado que sea valioso para tu escritura? ¡Comparte tu experiencia!*
     `,
-    author: 'Equipo Letranido',
-    publishedAt: '2024-02-01',
-    readTime: '7 min', 
-    category: 'recursos',
-    tags: ['kindle unlimited', 'lectura digital', 'recursos', 'análisis'],
-    image: '/src/assets/images/blog/kindle-unlimited.jpg',
+    author: "Equipo Letranido",
+    publishedAt: "2025-02-01",
+    readTime: "7 min",
+    category: "recursos",
+    tags: ["kindle unlimited", "lectura digital", "recursos", "análisis"],
+    image: "/src/assets/images/blog/kindle-unlimited.jpg",
     featured: false,
-    affiliateLinks: [
-      {
-        title: 'Kindle Unlimited - Prueba Gratuita 30 Días',
-        platform: 'amazon',
-        url: 'https://amazon.es/kindle-unlimited',
-        price: '€9.99/mes'
-      },
-      {
-        title: 'Scribd - Alternativa Premium', 
-        platform: 'scribd',
-        url: 'https://scribd.com/subscribe',
-        price: '€8.99/mes'
-      },
-      {
-        title: 'Kindle Paperwhite - Lector Recomendado',
-        platform: 'amazon', 
-        url: 'https://amazon.es/kindle-paperwhite',
-        price: '€139.99'
-      }
-    ]
-  }
+    published: false,
+  },
 ];
 
 export const categories = [
-  { id: 'libros', name: 'Libros', description: 'Reseñas y recomendaciones literarias' },
-  { id: 'herramientas', name: 'Herramientas', description: 'Software y recursos para escritores' },
-  { id: 'educacion', name: 'Educación', description: 'Cursos y formación especializada' },
-  { id: 'recursos', name: 'Recursos', description: 'Análisis de servicios y plataformas' }
+  {
+    id: "libros",
+    name: "Libros",
+    description: "Reseñas y recomendaciones literarias",
+  },
+  {
+    id: "herramientas",
+    name: "Herramientas",
+    description: "Software y recursos para escritores",
+  },
+  {
+    id: "educacion",
+    name: "Educación",
+    description: "Cursos y formación especializada",
+  },
+  {
+    id: "recursos",
+    name: "Recursos",
+    description: "Análisis de servicios y plataformas",
+  },
 ];
 
 // Funciones utilitarias
-export const getFeaturedPosts = () => blogPosts.filter(post => post.featured);
-export const getPostsByCategory = (categoryId) => blogPosts.filter(post => post.category === categoryId);
-export const getPostBySlug = (slug) => blogPosts.find(post => post.slug === slug);
-export const getRecentPosts = (limit = 3) => blogPosts
-  .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
-  .slice(0, limit);
+export const getPublishedPosts = () =>
+  blogPosts.filter((post) => post.published);
+export const getFeaturedPosts = () =>
+  blogPosts.filter((post) => post.featured && post.published);
+export const getPostsByCategory = (categoryId) =>
+  blogPosts.filter((post) => post.category === categoryId && post.published);
+export const getPostBySlug = (slug) =>
+  blogPosts.find((post) => post.slug === slug);
+export const getRecentPosts = (limit = 3) =>
+  blogPosts
+    .filter((post) => post.published)
+    .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+    .slice(0, limit);
