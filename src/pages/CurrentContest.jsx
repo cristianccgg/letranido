@@ -185,6 +185,11 @@ const CurrentContest = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
+      // Si estamos en fase de votación, también re-randomizar
+      if (phaseInfo?.phase === "voting") {
+        reshuffleStories();
+      }
+      
       await Promise.all([
         refreshContests(),
         refreshUserData(),
@@ -951,7 +956,11 @@ const CurrentContest = () => {
                     onClick={handleRefresh}
                     disabled={refreshing}
                     className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Actualizar"
+                    title={
+                      phaseInfo?.phase === "voting" 
+                        ? "Actualizar y cambiar orden aleatorio" 
+                        : "Actualizar"
+                    }
                   >
                     <RefreshCw
                       className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`}
