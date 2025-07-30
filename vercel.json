@@ -1,5 +1,14 @@
 {
+  "functions": {
+    "api/meta-tags.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
+    { 
+      "source": "/recursos/blog/:slug", 
+      "destination": "/api/meta-tags?slug=:slug" 
+    },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [
