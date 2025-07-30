@@ -90,7 +90,7 @@ Cada libro aborda la escritura desde un ángulo diferente:
 
 Juntos forman una educación completa en escritura creativa.
 
-*¿Has leído alguno de estos libros? ¿Cuál ha impactado más tu escritura? ¡Comparte tu experiencia en los comentarios!*
+
     `,
     author: "Equipo Letranido",
     publishedAt: "2025-07-30",

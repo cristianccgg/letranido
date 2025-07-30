@@ -234,3 +234,20 @@
   --spacing-vote-normal: 0.75rem 1rem;
   --spacing-vote-large: 1rem 1.5rem;
 }
+
+/* Global styles */
+html {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
