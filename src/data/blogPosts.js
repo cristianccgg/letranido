@@ -102,7 +102,7 @@ Juntos forman una educación completa en escritura creativa.
       "libros recomendados",
       "técnicas narrativas",
     ],
-    image: "/src/assets/images/blog-images/libros.jpg",
+    image: "/images/blog/libros.jpg",
     featured: true,
     published: true,
   },
@@ -186,7 +186,7 @@ Personalmente, combino Notion para planificación, Scrivener para escribir, y un
     readTime: "6 min",
     category: "herramientas",
     tags: ["herramientas", "productividad", "software", "escritura digital"],
-    image: "/src/assets/images/blog/herramientas-escritor.jpg",
+    image: "/images/blog/herramientas-escritor.jpg",
     featured: false,
     affiliateLinks: [
       {
@@ -342,7 +342,7 @@ Para presupuestos limitados, **FutureLearn gratis** es un excelente punto de par
     readTime: "10 min",
     category: "educacion",
     tags: ["cursos online", "formación", "escritura creativa", "educación"],
-    image: "/src/assets/images/blog/cursos-online.jpg",
+    image: "/images/blog/cursos-online.jpg",
     featured: true,
     affiliateLinks: [
       {
@@ -490,7 +490,7 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
     readTime: "7 min",
     category: "recursos",
     tags: ["kindle unlimited", "lectura digital", "recursos", "análisis"],
-    image: "/src/assets/images/blog/kindle-unlimited.jpg",
+    image: "/images/blog/kindle-unlimited.jpg",
     featured: false,
     published: false,
   },
