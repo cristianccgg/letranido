@@ -105,6 +105,23 @@ const ContestCard = ({
             </button>
           </div>
         );
+      } else if (phase === "counting") {
+        return (
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              to={`/contest/${contest.id}#stories-section`}
+              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold hover:from-orange-600 hover:to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300 flex-1"
+            >
+              Ver Historias
+            </Link>
+            <button
+              onClick={onRulesClick}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
+            >
+              Ver Reglas
+            </button>
+          </div>
+        );
       } else {
         // Phase results
         return (
@@ -291,7 +308,9 @@ const ContestCard = ({
               <span className="text-sm md:text-base text-indigo-700 font-medium tracking-wide">
                 {phase === "submission"
                   ? "Envíos cierran en"
-                  : "Votación termina en"}
+                  : phase === "voting"
+                  ? "Votación termina en"
+                  : "Contando votos"}
               </span>
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </div>
@@ -301,7 +320,9 @@ const ContestCard = ({
             <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
               {phase === "submission"
                 ? "¡No te quedes sin participar!"
-                : "¡Vota por tus favoritas!"}
+                : phase === "voting"
+                ? "¡Vota por tus favoritas!"
+                : "¡Pronto tendremos los resultados!"}
             </div>
           </div>
         </div>

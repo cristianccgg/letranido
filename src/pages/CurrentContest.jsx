@@ -442,6 +442,18 @@ const CurrentContest = () => {
           showStories: true,
         };
       }
+      case "counting":
+        return {
+          phase: "counting",
+          title: "🔢 Contando Votos",
+          description: "La votación ha cerrado. Estamos contando los votos y los resultados estarán listos pronto.",
+          bgColor: "bg-orange-50",
+          borderColor: "border-orange-200",
+          textColor: "text-orange-800",
+          buttonText: "Ver historias",
+          scrollToStories: true,
+          showStories: true,
+        };
       case "results":
         return {
           phase: "results",

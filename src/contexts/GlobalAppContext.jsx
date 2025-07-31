@@ -2845,7 +2845,14 @@ export function GlobalAppProvider({ children }) {
     } else if (now <= votingDeadline) {
       return "voting";
     } else {
-      return "results";
+      // Si la votación terminó, verificar si el concurso se cerró manualmente
+      // Si votingDeadline pasó Y (status === "results" O finalized_at existe) → "results"
+      // Si votingDeadline pasó Y status !== "results" Y !finalized_at → "counting"
+      if (contest.status === "results" || contest.finalized_at) {
+        return "results";
+      } else {
+        return "counting";
+      }
     }
   }, []);
 
