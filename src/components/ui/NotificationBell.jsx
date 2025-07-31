@@ -58,9 +58,13 @@ const NotificationBell = ({ userId, className = "" }) => {
     // Redirigir según el tipo
     const data = notification.data || {};
     
-    if ((notification.type === 'like' || notification.type === 'comment') && data.story_id) {
-      // Ir a la historia
-      window.location.href = `/story/${data.story_id}`;
+    if ((notification.type === 'like' || notification.type === 'comment_received') && data.story_id) {
+      // Ir a la historia y si es comentario, hacer scroll al comentario específico
+      let url = `/story/${data.story_id}`;
+      if (notification.type === 'comment_received' && data.comment_id) {
+        url += `#comment-${data.comment_id}`;
+      }
+      window.location.href = url;
     } else if (notification.type === 'badge') {
       // Ir al perfil para ver badges
       window.location.href = `/profile`;

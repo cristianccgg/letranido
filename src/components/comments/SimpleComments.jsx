@@ -252,7 +252,11 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="bg-gray-50 rounded-lg p-4">
+            <div 
+              key={comment.id} 
+              id={`comment-${comment.id}`}
+              className="bg-gray-50 rounded-lg p-4"
+            >
               <div className="flex items-start gap-3">
                 <UserAvatar 
                   user={{ name: comment.author, email: `${comment.author}@mock.com` }} 
