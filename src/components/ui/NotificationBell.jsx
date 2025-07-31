@@ -39,6 +39,8 @@ const NotificationBell = ({ userId, className = "" }) => {
         return <Trophy className="w-5 h-5 text-yellow-500" />;
       case 'like':
         return <Heart className="w-5 h-5 text-red-500" />;
+      case 'comment':
+        return <MessageCircle className="w-5 h-5 text-blue-500" />;
       case 'contest_winner':
         return <Crown className="w-5 h-5 text-purple-500" />;
       default:
@@ -56,12 +58,15 @@ const NotificationBell = ({ userId, className = "" }) => {
     // Redirigir según el tipo
     const data = notification.data || {};
     
-    if (notification.type === 'like' && data.story_id) {
+    if ((notification.type === 'like' || notification.type === 'comment') && data.story_id) {
       // Ir a la historia
       window.location.href = `/story/${data.story_id}`;
     } else if (notification.type === 'badge') {
       // Ir al perfil para ver badges
       window.location.href = `/profile`;
+    } else if (notification.type === 'contest_winner') {
+      // Ir a los resultados del concurso
+      window.location.href = `/contest/current`;
     }
     
     setIsOpen(false);

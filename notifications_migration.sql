@@ -141,18 +141,14 @@ CREATE TRIGGER trigger_notify_new_badge
   FOR EACH ROW
   EXECUTE FUNCTION notify_new_badge();
 
--- 8. Notificaciones de comentarios ELIMINADAS
--- DROP TRIGGER IF EXISTS trigger_notify_new_comment ON comments;
--- DROP FUNCTION IF EXISTS notify_new_comment();
-
--- 9. Trigger para notificaciones de votos/likes
-CREATE OR REPLACE FUNCTION notify_new_vote() RETURNS TRIGGER AS $$
+-- 8. Función para notificaciones de comentarios
+CREATE OR REPLACE FUNCTION notify_new_comment() RETURNS TRIGGER AS $$
 BEGIN
-  -- Solo notificar si el voto no es del autor de la historia
+  -- Solo notificar si el comentario no es del autor de la historia
   IF NEW.user_id != (SELECT user_id FROM stories WHERE id = NEW.story_id) THEN
     DECLARE
       story_info RECORD;
-      voter_name TEXT;
+      commenter_name TEXT;
     BEGIN
       -- Obtener información de la historia
       SELECT title, user_id INTO story_info
@@ -161,6 +157,71 @@ BEGIN
 
       -- Solo proceder si encontramos la historia
       IF story_info.user_id IS NOT NULL THEN
+        -- Obtener nombre del usuario que comentó
+        SELECT COALESCE(display_name, email) INTO commenter_name
+        FROM user_profiles 
+        WHERE id = NEW.user_id;
+
+        -- Si no tiene display_name, usar email del auth.users
+        IF commenter_name IS NULL THEN
+          SELECT email INTO commenter_name
+          FROM auth.users
+          WHERE id = NEW.user_id;
+        END IF;
+
+        -- Crear notificación para el autor de la historia
+        PERFORM create_notification(
+          story_info.user_id,
+          'comment',
+          '💬 Nuevo comentario en tu historia',
+          COALESCE(commenter_name, 'Alguien') || ' comentó en "' || story_info.title || '"',
+          jsonb_build_object(
+            'story_id', NEW.story_id,
+            'comment_id', NEW.id,
+            'commenter_id', NEW.user_id,
+            'commenter_name', COALESCE(commenter_name, 'Usuario')
+          )
+        );
+      END IF;
+    END;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Crear trigger para comentarios
+DROP TRIGGER IF EXISTS trigger_notify_new_comment ON comments;
+CREATE TRIGGER trigger_notify_new_comment
+  AFTER INSERT ON comments
+  FOR EACH ROW
+  EXECUTE FUNCTION notify_new_comment();
+
+-- 9. Función para notificaciones de votos/likes (DESHABILITADA durante votación ciega)
+CREATE OR REPLACE FUNCTION notify_new_vote() RETURNS TRIGGER AS $$
+BEGIN
+  -- ❌ TEMPORALMENTE DESHABILITADO PARA VOTACIÓN CIEGA
+  -- Las notificaciones de votos se crearían solo después de que termine la votación
+  -- para mantener el anonimato durante el proceso de votación
+  
+  -- ✅ IMPLEMENTACIÓN ORIGINAL (comentada):
+  /*
+  -- Solo notificar si el voto no es del autor de la historia
+  IF NEW.user_id != (SELECT user_id FROM stories WHERE id = NEW.story_id) THEN
+    -- Verificar si el concurso está en fase de resultados
+    DECLARE
+      story_info RECORD;
+      contest_info RECORD;
+      voter_name TEXT;
+    BEGIN
+      -- Obtener información de la historia y su concurso
+      SELECT s.title, s.user_id, c.voting_deadline INTO story_info
+      FROM stories s
+      JOIN contests c ON s.contest_id = c.id
+      WHERE s.id = NEW.story_id;
+
+      -- Solo notificar si la votación ya terminó (fase de resultados)
+      IF story_info.user_id IS NOT NULL AND NOW() > story_info.voting_deadline THEN
         -- Obtener nombre del usuario que votó
         SELECT COALESCE(display_name, email) INTO voter_name
         FROM user_profiles 
@@ -188,6 +249,7 @@ BEGIN
       END IF;
     END;
   END IF;
+  */
 
   RETURN NEW;
 END;
@@ -202,5 +264,10 @@ CREATE TRIGGER trigger_notify_new_vote
 
 -- ✅ MIGRACIÓN COMPLETADA
 -- Las notificaciones se crearán automáticamente para:
--- - Nuevos badges conseguidos
--- - Votos en tus historias
+-- - Nuevos badges conseguidos ✅
+-- - Comentarios en tus historias ✅
+-- - Votos en tus historias ❌ (DESHABILITADO para votación ciega)
+-- - Celebraciones de ganadores ✅ (manejado en frontend)
+
+-- NOTA: Para habilitar notificaciones de votos después de votación,
+-- descomenta la implementación en notify_new_vote()

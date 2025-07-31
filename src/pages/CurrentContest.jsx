@@ -28,6 +28,8 @@ import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
+import WinnerCelebration from "../components/ui/WinnerCelebration";
+import useWinnerCelebration from "../hooks/useWinnerCelebration";
 
 const CurrentContest = () => {
   const { id } = useParams();
@@ -76,6 +78,9 @@ const CurrentContest = () => {
 
   // Refs para scroll
   const storiesSectionRef = useRef(null);
+
+  // Hook para celebraciones de ganadores
+  const { celebration, closeCelebration } = useWinnerCelebration();
 
   // ✅ DETERMINAR QUE CONCURSO MOSTRAR (Memoizado para evitar re-renders)
   const contestToLoad = useMemo(() => {
@@ -1357,6 +1362,17 @@ const CurrentContest = () => {
             ...contest,
             endDate: new Date(contest.submission_deadline || contest.end_date),
           }}
+        />
+      )}
+
+      {/* Celebración de ganadores */}
+      {celebration.show && (
+        <WinnerCelebration
+          position={celebration.position}
+          isVisible={celebration.show}
+          onClose={closeCelebration}
+          userName={user?.name || user?.display_name}
+          storyTitle={celebration.storyTitle}
         />
       )}
     </div>
