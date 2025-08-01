@@ -25,12 +25,53 @@ import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
-import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
+import { UserWithWinnerBadges, UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
+import { useBadgesCache } from "../hooks/useBadgesCache";
+import Badge from "../components/ui/Badge";
 import logo from "../assets/images/letranido-logo.png";
+
+// Componente para mostrar el badge del ganador
+const WinnerBadgeDisplay = ({ userId }) => {
+  const { userBadges, loading } = useBadgesCache(userId);
+  
+  if (loading) {
+    return <span className="text-yellow-600">🏆</span>;
+  }
+  
+  // Orden de prestigio para badges (mayor a menor)
+  const prestigeOrder = {
+    'contest_winner_veteran': 5, // Ganador múltiple
+    'contest_winner': 4,         // Ganador
+    'contest_finalist': 3,       // Finalista  
+    'writer_15': 2,             // Veterano escritor
+    'writer_5': 1,              // Escritor constante
+    'first_story': 0            // Primera historia
+  };
+
+  // Encontrar el badge de mayor prestigio
+  const topBadge = userBadges
+    .filter(badge => prestigeOrder.hasOwnProperty(badge.id))
+    .sort((a, b) => (prestigeOrder[b.id] || 0) - (prestigeOrder[a.id] || 0))[0];
+  
+  if (topBadge) {
+    return (
+      <div className="group-hover:animate-pulse">
+        <Badge 
+          badge={topBadge} 
+          size="xs"
+          showDescription={true}
+        />
+      </div>
+    );
+  }
+  
+  // Fallback al trofeo si no hay badge
+  return <span className="text-yellow-600 group-hover:animate-pulse">🏆</span>;
+};
 
 const LandingPage = () => {
   const {
@@ -367,8 +408,8 @@ const LandingPage = () => {
           </div>
 
           {/* Beneficios específicos - más concisos */}
-          <div className="mb-8 max-w-3xl mx-auto">
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-4 text-[10px] md:text-base">
+          <div className="mb-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
               <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100">
                 <span className="font-medium">Feedback real</span>
               </div>
@@ -378,6 +419,29 @@ const LandingPage = () => {
               <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-pink-100">
                 <span className="font-medium">Comunidad activa</span>
               </div>
+              {/* Tarjeta especial del ganador */}
+              {lastContestWinners && (
+                <button
+                  onClick={() => {
+                    const winnersSection =
+                      document.querySelector("#winners-section");
+                    if (winnersSection) {
+                      winnersSection.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-3 border border-yellow-300 ring-2 ring-yellow-400/30 hover:ring-yellow-400/50 hover:scale-105 transition-all duration-300 hover:shadow-lg group cursor-pointer"
+                >
+                  <WinnerBadgeDisplay userId={lastContestWinners.winners[0].user_id} />
+                  <div className="text-center">
+                    <div className="font-bold text-yellow-800 text-[8px] md:text-xs leading-tight">
+                      1er lugar de {lastContestWinners.contest.month}
+                    </div>
+                    <div className="font-medium text-gray-700 text-[8px] md:text-xs truncate max-w-[80px] md:max-w-none">
+                      {lastContestWinners.winners[0].author}
+                    </div>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
 
@@ -477,7 +541,10 @@ const LandingPage = () => {
 
       {/* 🆕 GANADORES DEL CONCURSO ANTERIOR */}
       {lastContestWinners && !loadingWinners && (
-        <section className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+        <section
+          id="winners-section"
+          className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden"
+        >
           {/* Elementos decorativos */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl animate-pulse"></div>
@@ -528,17 +595,17 @@ const LandingPage = () => {
                         to={`/story/${lastContestWinners.winners[0].id}`}
                         className="group block"
                       >
-                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-100 border-yellow-400 hover:border-yellow-500 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg">
+                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-400 hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
                           {/* Badge de ganador más prominente */}
                           <div className="absolute -top-3 left-6">
-                            <div className="px-5 py-2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold text-sm shadow-xl animate-pulse">
+                            <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
                               🏆 GANADOR
                             </div>
                           </div>
 
                           {/* Corona más grande y llamativa */}
                           <div className="text-center mb-4 mt-6">
-                            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl border-4 border-yellow-300">
+                            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
                               <span className="text-5xl">👑</span>
                             </div>
                           </div>
@@ -568,7 +635,7 @@ const LandingPage = () => {
 
                           {/* Estadísticas más destacadas */}
                           <div className="text-center mb-4">
-                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-yellow-100 border-yellow-400 text-yellow-800 shadow-md">
+                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 border-indigo-400 text-indigo-800 shadow-md ring-2 ring-yellow-400/40">
                               <Heart className="h-5 w-5" />
                               <span className="font-bold text-lg">
                                 {lastContestWinners.winners[0].likes_count || 0}{" "}
@@ -579,7 +646,7 @@ const LandingPage = () => {
 
                           {/* Call to action */}
                           <div className="text-center">
-                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50">
                               <BookOpen className="h-5 w-5" />
                               <span>Leer historia ganadora</span>
                             </div>
@@ -611,8 +678,8 @@ const LandingPage = () => {
                                 <div
                                   className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 ${
                                     isSecond
-                                      ? "bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 border-slate-300 hover:border-slate-400"
-                                      : "bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 border-amber-300 hover:border-amber-400"
+                                      ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-300 hover:border-indigo-400"
+                                      : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-300 hover:border-indigo-400"
                                   }`}
                                 >
                                   {/* Badge de posición */}
@@ -620,8 +687,8 @@ const LandingPage = () => {
                                     <div
                                       className={`px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg ${
                                         isSecond
-                                          ? "bg-gradient-to-r from-slate-500 to-gray-600"
-                                          : "bg-gradient-to-r from-amber-500 to-orange-600"
+                                          ? "bg-gradient-to-r from-indigo-500 to-purple-600"
+                                          : "bg-gradient-to-r from-indigo-500 to-purple-600"
                                       }`}
                                     >
                                       {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
@@ -633,8 +700,8 @@ const LandingPage = () => {
                                     <div
                                       className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${
                                         isSecond
-                                          ? "bg-gradient-to-br from-slate-400 to-gray-500"
-                                          : "bg-gradient-to-br from-amber-400 to-orange-500"
+                                          ? "bg-gradient-to-br from-indigo-400 to-purple-500"
+                                          : "bg-gradient-to-br from-indigo-400 to-purple-500"
                                       }`}
                                     >
                                       <span className="text-4xl">
@@ -671,8 +738,8 @@ const LandingPage = () => {
                                     <div
                                       className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
                                         isSecond
-                                          ? "bg-slate-100 border-slate-300 text-slate-700"
-                                          : "bg-amber-100 border-amber-300 text-amber-700"
+                                          ? "bg-indigo-100 border-indigo-300 text-indigo-700"
+                                          : "bg-indigo-100 border-indigo-300 text-indigo-700"
                                       }`}
                                     >
                                       <Heart className="h-4 w-4" />
@@ -687,8 +754,8 @@ const LandingPage = () => {
                                     <div
                                       className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
                                         isSecond
-                                          ? "bg-gradient-to-r from-slate-500 to-gray-600 hover:from-slate-600 hover:to-gray-700"
-                                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                                          ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                          : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
                                       }`}
                                     >
                                       <BookOpen className="h-4 w-4" />
