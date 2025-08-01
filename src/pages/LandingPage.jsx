@@ -488,9 +488,6 @@ const LandingPage = () => {
 
           <div className="max-w-6xl mx-auto px-4 relative">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
-                <Trophy className="h-10 w-10 text-indigo-600" />
-              </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
                 Ganadores de {lastContestWinners.contest.month}
               </h2>
@@ -524,138 +521,178 @@ const LandingPage = () => {
                     </p>
                   </div>
 
-                  {/* Tarjeta del ganador - VERTICAL Y COMPACTA */}
-                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 p-8 mb-8 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 max-w-2xl mx-auto">
-                    <div className="flex flex-col items-center text-center">
-                      {/* Corona y posición */}
-                      <div className="mb-6">
-                        <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl animate-pulse">
-                          <span className="text-5xl">👑</span>
-                        </div>
-                        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold shadow-lg">
-                          🏆 GANADOR
-                        </div>
-                      </div>
-
-                      {/* Título de la historia */}
-                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 leading-tight max-w-lg">
-                        "{lastContestWinners.winners[0].title}"
-                      </h3>
-
-                      {/* Autor */}
-                      <div className="flex items-center justify-center gap-4 mb-6">
-                        <UserAvatar
-                          user={{
-                            name: lastContestWinners.winners[0].author,
-                            email: `${lastContestWinners.winners[0].author}@mock.com`,
-                          }}
-                          size="lg"
-                        />
-                        <div className="text-left">
-                          <div className="text-xl font-bold text-gray-900 mb-1">
-                            <UserWithWinnerBadges
-                              userId={lastContestWinners.winners[0].user_id}
-                              userName={lastContestWinners.winners[0].author}
-                            />
-                          </div>
-                          <p className="text-indigo-600 font-semibold">
-                            🌟 Autor destacado del mes
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Estadísticas */}
-                      <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-full">
-                          <Heart className="h-5 w-5 text-red-500" />
-                          <span className="font-bold text-gray-800">
-                            {lastContestWinners.winners[0].likes_count || 0}{" "}
-                            votos
-                          </span>
-                        </div>
-                        <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-full">
-                          <span className="font-semibold text-indigo-700 text-sm">
-                            {lastContestWinners.contest.title}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Botón principal */}
+                  {/* Ganador - mismo ancho que finalistas pero destacado */}
+                  <div className="mb-8 flex justify-center">
+                    <div className="w-full max-w-lg">
                       <Link
                         to={`/story/${lastContestWinners.winners[0].id}`}
-                        className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                        className="group block"
                       >
-                        <BookOpen className="h-5 w-5 mr-3" />
-                        Leer la historia ganadora
-                        <ArrowRight className="h-5 w-5 ml-3" />
+                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-100 border-yellow-400 hover:border-yellow-500 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg">
+                          {/* Badge de ganador más prominente */}
+                          <div className="absolute -top-3 left-6">
+                            <div className="px-5 py-2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold text-sm shadow-xl animate-pulse">
+                              🏆 GANADOR
+                            </div>
+                          </div>
+
+                          {/* Corona más grande y llamativa */}
+                          <div className="text-center mb-4 mt-6">
+                            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl border-4 border-yellow-300">
+                              <span className="text-5xl">👑</span>
+                            </div>
+                          </div>
+
+                          {/* Título */}
+                          <h5 className="text-xl font-bold text-gray-900 mb-4 text-center group-hover:text-indigo-600 transition-colors line-clamp-2">
+                            "{lastContestWinners.winners[0].title}"
+                          </h5>
+
+                          {/* Autor */}
+                          <div className="flex items-center justify-center gap-3 mb-4">
+                            <UserAvatar
+                              user={{
+                                name: lastContestWinners.winners[0].author,
+                                email: `${lastContestWinners.winners[0].author}@mock.com`,
+                              }}
+                              size="md"
+                            />
+                            <div className="text-center">
+                              <UserWithWinnerBadges
+                                userId={lastContestWinners.winners[0].user_id}
+                                userName={lastContestWinners.winners[0].author}
+                                className="font-semibold text-lg"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Estadísticas más destacadas */}
+                          <div className="text-center mb-4">
+                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-yellow-100 border-yellow-400 text-yellow-800 shadow-md">
+                              <Heart className="h-5 w-5" />
+                              <span className="font-bold text-lg">
+                                {lastContestWinners.winners[0].likes_count || 0}{" "}
+                                votos
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Call to action */}
+                          <div className="text-center">
+                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                              <BookOpen className="h-5 w-5" />
+                              <span>Leer historia ganadora</span>
+                            </div>
+                          </div>
+                        </div>
                       </Link>
                     </div>
                   </div>
 
-                  {/* Podium completo - 2do y 3er lugar más prominentes */}
+                  {/* Podium completo con protagonismo equilibrado */}
                   {lastContestWinners.winners.length > 1 && (
                     <div className="mt-8 pt-6 border-t border-indigo-200">
-                      <h4 className="text-lg font-bold text-gray-900 text-center mb-6">
-                        🏆 Podium completo del concurso
+                      <h4 className="text-lg font-semibold text-gray-600 text-center mb-6">
+                        Finalistas
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
                         {lastContestWinners.winners
                           .slice(1, 3)
                           .map((story, index) => {
-                            const position = index + 2; // 2do y 3er lugar
+                            const position = index + 2;
                             const isSecond = position === 2;
-                            
+
                             return (
                               <Link
                                 key={story.id}
                                 to={`/story/${story.id}`}
-                                className="group"
+                                className="group block"
                               >
-                                <div className={`p-6 rounded-xl border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-                                  isSecond 
-                                    ? 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:border-gray-400' 
-                                    : 'bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-300 hover:border-orange-400'
-                                }`}>
-                                  <div className="flex items-center gap-4 mb-3">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                                      isSecond 
-                                        ? 'bg-gradient-to-br from-gray-400 to-gray-500' 
-                                        : 'bg-gradient-to-br from-orange-400 to-yellow-500'
-                                    } shadow-lg`}>
-                                      <span className="text-2xl">
-                                        {isSecond ? '🥈' : '🥉'}
-                                      </span>
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className={`text-sm font-bold mb-1 ${
-                                        isSecond ? 'text-gray-700' : 'text-orange-700'
-                                      }`}>
-                                        {isSecond ? '2º LUGAR' : '3º LUGAR'}
-                                      </div>
-                                      <div className="text-xs text-gray-600">
-                                        {story.likes_count || 0} votos
-                                      </div>
+                                <div
+                                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                                    isSecond
+                                      ? "bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 border-slate-300 hover:border-slate-400"
+                                      : "bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100 border-amber-300 hover:border-amber-400"
+                                  }`}
+                                >
+                                  {/* Badge de posición */}
+                                  <div className="absolute -top-3 left-6">
+                                    <div
+                                      className={`px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg ${
+                                        isSecond
+                                          ? "bg-gradient-to-r from-slate-500 to-gray-600"
+                                          : "bg-gradient-to-r from-amber-500 to-orange-600"
+                                      }`}
+                                    >
+                                      {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
                                     </div>
                                   </div>
-                                  
-                                  <h5 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+
+                                  {/* Medalla grande */}
+                                  <div className="text-center mb-4 mt-4">
+                                    <div
+                                      className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${
+                                        isSecond
+                                          ? "bg-gradient-to-br from-slate-400 to-gray-500"
+                                          : "bg-gradient-to-br from-amber-400 to-orange-500"
+                                      }`}
+                                    >
+                                      <span className="text-4xl">
+                                        {isSecond ? "🥈" : "🥉"}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Título de la historia */}
+                                  <h5 className="text-lg font-bold text-gray-900 mb-3 text-center group-hover:text-indigo-600 transition-colors line-clamp-2">
                                     "{story.title}"
                                   </h5>
-                                  
-                                  <div className="flex items-center gap-2">
+
+                                  {/* Autor */}
+                                  <div className="flex items-center justify-center gap-3 mb-4">
                                     <UserAvatar
                                       user={{
                                         name: story.author,
                                         email: `${story.author}@mock.com`,
                                       }}
-                                      size="sm"
+                                      size="md"
                                     />
-                                    <div className="flex-1">
+                                    <div className="text-center">
                                       <UserWithWinnerBadges
                                         userId={story.user_id}
                                         userName={story.author}
-                                        className="text-sm"
+                                        className="font-semibold"
                                       />
+                                    </div>
+                                  </div>
+
+                                  {/* Estadísticas */}
+                                  <div className="text-center mb-4">
+                                    <div
+                                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
+                                        isSecond
+                                          ? "bg-slate-100 border-slate-300 text-slate-700"
+                                          : "bg-amber-100 border-amber-300 text-amber-700"
+                                      }`}
+                                    >
+                                      <Heart className="h-4 w-4" />
+                                      <span className="font-bold">
+                                        {story.likes_count || 0} votos
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Call to action */}
+                                  <div className="text-center">
+                                    <div
+                                      className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
+                                        isSecond
+                                          ? "bg-gradient-to-r from-slate-500 to-gray-600 hover:from-slate-600 hover:to-gray-700"
+                                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                                      }`}
+                                    >
+                                      <BookOpen className="h-4 w-4" />
+                                      <span>Leer historia</span>
                                     </div>
                                   </div>
                                 </div>

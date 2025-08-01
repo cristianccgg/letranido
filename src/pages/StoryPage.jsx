@@ -436,11 +436,20 @@ const StoryPage = () => {
         {/* Back Navigation */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => navigate("/contest/current")}
+            onClick={() => {
+              // Navegar inteligentemente según el contexto
+              if (story?.contest_id) {
+                // Si la historia pertenece a un concurso, ir a ese concurso específico
+                navigate(`/contest/${story.contest_id}`);
+              } else {
+                // Fallback: ir al concurso actual
+                navigate("/contest/current");
+              }
+            }}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
-            Volver
+            Volver al concurso
           </button>
 
           <div className="flex items-center gap-2">
@@ -718,13 +727,13 @@ const StoryPage = () => {
 
           <div className="grid md:grid-cols-3 gap-4">
             <Link
-              to="/contest/current"
+              to={`/contest/${story.contest.id}`}
               className="bg-primary-50 border border-primary-200 rounded-lg p-4 hover:bg-primary-100 transition-colors group"
             >
               <div className="flex items-center mb-2">
                 <Trophy className="h-5 w-5 text-primary-600 mr-2" />
                 <span className="font-medium text-primary-900">
-                  Ver concurso actual
+                  Ver más historias del concurso
                 </span>
               </div>
               <p className="text-primary-700 text-sm">
@@ -746,6 +755,24 @@ const StoryPage = () => {
                 Lee más historias increíbles de nuestra comunidad
               </p>
             </Link>
+
+            {/* Enlace al concurso actual si esta historia es de un concurso cerrado */}
+            {story?.contest?.status === "results" && (
+              <Link
+                to="/contest/current"
+                className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors group"
+              >
+                <div className="flex items-center mb-2">
+                  <Trophy className="h-5 w-5 text-purple-600 mr-2" />
+                  <span className="font-medium text-purple-900">
+                    Ver concurso actual
+                  </span>
+                </div>
+                <p className="text-purple-700 text-sm">
+                  Participa en el concurso activo de este mes
+                </p>
+              </Link>
+            )}
 
             {isAuthenticated &&
               story?.contest?.submission_deadline &&

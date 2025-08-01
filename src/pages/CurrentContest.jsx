@@ -496,6 +496,13 @@ const CurrentContest = () => {
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
+  // ✅ CAMBIAR ORDENAMIENTO AUTOMÁTICAMENTE EN FASE DE RESULTADOS
+  useEffect(() => {
+    if (contest && phaseInfo?.phase === "results" && sortBy === "random") {
+      setSortBy("popular"); // Cambiar a ordenamiento por votos cuando hay resultados
+    }
+  }, [contest, phaseInfo?.phase, sortBy]);
+
   // ✅ CONTADOR DE TIEMPO REAL (similar a landing page)
   useEffect(() => {
     if (!contest) {
@@ -1056,6 +1063,14 @@ const CurrentContest = () => {
                         <option value="author">Por autor</option>
                         <option value="random">Aleatorio</option>
                       </select>
+                      
+                      {/* Indicador visual para fase de resultados */}
+                      {phaseInfo?.phase === "results" && sortBy === "popular" && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                          <Trophy className="h-3 w-3" />
+                          <span>Mostrando del ganador al que menos votos obtuvo</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
