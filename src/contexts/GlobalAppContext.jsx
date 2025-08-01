@@ -2058,12 +2058,9 @@ export function GlobalAppProvider({ children }) {
                 terms_accepted_at: termsAccepted ? new Date().toISOString() : null,
               };
 
-              // Solo guardar email si el usuario quiere notificaciones
-              if (emailNotifications) {
-                updateData.email = email.trim().toLowerCase();
-              } else {
-                updateData.email = null; // Limpiar email si no quiere notificaciones
-              }
+              // ✅ CORREGIDO: Email SIEMPRE se guarda (para emails esenciales)
+              // Las preferencias solo controlan QUÉ emails recibe, no si se guarda el email
+              updateData.email = email.trim().toLowerCase();
 
               console.log("📧 Datos de actualización:", updateData);
               const { error: updateError } = await supabase

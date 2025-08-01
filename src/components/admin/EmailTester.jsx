@@ -5,8 +5,8 @@ import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js'
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 
 const EmailTester = () => {
-  const { currentContest } = useGlobalApp();
-  const [loading, setLoading] = useState(false);
+  const { currentContest, contests } = useGlobalApp();
+  const [loading, setLoading] = useState({}); // Cambiar a objeto para loading individual
   const [result, setResult] = useState(null);
   const [activeTab, setActiveTab] = useState('contest');
   const [manualEmailForm, setManualEmailForm] = useState({
@@ -18,19 +18,39 @@ const EmailTester = () => {
   // Estados para preview
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState({}); // Cambiar a objeto para loading individual
   const [activePreviewTab, setActivePreviewTab] = useState('html');
 
   // Función para generar preview del email
   const handlePreviewEmail = async (emailType, manualData = null) => {
-    setPreviewLoading(true);
+    setPreviewLoading(prev => ({ ...prev, [emailType]: true }));
     try {
       let requestData = { emailType, preview: true };
       
-      // Para emails de concurso, incluir el contestId del concurso actual
+      // Para emails de concurso, incluir el contestId apropiado
       const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
-      if (isContestEmail && currentContest?.id) {
-        requestData.contestId = currentContest.id;
+      if (isContestEmail) {
+        if (emailType === "results") {
+          // Para emails de resultados, buscar el último concurso CERRADO (finalized_at no null)
+          console.log("🏆 Buscando concurso cerrado para preview de resultados...");
+          
+          // Buscar concursos finalizados ordenados por fecha de finalización más reciente
+          const finalizedContests = contests?.filter(c => c.finalized_at !== null) || [];
+          const latestFinalized = finalizedContests.sort((a, b) => 
+            new Date(b.finalized_at) - new Date(a.finalized_at)
+          )[0];
+          
+          if (latestFinalized) {
+            requestData.contestId = latestFinalized.id;
+            console.log(`✅ Usando concurso cerrado: "${latestFinalized.title}" (${latestFinalized.id})`);
+          } else {
+            // No hay concursos finalizados, mostrar error
+            throw new Error("No hay concursos finalizados para generar preview de resultados");
+          }
+        } else {
+          // Para otros emails de concurso, usar el concurso actual
+          requestData.contestId = currentContest?.id;
+        }
       }
       
       // Si es email manual, agregar los datos del formulario
@@ -42,6 +62,9 @@ const EmailTester = () => {
           textContent: manualData.textContent
         };
       }
+      
+      // Debug: Mostrar exactamente qué se está enviando
+      console.log("📤 Enviando request para preview:", requestData);
       
       // Llamar a la función de Supabase con flag de preview
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`, {
@@ -55,6 +78,7 @@ const EmailTester = () => {
       });
       
       const result = await response.json();
+      console.log("📥 Respuesta de Supabase:", result);
       
       if (result.success && result.preview) {
         setPreviewData({
@@ -67,26 +91,54 @@ const EmailTester = () => {
       } else {
         // Manejar diferentes formatos de error de la API
         const errorMessage = result.error || result.message || 'Error desconocido';
-        setResult({ success: false, message: 'No se pudo generar el preview: ' + errorMessage });
-        console.error('Preview error:', result);
+        
+        // ❌ PROBLEMA: La función envió email en lugar de hacer preview
+        if (result.success && result.sent) {
+          setResult({ 
+            success: false, 
+            message: `❌ ERROR CRÍTICO: El preview envió ${result.sent} emails reales en lugar de mostrar preview. Revisa la función de Supabase.` 
+          });
+          console.error('🚨 PREVIEW ENVIÓ EMAILS REALES:', result);
+        } else {
+          setResult({ success: false, message: 'No se pudo generar el preview: ' + errorMessage });
+          console.error('Preview error:', result);
+        }
       }
     } catch (error) {
       console.error('Network error generating preview:', error);
       setResult({ success: false, message: 'Error de conexión generando preview: ' + error.message });
     }
-    setPreviewLoading(false);
+    setPreviewLoading(prev => ({ ...prev, [emailType]: false }));
   };
 
   // Función universal para enviar emails (concurso y manuales)
   const handleSendEmail = async (emailType, manualData = null) => {
-    setLoading(true);
+    setLoading(prev => ({ ...prev, [emailType]: true }));
     try {
       let requestData = { emailType };
       
-      // Para emails de concurso, incluir el contestId del concurso actual
+      // Para emails de concurso, incluir el contestId apropiado
       const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
-      if (isContestEmail && currentContest?.id) {
-        requestData.contestId = currentContest.id;
+      if (isContestEmail) {
+        if (emailType === "results") {
+          // Para emails de resultados, usar el último concurso cerrado
+          console.log("🏆 Buscando concurso cerrado para envío de resultados...");
+          
+          const finalizedContests = contests?.filter(c => c.finalized_at !== null) || [];
+          const latestFinalized = finalizedContests.sort((a, b) => 
+            new Date(b.finalized_at) - new Date(a.finalized_at)
+          )[0];
+          
+          if (latestFinalized) {
+            requestData.contestId = latestFinalized.id;
+            console.log(`✅ Enviando resultados de: "${latestFinalized.title}" (${latestFinalized.id})`);
+          } else {
+            throw new Error("No hay concursos finalizados para enviar resultados");
+          }
+        } else {
+          // Para otros emails de concurso, usar el concurso actual
+          requestData.contestId = currentContest?.id;
+        }
       }
       
       // Si es email manual, agregar los datos del formulario
@@ -110,7 +162,7 @@ const EmailTester = () => {
     } catch (error) {
       setResult({ success: false, message: error.message });
     }
-    setLoading(false);
+    setLoading(prev => ({ ...prev, [emailType]: false }));
   };
 
   // Enviar email manual usando el formulario
@@ -127,10 +179,10 @@ const EmailTester = () => {
   };
 
   const contestEmailTypes = [
-    { type: 'new_contest', label: '🎯 Nuevo Concurso', desc: 'Email de concurso disponible' },
-    { type: 'submission_reminder', label: '⏰ Recordatorio', desc: 'Recordatorio de últimos días para enviar' },
-    { type: 'voting_started', label: '🗳️ Votación Iniciada', desc: 'Notificar que inició la votación' },
-    { type: 'results', label: '🏆 Resultados', desc: 'Anunciar ganadores del concurso' }
+    { type: 'new_contest', label: '🎯 Nuevo Concurso', desc: 'Email de concurso disponible (usa concurso actual)' },
+    { type: 'submission_reminder', label: '⏰ Recordatorio', desc: 'Recordatorio de últimos días para enviar (usa concurso actual)' },
+    { type: 'voting_started', label: '🗳️ Votación Iniciada', desc: 'Notificar que inició la votación (usa concurso actual)' },
+    { type: 'results', label: '🏆 Resultados', desc: 'Anunciar ganadores del concurso (usa último concurso FINALIZADO)' }
   ];
 
   return (
@@ -168,6 +220,28 @@ const EmailTester = () => {
         </div>
       </div>
 
+      {/* Información sobre concursos disponibles */}
+      {activeTab === 'contest' && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <h4 className="font-semibold text-blue-800 mb-2">📋 Información de Concursos</h4>
+          <div className="text-sm text-blue-700 space-y-1">
+            <div>• <strong>Concurso Actual:</strong> {currentContest?.title || "Ninguno"} {currentContest?.finalized_at ? "(Finalizado)" : "(Activo)"}</div>
+            <div>• <strong>Para emails de resultados:</strong> Se usará el último concurso finalizado</div>
+            <div>• <strong>Concursos finalizados disponibles:</strong> {contests?.filter(c => c.finalized_at !== null).length || 0}</div>
+            {contests?.filter(c => c.finalized_at !== null).length > 0 && (
+              <div className="ml-4 text-xs">
+                → Último finalizado: "{contests.filter(c => c.finalized_at !== null).sort((a, b) => new Date(b.finalized_at) - new Date(a.finalized_at))[0]?.title}"
+              </div>
+            )}
+          </div>
+          <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+            <p className="text-xs text-blue-800">
+              <strong>⚠️ IMPORTANTE:</strong> Los emails de concurso solo van a usuarios con <code>contest_notifications=true</code> + newsletter subscribers.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Emails de Concurso */}
       {activeTab === 'contest' && (
         <div className="mb-8">
@@ -180,18 +254,18 @@ const EmailTester = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handlePreviewEmail(email.type)}
-                    disabled={previewLoading || loading}
+                    disabled={previewLoading[email.type] || loading[email.type]}
                     className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
                   >
-                    {previewLoading ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                    {previewLoading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
                     Preview
                   </button>
                   <button
                     onClick={() => handleSendEmail(email.type)}
-                    disabled={loading || previewLoading}
+                    disabled={loading[email.type] || previewLoading[email.type]}
                     className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
                   >
-                    {loading ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                    {loading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
                     Enviar
                   </button>
                 </div>
@@ -205,6 +279,25 @@ const EmailTester = () => {
       {activeTab === 'manual' && (
         <div className="mb-8">
           <h3 className="text-xl font-bold text-gray-900 mb-6">Emails Manuales</h3>
+          
+          {/* Información sobre tipos de emails */}
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <h4 className="font-semibold text-yellow-800 mb-3">📬 Tipos de Email Manual</h4>
+            <div className="grid md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="font-semibold text-purple-700">📝 Generales</div>
+                <div className="text-gray-600">Solo usuarios que activaron <code>general_notifications</code></div>
+              </div>
+              <div>
+                <div className="font-semibold text-indigo-700">📰 Newsletter</div>
+                <div className="text-gray-600">Solo usuarios que activaron <code>general_notifications</code></div>
+              </div>
+              <div>
+                <div className="font-semibold text-red-700">🛡️ Esenciales</div>
+                <div className="text-gray-600">TODOS los usuarios con email (ignora preferencias)</div>
+              </div>
+            </div>
+          </div>
           
           {/* Formulario para email manual */}
           <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border border-purple-200 rounded-2xl p-6 mb-6 shadow-lg">
@@ -256,39 +349,48 @@ const EmailTester = () => {
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white/95 backdrop-blur-sm border border-purple-100 hover:border-purple-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
               <h4 className="font-bold text-gray-900 mb-2 text-lg">📝 Generales</h4>
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">Tips, actualizaciones, newsletter (usuarios con notificaciones generales)</p>
+              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Tips, actualizaciones, newsletter general</p>
+              <div className="text-xs text-purple-600 bg-purple-50 p-2 rounded-lg mb-3">
+                <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
+              </div>
               <button
                 onClick={() => handleSendManualEmail('manual_general')}
-                disabled={loading}
+                disabled={loading['manual_general']}
                 className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
               >
-                {loading ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {loading['manual_general'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
                 Enviar
               </button>
             </div>
             
             <div className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-indigo-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
               <h4 className="font-bold text-gray-900 mb-2 text-lg">📰 Newsletter</h4>
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">Newsletter específico (usuarios con notificaciones generales)</p>
+              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Newsletter específico</p>
+              <div className="text-xs text-indigo-600 bg-indigo-50 p-2 rounded-lg mb-3">
+                <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
+              </div>
               <button
                 onClick={() => handleSendManualEmail('manual_newsletter')}
-                disabled={loading}
+                disabled={loading['manual_newsletter']}
                 className="w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
               >
-                {loading ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {loading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
                 Enviar
               </button>
             </div>
             
-            <div className="bg-white/95 backdrop-blur-sm border border-pink-100 hover:border-pink-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-              <h4 className="font-bold text-gray-900 mb-2 text-lg">🛡️ Esenciales</h4>
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">Confirmaciones, seguridad (todos los usuarios con email)</p>
+            <div className="bg-white/95 backdrop-blur-sm border border-red-100 hover:border-red-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <h4 className="font-bold text-gray-900 mb-2 text-lg">🛡️ Emails Esenciales</h4>
+              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Seguridad, términos legales, confirmaciones críticas</p>
+              <div className="text-xs text-red-600 bg-red-50 p-2 rounded-lg mb-3">
+                <strong>⚠️ CUIDADO:</strong> Va a <strong>TODOS</strong> los usuarios con email válido, independientemente de sus preferencias
+              </div>
               <button
                 onClick={() => handleSendManualEmail('manual_essential')}
-                disabled={loading}
+                disabled={loading['manual_essential']}
                 className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-red-600 text-white rounded-xl hover:from-pink-600 hover:to-red-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
               >
-                {loading ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {loading['manual_essential'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
                 Enviar
               </button>
             </div>
@@ -422,7 +524,7 @@ const EmailTester = () => {
                     setShowPreview(false);
                     handleSendEmail(previewData.emailType);
                   }}
-                  disabled={loading}
+                  disabled={loading[previewData?.emailType]}
                   className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 transition-colors"
                 >
                   <Send className="h-4 w-4" />

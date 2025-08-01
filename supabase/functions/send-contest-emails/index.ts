@@ -18,8 +18,7 @@ interface EmailRequest {
     | "manual_general"
     | "manual_newsletter"
     | "manual_essential"
-    | "newsletter_subscription"
-    | "unsubscribe_user";
+    | "newsletter_subscription";
   contestId?: string;
   // Para preview mode
   preview?: boolean;
@@ -49,19 +48,22 @@ serve(async (req) => {
     console.log(
       `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}`
     );
+    
+    // 🔍 DEBUG: Mostrar parámetros recibidos
+    console.log(`🔍 DEBUG - Parámetros recibidos:`, {
+      emailType,
+      contestId,
+      preview,
+      hasSubject: !!subject,
+      hasHtmlContent: !!htmlContent
+    });
 
     // Handle newsletter subscription separately
     if (emailType === "newsletter_subscription") {
       return await handleNewsletterSubscription(supabaseClient, email);
     }
 
-    // Handle user unsubscribe separately - DISABLED, preferences page works fine
-    if (emailType === "unsubscribe_user") {
-      return new Response(
-        JSON.stringify({ success: false, message: "Use preferences page instead" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Unsubscribe functionality removed - users now use preferences page
 
     // Get contest data (solo para emails de concurso)
     let contest;
@@ -178,7 +180,49 @@ serve(async (req) => {
         users = allUsers;
         console.log(`📧 Reminder: ${reminderUsers?.length || 0} users without stories + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
       }
-    } else if (emailType === "new_contest" || emailType === "voting_started" || emailType === "results") {
+    } else if (emailType === "new_contest") {
+      // Para nuevo concurso, enviar solo a usuarios que NO han enviado historia aún
+      console.log("📧 Obteniendo usuarios para nuevo concurso (sin historia enviada)...");
+      if (!contest?.id) {
+        throw new Error("Se requiere contest_id para nuevo concurso");
+      }
+      
+      const { data: reminderUsers, error: reminderError } = await supabaseClient
+        .rpc("get_reminder_email_recipients", { contest_id_param: contest.id });
+      
+      console.log("📧 Obteniendo newsletter subscribers...");
+      const { data: newsletterUsers, error: newsletterError } = await supabaseClient
+        .from("newsletter_subscribers")
+        .select("email, created_at")
+        .eq("is_active", true);
+      
+      if (reminderError) {
+        console.error("Error obteniendo usuarios para nuevo concurso:", reminderError);
+        usersError = reminderError;
+      } else if (newsletterError) {
+        console.error("Error obteniendo newsletter subscribers:", newsletterError);
+        usersError = newsletterError;
+      } else {
+        // Combinar usuarios que necesitan recordatorio + newsletter subscribers
+        const allUsers = [...(reminderUsers || [])];
+        const reminderEmails = new Set(reminderUsers?.map(u => u.email) || []);
+        
+        // Agregar newsletter subscribers que no estén ya en la lista
+        (newsletterUsers || []).forEach(subscriber => {
+          if (!reminderEmails.has(subscriber.email)) {
+            allUsers.push({
+              user_id: null,
+              email: subscriber.email,
+              display_name: subscriber.email.split('@')[0],
+              created_at: subscriber.created_at
+            });
+          }
+        });
+        
+        users = allUsers;
+        console.log(`📧 New contest: ${reminderUsers?.length || 0} users without stories + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
+      }
+    } else if (emailType === "voting_started" || emailType === "results") {
       // Para otros emails de concurso, usar la función original
       console.log("📧 Obteniendo usuarios registrados con contest_notifications...");
       const { data: registeredUsers, error: registeredError } = await supabaseClient
@@ -277,11 +321,7 @@ serve(async (req) => {
         break;
 
       case "submission_reminder":
-        const daysLeft = Math.ceil(
-          (new Date(contest.submission_deadline).getTime() -
-            new Date().getTime()) /
-            (1000 * 60 * 60 * 24)
-        );
+        const daysLeft = calculateDaysLeft(contest.submission_deadline);
         emailData = {
           subject: `⏰ Últimos ${daysLeft} días para participar en "${contest.title}"`,
           html: generateReminderHTML(contest, daysLeft),
@@ -329,6 +369,15 @@ serve(async (req) => {
         throw new Error(`Tipo de email no válido: ${emailType}`);
     }
 
+    // 🔍 DEBUG: Verificar antes del preview check
+    console.log(`🔍 DEBUG - Antes del preview check:`, {
+      preview,
+      typeofPreview: typeof preview,
+      emailType,
+      emailDataKeys: Object.keys(emailData || {}),
+      hasEmailData: !!emailData
+    });
+    
     // ✅ PREVIEW MODE - Retornar contenido sin enviar
     if (preview) {
       console.log(`📧 PREVIEW MODE: Retornando contenido para ${emailType}`);
@@ -443,29 +492,53 @@ serve(async (req) => {
   }
 });
 
-// Templates HTML mejorados para Letranido
-function generateNewContestHTML(contest: any): string {
-  // Arreglar timezone igual que en el frontend
-  const deadlineString = contest.submission_deadline;
-  let deadlineDate;
+// Helper function para formatear fechas en hora de Colombia
+function formatColombiaDateTime(dateString: string, includeTime: boolean = false): string {
+  if (!dateString) return "Fecha no definida";
   
-  if (deadlineString.includes('+00:00')) {
-    const cleanDate = deadlineString.replace('+00:00', '');
-    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
-  } else {
-    deadlineDate = new Date(deadlineString);
+  // Crear fecha interpretándola como UTC (como viene de la BD)
+  const utcDate = new Date(dateString);
+  
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    day: "numeric", 
+    month: "long",
+    year: "numeric",
+    timeZone: "America/Bogota"
+  };
+  
+  if (includeTime) {
+    options.hour = "2-digit";
+    options.minute = "2-digit";
+    options.hour12 = true;
   }
   
-  const deadline = deadlineDate.toLocaleDateString(
-    "es-ES",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "America/Bogota"
-    }
-  );
+  return utcDate.toLocaleDateString("es-ES", options);
+}
+
+// Helper function para calcular días restantes en hora de Colombia
+function calculateDaysLeft(deadlineString: string): number {
+  if (!deadlineString) return 0;
+  
+  // Crear fecha del deadline interpretándola como UTC
+  const deadlineUTC = new Date(deadlineString);
+  
+  // Obtener la fecha/hora actual en Colombia
+  const now = new Date();
+  const nowInColombia = new Date(now.toLocaleString("en-US", {timeZone: "America/Bogota"}));
+  
+  // Calcular diferencia en milisegundos
+  const diffMs = deadlineUTC.getTime() - nowInColombia.getTime();
+  
+  // Convertir a días y redondear hacia arriba
+  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  
+  return Math.max(0, daysLeft); // No devolver números negativos
+}
+
+// Templates HTML mejorados para Letranido
+function generateNewContestHTML(contest: any): string {
+  const deadline = formatColombiaDateTime(contest.submission_deadline, true);
 
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: white;">
@@ -530,29 +603,7 @@ function generateNewContestHTML(contest: any): string {
 
 function generateReminderHTML(contest: any, daysLeft: number): string {
   const urgencyEmoji = daysLeft <= 1 ? "🚨" : daysLeft <= 3 ? "⏰" : "⏳";
-  
-  // Arreglar timezone igual que en el frontend
-  const deadlineString = contest.submission_deadline;
-  let deadlineDate;
-  
-  if (deadlineString.includes('+00:00')) {
-    const cleanDate = deadlineString.replace('+00:00', '');
-    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
-  } else {
-    deadlineDate = new Date(deadlineString);
-  }
-  
-  const deadline = deadlineDate.toLocaleDateString(
-    "es-ES",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Bogota"
-    }
-  );
+  const deadline = formatColombiaDateTime(contest.submission_deadline, true);
 
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: white;">
@@ -615,28 +666,7 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
 }
 
 function generateVotingHTML(contest: any, storiesCount: number): string {
-  // Arreglar timezone igual que en el frontend
-  const deadlineString = contest.voting_deadline;
-  let deadlineDate;
-  
-  if (deadlineString.includes('+00:00')) {
-    const cleanDate = deadlineString.replace('+00:00', '');
-    deadlineDate = new Date(cleanDate + '-05:00'); // Colombia timezone
-  } else {
-    deadlineDate = new Date(deadlineString);
-  }
-  
-  const votingDeadline = deadlineDate.toLocaleDateString(
-    "es-ES",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Bogota"
-    }
-  );
+  const votingDeadline = formatColombiaDateTime(contest.voting_deadline, true);
 
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: white;">
@@ -748,7 +778,7 @@ function generateResultsHTML(contest: any): string {
         <!-- Call to action -->
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¡No te quedes con la curiosidad! Ve los resultados completos y celebra con nosotros.</p>
-          <a href="https://letranido.com/contest/current" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);">
+          <a href="https://letranido.com/contest-history" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);">
             🏆 Ver resultados completos
           </a>
         </div>
@@ -761,7 +791,10 @@ function generateResultsHTML(contest: any): string {
           <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
-          ¡Gracias por hacer de Letranido una comunidad increíble! 💜
+          ¡Gracias por hacer de Letranido una comunidad increíble! 💜<br>
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
+            Gestionar preferencias de email
+          </a>
         </p>
       </div>
     </div>
