@@ -1,4 +1,8 @@
-// utils/fix-badges.js - Función de emergencia para asignar badges faltantes
+// utils/fix-badges.js - FUNCIÓN DE EMERGENCIA ÚNICAMENTE
+// ⚠️ USAR SOLO EN CASOS EXCEPCIONALES
+// Los badges se asignan automáticamente al cerrar concursos desde useContestFinalization.js
+// Esta función es solo para corregir problemas retroactivos o errores inesperados
+
 import { supabase } from '../lib/supabase';
 
 export const fixWinnerBadges = async () => {

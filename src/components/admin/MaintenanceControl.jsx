@@ -322,8 +322,12 @@ const MaintenanceControl = () => {
         )}
 
         <div className="mt-4 text-xs text-orange-600 bg-orange-100 rounded-lg p-3">
-          <strong>⚠️ Usar solo en emergencia:</strong> Esta función asigna automáticamente los badges de ganadores 
-          (contest_winner, contest_finalist, contest_winner_veteran) que no se asignaron durante el cierre del concurso.
+          <strong>⚠️ USAR SOLO EN EMERGENCIA:</strong> Los badges se asignan automáticamente al cerrar concursos. 
+          Esta función es solo para corregir errores excepcionales o problemas retroactivos con badges faltantes 
+          (contest_winner, contest_finalist, contest_winner_veteran).
+          <br/><br/>
+          <strong>✅ Normal:</strong> Cerrar concurso desde Admin Panel → Badges automáticos<br/>
+          <strong>🚨 Emergencia:</strong> Usar este botón solo si los badges no se asignaron correctamente
         </div>
       </div>
 
