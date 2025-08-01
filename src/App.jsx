@@ -1,5 +1,10 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
@@ -8,6 +13,7 @@ import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import { useToast, ToastContainer } from "./components/ui/Toast";
+import SocialContainer from "./components/ui/SocialContainer";
 
 // Páginas críticas - carga inmediata
 import LandingPage from "./pages/LandingPage";
@@ -18,7 +24,9 @@ import WritePrompt from "./pages/WritePrompt";
 // Páginas menos críticas - lazy loading
 const UnifiedProfile = lazy(() => import("./pages/UnifiedProfile"));
 const ContestHistory = lazy(() => import("./pages/ContestHistory"));
-const ContestAdminPanel = lazy(() => import("./components/admin/ContestAdminPanel"));
+const ContestAdminPanel = lazy(
+  () => import("./components/admin/ContestAdminPanel")
+);
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DMCA = lazy(() => import("./pages/DMCA"));
@@ -36,65 +44,70 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
   const { initialized, authInitialized, user } = useGlobalApp();
-  const { isActive: maintenanceActive, message, estimatedDuration, activatedAt, loading: maintenanceLoading } = useMaintenanceMode();
+  const {
+    isActive: maintenanceActive,
+    message,
+    estimatedDuration,
+    activatedAt,
+    loading: maintenanceLoading,
+  } = useMaintenanceMode();
   const { toasts, removeToast } = useToast();
-  
+
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
-
 
   // ✅ VERIFICAR MODO MANTENIMIENTO PRIMERO
   // Si el mantenimiento está activo, mostrar página de mantenimiento de forma inteligente
   if (!maintenanceLoading && maintenanceActive) {
     const currentPath = window.location.pathname;
-    
-    
+
     // Páginas que los admins pueden ver durante mantenimiento
-    const adminAllowedPages = [
-      '/admin',
-      '/maintenance-preview'
-    ];
-    
+    const adminAllowedPages = ["/admin", "/maintenance-preview"];
+
     // Páginas que todos pueden ver durante mantenimiento (para testing)
     const publicAllowedPages = [
-      '/login',
-      '/register', 
-      '/auth',
-      '/callback',
-      '/reset-password',
-      '/confirm',
-      '/terms',
-      '/privacy',
-      '/privacy-policy',
-      '/cookie-policy',
-      '/community-guidelines',
+      "/login",
+      "/register",
+      "/auth",
+      "/callback",
+      "/reset-password",
+      "/confirm",
+      "/terms",
+      "/privacy",
+      "/privacy-policy",
+      "/cookie-policy",
+      "/community-guidelines",
       // Páginas esenciales para testing durante mantenimiento
-      '/write',
-      '/profile',
-      '/dashboard',
-      '/contest',
-      '/story',
-      '/preferences'
+      "/write",
+      "/profile",
+      "/dashboard",
+      "/contest",
+      "/story",
+      "/preferences",
     ];
-    
-    const isAdminPage = adminAllowedPages.some(page => currentPath.startsWith(page));
-    const isPublicAllowedPage = publicAllowedPages.some(page => currentPath.startsWith(page));
-    
+
+    const isAdminPage = adminAllowedPages.some((page) =>
+      currentPath.startsWith(page)
+    );
+    const isPublicAllowedPage = publicAllowedPages.some((page) =>
+      currentPath.startsWith(page)
+    );
+
     // Mostrar página de mantenimiento EXCEPTO:
     // 1. Si es admin en páginas de admin
     // 2. Si es una página pública permitida (login, registro, etc.) - SIEMPRE disponible
     const shouldShowMaintenance = !(
-      (user?.is_admin && isAdminPage) || 
+      (user?.is_admin && isAdminPage) ||
       isPublicAllowedPage
     );
-    
+
     if (shouldShowMaintenance) {
       return (
-        <MaintenancePage 
+        <MaintenancePage
           maintenanceInfo={{
             message,
             estimatedDuration,
-            activatedAt
+            activatedAt,
           }}
         />
       );
@@ -157,69 +170,91 @@ function AppContent() {
     <Router>
       <ScrollToTop />
       <Layout>
-        <Suspense fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            </div>
+          }
+        >
+          <SocialContainer />
           <Routes>
             <Route path="/" element={<LandingPage />} />
 
             {/* ✅ RUTAS PRINCIPALES - Con canonical URLs */}
             <Route path="/profile" element={<UnifiedProfile />} />
             <Route path="/profile/:userId" element={<UnifiedProfile />} />
-          
-          {/* Redirects para evitar contenido duplicado */}
-          <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
 
-          <Route path="/write/:promptId?" element={<WritePrompt />} />
-          
-          {/* Ruta principal para historial */}
-          <Route path="/contest-history" element={<ContestHistory />} />
-          
-          {/* Redirect para evitar contenido duplicado */}
-          <Route path="/history" element={<Navigate to="/contest-history" replace />} />
-          
-          <Route path="/contest/current" element={<CurrentContest />} />
-          <Route path="/contest/:id" element={<CurrentContest />} />
-          <Route path="/story/:id" element={<StoryPage />} />
+            {/* Redirects para evitar contenido duplicado */}
+            <Route
+              path="/dashboard"
+              element={<Navigate to="/profile" replace />}
+            />
 
-          {/* Admin */}
-          <Route path="/admin" element={<ContestAdminPanel />} />
-          <Route path="/maintenance-preview" element={<MaintenancePage maintenanceInfo={{ message, estimatedDuration, activatedAt }} />} />
+            <Route path="/write/:promptId?" element={<WritePrompt />} />
 
-          {/* User Preferences */}
-          <Route path="/preferences" element={<Preferences />} />
+            {/* Ruta principal para historial */}
+            <Route path="/contest-history" element={<ContestHistory />} />
 
-          {/* Password Reset */}
-          <Route path="/reset-password" element={<ResetPassword />} />
+            {/* Redirect para evitar contenido duplicado */}
+            <Route
+              path="/history"
+              element={<Navigate to="/contest-history" replace />}
+            />
 
-          {/* FAQ */}
-          <Route path="/faq" element={<FAQ />} />
-          
-          {/* Writing Resources */}
-          <Route path="/writing-resources" element={<WritingResources />} />
-          
-          {/* Blog */}
-          <Route path="/recursos/blog" element={<Blog />} />
-          <Route path="/recursos/blog/:postId" element={<BlogPost />} />
+            <Route path="/contest/current" element={<CurrentContest />} />
+            <Route path="/contest/:id" element={<CurrentContest />} />
+            <Route path="/story/:id" element={<StoryPage />} />
 
-          {/* Legal - Con rutas canónicas */}
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/dmca" element={<DMCA />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/community-guidelines" element={<CommunityGuidelines />} />
-          
-          {/* Redirect para evitar contenido duplicado */}
-          <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+            {/* Admin */}
+            <Route path="/admin" element={<ContestAdminPanel />} />
+            <Route
+              path="/maintenance-preview"
+              element={
+                <MaintenancePage
+                  maintenanceInfo={{ message, estimatedDuration, activatedAt }}
+                />
+              }
+            />
 
-          {/* ✅ RUTA 404 MEJORADA */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* User Preferences */}
+            <Route path="/preferences" element={<Preferences />} />
+
+            {/* Password Reset */}
+            <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* FAQ */}
+            <Route path="/faq" element={<FAQ />} />
+
+            {/* Writing Resources */}
+            <Route path="/writing-resources" element={<WritingResources />} />
+
+            {/* Blog */}
+            <Route path="/recursos/blog" element={<Blog />} />
+            <Route path="/recursos/blog/:postId" element={<BlogPost />} />
+
+            {/* Legal - Con rutas canónicas */}
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/dmca" element={<DMCA />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route
+              path="/community-guidelines"
+              element={<CommunityGuidelines />}
+            />
+
+            {/* Redirect para evitar contenido duplicado */}
+            <Route
+              path="/privacy-policy"
+              element={<Navigate to="/privacy" replace />}
+            />
+
+            {/* ✅ RUTA 404 MEJORADA */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </Suspense>
       </Layout>
-      
+
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </Router>
