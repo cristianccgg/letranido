@@ -611,29 +611,76 @@ const LandingPage = () => {
                     </Link>
                   </div>
 
-                  {/* Mini-mención discreta de otros lugares */}
+                  {/* Podium completo - 2do y 3er lugar más prominentes */}
                   {lastContestWinners.winners.length > 1 && (
-                    <div className="text-center text-sm text-gray-500 border-t border-gray-200 pt-4">
-                      <p className="mb-2">
-                        También destacaron en este concurso:
-                      </p>
-                      <div className="flex items-center justify-center gap-6 text-xs">
+                    <div className="mt-8 pt-6 border-t border-indigo-200">
+                      <h4 className="text-lg font-bold text-gray-900 text-center mb-6">
+                        🏆 Podium completo del concurso
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                         {lastContestWinners.winners
                           .slice(1, 3)
-                          .map((story, index) => (
-                            <Link
-                              key={story.id}
-                              to={`/story/${story.id}`}
-                              className="hover:text-indigo-600 transition-colors duration-200"
-                            >
-                              <span className="font-medium">
-                                {index === 0 ? "🥈" : "🥉"} {story.author}
-                              </span>
-                              <span className="text-gray-400 ml-1">
-                                - "{story.title}"
-                              </span>
-                            </Link>
-                          ))}
+                          .map((story, index) => {
+                            const position = index + 2; // 2do y 3er lugar
+                            const isSecond = position === 2;
+                            
+                            return (
+                              <Link
+                                key={story.id}
+                                to={`/story/${story.id}`}
+                                className="group"
+                              >
+                                <div className={`p-6 rounded-xl border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
+                                  isSecond 
+                                    ? 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300 hover:border-gray-400' 
+                                    : 'bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-300 hover:border-orange-400'
+                                }`}>
+                                  <div className="flex items-center gap-4 mb-3">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                      isSecond 
+                                        ? 'bg-gradient-to-br from-gray-400 to-gray-500' 
+                                        : 'bg-gradient-to-br from-orange-400 to-yellow-500'
+                                    } shadow-lg`}>
+                                      <span className="text-2xl">
+                                        {isSecond ? '🥈' : '🥉'}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className={`text-sm font-bold mb-1 ${
+                                        isSecond ? 'text-gray-700' : 'text-orange-700'
+                                      }`}>
+                                        {isSecond ? '2º LUGAR' : '3º LUGAR'}
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        {story.likes_count || 0} votos
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <h5 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                                    "{story.title}"
+                                  </h5>
+                                  
+                                  <div className="flex items-center gap-2">
+                                    <UserAvatar
+                                      user={{
+                                        name: story.author,
+                                        email: `${story.author}@mock.com`,
+                                      }}
+                                      size="sm"
+                                    />
+                                    <div className="flex-1">
+                                      <UserWithWinnerBadges
+                                        userId={story.user_id}
+                                        userName={story.author}
+                                        className="text-sm"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Link>
+                            );
+                          })}
                       </div>
                     </div>
                   )}
