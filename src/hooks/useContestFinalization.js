@@ -95,7 +95,7 @@ export const useContestFinalization = () => {
 
       await Promise.all(winnerUpdates);
 
-      // 4. Actualizar estadísticas de usuarios ganadores (solo wins_count por ahora)
+      // 4. Actualizar estadísticas de usuarios ganadores y asignar badges
       const userUpdates = winners.map(async (winner, index) => {
         const position = index + 1;
 
@@ -114,11 +114,13 @@ export const useContestFinalization = () => {
           throw getUserError;
         }
 
-        // Actualizar solo wins_count
+        const newWinsCount = (currentUser.wins_count || 0) + 1;
+
+        // Actualizar wins_count
         const { error: userUpdateError } = await supabase
           .from("user_profiles")
           .update({
-            wins_count: (currentUser.wins_count || 0) + 1,
+            wins_count: newWinsCount,
           })
           .eq("id", winner.user_id);
 
@@ -128,6 +130,45 @@ export const useContestFinalization = () => {
             userUpdateError
           );
           throw userUpdateError;
+        }
+
+        // 🏆 ASIGNAR BADGES DE GANADORES
+        try {
+          // Badge según posición
+          const badgeType = position === 1 ? 'contest_winner' : 'contest_finalist';
+          
+          // Llamar función de base de datos para asignar badge
+          const { error: badgeError } = await supabase.rpc('award_specific_badge', {
+            target_user_id: winner.user_id,
+            badge_type: badgeType,
+            contest_id: contestId
+          });
+
+          if (badgeError) {
+            console.error(`Error asignando badge ${badgeType} a usuario ${winner.user_id}:`, badgeError);
+            // No lanzar error para no fallar todo el proceso, solo loggearlo
+          } else {
+            console.log(`🏅 Badge ${badgeType} asignado a ${winner.user_profiles?.display_name} (posición ${position})`);
+          }
+
+          // Badge de veterano si tiene 2+ victorias
+          if (newWinsCount >= 2) {
+            const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
+              target_user_id: winner.user_id,
+              badge_type: 'contest_winner_veteran',
+              contest_id: contestId
+            });
+
+            if (veteranBadgeError) {
+              console.error(`Error asignando badge veteran a usuario ${winner.user_id}:`, veteranBadgeError);
+            } else {
+              console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${newWinsCount} victorias)`);
+            }
+          }
+
+        } catch (badgeErr) {
+          console.error(`Error en asignación de badges para usuario ${winner.user_id}:`, badgeErr);
+          // Continuar sin fallar el proceso
         }
 
         console.log(

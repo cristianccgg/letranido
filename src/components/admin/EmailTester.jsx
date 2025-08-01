@@ -1,9 +1,11 @@
 // components/admin/EmailTester.jsx - Componente para probar emails desde el admin
 import { useState } from 'react';
-import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit } from 'lucide-react';
+import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X } from 'lucide-react';
 import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
+import { useGlobalApp } from '../../contexts/GlobalAppContext';
 
 const EmailTester = () => {
+  const { currentContest } = useGlobalApp();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [activeTab, setActiveTab] = useState('contest');
@@ -12,12 +14,80 @@ const EmailTester = () => {
     htmlContent: '',
     textContent: ''
   });
+  
+  // Estados para preview
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [activePreviewTab, setActivePreviewTab] = useState('html');
+
+  // Función para generar preview del email
+  const handlePreviewEmail = async (emailType, manualData = null) => {
+    setPreviewLoading(true);
+    try {
+      let requestData = { emailType, preview: true };
+      
+      // Para emails de concurso, incluir el contestId del concurso actual
+      const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+      if (isContestEmail && currentContest?.id) {
+        requestData.contestId = currentContest.id;
+      }
+      
+      // Si es email manual, agregar los datos del formulario
+      if (manualData) {
+        requestData = {
+          ...requestData,
+          subject: manualData.subject,
+          htmlContent: manualData.htmlContent,
+          textContent: manualData.textContent
+        };
+      }
+      
+      // Llamar a la función de Supabase con flag de preview
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.preview) {
+        setPreviewData({
+          emailType,
+          subject: result.preview.subject,
+          htmlContent: result.preview.htmlContent,
+          textContent: result.preview.textContent
+        });
+        setShowPreview(true);
+      } else {
+        // Manejar diferentes formatos de error de la API
+        const errorMessage = result.error || result.message || 'Error desconocido';
+        setResult({ success: false, message: 'No se pudo generar el preview: ' + errorMessage });
+        console.error('Preview error:', result);
+      }
+    } catch (error) {
+      console.error('Network error generating preview:', error);
+      setResult({ success: false, message: 'Error de conexión generando preview: ' + error.message });
+    }
+    setPreviewLoading(false);
+  };
 
   // Función universal para enviar emails (concurso y manuales)
   const handleSendEmail = async (emailType, manualData = null) => {
     setLoading(true);
     try {
       let requestData = { emailType };
+      
+      // Para emails de concurso, incluir el contestId del concurso actual
+      const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+      if (isContestEmail && currentContest?.id) {
+        requestData.contestId = currentContest.id;
+      }
       
       // Si es email manual, agregar los datos del formulario
       if (manualData) {
@@ -107,14 +177,24 @@ const EmailTester = () => {
               <div key={email.type} className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                 <h4 className="font-bold text-gray-900 mb-2 text-lg">{email.label}</h4>
                 <p className="text-sm text-gray-600 mb-4 leading-relaxed">{email.desc}</p>
-                <button
-                  onClick={() => handleSendEmail(email.type)}
-                  disabled={loading}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  {loading ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                  Enviar Test
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handlePreviewEmail(email.type)}
+                    disabled={previewLoading || loading}
+                    className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                  >
+                    {previewLoading ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => handleSendEmail(email.type)}
+                    disabled={loading || previewLoading}
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    {loading ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                    Enviar
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -253,6 +333,106 @@ const EmailTester = () => {
           <li>• ✅ <strong>Formulario simple</strong> - Escribe tu contenido y envía</li>
         </ul>
       </div>
+
+      {/* Modal de Preview */}
+      {showPreview && previewData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Preview del Email</h3>
+                <p className="text-sm text-gray-600 mt-1">Tipo: {previewData.emailType}</p>
+              </div>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="overflow-y-auto max-h-[70vh]">
+              {/* Subject */}
+              <div className="p-4 border-b border-gray-100 bg-gray-50">
+                <div className="text-sm text-gray-600 font-medium mb-1">Asunto:</div>
+                <div className="text-lg font-semibold text-gray-900">{previewData.subject}</div>
+              </div>
+
+              {/* Tabs para HTML y Texto */}
+              <div className="border-b border-gray-200">
+                <div className="flex">
+                  <button
+                    onClick={() => setActivePreviewTab('html')}
+                    className={`px-4 py-2 text-sm font-medium ${
+                      activePreviewTab === 'html'
+                        ? 'border-b-2 border-indigo-500 text-indigo-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Vista HTML
+                  </button>
+                  <button
+                    onClick={() => setActivePreviewTab('text')}
+                    className={`px-4 py-2 text-sm font-medium ${
+                      activePreviewTab === 'text'
+                        ? 'border-b-2 border-indigo-500 text-indigo-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Vista Texto
+                  </button>
+                </div>
+              </div>
+
+              {/* Contenido del preview */}
+              <div className="p-4">
+                {activePreviewTab === 'html' ? (
+                  <div className="border rounded-lg p-4 bg-white">
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: previewData.htmlContent }}
+                      className="email-preview"
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 border rounded-lg p-4">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
+                      {previewData.textContent}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer del modal */}
+            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+              <div className="text-sm text-gray-600">
+                Esto es exactamente como se verá el email enviado
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPreview(false);
+                    handleSendEmail(previewData.emailType);
+                  }}
+                  disabled={loading}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 transition-colors"
+                >
+                  <Send className="h-4 w-4" />
+                  Enviar Ahora
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

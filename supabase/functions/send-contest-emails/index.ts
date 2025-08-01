@@ -21,6 +21,8 @@ interface EmailRequest {
     | "newsletter_subscription"
     | "unsubscribe_user";
   contestId?: string;
+  // Para preview mode
+  preview?: boolean;
   // Para suscripción de newsletter
   email?: string;
   // Para emails manuales
@@ -43,9 +45,9 @@ serve(async (req) => {
     );
 
     // Get request data
-    const { emailType, contestId, subject, htmlContent, textContent, email }: EmailRequest = await req.json();
+    const { emailType, contestId, subject, htmlContent, textContent, email, preview }: EmailRequest = await req.json();
     console.log(
-      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}`
+      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}`
     );
 
     // Handle newsletter subscription separately
@@ -327,6 +329,33 @@ serve(async (req) => {
         throw new Error(`Tipo de email no válido: ${emailType}`);
     }
 
+    // ✅ PREVIEW MODE - Retornar contenido sin enviar
+    if (preview) {
+      console.log(`📧 PREVIEW MODE: Retornando contenido para ${emailType}`);
+      console.log(`📧 Email data:`, { 
+        subject: emailData.subject?.substring(0, 50) + '...', 
+        htmlLength: emailData.html?.length,
+        textLength: emailData.text?.length 
+      });
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          preview: {
+            subject: emailData.subject,
+            htmlContent: emailData.html,
+            textContent: emailData.text,
+            emailType: emailType
+          },
+          message: `Preview generado para ${emailType}`
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     // Send emails using Resend
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
@@ -399,10 +428,12 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("❌ Error:", error);
+    console.error("❌ Error stack:", error.stack);
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message,
+        details: preview ? "Error en modo preview" : "Error en envío",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

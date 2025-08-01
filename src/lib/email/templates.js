@@ -220,56 +220,13 @@ export const votingStartedTemplate = (contest, storiesCount) => {
   return createEmailTemplate(`¡Votación iniciada: ${contest.title}!`, content, button);
 };
 
-// 4. RESULTADOS
-export const resultsTemplate = (contest, winners) => {
-  const winnersHtml = winners.map((winner, index) => {
-    const medals = ['🥇', '🥈', '🥉'];
-    const medal = medals[index] || '🏅';
-    
-    return `
-      <div style="background: ${index === 0 ? '#fef3c7' : '#f3f4f6'}; padding: 15px; border-radius: 8px; margin: 10px 0;">
-        <h4 style="margin: 0 0 5px 0;">${medal} ${index + 1}º Lugar</h4>
-        <p style="margin: 0; font-weight: bold;">"${winner.title}"</p>
-        <p style="margin: 5px 0 0 0; color: #6b7280;">por ${winner.author} • ${winner.likes_count} likes</p>
-      </div>
-    `;
-  }).join('');
-  
-  const content = `
-    <h2>🏆 ¡Conoce a los ganadores!</h2>
-    
-    <p>¡La votación ha terminado!</p>
-    
-    <p>Nos complace anunciar los resultados del concurso <strong>"${contest.title}"</strong>. ¡La calidad de las historias fue excepcional!</p>
-    
-    <h3>🎉 Ganadores del concurso de ${contest.month}:</h3>
-    
-    ${winnersHtml}
-    
-    <p>¡Felicitaciones a todos los ganadores y a cada escritor que participó! Cada historia aportó algo único y especial a nuestra comunidad.</p>
-    
-    <div class="highlight">
-      <h3 style="margin-top: 0;">📈 Estadísticas del concurso</h3>
-      <ul style="margin-bottom: 0;">
-        <li><strong>${contest.participants_count || 0}</strong> escritores participaron</li>
-        <li><strong>${winners.reduce((total, w) => total + (w.likes_count || 0), 0)}</strong> votos totales</li>
-        <li><strong>Próximo concurso:</strong> ¡Muy pronto!</li>
-      </ul>
-    </div>
-    
-    <p>Gracias por hacer de Letranido una comunidad increíble. ¡Nos vemos en el próximo concurso! ✨</p>
-  `;
-  
-  const button = `
-    <div style="text-align: center;">
-      <a href="${EMAIL_CONFIG.siteUrl}/contest/current" class="button">
-        🏆 Ver resultados completos
-      </a>
-    </div>
-  `;
-  
-  return createEmailTemplate(`¡Resultados: ${contest.title}!`, content, button);
-};
+// 4. RESULTADOS - TEMPLATE REMOVIDO POR SEGURIDAD
+// ⚠️ Este template fue removido porque mostraba ganadores directamente en el email
+// El sistema ahora usa templates integrados en la función de Supabase que NO muestran ganadores
+// Solo incluyen un link para ver los resultados en el sitio web
+// 
+// RAZÓN: Por política de privacidad y para crear expectativa, los emails NO deben
+// mostrar información de ganadores directamente. Solo deben invitar a visitar el sitio.
 
 // Función para obtener el template correcto según la fase
 export const getTemplateByPhase = (phase, data) => {

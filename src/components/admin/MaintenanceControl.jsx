@@ -11,10 +11,12 @@ import {
   AlertTriangle,
   CheckCircle,
   Wrench,
-  Eye
+  Eye,
+  Award
 } from 'lucide-react';
 import { useMaintenanceMode } from '../../hooks/useMaintenanceMode';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import { fixWinnerBadges } from '../../utils/fix-badges';
 
 const MaintenanceControl = () => {
   const { user } = useGlobalApp();
@@ -34,6 +36,10 @@ const MaintenanceControl = () => {
   const [customMessage, setCustomMessage] = useState('');
   const [customDuration, setCustomDuration] = useState('');
   const [isToggling, setIsToggling] = useState(false);
+  
+  // Estados para fix de badges
+  const [badgeFixLoading, setBadgeFixLoading] = useState(false);
+  const [badgeFixResult, setBadgeFixResult] = useState(null);
 
   // Inicializar formulario con valores actuales
   useEffect(() => {
@@ -99,6 +105,31 @@ const MaintenanceControl = () => {
     const previewWindow = window.open('/maintenance-preview', '_blank');
     if (previewWindow) {
       previewWindow.focus();
+    }
+  };
+
+  // 🚨 FUNCIÓN DE EMERGENCIA: Fix badges de ganadores
+  const handleFixBadges = async () => {
+    setBadgeFixLoading(true);
+    setBadgeFixResult(null);
+    
+    try {
+      const result = await fixWinnerBadges();
+      setBadgeFixResult(result);
+      
+      if (result.success) {
+        console.log('✅ Badges corregidos exitosamente:', result);
+      } else {
+        console.error('❌ Error corrigiendo badges:', result.error);
+      }
+    } catch (error) {
+      console.error('💥 Error inesperado:', error);
+      setBadgeFixResult({
+        success: false,
+        error: error.message
+      });
+    } finally {
+      setBadgeFixLoading(false);
     }
   };
 
@@ -233,6 +264,68 @@ const MaintenanceControl = () => {
           <p className="text-red-700 mt-1">{error}</p>
         </div>
       )}
+
+      {/* 🚨 PANEL DE EMERGENCIA: Fix badges de ganadores */}
+      <div className="bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 border-2 border-orange-200 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Award className="w-6 h-6 text-orange-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-bold text-orange-900">🚨 Corrección de Emergencia</h3>
+              <p className="text-sm text-orange-700">Asignar badges faltantes a ganadores del concurso cerrado</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleFixBadges}
+            disabled={badgeFixLoading}
+            className="flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors"
+          >
+            {badgeFixLoading ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Award className="w-4 h-4 mr-2" />
+            )}
+            {badgeFixLoading ? 'Corrigiendo...' : 'Corregir Badges'}
+          </button>
+        </div>
+
+        {/* Resultado del fix */}
+        {badgeFixResult && (
+          <div className={`mt-4 p-4 rounded-lg border ${
+            badgeFixResult.success 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-center mb-2">
+              {badgeFixResult.success ? (
+                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+              )}
+              <span className={`font-medium ${
+                badgeFixResult.success ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {badgeFixResult.success ? '✅ Corrección exitosa' : '❌ Error en corrección'}
+              </span>
+            </div>
+            
+            <p className={`text-sm ${
+              badgeFixResult.success ? 'text-green-700' : 'text-red-700'
+            }`}>
+              {badgeFixResult.success 
+                ? `${badgeFixResult.message}. Ganadores: ${badgeFixResult.winners?.join(', ')}`
+                : badgeFixResult.error
+              }
+            </p>
+          </div>
+        )}
+
+        <div className="mt-4 text-xs text-orange-600 bg-orange-100 rounded-lg p-3">
+          <strong>⚠️ Usar solo en emergencia:</strong> Esta función asigna automáticamente los badges de ganadores 
+          (contest_winner, contest_finalist, contest_winner_veteran) que no se asignaron durante el cierre del concurso.
+        </div>
+      </div>
 
       {/* Modal de confirmación */}
       {showToggleModal && (
