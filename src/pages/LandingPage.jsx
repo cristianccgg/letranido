@@ -592,25 +592,6 @@ const LandingPage = () => {
                     </div>
                   </div>
 
-                  {/* Sección motivacional */}
-                  <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-100 p-6 mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      ¡Podrías ser el próximo ganador!
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Únete al concurso actual y demuestra tu talento. Tu
-                      historia podría ser la próxima en brillar.
-                    </p>
-                    <Link
-                      to="/contest/current"
-                      className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-                    >
-                      <PenTool className="h-5 w-5 mr-2" />
-                      Participar ahora
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </div>
-
                   {/* Podium completo - 2do y 3er lugar más prominentes */}
                   {lastContestWinners.winners.length > 1 && (
                     <div className="mt-8 pt-6 border-t border-indigo-200">
@@ -684,6 +665,25 @@ const LandingPage = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Sección motivacional - Ahora después del podium */}
+                  <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-100 p-6 mt-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      ¡Podrías ser el próximo ganador!
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Únete al concurso actual y demuestra tu talento. Tu
+                      historia podría ser la próxima en brillar.
+                    </p>
+                    <Link
+                      to="/contest/current"
+                      className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+                    >
+                      <PenTool className="h-5 w-5 mr-2" />
+                      Participar ahora
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
