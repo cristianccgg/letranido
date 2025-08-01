@@ -354,13 +354,13 @@ serve(async (req) => {
       case "manual_general":
       case "manual_newsletter":
       case "manual_essential":
-        // Para emails manuales, usar el contenido proporcionado
+        // Para emails manuales, usar template con formato de marca
         if (!subject || !htmlContent) {
           throw new Error("Para emails manuales se requiere subject y htmlContent");
         }
         emailData = {
           subject: subject,
-          html: htmlContent,
+          html: generateManualEmailHTML(subject, htmlContent, emailType),
           text: textContent || subject,
         };
         break;
@@ -792,6 +792,63 @@ function generateResultsHTML(contest: any): string {
         </p>
         <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
           ¡Gracias por hacer de Letranido una comunidad increíble! 💜<br>
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
+            Gestionar preferencias de email
+          </a>
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function generateManualEmailHTML(subject: string, content: string, emailType: string): string {
+  // Determinar el emoji y color según el tipo
+  let headerEmoji = "📧";
+  let headerColor = "#6366f1";
+  let headerText = "Letranido";
+  
+  if (emailType === "manual_general") {
+    headerEmoji = "📝";
+    headerColor = "#8b5cf6";
+    headerText = "Actualización General";
+  } else if (emailType === "manual_newsletter") {
+    headerEmoji = "📰";
+    headerColor = "#6366f1";
+    headerText = "Newsletter";
+  } else if (emailType === "manual_essential") {
+    headerEmoji = "🛡️";
+    headerColor = "#dc2626";
+    headerText = "Comunicación Importante";
+  }
+
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: white;">
+      <!-- Header con gradiente de marca -->
+      <div style="background: linear-gradient(135deg, ${headerColor} 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">${headerEmoji} Letranido</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px;">${headerText}</p>
+      </div>
+      
+      <!-- Contenido principal -->
+      <div style="padding: 40px 30px; background: white; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h2 style="color: #1f2937; margin: 0 0 12px 0; font-size: 24px;">${subject}</h2>
+          <div style="width: 60px; height: 3px; background: linear-gradient(90deg, ${headerColor}, #8b5cf6); margin: 0 auto;"></div>
+        </div>
+        
+        <!-- Contenido del email -->
+        <div style="color: #374151; line-height: 1.6; font-size: 16px;">
+          ${content}
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px; border: 1px solid #e0e7ff; border-top: none;">
+        <p style="color: #6b7280; margin: 0; font-size: 14px;">
+          <strong>Letranido</strong> • Comunidad de escritura creativa<br>
+          <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
+        </p>
+        <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
           <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
             Gestionar preferencias de email
           </a>

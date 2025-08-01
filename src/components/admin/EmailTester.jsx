@@ -1,5 +1,6 @@
 // components/admin/EmailTester.jsx - Componente para probar emails desde el admin
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X } from 'lucide-react';
 import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
@@ -21,8 +22,40 @@ const EmailTester = () => {
   const [previewLoading, setPreviewLoading] = useState({}); // Cambiar a objeto para loading individual
   const [activePreviewTab, setActivePreviewTab] = useState('html');
 
+  // Efecto para manejar el scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (showPreview) {
+      document.body.style.overflow = 'hidden';
+      
+      // Agregar listener para cerrar con ESC
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          setShowPreview(false);
+        }
+      };
+      
+      document.addEventListener('keydown', handleEscape);
+      
+      return () => {
+        document.body.style.overflow = 'unset';
+        document.removeEventListener('keydown', handleEscape);
+      };
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [showPreview]);
+
   // Función para generar preview del email
   const handlePreviewEmail = async (emailType, manualData = null) => {
+    // Validar formulario para emails manuales
+    if (manualData && (!manualData.subject || !manualData.htmlContent)) {
+      setResult({ 
+        success: false, 
+        message: "Por favor completa al menos el asunto y el contenido HTML antes del preview" 
+      });
+      return;
+    }
+
     setPreviewLoading(prev => ({ ...prev, [emailType]: true }));
     try {
       let requestData = { emailType, preview: true };
@@ -353,14 +386,24 @@ const EmailTester = () => {
               <div className="text-xs text-purple-600 bg-purple-50 p-2 rounded-lg mb-3">
                 <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
               </div>
-              <button
-                onClick={() => handleSendManualEmail('manual_general')}
-                disabled={loading['manual_general']}
-                className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                {loading['manual_general'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Enviar
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePreviewEmail('manual_general', manualEmailForm)}
+                  disabled={previewLoading['manual_general'] || loading['manual_general']}
+                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                >
+                  {previewLoading['manual_general'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                  Preview
+                </button>
+                <button
+                  onClick={() => handleSendManualEmail('manual_general')}
+                  disabled={loading['manual_general'] || previewLoading['manual_general']}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {loading['manual_general'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                  Enviar
+                </button>
+              </div>
             </div>
             
             <div className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-indigo-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -369,14 +412,24 @@ const EmailTester = () => {
               <div className="text-xs text-indigo-600 bg-indigo-50 p-2 rounded-lg mb-3">
                 <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
               </div>
-              <button
-                onClick={() => handleSendManualEmail('manual_newsletter')}
-                disabled={loading['manual_newsletter']}
-                className="w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                {loading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Enviar
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePreviewEmail('manual_newsletter', manualEmailForm)}
+                  disabled={previewLoading['manual_newsletter'] || loading['manual_newsletter']}
+                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                >
+                  {previewLoading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                  Preview
+                </button>
+                <button
+                  onClick={() => handleSendManualEmail('manual_newsletter')}
+                  disabled={loading['manual_newsletter'] || previewLoading['manual_newsletter']}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {loading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                  Enviar
+                </button>
+              </div>
             </div>
             
             <div className="bg-white/95 backdrop-blur-sm border border-red-100 hover:border-red-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -385,14 +438,24 @@ const EmailTester = () => {
               <div className="text-xs text-red-600 bg-red-50 p-2 rounded-lg mb-3">
                 <strong>⚠️ CUIDADO:</strong> Va a <strong>TODOS</strong> los usuarios con email válido, independientemente de sus preferencias
               </div>
-              <button
-                onClick={() => handleSendManualEmail('manual_essential')}
-                disabled={loading['manual_essential']}
-                className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-red-600 text-white rounded-xl hover:from-pink-600 hover:to-red-700 disabled:opacity-50 flex items-center justify-center font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                {loading['manual_essential'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Enviar
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePreviewEmail('manual_essential', manualEmailForm)}
+                  disabled={previewLoading['manual_essential'] || loading['manual_essential']}
+                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                >
+                  {previewLoading['manual_essential'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                  Preview
+                </button>
+                <button
+                  onClick={() => handleSendManualEmail('manual_essential')}
+                  disabled={loading['manual_essential'] || previewLoading['manual_essential']}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-pink-500 to-red-600 text-white rounded-lg hover:from-pink-600 hover:to-red-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  {loading['manual_essential'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                  Enviar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -436,10 +499,33 @@ const EmailTester = () => {
         </ul>
       </div>
 
-      {/* Modal de Preview */}
-      {showPreview && previewData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      {/* Modal de Preview usando Portal */}
+      {showPreview && previewData && createPortal(
+        <div 
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{ 
+            zIndex: 999999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
+          }}
+          onClick={(e) => {
+            // Cerrar modal si se hace click en el backdrop
+            if (e.target === e.currentTarget) {
+              setShowPreview(false);
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            style={{ 
+              zIndex: 999999999,
+              position: 'relative'
+            }}
+          >
             {/* Header del modal */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
               <div>
@@ -533,7 +619,8 @@ const EmailTester = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
