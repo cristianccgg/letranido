@@ -22,6 +22,7 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 // ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
+import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
@@ -112,6 +113,7 @@ const StoryPage = () => {
         // 3. Obtener información de votación (permisos)
         try {
           const votingResult = await canVoteInStory(id);
+          console.log("🗳️ VotingInfo recibido:", votingResult);
           setVotingInfo(votingResult);
         } catch (err) {
           console.warn("⚠️ Error verificando permisos de votación:", err);
@@ -165,7 +167,8 @@ const StoryPage = () => {
         try {
           const likeResult = await checkUserLike(story.id);
           if (likeResult.success) {
-            setIsLiked(likeResult.isLiked);
+            console.log("🔄 Actualizando isLiked en StoryPage:", likeResult.liked);
+            setIsLiked(likeResult.liked);
           }
         } catch (error) {
           console.error("Error checking user like:", error);
@@ -589,6 +592,9 @@ const StoryPage = () => {
                         <div className="flex items-center text-green-600 text-sm">
                           <span>🗳️ Votación ciega - vota por la historia</span>
                         </div>
+
+                        {/* Contador de votos restantes */}
+                        <VoteCounter contestId={story.contest_id} className="ml-2" />
                         
                         {/* Compartir */}
                         {getShareData() && (
@@ -616,6 +622,9 @@ const StoryPage = () => {
                           <Eye className="h-5 w-5 mr-2" />
                           <span>{story.views_count || 0} vistas</span>
                         </div>
+
+                        {/* Contador de votos restantes */}
+                        <VoteCounter contestId={story.contest_id} className="ml-2" />
 
                         {/* Compartir */}
                         {getShareData() && (
@@ -645,7 +654,7 @@ const StoryPage = () => {
             }}
           />
 
-          <style jsx>{`
+          <style dangerouslySetInnerHTML={{__html: `
             .story-content p {
               margin: 0;
               color: #374151;
@@ -666,7 +675,7 @@ const StoryPage = () => {
               font-weight: 600;
               color: #1f2937;
             }
-          `}</style>
+          `}} />
 
           {/* Story Footer */}
           <div className="mt-8 pt-6 border-t border-gray-200">

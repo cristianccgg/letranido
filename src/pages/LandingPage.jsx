@@ -845,9 +845,12 @@ const LandingPage = () => {
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
                 2. Vota por tus favoritas
               </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
-                Cuando termine el periodo de envío, podrás leer, votar y
-                comentar por las historias que más te gusten.
+              <p className="text-gray-600 md:text-lg lg:text-xl mb-3">
+                Cuando termine el periodo de envío, podrás leer y comentar
+                todas las historias.
+              </p>
+              <p className="text-sm text-purple-600 font-medium">
+                ✨ Tienes 3 votos por concurso para elegir tus favoritas
               </p>
             </div>
 

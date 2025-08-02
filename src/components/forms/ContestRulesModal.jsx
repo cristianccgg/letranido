@@ -25,8 +25,8 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
     },
     {
       icon: Heart,
-      title: "Vota por otras historias",
-      description: "Lee y da likes para fortalecer la comunidad",
+      title: "Tienes 3 votos para usar",
+      description: "Lee todas las historias y elige tus 3 favoritas",
       type: "success",
     },
     {

@@ -58,7 +58,7 @@ const FAQ = () => {
                   <div>
                     <strong className="text-purple-700">Fase de Votación</strong>
                     <p className="text-sm text-gray-600">
-                      La comunidad lee y vota por sus historias favoritas.
+                      La comunidad lee todas las historias y elige sus 3 favoritas.
                     </p>
                   </div>
                 </div>
@@ -319,19 +319,25 @@ const FAQ = () => {
             <div className="space-y-3">
               <p>
                 Durante la fase de votación, los miembros de la comunidad pueden leer todas las 
-                historias enviadas y votar por sus favoritas.
+                historias enviadas y elegir sus favoritas.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 p-2 bg-red-50 rounded">
                   <Heart className="h-4 w-4 text-red-500" />
-                  <span className="text-sm">Un voto = Un "me gusta" por historia</span>
+                  <span className="text-sm font-medium">Tienes 3 votos por concurso</span>
                 </div>
                 <div className="text-sm text-gray-600 ml-6">
-                  • Cada usuario puede votar por múltiples historias<br/>
+                  • Máximo 3 votos por usuario en cada concurso<br/>
                   • No puedes votar por tu propia historia<br/>
-                  • Los votos son anónimos<br/>
-                  • Puedes cambiar tus votos cuando quieras durante la fase de votación
+                  • Los votos son anónimos durante la votación<br/>
+                  • Puedes cambiar tus votos cuando quieras (quitar uno para votar por otra historia)
                 </div>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-lg mt-3">
+                <p className="text-sm text-blue-700">
+                  <strong>Estrategia:</strong> Lee todas las historias antes de votar. Una vez que uses tus 3 votos, 
+                  tendrás que quitar un voto existente para votar por una historia diferente.
+                </p>
               </div>
             </div>
           ),

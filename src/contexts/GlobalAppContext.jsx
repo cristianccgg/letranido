@@ -1262,7 +1262,7 @@ export function GlobalAppProvider({ children }) {
 
         const { data, error } = await supabase
           .from("votes")
-          .select("id")
+          .select("*")  // Seleccionar todo para debug
           .eq("story_id", storyId)
           .eq("user_id", state.user.id);
 
@@ -1275,12 +1275,63 @@ export function GlobalAppProvider({ children }) {
         console.log("❤️ Resultado verificación like:", {
           hasLiked,
           votesFound: data?.length,
+          votesData: data,
+          queryParams: {
+            story_id: storyId,
+            user_id: state.user.id
+          }
         });
 
         return { success: true, liked: hasLiked };
       } catch (err) {
         console.warn("💥 Error inesperado checking vote:", err);
         return { success: true, liked: false };
+      }
+    },
+    [state.user?.id]
+  );
+
+  // ✅ NUEVA FUNCIÓN: Obtener conteo de votos del usuario en un concurso
+  const getUserVoteCount = useCallback(
+    async (contestId) => {
+      if (!state.user?.id || !contestId) {
+        return { success: true, count: 0 };
+      }
+
+      try {
+        // Primero obtenemos las IDs de las historias del concurso
+        const { data: stories, error: storiesError } = await supabase
+          .from("stories")
+          .select("id")
+          .eq("contest_id", contestId);
+
+        if (storiesError) throw storiesError;
+
+        if (!stories || stories.length === 0) {
+          return { success: true, count: 0 };
+        }
+
+        // Luego contamos los votos del usuario en esas historias
+        const storyIds = stories.map(story => story.id);
+        const { data: votes, error: votesError } = await supabase
+          .from("votes")
+          .select("id", { count: "exact" })
+          .eq("user_id", state.user.id)
+          .in("story_id", storyIds);
+
+        if (votesError) throw votesError;
+
+        console.log("🗳️ Conteo de votos del usuario:", {
+          contestId,
+          userId: state.user.id,
+          totalStories: stories.length,
+          userVotes: votes?.length || 0
+        });
+
+        return { success: true, count: votes?.length || 0 };
+      } catch (err) {
+        console.error("Error contando votos del usuario:", err);
+        return { success: false, count: 0, error: err.message };
       }
     },
     [state.user?.id]
@@ -1340,6 +1391,70 @@ export function GlobalAppProvider({ children }) {
             phase: "results",
           };
         } else {
+          // Fase de votación - verificar límite de 3 votos SOLO para concurso actual
+          if (state.user?.id) {
+            // ✅ SEGURIDAD: Solo aplicar límite de 3 votos si es el concurso actual
+            const isCurrentContest = story.contest_id === state.currentContest?.id;
+            // Verificar si ya votó por esta historia
+            const { data: existingVote, error: voteError } = await supabase
+              .from("votes")
+              .select("id")
+              .eq("story_id", storyId)
+              .eq("user_id", state.user.id)
+              .single();
+
+            if (voteError && voteError.code !== "PGRST116") {
+              console.warn("Error verificando voto existente:", voteError);
+            }
+
+            // Si ya votó por esta historia, puede quitar el voto
+            if (existingVote) {
+              return {
+                canVote: true,
+                reason: "Puedes quitar tu voto",
+                phase: "voting",
+                votingEndsAt: new Date(contest.voting_deadline),
+                hasVoted: true,
+              };
+            }
+
+            // Si no ha votado por esta historia, verificar límite de 3 votos SOLO para concurso actual
+            if (isCurrentContest) {
+              const voteCountResult = await getUserVoteCount(contest.id);
+              const currentVotes = voteCountResult.count || 0;
+
+              if (currentVotes >= 3) {
+                return {
+                  canVote: false,
+                  reason: `Has usado todos tus votos (${currentVotes}/3). Quita un voto existente para votar por otra historia.`,
+                  phase: "voting",
+                  votingEndsAt: new Date(contest.voting_deadline),
+                  votesUsed: currentVotes,
+                  maxVotes: 3,
+                };
+              }
+
+              return {
+                canVote: true,
+                reason: "Votación activa",
+                phase: "voting",
+                votingEndsAt: new Date(contest.voting_deadline),
+                votesUsed: currentVotes,
+                maxVotes: 3,
+                votesRemaining: 3 - currentVotes,
+              };
+            } else {
+              // Concursos pasados: votación ilimitada (mantener comportamiento original)
+              return {
+                canVote: true,
+                reason: "Votación activa",
+                phase: "voting",
+                votingEndsAt: new Date(contest.voting_deadline),
+              };
+            }
+          }
+
+          // Usuario no autenticado
           return {
             canVote: true,
             reason: "Votación activa",
@@ -1705,8 +1820,27 @@ export function GlobalAppProvider({ children }) {
             type: actions.DECREMENT_VOTE_COUNT,
             payload: { isCurrentContest },
           });
+
+          // Emitir evento para que se actualicen contadores
+          window.dispatchEvent(new CustomEvent('voteChanged', { 
+            detail: { action: 'removed', storyId, contestId: state.currentContest?.id } 
+          }));
         } else {
-          // Agregar voto
+          // Agregar voto - VERIFICAR LÍMITE DE 3 VOTOS
+          if (isCurrentContest && state.currentContest?.id) {
+            const voteCountResult = await getUserVoteCount(state.currentContest.id);
+            const currentVotes = voteCountResult.count || 0;
+
+            if (currentVotes >= 3) {
+              return {
+                success: false,
+                error: `Has usado todos tus votos (${currentVotes}/3). Quita un voto existente para votar por otra historia.`,
+                votesUsed: currentVotes,
+                maxVotes: 3,
+              };
+            }
+          }
+
           const { error: insertError } = await supabase
             .from("votes")
             .insert([{ story_id: storyId, user_id: state.user.id }]);
@@ -1718,6 +1852,11 @@ export function GlobalAppProvider({ children }) {
             type: actions.INCREMENT_VOTE_COUNT,
             payload: { isCurrentContest },
           });
+
+          // Emitir evento para que se actualicen contadores
+          window.dispatchEvent(new CustomEvent('voteChanged', { 
+            detail: { action: 'added', storyId, contestId: state.currentContest?.id } 
+          }));
         }
 
         // SIEMPRE actualizar galleryStories si es concurso actual para máxima sincronización
@@ -3151,6 +3290,7 @@ export function GlobalAppProvider({ children }) {
     recordStoryView,
     checkUserLike,
     canVoteInStory,
+    getUserVoteCount,
     loadGalleryStories,
 
     // Funciones de comentarios

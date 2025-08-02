@@ -224,6 +224,21 @@ const EnhancedVoteButton = ({
         </div>
       )}
 
+      {/* Tooltip de votos restantes - Solo si hay info de votos */}
+      {showTooltip && isHovered && canVote && (votingInfo.votesRemaining !== undefined || votingInfo.votesUsed !== undefined) && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-20 animate-fade-in">
+          <div className="bg-blue-600 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+            {votingInfo.votesRemaining !== undefined 
+              ? `Te quedan ${votingInfo.votesRemaining} de ${votingInfo.maxVotes || 3} votos`
+              : votingInfo.votesUsed !== undefined
+              ? `${votingInfo.votesUsed}/${votingInfo.maxVotes || 3} votos usados`
+              : 'Información de votos no disponible'
+            }
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
+          </div>
+        </div>
+      )}
+
       {/* Sparkles de celebración */}
       {showSparkles && (
         <div className="absolute inset-0 pointer-events-none">
