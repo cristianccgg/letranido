@@ -230,8 +230,10 @@ function AppContent() {
             <Route path="/writing-resources" element={<WritingResources />} />
 
             {/* Blog */}
-            <Route path="/recursos/blog" element={<Blog />} />
-            <Route path="/recursos/blog/:postId" element={<BlogPost />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:postId" element={<BlogPost />} />
+            <Route path="/recursos/blog" element={<Navigate to="/blog" replace />} />
+            <Route path="/recursos/blog/:postId" element={<Navigate to="/blog/:postId" replace />} />
 
             {/* Legal - Con rutas canónicas */}
             <Route path="/terms" element={<TermsOfService />} />

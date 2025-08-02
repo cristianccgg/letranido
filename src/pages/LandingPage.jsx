@@ -18,6 +18,7 @@ import {
   Copyright,
   Lock,
   Eye,
+  HelpCircle,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
@@ -863,6 +864,21 @@ const LandingPage = () => {
                 con menciones especiales e insignias destacadas.
               </p>
             </div>
+          </div>
+          
+          {/* FAQ Link */}
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-4">
+              ¿Tienes más preguntas sobre cómo participar?
+            </p>
+            <Link
+              to="/faq"
+              className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-white hover:shadow-lg hover:scale-105 transition-all duration-300"
+            >
+              <HelpCircle className="h-5 w-5 mr-2" />
+              Ver Preguntas Frecuentes
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
           </div>
         </div>
       </section>

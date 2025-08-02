@@ -28,9 +28,9 @@ export const sendEmail = async ({ to, subject, html, text }) => {
   try {
     console.log(`📧 Enviando email: "${subject}" a ${Array.isArray(to) ? to.length : 1} destinatario(s)`);
     
-    // TEMPORAL: Como estamos en frontend, simular el envío para desarrollo
+    // MODO TEST: NO enviar emails reales, solo simular
     if (EMAIL_CONFIG.mode === 'test') {
-      console.log('🧪 MODO TEST: Simulando envío de email');
+      console.log('🧪 MODO TEST: Simulando envío de email (NO se envía real)');
       console.log('📧 Email simulado:');
       console.log('- From:', EMAIL_CONFIG.from);
       console.log('- To:', Array.isArray(to) ? to : [to]);
@@ -48,19 +48,30 @@ export const sendEmail = async ({ to, subject, html, text }) => {
         created_at: new Date().toISOString()
       };
       
-      console.log(`✅ Email simulado enviado:`, simulatedResult);
+      console.log(`✅ Email simulado enviado (NO REAL):`, simulatedResult);
       return { success: true, data: simulatedResult };
     }
     
     // En modo producción, intentar envío real (requiere backend)
-    const result = await resend.emails.send({
+    const emailData = {
       from: EMAIL_CONFIG.from,
-      to: Array.isArray(to) ? to : [to],
       subject,
       html,
       text,
       replyTo: EMAIL_CONFIG.replyTo,
-    });
+    };
+
+    // Para envío masivo, usar BCC para proteger privacidad
+    if (Array.isArray(to) && to.length > 1) {
+      // Email masivo: usar un solo TO y el resto en BCC
+      emailData.to = [EMAIL_CONFIG.from]; // Email remitente como TO
+      emailData.bcc = to; // Todos los destinatarios en BCC (ocultos)
+    } else {
+      // Email individual: usar TO normal
+      emailData.to = Array.isArray(to) ? to : [to];
+    }
+
+    const result = await resend.emails.send(emailData);
 
     console.log(`✅ Email enviado exitosamente:`, result);
     return { success: true, data: result };

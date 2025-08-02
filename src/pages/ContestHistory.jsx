@@ -157,7 +157,7 @@ const ContestHistory = () => {
             </div>
             <Link
               to="/contest/current"
-              className="btn-primary flex items-center"
+              className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
             >
               Ver concurso actual
               <ArrowRight className="h-4 w-4 ml-2" />
@@ -328,8 +328,13 @@ const ContestHistory = () => {
         <p className="text-gray-600 mb-6">
           Únete al concurso actual y demuestra tu talento literario
         </p>
-        <Link to="/contest/current" className="btn-primary">
+        <Link 
+          to="/contest/current" 
+          className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
+        >
+          <BookOpen className="h-5 w-5 mr-3" />
           Participar en el concurso actual
+          <ArrowRight className="h-5 w-5 ml-3" />
         </Link>
       </div>
       </div>

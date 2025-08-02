@@ -8,8 +8,6 @@ import {
   ChevronDown,
   LogOut,
   Settings,
-  BookOpen,
-  FileText,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
@@ -218,26 +216,8 @@ const Layout = ({ children }) => {
         ]
       : []),
     {
-      name: "FAQ",
-      href: "/faq",
-    },
-    {
-      name: "Recursos",
-      type: "dropdown",
-      items: [
-        {
-          name: "Guías de Escritura",
-          href: "/writing-resources",
-          icon: BookOpen,
-          description: "Técnicas y consejos para mejorar tu escritura",
-        },
-        {
-          name: "Blog de Recursos",
-          href: "/recursos/blog",
-          icon: FileText,
-          description: "Reseñas de libros, herramientas y cursos",
-        },
-      ],
+      name: "Blog",
+      href: "/blog",
     },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
@@ -273,26 +253,8 @@ const Layout = ({ children }) => {
         ]
       : []),
     {
-      name: "FAQ",
-      href: "/faq",
-    },
-    {
-      name: "Recursos",
-      type: "dropdown",
-      items: [
-        {
-          name: "Guías de Escritura",
-          href: "/writing-resources",
-          icon: BookOpen,
-          description: "Técnicas y consejos para mejorar tu escritura",
-        },
-        {
-          name: "Blog de Recursos",
-          href: "/recursos/blog",
-          icon: FileText,
-          description: "Reseñas de libros, herramientas y cursos",
-        },
-      ],
+      name: "Blog",
+      href: "/blog",
     },
   ];
 

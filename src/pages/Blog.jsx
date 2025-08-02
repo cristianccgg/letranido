@@ -18,7 +18,7 @@ const Blog = () => {
 
   // Funciones para compartir en redes sociales
   const shareOnFacebook = (post) => {
-    const url = `${window.location.origin}/recursos/blog/${post.slug}`;
+    const url = `${window.location.origin}/blog/${post.slug}`;
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       "_blank"
@@ -26,7 +26,7 @@ const Blog = () => {
   };
 
   const shareOnTwitter = (post) => {
-    const url = `${window.location.origin}/recursos/blog/${post.slug}`;
+    const url = `${window.location.origin}/blog/${post.slug}`;
     const text = `${post.title} - ${post.excerpt}`;
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
@@ -35,7 +35,7 @@ const Blog = () => {
   };
 
   const shareOnLinkedIn = (post) => {
-    const url = `${window.location.origin}/recursos/blog/${post.slug}`;
+    const url = `${window.location.origin}/blog/${post.slug}`;
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
       "_blank"
@@ -43,7 +43,7 @@ const Blog = () => {
   };
 
   const shareOnPinterest = (post) => {
-    const url = `${window.location.origin}/recursos/blog/${post.slug}`;
+    const url = `${window.location.origin}/blog/${post.slug}`;
     const description = `${post.title} - ${post.excerpt}`;
     window.open(
       `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(description)}`,
@@ -65,7 +65,7 @@ const Blog = () => {
         title="Blog de Recursos para Escritores"
         description="Descubre reseñas de libros, herramientas digitales, cursos de escritura y recursos especializados para mejorar tu craft como escritor."
         keywords="blog escritores, reseñas libros escritura, herramientas escritores, cursos escritura creativa, recursos literarios"
-        url="/recursos/blog"
+        url="/blog"
       />
 
       <section className="min-h-screen ">
@@ -85,7 +85,7 @@ const Blog = () => {
             {publishedPosts.map((post) => (
               <Link
                 key={post.id}
-                to={`/recursos/blog/${post.slug}`}
+                to={`/blog/${post.slug}`}
                 className="group bg-white/20 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 overflow-hidden hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 block"
               >
                 <div className="md:flex">
