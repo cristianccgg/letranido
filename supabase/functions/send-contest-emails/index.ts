@@ -28,6 +28,8 @@ interface EmailRequest {
   subject?: string;
   htmlContent?: string;
   textContent?: string;
+  // Para modo test desde frontend
+  emailMode?: string;
 }
 
 serve(async (req) => {
@@ -44,9 +46,9 @@ serve(async (req) => {
     );
 
     // Get request data
-    const { emailType, contestId, subject, htmlContent, textContent, email, preview }: EmailRequest = await req.json();
+    const { emailType, contestId, subject, htmlContent, textContent, email, preview, emailMode }: EmailRequest = await req.json();
     console.log(
-      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}`
+      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}${emailMode ? ` (modo: ${emailMode})` : ''}`
     );
     
     // 🔍 DEBUG: Mostrar parámetros recibidos
@@ -412,7 +414,8 @@ serve(async (req) => {
     }
 
     // In test mode, send only to admin (but not for newsletter subscriptions)
-    const isTestMode = Deno.env.get("EMAIL_MODE") === "test";
+    // Priorizar emailMode del frontend, fallback a env var
+    const isTestMode = emailMode === "test" || Deno.env.get("EMAIL_MODE") === "test";
     const finalRecipients = isTestMode
       ? [Deno.env.get("ADMIN_EMAIL") || "cristianccggg@gmail.com"]
       : recipients;
@@ -424,20 +427,33 @@ serve(async (req) => {
     console.log(`📧 From:`, Deno.env.get("FROM_EMAIL"));
     console.log(`📧 Subject:`, emailData.subject);
 
+    // Preparar email body con BCC para proteger privacidad
+    const emailBody: any = {
+      from: `Letranido <${Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"}>`,
+      subject: emailData.subject,
+      html: emailData.html,
+      text: emailData.text,
+      reply_to: "info@letranido.com",
+    };
+
+    // Para envío masivo (más de 1 destinatario), usar BCC para proteger privacidad
+    if (finalRecipients.length > 1) {
+      emailBody.to = [Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"]; // TO solo el remitente
+      emailBody.bcc = finalRecipients; // Todos los destinatarios en BCC (ocultos)
+      console.log(`🔒 USANDO BCC para proteger privacidad de ${finalRecipients.length} destinatarios`);
+    } else {
+      // Email individual, usar TO normal
+      emailBody.to = finalRecipients;
+      console.log(`📧 Email individual a: ${finalRecipients[0]}`);
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: `Letranido <${Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"}>`,
-        to: finalRecipients,
-        subject: emailData.subject,
-        html: emailData.html,
-        text: emailData.text,
-        reply_to: "info@letranido.com",
-      }),
+      body: JSON.stringify(emailBody),
     });
 
     if (!response.ok) {

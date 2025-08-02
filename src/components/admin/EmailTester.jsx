@@ -1,8 +1,9 @@
 // components/admin/EmailTester.jsx - Componente para probar emails desde el admin
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X } from 'lucide-react';
+import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X, Shield } from 'lucide-react';
 import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
+import { sendTestEmailLocal, showEmailPreview } from '../../lib/email/local-test-mailer.js';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 
 const EmailTester = () => {
@@ -211,6 +212,62 @@ const EmailTester = () => {
     await handleSendEmail(emailType, manualEmailForm);
   };
 
+  // TEST SEGURO LOCAL - NUNCA envía emails reales
+  const handleLocalTest = async () => {
+    if (!manualEmailForm.subject || !manualEmailForm.htmlContent) {
+      setResult({ 
+        success: false, 
+        message: "Por favor completa al menos el asunto y el contenido HTML para el test" 
+      });
+      return;
+    }
+
+    setLoading(prev => ({ ...prev, 'local_test': true }));
+    
+    try {
+      const result = await sendTestEmailLocal({
+        subject: manualEmailForm.subject,
+        htmlContent: manualEmailForm.htmlContent,
+        textContent: manualEmailForm.textContent
+      });
+      
+      setResult({
+        success: result.success,
+        message: result.message,
+        data: result
+      });
+    } catch (error) {
+      setResult({
+        success: false,
+        message: 'Error en test local: ' + error.message
+      });
+    }
+    
+    setLoading(prev => ({ ...prev, 'local_test': false }));
+  };
+
+  // Preview seguro en nueva ventana
+  const handleSafePreview = () => {
+    if (!manualEmailForm.subject || !manualEmailForm.htmlContent) {
+      setResult({ 
+        success: false, 
+        message: "Por favor completa al menos el asunto y el contenido HTML para el preview" 
+      });
+      return;
+    }
+
+    const result = showEmailPreview({
+      subject: manualEmailForm.subject,
+      htmlContent: manualEmailForm.htmlContent,
+      textContent: manualEmailForm.textContent
+    });
+    
+    setResult({
+      success: result.success,
+      message: result.message
+    });
+  };
+
   const contestEmailTypes = [
     { type: 'new_contest', label: '🎯 Nuevo Concurso', desc: 'Email de concurso disponible (usa concurso actual)' },
     { type: 'submission_reminder', label: '⏰ Recordatorio', desc: 'Recordatorio de últimos días para enviar (usa concurso actual)' },
@@ -332,6 +389,33 @@ const EmailTester = () => {
             </div>
           </div>
           
+          {/* ZONA DE TEST SEGURO */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-6 mb-6 shadow-lg">
+            <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+              🛡️ ZONA DE TEST SEGURO - NO ENVÍA EMAILS REALES
+            </h4>
+            <div className="flex gap-4 mb-4">
+              <button
+                onClick={handleSafePreview}
+                className="flex-1 px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg font-semibold transition-colors flex items-center justify-center"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview en Nueva Ventana
+              </button>
+              <button
+                onClick={handleLocalTest}
+                disabled={loading['local_test']}
+                className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center disabled:opacity-50"
+              >
+                {loading['local_test'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Shield className="h-4 w-4 mr-2" />}
+                Test Solo Consola
+              </button>
+            </div>
+            <p className="text-sm text-green-700 bg-green-100 p-3 rounded-lg">
+              <strong>✅ 100% SEGURO:</strong> Estas opciones NUNCA envían emails reales. Solo muestran preview o log en consola.
+            </p>
+          </div>
+
           {/* Formulario para email manual */}
           <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border border-purple-200 rounded-2xl p-6 mb-6 shadow-lg">
             <h4 className="font-semibold text-gray-900 mb-3">Crear Email Manual</h4>

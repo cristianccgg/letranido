@@ -8,6 +8,7 @@ export const sendContestEmailViaSupabase = async (emailType, additionalData = {}
     // Construir el body basado en el tipo de email
     let requestBody = {
       emailType,
+      emailMode: import.meta.env.VITE_EMAIL_MODE || 'test', // Pasar modo al backend
       ...additionalData
     };
     
