@@ -90,7 +90,7 @@ const BlogPost = () => {
       // Handle links (before bold and italic processing)
       .replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
-        (match, text, url) => {
+        (_, text, url) => {
           // Internal links (start with /) stay in same tab
           if (url.startsWith('/')) {
             return `<a href="${url}" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">${text}</a>`;

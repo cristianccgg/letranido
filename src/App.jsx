@@ -15,6 +15,7 @@ import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import { useToast, ToastContainer } from "./components/ui/Toast";
 import SocialContainer from "./components/ui/SocialContainer";
+import { Analytics } from "@vercel/analytics/react";
 
 // Páginas críticas - carga inmediata
 import LandingPage from "./pages/LandingPage";
@@ -266,6 +267,9 @@ function AppContent() {
 
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      {/* Vercel Analytics */}
+      <Analytics />
     </Router>
   );
 }
