@@ -173,18 +173,13 @@ const BlogPost = () => {
           <article className="bg-white/20 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 overflow-hidden">
             <div className="p-8 md:p-12">
               {/* Category and meta */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                   <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full">
                     {categoryData?.name}
                   </span>
-                  {post.featured && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-semibold rounded-full">
-                      ⭐ Destacado
-                    </span>
-                  )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center sm:justify-end">
                   <button
                     onClick={shareOnFacebook}
                     className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors"
@@ -449,11 +444,11 @@ const BlogPost = () => {
                 Ver Concurso Actual
               </Link>
               <Link
-                to="/writing-resources"
+                to="/blog"
                 className="inline-flex items-center px-6 py-3 bg-white border border-indigo-200 text-indigo-700 rounded-xl hover:bg-indigo-50 transition-colors"
               >
                 <ExternalLink className="h-5 w-5 mr-2" />
-                Más Recursos
+                Ver Más Posts
               </Link>
             </div>
           </div>

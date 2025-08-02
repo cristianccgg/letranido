@@ -241,14 +241,14 @@ const Blog = () => {
             ))}
           </div>
 
-          {/* Navigation back to resources */}
+          {/* Navigation back to home */}
           <div className="mt-16 text-center">
             <Link
-              to="/writing-resources"
+              to="/"
               className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-indigo-700 font-semibold hover:bg-white/30 hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <BookOpen className="h-5 w-5 mr-3" />
-              Volver a Recursos de Escritura
+              Volver al Inicio
               <ArrowRight className="h-5 w-5 ml-3" />
             </Link>
           </div>
