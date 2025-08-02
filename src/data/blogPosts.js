@@ -57,15 +57,15 @@ Como escritores, nunca dejamos de aprender. Estos 5 libros han sido seleccionado
 - La importancia de la experiencia vivida en la escritura
 - Cómo convertir la realidad en ficción
 
-## 5. ["El Viaje del Escritor" - Christopher Vogler](https://amzn.to/4l12xq7)
+## 5. ["Curso de Escritura Creativa" - Brandon Sanderson](https://amzn.to/4mu81el)
 
-**Por qué es esencial:** Aplica el monomito de Joseph Campbell a la narrativa moderna, ofreciendo una estructura universal para contar historias.
+**Por qué es esencial:** El maestro de la fantasía moderna comparte las técnicas que lo han convertido en uno de los autores más exitosos del género, con un enfoque sistemático y práctico.
 
 **Lo que aprenderás:**
-- La estructura clásica del viaje del héroe
-- Arquetipos de personajes universales
-- Cómo crear arcos narrativos poderosos
-- Técnicas narrativas probadas en Hollywood
+- Sistemas de magia y worldbuilding coherentes
+- Técnicas de ploteo y estructura narrativa moderna
+- Cómo crear personajes memorables y tridimensionales
+- Métodos de escritura eficientes y productivos
 
 ## Mi Recomendación de Lectura
 
@@ -73,7 +73,7 @@ Como escritores, nunca dejamos de aprender. Estos 5 libros han sido seleccionado
 
 **Para escritores serios:** "Mientras Escribo" de King es indispensable.
 
-**Para técnica avanzada:** "El Viaje del Escritor" te dará estructura sólida.
+**Para técnica moderna:** "Curso de Escritura Creativa" de Sanderson te dará métodos sistemáticos actuales.
 
 **Para perspectiva literaria:** Vargas Llosa ofrece la visión más profunda sobre el arte.
 
@@ -86,7 +86,7 @@ Cada libro aborda la escritura desde un ángulo diferente:
 - **Lodge ("El Arte de la Ficción")**: El análisis técnico y académico  
 - **Bradbury**: La pasión y la creatividad
 - **Vargas Llosa**: La vocación y el compromiso artístico
-- **Vogler**: La estructura narrativa universal
+- **Sanderson**: Técnicas modernas y sistemáticas
 
 Juntos forman una educación completa en escritura creativa.
 
