@@ -378,7 +378,7 @@ Para presupuestos limitados, **FutureLearn gratis** es un excelente punto de par
 
 Como escritores, leemos constantemente. Pero ¿es Kindle Unlimited la mejor opción para nuestro presupuesto y necesidades?
 
-## ¿Qué es [Kindle Unlimited](https://amzn.to/4mnQYdS)?
+## ¿Qué es [Kindle Unlimited](https://amzn.to/3UamSOY)?
 
 **Precio:** €9.99/mes
 **Catálogo:** Más de 1 millón de títulos
@@ -490,9 +490,9 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
     readTime: "7 min",
     category: "recursos",
     tags: ["kindle unlimited", "lectura digital", "recursos", "análisis"],
-    image: "/images/blog/kindle-unlimited.jpg",
+    image: "/images/blog/kindle.jpg",
     featured: false,
-    published: false,
+    published: true,
   },
 ];
 

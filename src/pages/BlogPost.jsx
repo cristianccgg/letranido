@@ -11,7 +11,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import SEOHead from "../components/SEO/SEOHead";
-import AffiliateLink from "../components/ui/AffiliateLink";
 import { getPostBySlug, getRecentPosts, categories } from "../data/blogPosts";
 
 const BlogPost = () => {
@@ -69,12 +68,15 @@ const BlogPost = () => {
 
   // Process content to render as HTML (improved markdown processing)
   const processContent = (content) => {
+    // Remove first h1 title to avoid duplication with page title
+    const withoutFirstTitle = content.replace(/^# .+\n\n?/, '');
+    
     // Split by double newlines to handle paragraphs properly
-    let processed = content
-      // First handle headers (must be done before paragraph processing)
+    let processed = withoutFirstTitle
+      // Handle headers (start with h2 since h1 is removed)
       .replace(
         /^# (.+)$/gm,
-        '<h1 class="text-3xl font-bold text-gray-900 mb-6 mt-8 first:mt-0">$1</h1>'
+        '<h2 class="text-2xl font-bold text-gray-900 mb-4 mt-6">$1</h2>'
       )
       .replace(
         /^## (.+)$/gm,
@@ -251,10 +253,6 @@ const BlogPost = () => {
               {/* Meta information */}
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-8 pb-8 border-b border-gray-200">
                 <span className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  {post.author}
-                </span>
-                <span className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   {formatDate(post.publishedAt)}
                 </span>
@@ -266,7 +264,7 @@ const BlogPost = () => {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-8">
-                {post.tags.map((tag) => (
+                {post.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
                     className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full flex items-center gap-1"
