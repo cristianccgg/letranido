@@ -90,7 +90,14 @@ const BlogPost = () => {
       // Handle links (before bold and italic processing)
       .replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">$1</a>'
+        (match, text, url) => {
+          // Internal links (start with /) stay in same tab
+          if (url.startsWith('/')) {
+            return `<a href="${url}" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">${text}</a>`;
+          }
+          // External links open in new tab
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">${text}</a>`;
+        }
       )
 
       // Handle bold and italic (after links)
@@ -148,15 +155,56 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen">
       <SEOHead
-        title={post.title}
-        description={post.excerpt}
-        keywords={post.tags.join(", ")}
-        image={post.image}
+        title={`${post.title} | Blog Letranido - Recursos para Escritores`}
+        description={`${post.excerpt} ⭐ Guía completa en Letranido | ${post.readTime} de lectura | Tips y recursos para escritores creativos`}
+        keywords={`${post.tags.join(", ")}, escritura creativa, recursos escritores, letranido, guías escritura, ${post.category}`}
+        image={post.image ? `https://letranido.com${post.image}` : `https://letranido.com/letranido-og.png`}
         url={`/recursos/blog/${post.slug}`}
+        canonicalUrl={`https://letranido.com/recursos/blog/${post.slug}`}
         type="article"
         publishedTime={post.publishedAt}
+        modifiedTime={post.updatedAt || post.publishedAt}
         author={post.author}
       />
+
+      {/* JSON-LD Schema Markup para SEO */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": post.title,
+          "description": post.excerpt,
+          "image": post.image ? `https://letranido.com${post.image}` : `https://letranido.com/letranido-og.png`,
+          "author": {
+            "@type": "Organization",
+            "name": post.author,
+            "url": "https://letranido.com"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Letranido",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://letranido.com/letranido-logo.png"
+            }
+          },
+          "datePublished": post.publishedAt,
+          "dateModified": post.updatedAt || post.publishedAt,
+          "wordCount": Math.round(post.content.length / 6),
+          "articleSection": categoryData?.name || "Recursos",
+          "keywords": post.tags.join(", "),
+          "url": `https://letranido.com/recursos/blog/${post.slug}`,
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://letranido.com/recursos/blog/${post.slug}`
+          },
+          "about": {
+            "@type": "Thing",
+            "name": "Escritura Creativa"
+          },
+          "inLanguage": "es-ES"
+        })}
+      </script>
 
       <section className="min-h-screen ">
         <div className="max-w-6xl mx-auto px-4 py-12">
