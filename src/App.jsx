@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
@@ -15,6 +15,7 @@ import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import { useToast, ToastContainer } from "./components/ui/Toast";
 import SocialContainer from "./components/ui/SocialContainer";
+import FeedbackModal from "./components/modals/FeedbackModal";
 import { Analytics } from "@vercel/analytics/react";
 
 // Páginas críticas - carga inmediata
@@ -46,6 +47,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
   const { initialized, authInitialized, user } = useGlobalApp();
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const {
     isActive: maintenanceActive,
     message,
@@ -179,7 +181,7 @@ function AppContent() {
             </div>
           }
         >
-          <SocialContainer />
+          <SocialContainer onFeedbackClick={() => setShowFeedbackModal(true)} />
           <Routes>
             <Route path="/" element={<LandingPage />} />
 
@@ -267,6 +269,12 @@ function AppContent() {
 
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      {/* Feedback Modal */}
+      <FeedbackModal 
+        isOpen={showFeedbackModal} 
+        onClose={() => setShowFeedbackModal(false)} 
+      />
       
       {/* Vercel Analytics */}
       <Analytics />

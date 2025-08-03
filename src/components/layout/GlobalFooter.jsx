@@ -6,6 +6,8 @@ import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ Cambiado
 import ContestActionButton from "../ui/ContestActionButton";
 import ContestPhaseBadge from "../ui/ContestPhaseBadge";
 import ContestRulesModal from "../forms/ContestRulesModal";
+import FeedbackButton from "../ui/FeedbackButton";
+import FeedbackModal from "../modals/FeedbackModal";
 import logo from "../../assets/images/letranido-logo.png";
 
 const GlobalFooter = () => {
@@ -14,6 +16,7 @@ const GlobalFooter = () => {
     useGlobalApp(); // ✅ Cambiado de useAppState + useAuthStore
 
   const [showRulesModal, setShowRulesModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // ✅ Función para obtener el contenido del CTA según la fase
   const getCTAContent = () => {
@@ -228,6 +231,15 @@ const GlobalFooter = () => {
             <div>
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-primary-200">
+                {/* Botón de feedback - Mobile y Desktop */}
+                <li>
+                  <button
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="hover:text-white transition-colors text-left flex items-center gap-2"
+                  >
+                    💬 Enviar feedback
+                  </button>
+                </li>
                 <li>
                   <Link
                     to="/faq"
@@ -281,7 +293,7 @@ const GlobalFooter = () => {
         </div>
       </div>
 
-      {/* ✅ MODAL FUERA DE TODO - AL FINAL DEL FOOTER */}
+      {/* ✅ MODALES FUERA DE TODO - AL FINAL DEL FOOTER */}
       {showRulesModal && currentContest && (
         <ContestRulesModal
           isOpen={showRulesModal}
@@ -294,6 +306,11 @@ const GlobalFooter = () => {
           }}
         />
       )}
+      
+      <FeedbackModal 
+        isOpen={showFeedbackModal} 
+        onClose={() => setShowFeedbackModal(false)} 
+      />
     </footer>
   );
 };
