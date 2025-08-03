@@ -249,6 +249,45 @@ const TermsOfService = () => {
           </p>
         </section>
 
+        {/* 4.5 Monetización y Enlaces de Afiliado */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+            <Trophy className="h-6 w-6 mr-2 text-green-600" />
+            4.5 Monetización y Enlaces de Afiliado
+          </h2>
+
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <h3 className="font-semibold text-green-900 mb-2">
+              Transparencia sobre Monetización
+            </h3>
+            <ul className="text-green-800 space-y-2 text-sm">
+              <li>• <strong>Enlaces de afiliado:</strong> Letranido participa en programas de afiliados (Amazon, Udemy, Coursera, etc.)</li>
+              <li>• <strong>Comisiones:</strong> Podemos recibir comisiones por compras realizadas a través de nuestros enlaces</li>
+              <li>• <strong>Sin costo adicional:</strong> Los usuarios no pagan precios diferentes por usar nuestros enlaces</li>
+              <li>• <strong>Identificación clara:</strong> Todos los enlaces de afiliado están claramente marcados con disclaimers</li>
+              <li>• <strong>Recomendaciones honestas:</strong> Solo promocionamos productos/servicios que consideramos valiosos para escritores</li>
+              <li>• <strong>Cumplimiento GDPR:</strong> El tracking de clicks respeta las preferencias de cookies del usuario</li>
+            </ul>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2">4.5.1 Uso de Comisiones</h3>
+          <p className="mb-4">
+            Las comisiones recibidas se utilizan exclusivamente para:
+          </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Mantener la plataforma gratuita para todos los usuarios</li>
+            <li>Mejorar la funcionalidad y experiencia de usuario</li>
+            <li>Crear contenido educativo de calidad</li>
+            <li>Organizar concursos y eventos de la comunidad</li>
+          </ul>
+
+          <h3 className="text-lg font-semibold mb-2">4.5.2 Independencia Editorial</h3>
+          <p className="mb-4">
+            Nos comprometemos a mantener independencia editorial. Las comisiones de afiliado 
+            no influyen en nuestras reseñas, recomendaciones o contenido educativo.
+          </p>
+        </section>
+
         {/* 5. Comportamiento del Usuario */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">

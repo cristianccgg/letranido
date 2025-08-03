@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExternalLink, AlertCircle } from 'lucide-react';
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 
 const AffiliateLink = ({ 
   href, 
@@ -10,19 +11,24 @@ const AffiliateLink = ({
   showDisclaimer = true,
   ...props 
 }) => {
+  const { trackEvent, isAnalyticsEnabled } = useGoogleAnalytics();
+
   // Tracking click events for analytics
   const handleClick = () => {
-    // Google Analytics event tracking
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'affiliate_click', {
+    // Solo trackear si el usuario ha consentido analytics (GDPR-compliant)
+    if (isAnalyticsEnabled) {
+      trackEvent('affiliate_click', {
         affiliate_platform: platform,
         affiliate_url: href,
         value: price || 0
       });
+      console.log(`✅ [Affiliate] Analytics tracking: ${platform} - ${href}`);
+    } else {
+      console.log(`🚫 [Affiliate] Analytics disabled - click not tracked: ${platform} - ${href}`);
     }
 
-    // Console log for development
-    console.log(`[Affiliate] Click tracked: ${platform} - ${href}`);
+    // Console log para desarrollo (siempre activo para debugging)
+    console.log(`[Affiliate] Link clicked: ${platform} - ${href}`);
   };
 
   // Platform-specific styling
