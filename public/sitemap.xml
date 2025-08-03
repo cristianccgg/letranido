@@ -84,4 +84,34 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- Blog Pages -->
+  <url>
+    <loc>https://letranido.com/recursos/blog</loc>
+    <lastmod>2025-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Published Blog Posts -->
+  <url>
+    <loc>https://letranido.com/blog/libros-esenciales-escritores-2025</loc>
+    <lastmod>2025-07-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://letranido.com/blog/kindle-unlimited-escritores-vale-la-pena</loc>
+    <lastmod>2025-07-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://letranido.com/blog/como-escribir-cuentos-paso-a-paso</loc>
+    <lastmod>2025-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
