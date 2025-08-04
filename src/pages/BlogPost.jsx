@@ -69,43 +69,43 @@ const BlogPost = () => {
   // Process content to render as HTML (improved markdown processing)
   const processContent = (content) => {
     // Remove first h1 title to avoid duplication with page title
-    const withoutFirstTitle = content.replace(/^# .+\n\n?/, '');
-    
+    const withoutFirstTitle = content.replace(/^# .+\n\n?/, "");
+
     // Split by double newlines to handle paragraphs properly
     let processed = withoutFirstTitle
       // Handle headers (start with h2 since h1 is removed)
       .replace(
         /^# (.+)$/gm,
-        '<h2 class="text-2xl font-bold text-gray-900 mb-4 mt-6">$1</h2>'
+        '<h2 class="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 mt-6">$1</h2>'
       )
       .replace(
         /^## (.+)$/gm,
-        '<h2 class="text-2xl font-bold text-gray-900 mb-4 mt-6">$1</h2>'
+        '<h2 class="text-2xl font-bold text-gray-900 dark:text-dark-100  mb-4 mt-6">$1</h2>'
       )
       .replace(
         /^### (.+)$/gm,
-        '<h3 class="text-xl font-semibold text-gray-900 mb-3 mt-4">$1</h3>'
+        '<h3 class="text-xl font-semibold text-gray-900 dark:text-dark-100  mb-3 mt-4">$1</h3>'
       )
 
       // Handle links (before bold and italic processing)
-      .replace(
-        /\[([^\]]+)\]\(([^)]+)\)/g,
-        (_, text, url) => {
-          // Internal links (start with /) stay in same tab
-          if (url.startsWith('/')) {
-            return `<a href="${url}" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">${text}</a>`;
-          }
-          // External links open in new tab
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-semibold underline transition-colors">${text}</a>`;
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+        // Internal links (start with /) stay in same tab
+        if (url.startsWith("/")) {
+          return `<a href="${url}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-200 dark:hover:text-indigo-100 font-semibold underline transition-colors">${text}</a>`;
         }
-      )
+        // External links open in new tab
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-200 dark:hover:text-indigo-100 font-semibold underline transition-colors">${text}</a>`;
+      })
 
       // Handle bold and italic (after links)
       .replace(
         /\*\*(.+?)\*\*/g,
-        '<strong class="font-bold text-gray-900">$1</strong>'
+        '<strong class="font-bold text-gray-900 dark:text-dark-100 ">$1</strong>'
       )
-      .replace(/\*(.+?)\*/g, '<em class="italic text-gray-800">$1</em>')
+      .replace(
+        /\*(.+?)\*/g,
+        '<em class="italic text-gray-800 dark:text-dark-200 ">$1</em>'
+      )
 
       // Handle lists (process each list as a block)
       .replace(/^- (.+)$/gm, "|||LISTITEM|||$1|||ENDLISTITEM|||")
@@ -130,7 +130,7 @@ const BlogPost = () => {
             .map((line) =>
               line.replace(
                 /\|\|\|LISTITEM\|\|\|(.+)\|\|\|ENDLISTITEM\|\|\|/,
-                '<li class="mb-2 text-gray-700">$1</li>'
+                '<li class="mb-2 text-gray-700 dark:text-dark-200 ">$1</li>'
               )
             )
             .join("\n");
@@ -139,7 +139,7 @@ const BlogPost = () => {
 
         // Regular paragraphs
         if (block.trim()) {
-          return `<p class="mb-4 text-gray-700 leading-relaxed">${block.replace(/\n/g, "<br>")}</p>`;
+          return `<p class="mb-4 text-gray-700 dark:text-dark-200  leading-relaxed">${block.replace(/\n/g, "<br>")}</p>`;
         }
 
         return "";
@@ -158,7 +158,11 @@ const BlogPost = () => {
         title={`${post.title} | Blog Letranido - Recursos para Escritores`}
         description={`${post.excerpt} ⭐ Guía completa en Letranido | ${post.readTime} de lectura | Tips y recursos para escritores creativos`}
         keywords={`${post.tags.join(", ")}, escritura creativa, recursos escritores, letranido, guías escritura, ${post.category}`}
-        image={post.image ? `https://letranido.com${post.image}` : `https://letranido.com/letranido-og.png`}
+        image={
+          post.image
+            ? `https://letranido.com${post.image}`
+            : `https://letranido.com/letranido-og.png`
+        }
         url={`/recursos/blog/${post.slug}`}
         canonicalUrl={`https://letranido.com/recursos/blog/${post.slug}`}
         type="article"
@@ -172,37 +176,39 @@ const BlogPost = () => {
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BlogPosting",
-          "headline": post.title,
-          "description": post.excerpt,
-          "image": post.image ? `https://letranido.com${post.image}` : `https://letranido.com/letranido-og.png`,
-          "author": {
+          headline: post.title,
+          description: post.excerpt,
+          image: post.image
+            ? `https://letranido.com${post.image}`
+            : `https://letranido.com/letranido-og.png`,
+          author: {
             "@type": "Organization",
-            "name": post.author,
-            "url": "https://letranido.com"
+            name: post.author,
+            url: "https://letranido.com",
           },
-          "publisher": {
+          publisher: {
             "@type": "Organization",
-            "name": "Letranido",
-            "logo": {
+            name: "Letranido",
+            logo: {
               "@type": "ImageObject",
-              "url": "https://letranido.com/letranido-logo.png"
-            }
+              url: "https://letranido.com/letranido-logo.png",
+            },
           },
-          "datePublished": post.publishedAt,
-          "dateModified": post.updatedAt || post.publishedAt,
-          "wordCount": Math.round(post.content.length / 6),
-          "articleSection": categoryData?.name || "Recursos",
-          "keywords": post.tags.join(", "),
-          "url": `https://letranido.com/recursos/blog/${post.slug}`,
-          "mainEntityOfPage": {
+          datePublished: post.publishedAt,
+          dateModified: post.updatedAt || post.publishedAt,
+          wordCount: Math.round(post.content.length / 6),
+          articleSection: categoryData?.name || "Recursos",
+          keywords: post.tags.join(", "),
+          url: `https://letranido.com/recursos/blog/${post.slug}`,
+          mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `https://letranido.com/recursos/blog/${post.slug}`
+            "@id": `https://letranido.com/recursos/blog/${post.slug}`,
           },
-          "about": {
+          about: {
             "@type": "Thing",
-            "name": "Escritura Creativa"
+            name: "Escritura Creativa",
           },
-          "inLanguage": "es-ES"
+          inLanguage: "es-ES",
         })}
       </script>
 
@@ -212,7 +218,7 @@ const BlogPost = () => {
           <div className="mb-8">
             <Link
               to="/recursos/blog"
-              className="inline-flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
+              className="inline-flex items-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-200 dark:hover:text-indigo-100 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver al blog
@@ -220,7 +226,7 @@ const BlogPost = () => {
           </div>
 
           {/* Article Header */}
-          <article className="bg-white/20 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+          <article className="bg-white/20 dark:bg-dark-900 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 overflow-hidden">
             <div className="p-8 md:p-12">
               {/* Category and meta */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -289,17 +295,17 @@ const BlogPost = () => {
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-4 leading-tight">
                 {post.title}
               </h1>
 
               {/* Excerpt */}
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+              <p className="text-xl text-gray-600 dark:text-dark-200 mb-6 leading-relaxed">
                 {post.excerpt}
               </p>
 
               {/* Meta information */}
-              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-8 pb-8 border-b border-gray-200">
+              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-dark-300 mb-8 pb-8 border-b border-gray-200">
                 <span className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   {formatDate(post.publishedAt)}
@@ -334,7 +340,7 @@ const BlogPost = () => {
               {/* Share Section */}
               <div className="mt-12 pt-8 border-t border-gray-200">
                 <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-300 mb-4">
                     ¿Te gustó este artículo? ¡Compártelo!
                   </h3>
                   <div className="flex justify-center gap-3 mb-4">
@@ -394,7 +400,7 @@ const BlogPost = () => {
                       </svg>
                     </button>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-dark-300">
                     Ayúdanos a llegar a más escritores compartiendo este
                     contenido
                   </p>
@@ -408,10 +414,10 @@ const BlogPost = () => {
                     <User className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 mb-2">
+                    <h4 className="font-bold text-gray-900 dark:text-dark-200 mb-2">
                       {post.author}
                     </h4>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 dark:text-dark-300 text-sm">
                       El equipo de Letranido está formado por escritores y
                       lectores apasionados que se dedican a crear contenido útil
                       para la comunidad de escritores en español.
@@ -425,7 +431,7 @@ const BlogPost = () => {
           {/* Related Posts */}
           {recentPosts.length > 0 && (
             <div className="mt-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-8">
                 Artículos Recientes
               </h3>
               <div className="grid md:grid-cols-3 gap-6">
@@ -436,7 +442,7 @@ const BlogPost = () => {
                     <Link
                       key={relatedPost.id}
                       to={`/recursos/blog/${relatedPost.slug}`}
-                      className="group bg-white/20 backdrop-blur-md rounded-xl shadow-lg border border-white/30 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+                      className="group bg-white/20 dark:bg-dark-800 backdrop-blur-md rounded-xl shadow-lg border border-white/30 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
                     >
                       <div className="p-6">
                         <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full">
@@ -447,15 +453,15 @@ const BlogPost = () => {
                           }
                         </span>
 
-                        <h4 className="text-lg font-bold text-gray-900 mt-3 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-dark-100 mt-3 mb-2 dark:group-hover:text-indigo-300 group-hover:text-indigo-600 transition-colors line-clamp-2">
                           {relatedPost.title}
                         </h4>
 
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                        <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 line-clamp-3">
                           {relatedPost.excerpt}
                         </p>
 
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-dark-300">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {relatedPost.readTime}
@@ -473,11 +479,11 @@ const BlogPost = () => {
           )}
 
           {/* Call to Action */}
-          <div className="mt-16 text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="mt-16 text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-dark-800 dark:via-dark-600 dark:to-dark-800 rounded-2xl p-8 border border-indigo-200 dark:border-indigo-500 shadow-xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 dark:text-dark-100">
               ¿Te Gustó Este Artículo?
             </h3>
-            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-700 mb-6 max-w-2xl mx-auto dark:text-dark-300">
               Únete a nuestra comunidad de escritores y participa en concursos
               mensuales donde podrás poner en práctica estos consejos.
             </p>

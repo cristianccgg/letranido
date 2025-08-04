@@ -72,10 +72,10 @@ const Blog = () => {
         <div className="max-w-6xl mx-auto px-4 py-12">
           {/* Simple Header */}
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-300 mb-4 tracking-tight">
               Blog
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-dark-400 max-w-2xl mx-auto">
               Recursos y recomendaciones para escritores
             </p>
           </div>
@@ -121,7 +121,7 @@ const Blog = () => {
                       )}
                     </div>
 
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-dark-100 dark:group-hover:text-indigo-300 mb-4 group-hover:text-indigo-600 transition-colors">
                       {post.title}
                     </h3>
 
@@ -144,7 +144,7 @@ const Blog = () => {
 
                     {/* Botones de compartir */}
                     <div className="flex items-center gap-3 mb-6">
-                      <span className="text-sm text-gray-500 font-medium">
+                      <span className="text-sm text-gray-500 dark:text-dark-300 font-medium">
                         Compartir:
                       </span>
                       <div className="flex gap-2">
@@ -218,7 +218,7 @@ const Blog = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-dark-300">
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">
                           <User className="h-4 w-4" />
@@ -245,7 +245,7 @@ const Blog = () => {
           <div className="mt-16 text-center">
             <Link
               to="/"
-              className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 text-indigo-700 font-semibold hover:bg-white/30 hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center px-8 py-4 bg-white/20 dark:bg-dark-800 dark:hover:bg-dark-900 backdrop-blur-md rounded-xl border border-white/30 dark:text-indigo-400 text-indigo-700 font-semibold hover:bg-white/30 hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <BookOpen className="h-5 w-5 mr-3" />
               Volver al Inicio
