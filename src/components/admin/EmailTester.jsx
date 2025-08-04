@@ -5,6 +5,7 @@ import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X, Shield } fro
 import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
 import { sendTestEmailLocal, showEmailPreview } from '../../lib/email/local-test-mailer.js';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import { generateBlogEmailContent, generateWeeklyNewsletter, getAvailablePosts } from '../../lib/blog-email-generator.js';
 
 const EmailTester = () => {
   const { currentContest, contests } = useGlobalApp();
@@ -17,11 +18,30 @@ const EmailTester = () => {
     textContent: ''
   });
   
+  // Estados para blog posts
+  const [selectedBlogPost, setSelectedBlogPost] = useState('');
+  const [blogEmailType, setBlogEmailType] = useState('individual');
+  const [availablePosts, setAvailablePosts] = useState([]);
+  
   // Estados para preview
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [previewLoading, setPreviewLoading] = useState({}); // Cambiar a objeto para loading individual
   const [activePreviewTab, setActivePreviewTab] = useState('html');
+
+  // Cargar posts disponibles al montar el componente
+  useEffect(() => {
+    try {
+      const posts = getAvailablePosts();
+      setAvailablePosts(posts);
+      if (posts.length > 0) {
+        setSelectedBlogPost(posts[0].slug); // Seleccionar el primer post por defecto
+      }
+    } catch (error) {
+      console.error('Error cargando posts:', error);
+      setAvailablePosts([]);
+    }
+  }, []);
 
   // Efecto para manejar el scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -212,6 +232,69 @@ const EmailTester = () => {
     await handleSendEmail(emailType, manualEmailForm);
   };
 
+  // Funciones para blog posts
+  const handleBlogPreview = async () => {
+    if (!selectedBlogPost) {
+      setResult({ 
+        success: false, 
+        message: "Por favor selecciona un blog post" 
+      });
+      return;
+    }
+
+    setPreviewLoading(prev => ({ ...prev, 'blog': true }));
+    try {
+      let content;
+      if (blogEmailType === 'newsletter') {
+        content = generateWeeklyNewsletter();
+      } else {
+        content = generateBlogEmailContent(selectedBlogPost, blogEmailType);
+      }
+
+      setPreviewData({
+        emailType: `blog_${blogEmailType}`,
+        subject: content.subject,
+        htmlContent: content.htmlContent,
+        textContent: content.textContent
+      });
+      setShowPreview(true);
+    } catch (error) {
+      setResult({ 
+        success: false, 
+        message: 'Error generando preview: ' + error.message 
+      });
+    }
+    setPreviewLoading(prev => ({ ...prev, 'blog': false }));
+  };
+
+  const handleBlogSend = async (emailCategory = 'manual_newsletter') => {
+    if (!selectedBlogPost && blogEmailType !== 'newsletter') {
+      setResult({ 
+        success: false, 
+        message: "Por favor selecciona un blog post" 
+      });
+      return;
+    }
+
+    setLoading(prev => ({ ...prev, 'blog': true }));
+    try {
+      let content;
+      if (blogEmailType === 'newsletter') {
+        content = generateWeeklyNewsletter();
+      } else {
+        content = generateBlogEmailContent(selectedBlogPost, blogEmailType);
+      }
+
+      await handleSendEmail(emailCategory, content);
+    } catch (error) {
+      setResult({ 
+        success: false, 
+        message: 'Error enviando email: ' + error.message 
+      });
+    }
+    setLoading(prev => ({ ...prev, 'blog': false }));
+  };
+
   // TEST SEGURO LOCAL - NUNCA envía emails reales
   const handleLocalTest = async () => {
     if (!manualEmailForm.subject || !manualEmailForm.htmlContent) {
@@ -298,6 +381,16 @@ const EmailTester = () => {
             🎯 Emails de Concurso
           </button>
           <button
+            onClick={() => setActiveTab('blog')}
+            className={`px-6 py-3 font-semibold text-sm whitespace-nowrap transition-all duration-300 ${
+              activeTab === 'blog'
+                ? 'border-b-2 border-green-500 text-green-600 bg-green-50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            📝 Blog Posts
+          </button>
+          <button
             onClick={() => setActiveTab('manual')}
             className={`px-6 py-3 font-semibold text-sm whitespace-nowrap transition-all duration-300 ${
               activeTab === 'manual'
@@ -361,6 +454,133 @@ const EmailTester = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Blog Posts */}
+      {activeTab === 'blog' && (
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">Emails de Blog Posts</h3>
+          
+          {/* Información sobre posts disponibles */}
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+            <h4 className="font-semibold text-green-800 mb-2">📝 Posts Disponibles</h4>
+            <div className="text-sm text-green-700 space-y-1">
+              <div>• <strong>Posts publicados:</strong> {availablePosts.length}</div>
+              <div>• <strong>Se genera automáticamente:</strong> HTML + Texto desde tus blog posts</div>
+              <div>• <strong>Incluye:</strong> Título, excerpt, enlaces, categorías y meta</div>
+            </div>
+          </div>
+
+          {/* Selector de post y tipo */}
+          <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border border-green-200 rounded-2xl p-6 mb-6 shadow-lg">
+            <h4 className="font-semibold text-gray-900 mb-4">Configurar Email de Blog</h4>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Seleccionar Post
+                </label>
+                <select
+                  value={selectedBlogPost}
+                  onChange={(e) => setSelectedBlogPost(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  disabled={blogEmailType === 'newsletter'}
+                >
+                  {availablePosts.map(post => (
+                    <option key={post.slug} value={post.slug}>
+                      {post.title} ({post.category})
+                    </option>
+                  ))}
+                </select>
+                {availablePosts.length === 0 && (
+                  <p className="text-sm text-red-600 mt-1">No hay posts publicados disponibles</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tipo de Email
+                </label>
+                <select
+                  value={blogEmailType}
+                  onChange={(e) => setBlogEmailType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="individual">📝 Post Individual</option>
+                  <option value="newsletter">📰 Newsletter Semanal (últimos 3 posts)</option>
+                </select>
+              </div>
+            </div>
+            
+            {blogEmailType === 'newsletter' && (
+              <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Newsletter automático:</strong> Se generará con los 3 posts más recientes publicados.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Preview y envío */}
+          <div className="bg-white/95 backdrop-blur-sm border border-green-100 hover:border-green-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <h4 className="font-bold text-gray-900 mb-3 text-lg">
+              {blogEmailType === 'newsletter' ? '📰 Newsletter Semanal' : '📝 Email de Post Individual'}
+            </h4>
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              {blogEmailType === 'newsletter' 
+                ? 'Newsletter con los últimos posts del blog'
+                : 'Email individual para promocionar un post específico'
+              }
+            </p>
+            
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={handleBlogPreview}
+                disabled={previewLoading['blog'] || loading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+              >
+                {previewLoading['blog'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
+                Preview
+              </button>
+            </div>
+            
+            {/* Opciones de envío */}
+            <div className="grid md:grid-cols-3 gap-3">
+              <button
+                onClick={() => handleBlogSend('manual_general')}
+                disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
+                className="px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
+              >
+                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                Enviar General
+              </button>
+              
+              <button
+                onClick={() => handleBlogSend('manual_newsletter')}
+                disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
+                className="px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
+              >
+                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                Enviar Newsletter
+              </button>
+              
+              <button
+                onClick={() => handleBlogSend('manual_essential')}
+                disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
+                className="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
+              >
+                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                Enviar Esencial
+              </button>
+            </div>
+            
+            <div className="mt-3 text-xs text-gray-600 space-y-1">
+              <div>• <strong>General:</strong> Usuarios con general_notifications=true</div>
+              <div>• <strong>Newsletter:</strong> Usuarios con general_notifications=true</div>
+              <div>• <strong>Esencial:</strong> TODOS los usuarios (ignora preferencias)</div>
+            </div>
           </div>
         </div>
       )}
