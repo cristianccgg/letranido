@@ -5,9 +5,9 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
   const { toggleTheme, isDark } = useTheme();
 
   const sizeClasses = {
-    sm: "h-8 w-14",
-    md: "h-10 w-18",
-    lg: "h-12 w-22",
+    sm: "h-8 w-16",
+    md: "h-10 w-20", 
+    lg: "h-12 w-24",
   };
 
   const iconSizes = {
@@ -24,8 +24,8 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
         ${sizeClasses[size]}
         ${
           isDark
-            ? "bg-indigo-600 hover:bg-indigo-700"
-            : "bg-gray-200 hover:bg-gray-300"
+            ? "bg-indigo-600 hover:bg-indigo-700 border border-indigo-500"
+            : "bg-gray-200 hover:bg-gray-300 border border-gray-300"
         }
         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
         ${isDark ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
@@ -34,12 +34,13 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
       title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
     >
-      {/* Toggle circle */}
+      {/* Toggle circle with proper sizing */}
       <div
         className={`
-          absolute inset-1 rounded-full bg-white shadow-lg transition-transform duration-300 ease-in-out
+          relative rounded-full bg-white shadow-lg transition-transform duration-300 ease-in-out
           flex items-center justify-center
-          ${isDark ? "translate-x-8" : "translate-x-0"}
+          ${size === 'sm' ? 'h-6 w-6' : size === 'md' ? 'h-8 w-8' : 'h-10 w-10'}
+          ${isDark ? (size === 'sm' ? "translate-x-8" : size === 'md' ? "translate-x-10" : "translate-x-12") : "translate-x-0"}
         `}
       >
         {isDark ? (
@@ -47,16 +48,6 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
         ) : (
           <Sun className={`${iconSizes[size]} text-yellow-500`} />
         )}
-      </div>
-
-      {/* Background icons for visual feedback */}
-      <div className="flex w-full justify-between items-center px-2">
-        <Sun
-          className={`${iconSizes[size]} text-yellow-300 ${!isDark ? "opacity-0" : "opacity-30"} transition-opacity duration-300`}
-        />
-        <Moon
-          className={`${iconSizes[size]} text-indigo-300 ${isDark ? "opacity-0" : "opacity-30"} transition-opacity duration-300`}
-        />
       </div>
     </button>
   );
