@@ -853,7 +853,9 @@ const CurrentContest = () => {
                   {storiesLoading && (
                     <div className="text-center py-8">
                       <Loader className="h-8 w-8 animate-spin mx-auto text-primary-600 mb-4" />
-                      <p className="text-gray-600 dark:text-dark-300">Cargando participantes...</p>
+                      <p className="text-gray-600 dark:text-dark-300">
+                        Cargando participantes...
+                      </p>
                     </div>
                   )}
 
@@ -1118,7 +1120,9 @@ const CurrentContest = () => {
               {storiesLoading && (
                 <div className="text-center py-12">
                   <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
-                  <p className="text-gray-600 dark:text-dark-300">Cargando historias...</p>
+                  <p className="text-gray-600 dark:text-dark-300">
+                    Cargando historias...
+                  </p>
                 </div>
               )}
 
@@ -1162,8 +1166,8 @@ const CurrentContest = () => {
                             key={story.id}
                             className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
                               hasVoted
-                                ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90"
-                                : "bg-white/95 border-indigo-100 hover:border-purple-200"
+                                ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90 dark:bg-dark-700/80 dark:border-dark-500 hover:dark:border-purple-400"
+                                : "bg-white/95 border-indigo-100 hover:border-purple-200 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
                             }`}
                             onClick={() => navigate(`/story/${story.id}`)}
                           >
@@ -1182,13 +1186,13 @@ const CurrentContest = () => {
                                         </div>
                                       )}
                                       {index === 1 && (
-                                        <div className="flex items-center text-gray-600 text-sm">
+                                        <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Medal className="h-4 w-4 mr-1" />
                                           <span className="font-bold">2º</span>
                                         </div>
                                       )}
                                       {index === 2 && (
-                                        <div className="flex items-center text-orange-600 text-sm">
+                                        <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Award className="h-4 w-4 mr-1" />
                                           <span className="font-bold">3º</span>
                                         </div>
@@ -1207,8 +1211,8 @@ const CurrentContest = () => {
                                 <h3
                                   className={`text-base md:text-lg font-semibold cursor-pointer line-clamp-2 mb-2 ${
                                     hasVoted
-                                      ? "text-gray-500"
-                                      : "text-gray-900 hover:text-primary-600"
+                                      ? "text-gray-500 dark:text-dark-400"
+                                      : "text-gray-900 dark:text-dark-300 dark:hover:text-primary-400 hover:text-primary-600"
                                   }`}
                                 >
                                   <a href={`/story/${story.id}`}>
@@ -1218,7 +1222,9 @@ const CurrentContest = () => {
 
                                 <div
                                   className={`flex flex-wrap items-center gap-1 md:gap-2 text-xs ${
-                                    hasVoted ? "text-gray-400" : "text-gray-500"
+                                    hasVoted
+                                      ? "text-gray-400 dark:text-dark-300"
+                                      : "text-gray-500 dark:text-dark-400"
                                   }`}
                                 >
                                   <UserAvatar
@@ -1236,7 +1242,7 @@ const CurrentContest = () => {
                                     />
                                   </span>
                                   <span className="hidden sm:inline">•</span>
-                                  <span className="whitespace-nowrap">
+                                  <span className="whitespace-nowrap ">
                                     {getReadingTime(story.word_count)}
                                   </span>
                                   <span className="hidden sm:inline">•</span>
@@ -1286,7 +1292,9 @@ const CurrentContest = () => {
                             {/* Excerpt más corto - Con overflow controlado */}
                             <div
                               className={`text-sm mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden ${
-                                hasVoted ? "text-gray-400" : "text-gray-600"
+                                hasVoted
+                                  ? "text-gray-400"
+                                  : "text-gray-600 dark:text-dark-300"
                               }`}
                               dangerouslySetInnerHTML={{
                                 __html: story.excerpt,
@@ -1303,8 +1311,8 @@ const CurrentContest = () => {
                                     <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
                                         hasVoted
-                                          ? "text-gray-400"
-                                          : "text-red-600"
+                                          ? "text-gray-400 dark:text-dark-300"
+                                          : "text-red-600 dark:text-red-400"
                                       }`}
                                     >
                                       <Heart className="h-3 w-3 fill-current flex-shrink-0" />
@@ -1317,8 +1325,8 @@ const CurrentContest = () => {
                                     <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
                                         hasVoted
-                                          ? "text-gray-400"
-                                          : "text-gray-500"
+                                          ? "text-gray-400 dark:text-dark-300"
+                                          : "text-gray-500 dark:text-dark-400"
                                       }`}
                                     >
                                       <Eye className="h-3 w-3 flex-shrink-0" />
@@ -1342,8 +1350,9 @@ const CurrentContest = () => {
                               {/* Info de votación - responsive */}
                               <div className="flex items-center justify-start sm:justify-end">
                                 {phaseInfo?.isHistorical ? (
-                                  <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
-                                    📚 Solo lectura
+                                  <span className="text-xs flex  items-center text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
+                                    <BookOpen className="h-3 w-3 mr-1" /> Solo
+                                    lectura
                                   </span>
                                 ) : (
                                   <>

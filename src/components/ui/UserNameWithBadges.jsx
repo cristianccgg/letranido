@@ -111,7 +111,9 @@ const UserWithTopBadge = ({ user, userId, userName, className = "" }) => {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="font-medium text-gray-900 truncate">{displayName}</span>
+      <span className="font-medium text-gray-900 dark:text-dark-300 truncate">
+        {displayName}
+      </span>
 
       {!loading && topBadge && (
         <Badge badge={topBadge} size="xs" showDescription={true} />
