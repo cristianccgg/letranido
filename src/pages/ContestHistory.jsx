@@ -112,7 +112,6 @@ const ContestHistory = () => {
     { value: "Fantasía", label: "Fantasía" },
   ];
 
-
   // ✅ LOADING STATES
   if (contestsLoading || loading) {
     return (
@@ -135,208 +134,192 @@ const ContestHistory = () => {
         canonicalUrl="https://letranido.com/contest-history"
       />
       <div className="max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Historial de Concursos
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Explora concursos pasados y descubre a los ganadores
-        </p>
-
-        {/* Link al concurso actual */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-blue-900">
-                ¿Buscas el concurso actual?
-              </h3>
-              <p className="text-blue-700 text-sm">
-                Participa o vota en el concurso activo de este mes
-              </p>
-            </div>
-            <Link
-              to="/contest/current"
-              className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
-            >
-              Ver concurso actual
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar concursos por título o mes..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none appearance-none bg-white"
-            >
-              {categories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-gray-600">
-          {filteredContests.length} concurso
-          {filteredContests.length !== 1 ? "s" : ""} encontrado
-          {filteredContests.length !== 1 ? "s" : ""}
-        </p>
-      </div>
-
-      {/* Contest Cards */}
-      {filteredContests.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <Trophy className="h-16 w-16 mx-auto" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No se encontraron concursos
-          </h3>
-          <p className="text-gray-600">
-            {searchTerm.trim() || selectedCategory !== "all"
-              ? "Intenta con otros términos de búsqueda o filtros diferentes"
-              : "Aún no hay concursos finalizados en el historial"}
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-100 mb-2">
+            Historial de Concursos
+          </h1>
+          <p className="text-gray-600 dark:text-dark-300 mb-6">
+            Explora concursos pasados y descubre a los ganadores
           </p>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredContests.map((contest) => (
-            <div
-              key={contest.id}
-              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200 overflow-hidden"
-            >
-              {/* Contest Header */}
-              <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 text-white">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
-                    <Trophy className="h-5 w-5 mr-2" />
-                    <span className="text-sm font-medium opacity-90">
-                      {contest.month}
-                    </span>
-                  </div>
-                  <div className="text-xs opacity-75">
-                    {contest.totalStories || 0} historias
-                  </div>
-                </div>
 
-                <h2 className="text-lg font-bold mb-2 leading-tight line-clamp-2">
-                  {contest.title}
-                </h2>
-
-                <p className="text-sm opacity-80 line-clamp-2">
-                  {contest.description}
+          {/* Link al concurso actual */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-blue-900 dark:text-blue-300 text-lg mb-1">
+                  ¿Buscas el concurso actual?
+                </h3>
+                <p className="text-blue-700 dark:text-blue-300 text-sm">
+                  Participa o vota en el concurso activo de este mes
                 </p>
               </div>
+              <Link
+                to="/contest/current"
+                className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
+              >
+                Ver concurso actual
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </div>
+          </div>
+        </div>
 
-              {/* Winner Section */}
-              <div className="p-6">
-                {contest.winner ? (
-                  <div className="mb-4">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-500 rounded-full flex items-center justify-center mr-3">
-                        <Crown className="h-4 w-4 text-white" />
-                      </div>
-                      <span className="text-sm font-semibold text-gray-700">
-                        Historia ganadora
+        {/* Filters */}
+        <div className="bg-white dark:bg-dark-800/95 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500  backdrop-blur-md rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar concursos por título o mes..."
+                className="w-full pl-10 pr-4 py-3 border  border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            {filteredContests.length} concurso
+            {filteredContests.length !== 1 ? "s" : ""} encontrado
+            {filteredContests.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+
+        {/* Contest Cards */}
+        {filteredContests.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Trophy className="h-16 w-16 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No se encontraron concursos
+            </h3>
+            <p className="text-gray-600">
+              {searchTerm.trim() || selectedCategory !== "all"
+                ? "Intenta con otros términos de búsqueda o filtros diferentes"
+                : "Aún no hay concursos finalizados en el historial"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredContests.map((contest) => (
+              <div
+                key={contest.id}
+                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200 overflow-hidden"
+              >
+                {/* Contest Header */}
+                <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900  p-6 text-white">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center">
+                      <Trophy className="h-5 w-5 mr-2" />
+                      <span className="text-sm font-medium opacity-90">
+                        {contest.month}
                       </span>
                     </div>
-
-                    <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-4 border border-indigo-100">
-                      <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">
-                        {contest.winner.title}
-                      </h3>
-
-                      <p className="text-sm text-gray-600 mb-3">
-                        por{" "}
-                        <UserWithWinnerBadges 
-                          userId={contest.winner.user_id}
-                          userName={contest.winner.author}
-                          className="inline-flex"
-                        />
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-full">
-                          <span className="text-red-500 text-sm">❤️</span>
-                          <span className="text-xs font-medium text-gray-700">
-                            {contest.winner.likes_count || 0}
-                          </span>
-                        </div>
-                        <Link
-                          to={`/story/${contest.winner.id}`}
-                          className="text-indigo-600 hover:text-purple-600 font-medium text-sm transition-colors duration-200"
-                        >
-                          Leer →
-                        </Link>
-                      </div>
+                    <div className="text-xs opacity-75">
+                      {contest.totalStories || 0} historias
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-6 text-gray-500">
-                    <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Sin historias disponibles</p>
-                  </div>
-                )}
 
-                {/* Action Button */}
-                <div className="text-center">
-                  <Link
-                    to={`/contest/${contest.id}`}
-                    className="inline-flex items-center w-full justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm"
-                  >
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Ver todas las historias
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
+                  <h2 className="text-lg font-bold mb-2 leading-tight line-clamp-2">
+                    {contest.title}
+                  </h2>
+
+                  <p className="text-sm opacity-80 line-clamp-2">
+                    {contest.description}
+                  </p>
+                </div>
+
+                {/* Winner Section */}
+                <div className="p-6 dark:bg-dark-800/95">
+                  {contest.winner ? (
+                    <div className="mb-4">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                          <Crown className="h-4 w-4 text-white" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Historia ganadora
+                        </span>
+                      </div>
+
+                      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-xl p-4 border border-indigo-100 dark:border-dark-600">
+                        <h3 className="font-bold text-gray-900 dark:text-gray-300 mb-2 line-clamp-1">
+                          {contest.winner.title}
+                        </h3>
+
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                          por{" "}
+                          <UserWithWinnerBadges
+                            userId={contest.winner.user_id}
+                            userName={contest.winner.author}
+                            className="inline-flex"
+                          />
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-full">
+                            <span className="text-red-500 text-sm">❤️</span>
+                            <span className="text-xs font-medium text-gray-700">
+                              {contest.winner.likes_count || 0}
+                            </span>
+                          </div>
+                          <Link
+                            to={`/story/${contest.winner.id}`}
+                            className="text-indigo-600 hover:text-purple-600 dark:text-indigo-400 dark:hover:text-purple-400 font-medium text-sm transition-colors duration-200"
+                          >
+                            Leer →
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500">
+                      <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Sin historias disponibles</p>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="text-center">
+                    <Link
+                      to={`/contest/${contest.id}`}
+                      className="inline-flex items-center w-full justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Ver todas las historias
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {/* Bottom CTA */}
-      <div className="mt-12 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl p-8 text-center">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          ¿Te inspiraste con estas historias?
-        </h3>
-        <p className="text-gray-600 mb-6">
-          Únete al concurso actual y demuestra tu talento literario
-        </p>
-        <Link 
-          to="/contest/current" 
-          className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
-        >
-          <BookOpen className="h-5 w-5 mr-3" />
-          Participar en el concurso actual
-          <ArrowRight className="h-5 w-5 ml-3" />
-        </Link>
-      </div>
+        {/* Bottom CTA */}
+        <div className="mt-12 bg-gradient-to-r from-primary-50 to-accent-50 border border-indigo-200 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 dark:border-dark-600 rounded-xl p-8 text-center">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            ¿Te inspiraste con estas historias?
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Únete al concurso actual y demuestra tu talento literario
+          </p>
+          <Link
+            to="/contest/current"
+            className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
+          >
+            <BookOpen className="h-5 w-5 mr-3" />
+            Participar en el concurso actual
+            <ArrowRight className="h-5 w-5 ml-3" />
+          </Link>
+        </div>
       </div>
     </>
   );

@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { Clock, Send, AlertCircle, PenTool, Edit3 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
+import {
+  useGoogleAnalytics,
+  AnalyticsEvents,
+} from "../hooks/useGoogleAnalytics";
 import { useDraftManager } from "../hooks/useDraftManager";
 import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
@@ -15,7 +18,7 @@ const WritePrompt = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { promptId } = useParams(); // ✅ Obtener ID del concurso desde URL
-  const editStoryId = searchParams.get('edit');
+  const editStoryId = searchParams.get("edit");
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -43,9 +46,11 @@ const WritePrompt = () => {
   const contestToUse = useMemo(() => {
     // Si hay un promptId en la URL, buscar ese concurso específico
     if (promptId && contests.length > 0) {
-      const specificContest = contests.find(c => c.id === promptId);
+      const specificContest = contests.find((c) => c.id === promptId);
       if (specificContest) {
-        console.log(`📝 Usando concurso específico de URL: "${specificContest.title}"`);
+        console.log(
+          `📝 Usando concurso específico de URL: "${specificContest.title}"`
+        );
         return specificContest;
       }
     }
@@ -55,7 +60,9 @@ const WritePrompt = () => {
   }, [promptId, contests, currentContest]);
 
   // ✅ DRAFT MANAGER
-  const { saveDraft, loadDraft, saveTempDraft, clearDraft } = useDraftManager(contestToUse?.id);
+  const { saveDraft, loadDraft, saveTempDraft, clearDraft } = useDraftManager(
+    contestToUse?.id
+  );
 
   // ✅ VERIFICAR SI EL CONCURSO PERMITE ENVÍOS
   const contestPhase = useMemo(() => {
@@ -64,7 +71,10 @@ const WritePrompt = () => {
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA (Optimizada con useMemo)
   const hasUserParticipated = useMemo(() => {
-    return isAuthenticated && contestToUse && userStories.length > 0 && !isEditing
+    return isAuthenticated &&
+      contestToUse &&
+      userStories.length > 0 &&
+      !isEditing
       ? userStories.some((story) => story.contest_id === contestToUse.id)
       : false;
   }, [isAuthenticated, contestToUse, userStories, isEditing]);
@@ -75,8 +85,9 @@ const WritePrompt = () => {
       const loadStoryForEdit = async () => {
         try {
           const { data: story, error } = await supabase
-            .from('stories')
-            .select(`
+            .from("stories")
+            .select(
+              `
               *,
               contests (
                 id,
@@ -84,24 +95,28 @@ const WritePrompt = () => {
                 submission_deadline,
                 voting_deadline
               )
-            `)
-            .eq('id', editStoryId)
-            .eq('user_id', user.id) // Solo cargar si es del usuario actual
+            `
+            )
+            .eq("id", editStoryId)
+            .eq("user_id", user.id) // Solo cargar si es del usuario actual
             .single();
 
           if (error) {
-            console.error('Error cargando historia para editar:', error);
-            alert('No se pudo cargar la historia para editar');
-            navigate('/profile');
+            console.error("Error cargando historia para editar:", error);
+            alert("No se pudo cargar la historia para editar");
+            navigate("/profile");
             return;
           }
 
           // Verificar que el concurso está en fase de envío
           if (story.contests) {
-            const contestPhase = new Date() <= new Date(story.contests.submission_deadline) ? 'submission' : 'voting';
-            if (contestPhase !== 'submission') {
-              alert('Solo puedes editar historias durante el período de envío');
-              navigate('/profile');
+            const contestPhase =
+              new Date() <= new Date(story.contests.submission_deadline)
+                ? "submission"
+                : "voting";
+            if (contestPhase !== "submission") {
+              alert("Solo puedes editar historias durante el período de envío");
+              navigate("/profile");
               return;
             }
           }
@@ -111,9 +126,9 @@ const WritePrompt = () => {
           setText(story.content);
           setIsEditing(true);
         } catch (error) {
-          console.error('Error inesperado:', error);
-          alert('Error cargando la historia');
-          navigate('/profile');
+          console.error("Error inesperado:", error);
+          alert("Error cargando la historia");
+          navigate("/profile");
         }
       };
 
@@ -130,10 +145,8 @@ const WritePrompt = () => {
       .replace(/<\/?[^>]+(>|$)/g, "") // Remover tags HTML
       .replace(/&nbsp;/g, " ") // Convertir espacios no-break
       .trim();
-    
-    const words = cleanText
-      .split(/\s+/)
-      .filter((word) => word.length > 0);
+
+    const words = cleanText.split(/\s+/).filter((word) => word.length > 0);
     setWordCount(words.length);
 
     // Auto-guardar con debounce (500ms)
@@ -198,69 +211,69 @@ const WritePrompt = () => {
     setShowConfirmationModal(true);
   };
 
-  const handleConfirmSubmission = async ({ 
-    hasMatureContent, 
-    termsAccepted, 
-    originalConfirmed, 
-    noAIConfirmed, 
-    shareWinnerContentAccepted 
+  const handleConfirmSubmission = async ({
+    hasMatureContent,
+    termsAccepted,
+    originalConfirmed,
+    noAIConfirmed,
+    shareWinnerContentAccepted,
   }) => {
     try {
       if (isEditing && originalStory) {
         // MODO EDICIÓN: Actualizar historia existente
-        logger.log('🔄 Actualizando historia:', {
+        logger.log("🔄 Actualizando historia:", {
           storyId: originalStory.id,
           userId: user.id,
           title: title.trim(),
           wordCount,
-          hasMatureContent
+          hasMatureContent,
         });
-        
+
         const { data: updatedStory, error: updateError } = await supabase
-          .from('stories')
+          .from("stories")
           .update({
             title: title.trim(),
             content: text.trim(),
             word_count: wordCount,
-            is_mature: hasMatureContent
+            is_mature: hasMatureContent,
           })
-          .eq('id', originalStory.id)
-          .eq('user_id', user.id)
+          .eq("id", originalStory.id)
+          .eq("user_id", user.id)
           .select();
 
         if (updateError) {
-          logger.error('❌ Error actualizando historia:', updateError);
-          logger.error('❌ Detalles del error:', {
+          logger.error("❌ Error actualizando historia:", updateError);
+          logger.error("❌ Detalles del error:", {
             message: updateError.message,
             details: updateError.details,
             hint: updateError.hint,
-            code: updateError.code
+            code: updateError.code,
           });
           alert(`Error actualizando la historia: ${updateError.message}`);
           return;
         }
 
         if (!updatedStory || updatedStory.length === 0) {
-          logger.error('❌ No se encontró la historia para actualizar');
-          alert('No se pudo encontrar la historia para actualizar');
+          logger.error("❌ No se encontró la historia para actualizar");
+          alert("No se pudo encontrar la historia para actualizar");
           return;
         }
 
         // Actualizar consentimientos legales
         const { error: consentError } = await supabase
-          .from('submission_consents')
+          .from("submission_consents")
           .update({
             terms_accepted: termsAccepted,
             original_confirmed: originalConfirmed,
             no_ai_confirmed: noAIConfirmed,
             share_winner_content_accepted: shareWinnerContentAccepted,
             mature_content_marked: hasMatureContent,
-            user_agent: navigator.userAgent
+            user_agent: navigator.userAgent,
           })
-          .eq('story_id', originalStory.id);
+          .eq("story_id", originalStory.id);
 
         if (consentError) {
-          logger.error('❌ Error actualizando consentimientos:', consentError);
+          logger.error("❌ Error actualizando consentimientos:", consentError);
           // No es crítico, continuamos
         }
 
@@ -270,7 +283,7 @@ const WritePrompt = () => {
           word_count: wordCount,
           has_mature_content: hasMatureContent,
           contest_title: contestToUse.title,
-          action: 'updated'
+          action: "updated",
         });
 
         // Cerrar modal
@@ -280,7 +293,6 @@ const WritePrompt = () => {
         navigate("/profile", {
           state: { message: "Historia actualizada exitosamente" },
         });
-
       } else {
         // MODO CREACIÓN: Nueva historia
         const storyData = {
@@ -293,15 +305,15 @@ const WritePrompt = () => {
 
         // ✅ submitStory del contexto actualiza automáticamente userStories
         const result = await submitStory(storyData);
-        
-        logger.log('📝 Submit story result:', result);
+
+        logger.log("📝 Submit story result:", result);
 
         if (result.success) {
-          logger.log('✅ Story created with ID:', result.storyId);
-          
+          logger.log("✅ Story created with ID:", result.storyId);
+
           // Ahora guardar los consentimientos legales con el story_id
           const { data: consentData, error: consentError } = await supabase
-            .from('submission_consents')
+            .from("submission_consents")
             .insert({
               user_id: user.id,
               story_id: result.storyId, // Insertar directamente con story_id
@@ -311,25 +323,27 @@ const WritePrompt = () => {
               share_winner_content_accepted: shareWinnerContentAccepted,
               mature_content_marked: hasMatureContent,
               ip_address: null, // Se puede obtener del cliente si es necesario
-              user_agent: navigator.userAgent
+              user_agent: navigator.userAgent,
             })
             .select()
             .single();
 
           if (consentError) {
-            logger.error('❌ Error guardando consentimientos:', consentError);
-            alert('Error guardando los consentimientos legales. Inténtalo de nuevo.');
+            logger.error("❌ Error guardando consentimientos:", consentError);
+            alert(
+              "Error guardando los consentimientos legales. Inténtalo de nuevo."
+            );
             return;
           }
 
-          logger.log('✅ Consent created with story_id:', consentData.id);
+          logger.log("✅ Consent created with story_id:", consentData.id);
 
           // 📊 TRACK EVENT: Story published
           trackEvent(AnalyticsEvents.STORY_PUBLISHED, {
             contest_id: contestToUse.id,
             word_count: wordCount,
             has_mature_content: hasMatureContent,
-            contest_title: contestToUse.title
+            contest_title: contestToUse.title,
           });
 
           // Limpiar borrador
@@ -347,8 +361,8 @@ const WritePrompt = () => {
         }
       }
     } catch (error) {
-      console.error('Error en el proceso de envío:', error);
-      alert('Error inesperado. Inténtalo de nuevo.');
+      console.error("Error en el proceso de envío:", error);
+      alert("Error inesperado. Inténtalo de nuevo.");
     }
   };
 
@@ -363,9 +377,12 @@ const WritePrompt = () => {
 
   const getWordCountColor = () => {
     if (!contestToUse) return "text-gray-500 dark:text-dark-400";
-    if (wordCount < contestToUse.min_words) return "text-red-500 dark:text-red-400";
-    if (wordCount > contestToUse.max_words) return "text-red-500 dark:text-red-400";
-    if (wordCount > contestToUse.max_words * 0.9) return "text-yellow-500 dark:text-yellow-400";
+    if (wordCount < contestToUse.min_words)
+      return "text-red-500 dark:text-red-400";
+    if (wordCount > contestToUse.max_words)
+      return "text-red-500 dark:text-red-400";
+    if (wordCount > contestToUse.max_words * 0.9)
+      return "text-yellow-500 dark:text-yellow-400";
     return "text-green-500 dark:text-green-400";
   };
 
@@ -373,58 +390,66 @@ const WritePrompt = () => {
     if (!contestToUse) return "Cargando...";
 
     const now = new Date();
-    
+
     // Si es el concurso actual, usar submission_deadline
     if (contestToUse.id === currentContest?.id) {
       if (!contestToUse.submission_deadline) return "Cargando...";
       const deadline = new Date(contestToUse.submission_deadline);
       const diff = deadline - now;
-      
+
       if (diff <= 0) return "Período de envío cerrado";
-      
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+
       if (days > 0) return `${days} días, ${hours} horas`;
       return `${hours} horas`;
     }
-    
+
     // Para próximos concursos, mostrar hasta cuándo pueden enviar
-    const currentPhase = currentContest ? getContestPhase(currentContest) : null;
+    const currentPhase = currentContest
+      ? getContestPhase(currentContest)
+      : null;
     if (currentPhase === "voting" && contestToUse.voting_deadline) {
       const deadline = new Date(contestToUse.voting_deadline);
       const diff = deadline - now;
-      
+
       if (diff <= 0) return "Concurso cerrado";
-      
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+
       if (days > 0) return `Disponible por ${days} días, ${hours} horas más`;
       return `Disponible por ${hours} horas más`;
     }
-    
+
     return "No disponible aún";
   };
 
   const isSubmissionClosed = () => {
     if (!contestToUse) return true;
-    
+
     // Si es el concurso actual, usar la fase calculada
     if (contestToUse.id === currentContest?.id) {
       return contestPhase !== "submission";
     }
-    
+
     // Para próximos concursos: permitir envíos si el concurso actual está en votación
     // y este concurso aún no ha empezado su período de votación
-    const currentPhase = currentContest ? getContestPhase(currentContest) : null;
+    const currentPhase = currentContest
+      ? getContestPhase(currentContest)
+      : null;
     if (currentPhase === "voting") {
       const now = new Date();
       const contestVotingDeadline = new Date(contestToUse.voting_deadline);
       // Permitir envíos si aún no ha terminado la votación de este concurso
       return now > contestVotingDeadline;
     }
-    
+
     // En otros casos, usar la lógica normal
     return contestPhase !== "submission";
   };
@@ -483,176 +508,183 @@ const WritePrompt = () => {
     <>
       <SEOHead
         title={isEditing ? "Editar Historia" : "Escribir Historia"}
-        description={currentContest ? `Participa en el concurso de ${currentContest.category} de ${currentContest.month}. Escribe tu historia basada en el prompt: "${currentContest.prompt}"` : "Escribe tu historia para el concurso actual de escritura creativa en Letranido."}
+        description={
+          currentContest
+            ? `Participa en el concurso de ${currentContest.category} de ${currentContest.month}. Escribe tu historia basada en el prompt: "${currentContest.prompt}"`
+            : "Escribe tu historia para el concurso actual de escritura creativa en Letranido."
+        }
         keywords="escribir historia, concurso escritura, prompt creativo, participar concurso, letranido"
         url="/write"
         canonicalUrl="https://letranido.com/write"
       />
       <div className="max-w-4xl mx-auto">
-      {/* Información del concurso */}
-      <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 mb-8 transition-colors duration-300">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="bg-primary-100 dark:bg-primary-800/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300">
-                {contestToUse.category}
-              </span>
-              <span className="bg-accent-100 dark:bg-accent-800/30 text-accent-700 dark:text-accent-300 px-2 py-1 rounded text-sm transition-colors duration-300">
-                {contestToUse.month}
-              </span>
-              <div className="flex items-center text-gray-500 dark:text-dark-400 text-sm transition-colors duration-300">
-                <Clock className="h-4 w-4 mr-1" />
-                {getTimeLeft()}
-              </div>
-              {isSubmissionClosed() && (
-                <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded text-xs font-medium transition-colors duration-300">
-                  Cerrado
+        {/* Información del concurso */}
+        <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 mb-8 transition-colors duration-300">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="bg-primary-100 dark:bg-primary-800/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300">
+                  {contestToUse.category}
                 </span>
+                <span className="bg-accent-100 dark:bg-accent-800/30 text-accent-700 dark:text-accent-300 px-2 py-1 rounded text-sm transition-colors duration-300">
+                  {contestToUse.month}
+                </span>
+                <div className="flex items-center text-gray-500 dark:text-dark-400 text-sm transition-colors duration-300">
+                  <Clock className="h-4 w-4 mr-1" />
+                  {getTimeLeft()}
+                </div>
+                {isSubmissionClosed() && (
+                  <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded text-xs font-medium transition-colors duration-300">
+                    Cerrado
+                  </span>
+                )}
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-3 transition-colors duration-300">
+                {isEditing ? "Editando historia" : contestToUse.title}
+              </h1>
+              {isEditing && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-3 transition-colors duration-300">
+                  <p className="text-blue-800 dark:text-blue-300 text-sm flex items-center transition-colors duration-300">
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Estás editando tu historia para:{" "}
+                    <strong className="ml-1">{contestToUse.title}</strong>
+                  </p>
+                </div>
+              )}
+              <p className="text-gray-600 dark:text-dark-300 leading-relaxed transition-colors duration-300">
+                {contestToUse.description}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Área de escritura */}
+        <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 transition-colors duration-300">
+          <div className="mb-4">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
+            >
+              Título de tu historia
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Escribe un título llamativo para tu historia..."
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300"
+              maxLength={100}
+              disabled={isSubmissionClosed()}
+            />
+          </div>
+
+          <div className="mb-6">
+            <label
+              htmlFor="story"
+              className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
+            >
+              Tu historia
+            </label>
+            <LiteraryEditor
+              value={text}
+              onChange={setText}
+              placeholder="Comienza a escribir tu historia aquí..."
+              disabled={isSubmissionClosed()}
+              rows={20}
+            />
+          </div>
+
+          {/* Contador de palabras y acciones */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div
+                className={`text-sm font-medium transition-colors duration-300 ${getWordCountColor()}`}
+              >
+                {wordCount} / {contestToUse.max_words} palabras
+              </div>
+              {wordCount < contestToUse.min_words && (
+                <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm transition-colors duration-300">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Mínimo {contestToUse.min_words} palabras
+                </div>
+              )}
+              {wordCount > contestToUse.max_words && (
+                <div className="flex items-center text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Excede el límite por {wordCount - contestToUse.max_words}{" "}
+                  palabras
+                </div>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-3 transition-colors duration-300">
-              {isEditing ? "Editando historia" : contestToUse.title}
-            </h1>
-            {isEditing && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-3 transition-colors duration-300">
-                <p className="text-blue-800 dark:text-blue-300 text-sm flex items-center transition-colors duration-300">
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Estás editando tu historia para: <strong className="ml-1">{contestToUse.title}</strong>
-                </p>
-              </div>
-            )}
-            <p className="text-gray-600 dark:text-dark-300 leading-relaxed transition-colors duration-300">
-              {contestToUse.description}
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Área de escritura */}
-      <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 transition-colors duration-300">
-        <div className="mb-4">
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
-          >
-            Título de tu historia
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Escribe un título llamativo para tu historia..."
-            className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300"
-            maxLength={100}
-            disabled={isSubmissionClosed()}
-          />
-        </div>
-
-        <div className="mb-6">
-          <label
-            htmlFor="story"
-            className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
-          >
-            Tu historia
-          </label>
-          <LiteraryEditor
-            value={text}
-            onChange={setText}
-            placeholder="Comienza a escribir tu historia aquí..."
-            disabled={isSubmissionClosed()}
-            rows={20}
-          />
-        </div>
-
-        {/* Contador de palabras y acciones */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`text-sm font-medium transition-colors duration-300 ${getWordCountColor()}`}>
-              {wordCount} / {contestToUse.max_words} palabras
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate("/")} className="btn-secondary">
+                Cancelar
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={
+                  isSubmissionClosed() ||
+                  !title.trim() ||
+                  !text.trim() ||
+                  wordCount < contestToUse.min_words ||
+                  wordCount > contestToUse.max_words ||
+                  hasUserParticipated
+                }
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                {isEditing
+                  ? "Actualizar historia"
+                  : isAuthenticated
+                    ? "Enviar historia"
+                    : "Registrarse y continuar"}
+              </button>
             </div>
-            {wordCount < contestToUse.min_words && (
-              <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm transition-colors duration-300">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                Mínimo {contestToUse.min_words} palabras
-              </div>
-            )}
-            {wordCount > contestToUse.max_words && (
-              <div className="flex items-center text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                Excede el límite por {wordCount - contestToUse.max_words}{" "}
-                palabras
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/")} className="btn-secondary">
-              Cancelar
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={
-                isSubmissionClosed() ||
-                !title.trim() ||
-                !text.trim() ||
-                wordCount < contestToUse.min_words ||
-                wordCount > contestToUse.max_words ||
-                hasUserParticipated
-              }
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              {isEditing 
-                ? "Actualizar historia" 
-                : isAuthenticated 
-                  ? "Enviar historia" 
-                  : "Registrarse y continuar"
-              }
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* Consejos */}
-      <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 transition-colors duration-300">
-        <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center transition-colors duration-300">
-          <PenTool className="h-5 w-5 mr-2" />
-          Consejos para escribir
-        </h3>
-        <ul className="text-blue-800 dark:text-blue-300 text-sm space-y-1 transition-colors duration-300">
-          <li>• Lee el prompt cuidadosamente e interpreta creativamente</li>
-          <li>
-            • Enfócate en crear personajes memorables y situaciones interesantes
-          </li>
-          <li>• Un buen comienzo y final pueden marcar la diferencia</li>
-          <li>• Revisa tu ortografía y gramática antes de enviar</li>
-        </ul>
-      </div>
+        {/* Consejos */}
+        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 transition-colors duration-300">
+          <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center transition-colors duration-300">
+            <PenTool className="h-5 w-5 mr-2" />
+            Consejos para escribir
+          </h3>
+          <ul className="text-blue-800 dark:text-blue-300 text-sm space-y-1 transition-colors duration-300">
+            <li>• Lee el prompt cuidadosamente e interpreta creativamente</li>
+            <li>
+              • Enfócate en crear personajes memorables y situaciones
+              interesantes
+            </li>
+            <li>• Un buen comienzo y final pueden marcar la diferencia</li>
+            <li>• Revisa tu ortografía y gramática antes de enviar</li>
+          </ul>
+        </div>
 
-      {/* Modales */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={handleAuthSuccess}
-          initialMode="register"
-        />
-      )}
+        {/* Modales */}
+        {showAuthModal && (
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={handleAuthSuccess}
+            initialMode="register"
+          />
+        )}
 
-      {showConfirmationModal && (
-        <SubmissionConfirmationModal
-          isOpen={showConfirmationModal}
-          onClose={() => setShowConfirmationModal(false)}
-          onConfirm={handleConfirmSubmission}
-          title={title}
-          text={text}
-          wordCount={wordCount}
-          prompt={contestToUse}
-          isSubmitting={false}
-          isEditing={isEditing}
-        />
-      )}
+        {showConfirmationModal && (
+          <SubmissionConfirmationModal
+            isOpen={showConfirmationModal}
+            onClose={() => setShowConfirmationModal(false)}
+            onConfirm={handleConfirmSubmission}
+            title={title}
+            text={text}
+            wordCount={wordCount}
+            prompt={contestToUse}
+            isSubmitting={false}
+            isEditing={isEditing}
+          />
+        )}
       </div>
     </>
   );
