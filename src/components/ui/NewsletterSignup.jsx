@@ -7,12 +7,12 @@ const subscribeToNewsletter = async (email) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-        "authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         emailType: "newsletter_subscription",
-        email: email 
+        email: email,
       }),
     }
   );
@@ -63,9 +63,12 @@ const NewsletterSignup = () => {
       }
     } catch (error) {
       console.error("Error en suscripción de newsletter:", error);
-      
+
       // Si es error de red pero la función pudo haber funcionado
-      if (error.message.includes("Load failed") || error.message.includes("502")) {
+      if (
+        error.message.includes("Load failed") ||
+        error.message.includes("502")
+      ) {
         setStatus("error");
         setMessage(
           "Error de conexión. Si ya tenías cuenta, es posible que la suscripción se haya activado. Verifica en tu perfil."
@@ -176,10 +179,10 @@ const NewsletterSignup = () => {
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-3">
               <Bell className="h-6 w-6 text-indigo-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-dark-100 mb-1">
               Notificación oportuna
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-dark-300">
               Te avisamos justo cuando inicia
             </p>
           </div>
@@ -188,8 +191,10 @@ const NewsletterSignup = () => {
             <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-3">
               <Mail className="h-6 w-6 text-purple-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">Sin spam</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-900 dark:text-dark-100 mb-1">
+              Sin spam
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-dark-300">
               Solo concursos nuevos, nada más
             </p>
           </div>
@@ -198,17 +203,17 @@ const NewsletterSignup = () => {
             <div className="w-12 h-12 bg-gradient-to-br from-pink-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle className="h-6 w-6 text-pink-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-dark-100 mb-1">
               Fácil cancelación
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-dark-300">
               Cancela en cualquier momento
             </p>
           </div>
         </div>
 
         {/* Texto legal pequeño */}
-        <p className="mt-6 text-xs text-gray-500 max-w-2xl mx-auto">
+        <p className="mt-6 text-xs text-gray-500 dark:text-dark-300 max-w-2xl mx-auto">
           Al suscribirte, aceptas recibir emails sobre nuevos concursos de
           Letranido. Puedes cancelar en cualquier momento. No compartimos tu
           email con terceros.
