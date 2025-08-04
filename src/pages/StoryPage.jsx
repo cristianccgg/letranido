@@ -19,6 +19,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { useTheme } from "../contexts/ThemeContext";
 // ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
@@ -31,6 +32,7 @@ import SEOHead from "../components/SEO/SEOHead";
 const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   // ✅ TODO DESDE EL CONTEXTO GLOBAL
   const {
@@ -161,13 +163,16 @@ const StoryPage = () => {
   useEffect(() => {
     const updateAuthData = async () => {
       if (!story || !initialized) return;
-      
+
       // Solo actualizar datos de autenticación si la historia ya está cargada
       if (isAuthenticated && user?.id) {
         try {
           const likeResult = await checkUserLike(story.id);
           if (likeResult.success) {
-            console.log("🔄 Actualizando isLiked en StoryPage:", likeResult.liked);
+            console.log(
+              "🔄 Actualizando isLiked en StoryPage:",
+              likeResult.liked
+            );
             setIsLiked(likeResult.liked);
           }
         } catch (error) {
@@ -312,7 +317,9 @@ const StoryPage = () => {
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
           <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
-          <p className="text-gray-600">Cargando historia...</p>
+          <p className="text-gray-600 dark:text-dark-300">
+            Cargando historia...
+          </p>
         </div>
       </div>
     );
@@ -324,10 +331,10 @@ const StoryPage = () => {
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
           <AlertCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-2">
             Historia no encontrada
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-600 dark:text-dark-300 mb-6">{error}</p>
           <div className="space-x-4">
             <button
               onClick={() => navigate("/contest/current")}
@@ -352,10 +359,10 @@ const StoryPage = () => {
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
           <BookOpen className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-2">
             Historia no disponible
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-dark-300 mb-6">
             Esta historia puede haber sido eliminada o no está disponible.
           </p>
           <Link to="/gallery" className="btn-primary">
@@ -449,7 +456,7 @@ const StoryPage = () => {
                 navigate("/contest/current");
               }
             }}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 transition-colors"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
             Volver al concurso
@@ -461,7 +468,7 @@ const StoryPage = () => {
         </div>
 
         {/* Story Header */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg overflow-hidden">
           {/* Contest Banner */}
           <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-4">
             <div className="flex items-center justify-between text-white">
@@ -474,7 +481,7 @@ const StoryPage = () => {
 
               <Link
                 to="/contest/current"
-                className="text-primary-100 hover:text-white text-sm flex items-center"
+                className="text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white text-sm flex items-center"
               >
                 Ver concurso
                 <ExternalLink className="h-4 w-4 ml-1" />
@@ -485,7 +492,7 @@ const StoryPage = () => {
           {/* Main Header */}
           <div className="p-8">
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-6 leading-tight">
               {story.title}
             </h1>
 
@@ -496,7 +503,7 @@ const StoryPage = () => {
                   <UserAvatar user={story.author} size="lg" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-lg">
+                  <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
                     <UserWithTopBadge
                       userId={story.user_id}
                       userName={story.author.name}
@@ -505,16 +512,17 @@ const StoryPage = () => {
                   {/* Ocultar estadísticas del autor durante votación para evitar sesgo */}
                   {(() => {
                     // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                    const contestPhase = currentContest
+                      ? getContestPhase(currentContest)
+                      : null;
                     const isVotingPhase = contestPhase === "voting";
-                    
-                    
+
                     if (isVotingPhase) {
                       // Durante votación, no mostrar estadísticas del autor para evitar sesgo
                       return null;
                     } else {
                       return (
-                        <div className="flex items-center text-sm text-gray-600">
+                        <div className="flex items-center text-sm text-gray-600 dark:text-dark-300">
                           <Award className="h-4 w-4 mr-1" />
                           <span>{story.author.wins} victorias</span>
                           <span className="mx-2">•</span>
@@ -528,7 +536,7 @@ const StoryPage = () => {
               </div>
 
               {/* Story Stats */}
-              <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-dark-300">
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
                   <span>{getReadingTime(story.word_count)} min de lectura</span>
@@ -546,14 +554,14 @@ const StoryPage = () => {
 
             {/* Mature Content Warning */}
             {story.is_mature && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
                   <div>
-                    <h4 className="font-medium text-red-800 mb-1">
+                    <h4 className="font-medium text-red-800 dark:text-red-300 mb-1">
                       Contenido para adultos (18+)
                     </h4>
-                    <p className="text-red-700 text-sm">
+                    <p className="text-red-700 dark:text-red-400 text-sm">
                       Esta historia contiene temas maduros. La discreción del
                       lector es aconsejada.
                     </p>
@@ -563,15 +571,16 @@ const StoryPage = () => {
             )}
 
             {/* Voting Section */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
               <div className="flex items-center gap-4">
                 {/* Determinar si estamos en fase de votación */}
                 {(() => {
                   // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                  const contestPhase = currentContest
+                    ? getContestPhase(currentContest)
+                    : null;
                   const isVotingPhase = contestPhase === "voting";
-                  
-                  
+
                   if (isVotingPhase) {
                     // Durante votación: ocultar votos y vistas
                     return (
@@ -588,17 +597,23 @@ const StoryPage = () => {
                           showTooltip={true}
                           hideCount={true} // Prop para ocultar el número
                         />
-                        
-                        <div className="flex items-center text-green-600 text-sm">
+
+                        <div className="flex items-center text-green-600 dark:text-green-400 text-sm">
                           <span>🗳️ Votación ciega - vota por la historia</span>
                         </div>
 
                         {/* Contador de votos restantes */}
-                        <VoteCounter contestId={story.contest_id} className="ml-2" />
-                        
+                        <VoteCounter
+                          contestId={story.contest_id}
+                          className="ml-2"
+                        />
+
                         {/* Compartir */}
                         {getShareData() && (
-                          <ShareDropdown shareData={getShareData()} size="default" />
+                          <ShareDropdown
+                            shareData={getShareData()}
+                            size="default"
+                          />
                         )}
                       </>
                     );
@@ -618,17 +633,23 @@ const StoryPage = () => {
                           showTooltip={true}
                         />
 
-                        <div className="flex items-center text-gray-600 text-xs">
+                        <div className="flex items-center text-gray-600 dark:text-dark-300 text-xs">
                           <Eye className="h-5 w-5 mr-2" />
                           <span>{story.views_count || 0} vistas</span>
                         </div>
 
                         {/* Contador de votos restantes */}
-                        <VoteCounter contestId={story.contest_id} className="ml-2" />
+                        <VoteCounter
+                          contestId={story.contest_id}
+                          className="ml-2"
+                        />
 
                         {/* Compartir */}
                         {getShareData() && (
-                          <ShareDropdown shareData={getShareData()} size="default" />
+                          <ShareDropdown
+                            shareData={getShareData()}
+                            size="default"
+                          />
                         )}
                       </>
                     );
@@ -640,7 +661,7 @@ const StoryPage = () => {
         </div>
 
         {/* Story Content */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg p-8">
           <div
             ref={storyContentRef}
             className="prose prose-lg max-w-none story-content"
@@ -654,10 +675,12 @@ const StoryPage = () => {
             }}
           />
 
-          <style dangerouslySetInnerHTML={{__html: `
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
             .story-content p {
               margin: 0;
-              color: #374151;
+              color: ${isDark ? '#d1d5db' : '#374151'};
               text-align: justify;
               line-height: 1.7;
             }
@@ -668,24 +691,26 @@ const StoryPage = () => {
 
             .story-content em {
               font-style: italic;
-              color: #4b5563;
+              color: ${isDark ? '#9ca3af' : '#4b5563'};
             }
 
             .story-content strong {
               font-weight: 600;
-              color: #1f2937;
+              color: ${isDark ? '#f9fafb' : '#1f2937'};
             }
-          `}} />
+          `,
+            }}
+          />
 
           {/* Story Footer */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-600">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="mb-4 md:mb-0">
-                <p className="text-gray-600 text-sm mb-2">
+                <p className="text-gray-600 dark:text-dark-300 text-sm mb-2">
                   Esta historia participó en el concurso{" "}
                   <strong>"{story.contest.title}"</strong>
                 </p>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-dark-400">
                   <span>Publicada el {formatDate(story.created_at)}</span>
                   <span>•</span>
                   <span>{story.word_count} palabras</span>
@@ -700,9 +725,11 @@ const StoryPage = () => {
                 {/* Botón de voto en el footer - también ocultar conteo durante votación */}
                 {(() => {
                   // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                    const contestPhase = currentContest ? getContestPhase(currentContest) : null;
+                  const contestPhase = currentContest
+                    ? getContestPhase(currentContest)
+                    : null;
                   const isVotingPhase = contestPhase === "voting";
-                  
+
                   return (
                     <EnhancedVoteButton
                       isLiked={isLiked}
@@ -724,43 +751,43 @@ const StoryPage = () => {
         </div>
 
         {/* Comments Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg p-6">
           <SimpleComments storyId={story.id} storyTitle={story.title} />
         </div>
 
         {/* Related Actions */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4">
             ¿Qué hacer ahora?
           </h3>
 
           <div className="grid md:grid-cols-3 gap-4">
             <Link
               to={`/contest/${story.contest.id}`}
-              className="bg-primary-50 border border-primary-200 rounded-lg p-4 hover:bg-primary-100 transition-colors group"
+              className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg p-4 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors group"
             >
               <div className="flex items-center mb-2">
                 <Trophy className="h-5 w-5 text-primary-600 mr-2" />
-                <span className="font-medium text-primary-900">
+                <span className="font-medium text-primary-900 dark:text-primary-300">
                   Ver más historias del concurso
                 </span>
               </div>
-              <p className="text-primary-700 text-sm">
+              <p className="text-primary-700 dark:text-primary-400 text-sm">
                 Descubre más historias del concurso de {story.contest.month}
               </p>
             </Link>
 
             <Link
               to="/gallery"
-              className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors group"
+              className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group"
             >
               <div className="flex items-center mb-2">
                 <BookOpen className="h-5 w-5 text-green-600 mr-2" />
-                <span className="font-medium text-green-900">
+                <span className="font-medium text-green-900 dark:text-green-300">
                   Explorar galería
                 </span>
               </div>
-              <p className="text-green-700 text-sm">
+              <p className="text-green-700 dark:text-green-400 text-sm">
                 Lee más historias increíbles de nuestra comunidad
               </p>
             </Link>
@@ -769,15 +796,15 @@ const StoryPage = () => {
             {story?.contest?.status === "results" && (
               <Link
                 to="/contest/current"
-                className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors group"
+                className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors group"
               >
                 <div className="flex items-center mb-2">
                   <Trophy className="h-5 w-5 text-purple-600 mr-2" />
-                  <span className="font-medium text-purple-900">
+                  <span className="font-medium text-purple-900 dark:text-purple-300">
                     Ver concurso actual
                   </span>
                 </div>
-                <p className="text-purple-700 text-sm">
+                <p className="text-purple-700 dark:text-purple-400 text-sm">
                   Participa en el concurso activo de este mes
                 </p>
               </Link>
@@ -788,15 +815,15 @@ const StoryPage = () => {
               new Date() <= new Date(story.contest.submission_deadline) && (
                 <Link
                   to="/write"
-                  className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors group"
+                  className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group"
                 >
                   <div className="flex items-center mb-2">
                     <PenTool className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="font-medium text-blue-900">
+                    <span className="font-medium text-blue-900 dark:text-blue-300">
                       Escribir mi historia
                     </span>
                   </div>
-                  <p className="text-blue-700 text-sm">
+                  <p className="text-blue-700 dark:text-blue-400 text-sm">
                     ¿Te inspiraste? Crea tu propia historia
                   </p>
                 </Link>

@@ -1,20 +1,20 @@
 // components/ui/UserBadgesSection.jsx - Sección de badges para el perfil de usuario
-import React, { useState } from 'react';
-import { Trophy, Award, Target, ChevronRight, ChevronDown } from 'lucide-react';
-import { useBadges } from '../../hooks/useBadges'; // Mantener original para perfil completo
-import Badge, { BadgeGrid, BadgeProgress } from './Badge';
+import React, { useState } from "react";
+import { Trophy, Award, Target, ChevronRight, ChevronDown } from "lucide-react";
+import { useBadges } from "../../hooks/useBadges"; // Mantener original para perfil completo
+import Badge, { BadgeGrid, BadgeProgress } from "./Badge";
 
 const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
   const {
     userBadges,
     loading,
     error,
     getBadgeStats,
     getNextBadge,
-    getUserStats
+    getUserStats,
   } = useBadges(userId);
 
   const [nextStoryBadge, setNextStoryBadge] = useState(null);
@@ -23,9 +23,9 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
   // Cargar próximo badge y estadísticas
   React.useEffect(() => {
     const loadNextBadge = async () => {
-      const next = await getNextBadge('story_count');
+      const next = await getNextBadge("story_count");
       setNextStoryBadge(next);
-      
+
       const stats = await getUserStats();
       setUserStats(stats);
     };
@@ -41,7 +41,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
         <div className="animate-pulse">
           <div className="h-4 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="flex gap-3">
-            {[1,2,3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="w-16 h-16 bg-gray-300 rounded-full"></div>
             ))}
           </div>
@@ -65,17 +65,18 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
   const hasAnyBadges = userBadges.length > 0;
 
   // Filtrar badges según categoría seleccionada
-  const filteredBadges = selectedCategory === 'all' 
-    ? userBadges 
-    : userBadges.filter(badge => {
-        const criteria = badge.criteria || {};
-        return criteria.type === selectedCategory;
-      });
+  const filteredBadges =
+    selectedCategory === "all"
+      ? userBadges
+      : userBadges.filter((badge) => {
+          const criteria = badge.criteria || {};
+          return criteria.type === selectedCategory;
+        });
 
   const categories = [
-    { id: 'all', name: 'Todos', icon: Trophy },
-    { id: 'story_count', name: 'Escritura', icon: Award },
-    { id: 'contest_winner', name: 'Concursos', icon: Target }
+    { id: "all", name: "Todos", icon: Trophy },
+    { id: "story_count", name: "Escritura", icon: Award },
+    { id: "contest_winner", name: "Concursos", icon: Target },
   ];
 
   return (
@@ -101,13 +102,13 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
               )}
             </div>
           </div>
-          
+
           {hasAnyBadges && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 transition-colors"
             >
-              {isExpanded ? 'Ver menos' : 'Ver todos'}
+              {isExpanded ? "Ver menos" : "Ver todos"}
               {isExpanded ? (
                 <ChevronDown className="w-4 h-4" />
               ) : (
@@ -130,13 +131,14 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
               Aún no tienes badges
             </h4>
             <p className="text-sm text-gray-600 mb-4">
-              Los badges se otorgan automáticamente cuando cumples ciertos logros.
+              Los badges se otorgan automáticamente cuando cumples ciertos
+              logros.
             </p>
-            
+
             {/* Mostrar progreso hacia primer badge */}
             {nextStoryBadge && userStats && (
-              <BadgeProgress 
-                currentCount={userStats.storyCount} 
+              <BadgeProgress
+                currentCount={userStats.storyCount}
                 nextBadge={nextStoryBadge}
                 className="max-w-sm mx-auto"
               />
@@ -154,24 +156,26 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
                 <div>
                   {/* Filtros por categoría */}
                   <div className="flex gap-2 mb-4">
-                    {categories.map(category => {
+                    {categories.map((category) => {
                       const Icon = category.icon;
-                      const categoryBadges = category.id === 'all' 
-                        ? userBadges 
-                        : userBadges.filter(badge => {
-                            const criteria = badge.criteria || {};
-                            return criteria.type === category.id;
-                          });
-                      
+                      const categoryBadges =
+                        category.id === "all"
+                          ? userBadges
+                          : userBadges.filter((badge) => {
+                              const criteria = badge.criteria || {};
+                              return criteria.type === category.id;
+                            });
+
                       return (
                         <button
                           key={category.id}
                           onClick={() => setSelectedCategory(category.id)}
                           className={`
                             flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                            ${selectedCategory === category.id 
-                              ? 'bg-purple-100 text-purple-700 border border-purple-200' 
-                              : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                            ${
+                              selectedCategory === category.id
+                                ? "bg-purple-100 text-purple-700 border border-purple-200"
+                                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                             }
                           `}
                         >
@@ -191,7 +195,10 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
                   {filteredBadges.length > 0 ? (
                     <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
                       {filteredBadges.map((badge, index) => (
-                        <div key={badge.id || index} className="flex flex-col items-center">
+                        <div
+                          key={badge.id || index}
+                          className="flex flex-col items-center"
+                        >
                           <Badge badge={badge} size="md" />
                           <span className="text-xs text-gray-600 mt-2 text-center">
                             {badge.name}
@@ -211,8 +218,8 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
             {/* Progreso hacia siguiente badge */}
             {nextStoryBadge && userStats && (
               <div className="border-t border-gray-100 pt-6">
-                <BadgeProgress 
-                  currentCount={userStats.storyCount} 
+                <BadgeProgress
+                  currentCount={userStats.storyCount}
                   nextBadge={nextStoryBadge}
                 />
               </div>

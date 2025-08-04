@@ -194,7 +194,7 @@ const CurrentContest = () => {
       if (phaseInfo?.phase === "voting") {
         reshuffleStories();
       }
-      
+
       await Promise.all([
         refreshContests(),
         refreshUserData(),
@@ -235,37 +235,37 @@ const CurrentContest = () => {
   // ✅ FUNCIÓN PARA RANDOMIZAR CON ORDEN CONSISTENTE
   const getRandomizedStories = useCallback((stories, contestId, searchTerm) => {
     if (!stories || !contestId) return [];
-    
+
     // Crear clave única que incluya término de búsqueda para mantener consistencia
-    const storageKey = `contest_${contestId}_random_order_${searchTerm || 'all'}`;
-    
+    const storageKey = `contest_${contestId}_random_order_${searchTerm || "all"}`;
+
     try {
       // Intentar obtener orden guardado
       const savedOrder = localStorage.getItem(storageKey);
-      
+
       if (savedOrder) {
         const orderIds = JSON.parse(savedOrder);
         // Recrear el orden basado en los IDs guardados
         const orderedStories = orderIds
-          .map(id => stories.find(s => s.id === id))
+          .map((id) => stories.find((s) => s.id === id))
           .filter(Boolean); // Remover historias que ya no existen
-        
+
         // Si tenemos todas las historias en el orden guardado, usarlo
         if (orderedStories.length === stories.length) {
           return orderedStories;
         }
       }
-      
+
       // Si no hay orden guardado o está desactualizado, crear nuevo orden
       const shuffled = [...stories].sort(() => Math.random() - 0.5);
-      const orderIds = shuffled.map(story => story.id);
-      
+      const orderIds = shuffled.map((story) => story.id);
+
       // Guardar el nuevo orden
       localStorage.setItem(storageKey, JSON.stringify(orderIds));
-      
+
       return shuffled;
     } catch (error) {
-      console.error('Error handling random order:', error);
+      console.error("Error handling random order:", error);
       // Fallback a orden aleatorio simple sin persistencia
       return [...stories].sort(() => Math.random() - 0.5);
     }
@@ -274,15 +274,15 @@ const CurrentContest = () => {
   // ✅ FUNCIÓN PARA RESETEAR EL ORDEN ALEATORIO
   const reshuffleStories = useCallback(() => {
     if (!contest?.id) return;
-    
+
     // Eliminar órdenes guardados para este concurso
     const keys = Object.keys(localStorage);
-    keys.forEach(key => {
+    keys.forEach((key) => {
       if (key.startsWith(`contest_${contest.id}_random_order_`)) {
         localStorage.removeItem(key);
       }
     });
-    
+
     // Forzar re-render si está en modo random
     if (sortBy === "random") {
       // Trigger a re-render by updating a dependency
@@ -292,7 +292,6 @@ const CurrentContest = () => {
 
   // ✅ FILTROS Y ORDENAMIENTO - Con random consistente
   const filteredAndSortedStories = useMemo(() => {
-
     // Si galleryStories está vacía, mostrar array vacío (loading se maneja aparte)
     if (galleryStories.length === 0) {
       return [];
@@ -332,7 +331,14 @@ const CurrentContest = () => {
       default:
         return getRandomizedStories(filtered, contest?.id, searchTerm);
     }
-  }, [galleryStories, searchTerm, sortBy, contest?.id, storiesLoading, getRandomizedStories]);
+  }, [
+    galleryStories,
+    searchTerm,
+    sortBy,
+    contest?.id,
+    storiesLoading,
+    getRandomizedStories,
+  ]);
 
   // ✅ FUNCIONES DE COMPARTIR
   // Generar datos para compartir
@@ -451,7 +457,8 @@ const CurrentContest = () => {
         return {
           phase: "counting",
           title: "🔢 Contando Votos",
-          description: "La votación ha cerrado. Estamos contando los votos y los resultados estarán listos pronto.",
+          description:
+            "La votación ha cerrado. Estamos contando los votos y los resultados estarán listos pronto.",
           bgColor: "bg-orange-50",
           borderColor: "border-orange-200",
           textColor: "text-orange-800",
@@ -846,7 +853,7 @@ const CurrentContest = () => {
                   {storiesLoading && (
                     <div className="text-center py-8">
                       <Loader className="h-8 w-8 animate-spin mx-auto text-primary-600 mb-4" />
-                      <p className="text-gray-600">Cargando participantes...</p>
+                      <p className="text-gray-600 dark:text-dark-300">Cargando participantes...</p>
                     </div>
                   )}
 
@@ -854,7 +861,7 @@ const CurrentContest = () => {
                   {error && (
                     <div className="text-center py-8">
                       <AlertCircle className="h-8 w-8 mx-auto text-red-500 mb-4" />
-                      <p className="text-red-600">{error}</p>
+                      <p className="text-red-600 dark:text-red-400">{error}</p>
                     </div>
                   )}
 
@@ -862,10 +869,10 @@ const CurrentContest = () => {
                   {!storiesLoading && !error && stories.length === 0 && (
                     <div className="text-center py-8">
                       <PenTool className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-dark-100 mb-2">
                         Aún no hay participantes
                       </h4>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-gray-600 dark:text-dark-300 mb-4">
                         ¡Sé el primero en participar en este concurso!
                       </p>
                       {phaseInfo.buttonLink && (
@@ -882,7 +889,7 @@ const CurrentContest = () => {
                       {stories.map((story) => (
                         <div
                           key={story.id}
-                          className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+                          className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
                         >
                           <div className="flex items-center gap-3">
                             {/* Avatar */}
@@ -911,7 +918,7 @@ const CurrentContest = () => {
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-dark-400">
                                 <span>{story.authorWins || 0} victorias</span>
                                 <span>•</span>
                                 <span>{formatDate(story.created_at)}</span>
@@ -928,8 +935,8 @@ const CurrentContest = () => {
                           </div>
 
                           {/* Preview mínimo SIN spoilers */}
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <div className="flex items-center justify-between text-xs text-gray-400">
+                          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-dark-600">
+                            <div className="flex items-center justify-between text-xs text-gray-400 dark:text-dark-500">
                               <span className="flex items-center">
                                 <PenTool className="h-3 w-3 mr-1" />
                                 Historia enviada
@@ -959,17 +966,17 @@ const CurrentContest = () => {
               {/* Header de historias */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100">
                     Historias ({filteredAndSortedStories.length})
                   </h2>
                   {searchTerm && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-dark-300">
                       Mostrando resultados para "{searchTerm}"
                     </p>
                   )}
                   {/* Indicador de orden aleatorio durante votación */}
                   {phaseInfo?.phase === "voting" && (
-                    <p className="text-sm text-green-600 mt-1">
+                    <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                       🎲 Orden aleatorio para votación justa
                     </p>
                   )}
@@ -979,10 +986,10 @@ const CurrentContest = () => {
                   <button
                     onClick={handleRefresh}
                     disabled={refreshing}
-                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors"
                     title={
-                      phaseInfo?.phase === "voting" 
-                        ? "Actualizar y cambiar orden aleatorio" 
+                      phaseInfo?.phase === "voting"
+                        ? "Actualizar y cambiar orden aleatorio"
                         : "Actualizar"
                     }
                   >
@@ -995,7 +1002,7 @@ const CurrentContest = () => {
                   {phaseInfo?.phase !== "voting" && (
                     <button
                       onClick={() => setShowFilters(!showFilters)}
-                      className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors"
                     >
                       <Filter className="h-4 w-4" />
                       <span className="hidden sm:inline">Filtros</span>
@@ -1016,7 +1023,7 @@ const CurrentContest = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Buscar..."
-                        className="pl-10 pr-4 py-2 w-48 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                        className="pl-10 pr-4 py-2 w-48 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                       />
                     </div>
                   )}
@@ -1046,13 +1053,13 @@ const CurrentContest = () => {
 
                     {/* Ordenamiento */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
                         Ordenar por
                       </label>
                       <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       >
                         <option value="popular">Más populares</option>
                         <option value="recent">Más recientes</option>
@@ -1063,14 +1070,17 @@ const CurrentContest = () => {
                         <option value="author">Por autor</option>
                         <option value="random">Aleatorio</option>
                       </select>
-                      
+
                       {/* Indicador visual para fase de resultados */}
-                      {phaseInfo?.phase === "results" && sortBy === "popular" && (
-                        <div className="mt-2 flex items-center gap-2 text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                          <Trophy className="h-3 w-3" />
-                          <span>Mostrando del ganador al que menos votos obtuvo</span>
-                        </div>
-                      )}
+                      {phaseInfo?.phase === "results" &&
+                        sortBy === "popular" && (
+                          <div className="mt-2 flex items-center gap-2 text-xs text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-2">
+                            <Trophy className="h-3 w-3" />
+                            <span>
+                              Mostrando del ganador al que menos votos obtuvo
+                            </span>
+                          </div>
+                        )}
                     </div>
                   </div>
 
@@ -1080,14 +1090,14 @@ const CurrentContest = () => {
                     {sortBy === "random" && (
                       <button
                         onClick={reshuffleStories}
-                        className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
+                        className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
                         title="Cambiar el orden aleatorio de las historias"
                       >
                         <RefreshCw className="h-4 w-4" />
                         Re-randomizar
                       </button>
                     )}
-                    
+
                     {/* Limpiar filtros */}
                     {(searchTerm || sortBy !== "popular") && (
                       <button
@@ -1095,7 +1105,7 @@ const CurrentContest = () => {
                           setSearchTerm("");
                           setSortBy("popular");
                         }}
-                        className="text-sm text-primary-600 hover:text-primary-700"
+                        className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                       >
                         Limpiar filtros
                       </button>
@@ -1108,7 +1118,7 @@ const CurrentContest = () => {
               {storiesLoading && (
                 <div className="text-center py-12">
                   <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
-                  <p className="text-gray-600">Cargando historias...</p>
+                  <p className="text-gray-600 dark:text-dark-300">Cargando historias...</p>
                 </div>
               )}
 
@@ -1118,12 +1128,12 @@ const CurrentContest = () => {
                   {filteredAndSortedStories.length === 0 ? (
                     <div className="text-center py-12">
                       <PenTool className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2">
                         {searchTerm
                           ? "No se encontraron historias"
                           : "Aún no hay historias"}
                       </h3>
-                      <p className="text-gray-600 mb-6">
+                      <p className="text-gray-600 dark:text-dark-300 mb-6">
                         {searchTerm
                           ? "Intenta con otros términos de búsqueda"
                           : phaseInfo?.phase === "voting"
@@ -1292,7 +1302,9 @@ const CurrentContest = () => {
                                     {/* Likes display compacto */}
                                     <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
-                                        hasVoted ? "text-gray-400" : "text-red-600"
+                                        hasVoted
+                                          ? "text-gray-400"
+                                          : "text-red-600"
                                       }`}
                                     >
                                       <Heart className="h-3 w-3 fill-current flex-shrink-0" />
@@ -1304,7 +1316,9 @@ const CurrentContest = () => {
                                     {/* Views compacto */}
                                     <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
-                                        hasVoted ? "text-gray-400" : "text-gray-500"
+                                        hasVoted
+                                          ? "text-gray-400"
+                                          : "text-gray-500"
                                       }`}
                                     >
                                       <Eye className="h-3 w-3 flex-shrink-0" />
@@ -1314,11 +1328,13 @@ const CurrentContest = () => {
                                     </div>
                                   </>
                                 )}
-                                
+
                                 {/* Durante votación, mostrar mensaje de votación justa */}
                                 {phaseInfo?.phase === "voting" && (
                                   <div className="flex items-center gap-1 text-sm text-green-600">
-                                    <span className="text-xs">🗳️ Votación ciega - vota por la historia</span>
+                                    <span className="text-xs">
+                                      🗳️ Votación ciega - vota por la historia
+                                    </span>
                                   </div>
                                 )}
                               </div>

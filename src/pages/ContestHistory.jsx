@@ -118,7 +118,7 @@ const ContestHistory = () => {
       <div className="max-w-6xl mx-auto">
         <div className="text-center py-12">
           <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
-          <p className="text-gray-600">Cargando historial de concursos...</p>
+          <p className="text-gray-600 dark:text-dark-300">Cargando historial de concursos...</p>
         </div>
       </div>
     );
@@ -170,13 +170,13 @@ const ContestHistory = () => {
           <div className="grid md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar concursos por título o mes..."
-                className="w-full pl-10 pr-4 py-3 border  border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ const ContestHistory = () => {
 
         {/* Results Count */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-dark-300">
             {filteredContests.length} concurso
             {filteredContests.length !== 1 ? "s" : ""} encontrado
             {filteredContests.length !== 1 ? "s" : ""}
@@ -197,10 +197,10 @@ const ContestHistory = () => {
             <div className="text-gray-400 mb-4">
               <Trophy className="h-16 w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-dark-100 mb-2">
               No se encontraron concursos
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-dark-300">
               {searchTerm.trim() || selectedCategory !== "all"
                 ? "Intenta con otros términos de búsqueda o filtros diferentes"
                 : "Aún no hay concursos finalizados en el historial"}
@@ -211,10 +211,10 @@ const ContestHistory = () => {
             {filteredContests.map((contest) => (
               <div
                 key={contest.id}
-                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200 overflow-hidden"
+                className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-600 hover:border-purple-200 dark:hover:border-purple-500 overflow-hidden"
               >
                 {/* Contest Header */}
-                <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900  p-6 text-white">
+                <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 p-6 text-white">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center">
                       <Trophy className="h-5 w-5 mr-2" />
@@ -244,17 +244,17 @@ const ContestHistory = () => {
                         <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-500 rounded-full flex items-center justify-center mr-3">
                           <Crown className="h-4 w-4 text-white" />
                         </div>
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        <span className="text-sm font-semibold text-gray-700 dark:text-dark-300">
                           Historia ganadora
                         </span>
                       </div>
 
-                      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-xl p-4 border border-indigo-100 dark:border-dark-600">
-                        <h3 className="font-bold text-gray-900 dark:text-gray-300 mb-2 line-clamp-1">
+                      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-indigo-100 dark:border-dark-600">
+                        <h3 className="font-bold text-gray-900 dark:text-dark-100 mb-2 line-clamp-1">
                           {contest.winner.title}
                         </h3>
 
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                        <p className="text-sm text-gray-600 dark:text-dark-300 mb-3">
                           por{" "}
                           <UserWithWinnerBadges
                             userId={contest.winner.user_id}
@@ -264,9 +264,9 @@ const ContestHistory = () => {
                         </p>
 
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-full">
+                          <div className="flex items-center gap-1 px-2 py-1 bg-white/80 dark:bg-dark-700/80 rounded-full">
                             <span className="text-red-500 text-sm">❤️</span>
-                            <span className="text-xs font-medium text-gray-700">
+                            <span className="text-xs font-medium text-gray-700 dark:text-dark-300">
                               {contest.winner.likes_count || 0}
                             </span>
                           </div>
@@ -280,7 +280,7 @@ const ContestHistory = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-gray-500">
+                    <div className="text-center py-6 text-gray-500 dark:text-dark-400">
                       <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Sin historias disponibles</p>
                     </div>
