@@ -1,14 +1,7 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  User,
-  Menu,
-  X,
-  ChevronDown,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { User, Menu, X, ChevronDown, LogOut, Settings } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
@@ -311,7 +304,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-gradient-to-r dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-gradient-to-r dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 shadow-lg border-b border-indigo-200 dark:border-dark-700 relative z-30 transition-colors duration-300">
+      <header className="bg-gradient-to-r  from-indigo-50 via-purple-50 to-pink-50 dark:bg-gradient-to-r dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 shadow-lg border-b border-indigo-200 dark:border-dark-700 relative z-30 transition-colors duration-300">
         <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full">
           <div className="flex justify-between items-center h-16 min-w-0 max-w-7xl mx-auto">
             {/* Logo */}
@@ -467,7 +460,7 @@ const Layout = ({ children }) => {
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
               {/* Theme Toggle */}
               <ThemeToggle size="sm" />
-              
+
               {/* Notification Bell - Solo para usuarios autenticados */}
               {isAuthenticated && location.pathname !== "/reset-password" && (
                 <NotificationBell userId={user?.id} />
