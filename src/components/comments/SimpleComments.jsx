@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { MessageSquare, Send, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
+import { useTheme } from "../../contexts/ThemeContext";
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
 import { UserWithTopBadge } from "../ui/UserNameWithBadges";
@@ -43,6 +44,9 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     reportComment,
     openAuthModal
   } = useGlobalApp();
+
+  // Hook para tema
+  const { isDark } = useTheme();
 
   // Placeholders responsive
   const getPlaceholder = () => {
@@ -186,8 +190,8 @@ const SimpleComments = ({ storyId, storyTitle }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <MessageSquare className="h-5 w-5 text-gray-600" />
-        <h3 className="text-lg font-semibold text-gray-900">
+        <MessageSquare className="h-5 w-5 text-gray-600 dark:text-dark-300" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
           Comentarios ({comments.length})
         </h3>
       </div>
@@ -202,12 +206,12 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder={getPlaceholder()}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                 rows={3}
                 disabled={submitting}
               />
               <div className="flex justify-between items-center mt-2">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-dark-400">
                   💡 Tu feedback constructivo ayuda a la comunidad literaria
                 </div>
                 <button
@@ -223,8 +227,8 @@ const SimpleComments = ({ storyId, storyTitle }) => {
           </div>
         </form>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-          <p className="text-gray-600 mb-3">
+        <div className="bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg p-4 text-center">
+          <p className="text-gray-600 dark:text-dark-300 mb-3">
             Inicia sesión para dejar un comentario sobre "{storyTitle}"
           </p>
           <button 
@@ -241,12 +245,12 @@ const SimpleComments = ({ storyId, storyTitle }) => {
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary-500 border-t-transparent mx-auto mb-2"></div>
-            <p className="text-gray-600 text-sm">Cargando comentarios...</p>
+            <p className="text-gray-600 dark:text-dark-300 text-sm">Cargando comentarios...</p>
           </div>
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
-            <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-600">
+            <MessageSquare className="h-12 w-12 mx-auto text-gray-400 dark:text-dark-500 mb-2" />
+            <p className="text-gray-600 dark:text-dark-300">
               Aún no hay comentarios. ¡Sé el primero en comentar!
             </p>
           </div>
@@ -255,7 +259,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
             <div 
               key={comment.id} 
               id={`comment-${comment.id}`}
-              className="bg-gray-50 rounded-lg p-4"
+              className="bg-gray-50 dark:bg-dark-700 rounded-lg p-4"
             >
               <div className="flex items-start gap-3">
                 <UserAvatar 
@@ -271,7 +275,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                         userName={comment.author}
                         className="font-medium"
                       />
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-dark-400">
                         {formatTimeAgo(comment.created_at)}
                       </span>
                     </div>
@@ -281,7 +285,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                       {isAuthenticated && user?.id === comment.author_id && (
                         <button
                           onClick={() => handleDeleteComment(comment.id)}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          className="p-1 text-gray-400 dark:text-dark-500 hover:text-red-600 transition-colors"
                           title="Eliminar comentario"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -292,7 +296,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                       {isAuthenticated && user?.id !== comment.author_id && (
                         <button
                           onClick={() => handleReportComment(comment.id, comment.content)}
-                          className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
+                          className="p-1 text-gray-400 dark:text-dark-500 hover:text-orange-600 transition-colors"
                           title="Reportar comentario"
                         >
                           <Flag className="h-3 w-3" />
@@ -301,7 +305,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
                     </div>
                   </div>
 
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-gray-700 dark:text-dark-200 text-sm leading-relaxed">
                     {comment.content}
                   </p>
                 </div>
@@ -312,7 +316,7 @@ const SimpleComments = ({ storyId, storyTitle }) => {
       </div>
 
       {/* Footer informativo */}
-      <div className="text-xs text-gray-500 text-center pt-4 border-t border-gray-200">
+      <div className="text-xs text-gray-500 dark:text-dark-400 text-center pt-4 border-t border-gray-200 dark:border-dark-600">
         Los comentarios están moderados. Mantén un tono respetuoso y
         constructivo.
       </div>
