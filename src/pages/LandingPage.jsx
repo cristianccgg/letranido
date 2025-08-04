@@ -878,7 +878,7 @@ const LandingPage = () => {
 
           {/* FAQ Link */}
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-dark-300 mb-4">
               ¿Tienes más preguntas sobre cómo participar?
             </p>
             <Link
@@ -903,32 +903,6 @@ const LandingPage = () => {
             <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 transition-colors duration-300">
               Donde cada historia importa y cada escritor encuentra su lugar
             </p>
-          </div>
-
-          {/* Mobile: Prompt destacado primero */}
-          <div className="block md:hidden mb-12">
-            {currentContest && (
-              <div className="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 p-1 rounded-2xl shadow-xl">
-                <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
-                    <PenTool className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
-                  </div>
-                  <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-                    Prompt del mes
-                  </h3>
-                  <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
-                    "{currentContest.title}"
-                  </p>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {currentContest.description}
-                  </p>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Cierre: {timeLeft}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Desktop: Grid original, Mobile: Solo las 2 features más importantes */}
