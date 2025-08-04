@@ -435,16 +435,16 @@ const LandingPage = () => {
                       winnersSection.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
-                  className="flex items-center justify-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-3 border border-yellow-300 ring-2 ring-yellow-400/30 hover:ring-yellow-400/50 hover:scale-105 transition-all duration-300 hover:shadow-lg group cursor-pointer"
+                  className="flex items-center justify-center gap-2 bg-white/90 dark:bg-primary-800 backdrop-blur-sm rounded-lg px-4 py-3 border border-yellow-300 ring-2 ring-yellow-400/30 hover:ring-yellow-400/50 hover:scale-105 transition-all duration-300 hover:shadow-lg group cursor-pointer"
                 >
                   <WinnerBadgeDisplay
                     userId={lastContestWinners.winners[0].user_id}
                   />
                   <div className="text-center">
-                    <div className="font-bold text-yellow-800 text-[8px] md:text-xs leading-tight">
+                    <div className="font-bold text-yellow-800 dark:text-dark-100 text-[8px] md:text-xs leading-tight">
                       1er lugar de {lastContestWinners.contest.month}
                     </div>
-                    <div className="font-medium text-gray-700 text-[8px] md:text-xs truncate max-w-[80px] md:max-w-none">
+                    <div className="font-medium text-gray-700 dark:text-dark-100 text-[8px] md:text-xs truncate max-w-[80px] md:max-w-none">
                       {lastContestWinners.winners[0].author}
                     </div>
                   </div>
