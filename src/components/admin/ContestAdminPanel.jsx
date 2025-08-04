@@ -30,7 +30,7 @@ import { useContestFinalization } from "../../hooks/useContestFinalization";
 import { supabase } from "../../lib/supabase";
 import DataCleanupPanel from "./DataCleanupPanel";
 import ReportsPanel from "./ReportsPanel";
-import EmailTester from "./EmailTester";
+import EmailManager from "./EmailManager";
 import MaintenanceControl from "./MaintenanceControl";
 
 const ContestAdminPanel = () => {
@@ -1119,7 +1119,7 @@ const ContestAdminPanel = () => {
       <ReportsPanel />
 
       {/* Panel de test de emails */}
-      <EmailTester />
+      <EmailManager />
 
       {/* Modal de simulación de ganadores */}
       {showPreviewModal && selectedContest && simulatedWinners && (

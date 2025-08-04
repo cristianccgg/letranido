@@ -1,5 +1,5 @@
 // lib/admin-newsletter.js - Funciones de administrador para newsletters
-import { sendNewContestNotification } from './email';
+import { sendContestEmailViaSupabase } from './email/supabase-emails.js';
 import { supabase } from './supabase';
 
 /**
@@ -58,10 +58,10 @@ export const adminSendContestNotification = async (contestId, adminUserId) => {
       console.warn(`Enviando notificación para concurso creado hace ${hoursSinceCreation.toFixed(1)} horas`);
     }
 
-    // 5. Enviar notificación
+    // 5. Enviar notificación usando el sistema seguro de Supabase
     console.log(`📧 Admin ${adminUserId} enviando notificación para concurso: ${contest.title}`);
     
-    const result = await sendNewContestNotification(contest);
+    const result = await sendContestEmailViaSupabase('new_contest', { contestId: contest.id });
 
     // 6. Registrar la acción en logs (opcional)
     if (result.success) {
@@ -73,9 +73,9 @@ export const adminSendContestNotification = async (contestId, adminUserId) => {
             action_type: 'send_contest_notification',
             target_id: contestId,
             details: {
-              sentCount: result.sentCount,
-              totalCount: result.totalCount,
-              errors: result.errors?.length || 0
+              sentCount: result.sent || 0,
+              mode: result.mode || 'unknown',
+              errors: result.error ? 1 : 0
             },
             performed_at: new Date().toISOString()
           });
@@ -88,10 +88,10 @@ export const adminSendContestNotification = async (contestId, adminUserId) => {
     return {
       success: result.success,
       result: {
-        sentCount: result.sentCount,
-        totalCount: result.totalCount,
-        successRate: result.totalCount > 0 ? (result.sentCount / result.totalCount * 100).toFixed(1) : 0,
-        errors: result.errors,
+        sentCount: result.sent || 0,
+        mode: result.mode || 'unknown',
+        data: result.data,
+        errors: result.error ? [result.error] : [],
         contest: {
           id: contest.id,
           title: contest.title,

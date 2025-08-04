@@ -20,9 +20,9 @@ export const SUPABASE_CONFIG = {
 // Configuración de Email
 export const EMAIL_CONFIG = {
   apiKey: import.meta.env.VITE_RESEND_API_KEY,
-  from: import.meta.env.VITE_FROM_EMAIL || 'noreply@letranido.com',
+  from: import.meta.env.VITE_FROM_EMAIL || 'info@letranido.com',
   mode: import.meta.env.VITE_EMAIL_MODE || 'test',
-  adminEmail: import.meta.env.VITE_ADMIN_EMAIL || 'admin@letranido.com',
+  adminEmail: import.meta.env.VITE_ADMIN_EMAIL || 'cristianccggg@gmail.com',
   replyTo: 'info@letranido.com',
 };
 

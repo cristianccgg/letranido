@@ -1,4 +1,4 @@
-// components/admin/EmailTester.jsx - Componente para probar emails desde el admin
+// components/admin/EmailManager.jsx - Componente para gestionar envío de emails desde el admin
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X, Shield } from 'lucide-react';
@@ -7,7 +7,7 @@ import { sendTestEmailLocal, showEmailPreview } from '../../lib/email/local-test
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import { generateBlogEmailContent, generateWeeklyNewsletter, getAvailablePosts } from '../../lib/blog-email-generator.js';
 
-const EmailTester = () => {
+const EmailManager = () => {
   const { currentContest, contests } = useGlobalApp();
   const [loading, setLoading] = useState({}); // Cambiar a objeto para loading individual
   const [result, setResult] = useState(null);
@@ -364,7 +364,7 @@ const EmailTester = () => {
         <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
           <Mail className="h-5 w-5 text-white" />
         </div>
-        Sistema de Emails - Envío de Pruebas
+        Sistema de Emails - Gestión y Envío
       </h2>
 
       {/* Tabs modernizados */}
@@ -930,4 +930,4 @@ const EmailTester = () => {
   );
 };
 
-export default EmailTester;
+export default EmailManager;

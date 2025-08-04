@@ -1,5 +1,5 @@
 // lib/email/local-test-mailer.js - Sistema de test 100% seguro
-import { EMAIL_CONFIG } from './resend.js';
+import { EMAIL_CONFIG } from '../config.js';
 
 // Función de test que NUNCA envía emails reales
 export const sendTestEmailLocal = async ({ subject, htmlContent, textContent }) => {
