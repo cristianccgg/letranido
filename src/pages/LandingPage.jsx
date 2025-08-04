@@ -574,11 +574,11 @@ const LandingPage = () => {
 
             {/* 🏆 GANADOR DESTACADO - MÁXIMA VISIBILIDAD */}
             <div className="mb-8">
-              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-2xl border-2 border-indigo-200 p-8 relative overflow-hidden">
+              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-8 relative overflow-hidden">
                 {/* Elementos decorativos tipo spotlight */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 rounded-2xl"></div>
-                <div className="absolute top-6 right-6 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-20 blur-xl animate-pulse"></div>
-                <div className="absolute bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 dark:from-indigo-900/20 dark:via-purple-900/30 dark:to-pink-900/20 rounded-2xl"></div>
+                <div className="absolute top-6 right-6 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 dark:from-indigo-700 dark:to-purple-600 rounded-full opacity-20 blur-xl animate-pulse"></div>
+                <div className="absolute bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-300 dark:from-purple-700 dark:to-pink-600 rounded-full opacity-15 blur-lg animate-pulse"></div>
 
                 <div className="relative max-w-4xl mx-auto">
                   {/* Header motivacional */}
@@ -587,10 +587,10 @@ const LandingPage = () => {
                       <Sparkles className="h-4 w-4" />
                       Historia Ganadora de {lastContestWinners.contest.month}
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-dark-100 mb-2">
                       ¡Conoce al ganador que conquistó a la comunidad!
                     </h2>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-gray-600 dark:text-dark-300 text-lg">
                       Su historia brilló entre todas las demás y se llevó el
                       reconocimiento de los lectores
                     </p>
@@ -603,7 +603,7 @@ const LandingPage = () => {
                         to={`/story/${lastContestWinners.winners[0].id}`}
                         className="group block"
                       >
-                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-400 hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
+                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
                           {/* Badge de ganador más prominente */}
                           <div className="absolute -top-3 left-6">
                             <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
@@ -619,7 +619,7 @@ const LandingPage = () => {
                           </div>
 
                           {/* Título */}
-                          <h5 className="text-xl font-bold text-gray-900 mb-4 text-center group-hover:text-indigo-600 transition-colors line-clamp-2">
+                          <h5 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4 text-center group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
                             "{lastContestWinners.winners[0].title}"
                           </h5>
 
@@ -643,7 +643,7 @@ const LandingPage = () => {
 
                           {/* Estadísticas más destacadas */}
                           <div className="text-center mb-4">
-                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 border-indigo-400 text-indigo-800 shadow-md ring-2 ring-yellow-400/40">
+                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
                               <Heart className="h-5 w-5" />
                               <span className="font-bold text-lg">
                                 {lastContestWinners.winners[0].likes_count || 0}{" "}
@@ -666,8 +666,8 @@ const LandingPage = () => {
 
                   {/* Podium completo con protagonismo equilibrado */}
                   {lastContestWinners.winners.length > 1 && (
-                    <div className="mt-8 pt-6 border-t border-indigo-200">
-                      <h4 className="text-lg font-semibold text-gray-600 text-center mb-6">
+                    <div className="mt-8 pt-6 border-t border-indigo-200 dark:border-dark-600">
+                      <h4 className="text-lg font-semibold text-gray-600 dark:text-dark-300 text-center mb-6">
                         Finalistas
                       </h4>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
@@ -686,8 +686,8 @@ const LandingPage = () => {
                                 <div
                                   className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 ${
                                     isSecond
-                                      ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-300 hover:border-indigo-400"
-                                      : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 border-indigo-300 hover:border-indigo-400"
+                                      ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
+                                      : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
                                   }`}
                                 >
                                   {/* Badge de posición */}
@@ -719,7 +719,7 @@ const LandingPage = () => {
                                   </div>
 
                                   {/* Título de la historia */}
-                                  <h5 className="text-lg font-bold text-gray-900 mb-3 text-center group-hover:text-indigo-600 transition-colors line-clamp-2">
+                                  <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 mb-3 text-center group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
                                     "{story.title}"
                                   </h5>
 
@@ -746,8 +746,8 @@ const LandingPage = () => {
                                     <div
                                       className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
                                         isSecond
-                                          ? "bg-indigo-100 border-indigo-300 text-indigo-700"
-                                          : "bg-indigo-100 border-indigo-300 text-indigo-700"
+                                          ? "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
+                                          : "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
                                       }`}
                                     >
                                       <Heart className="h-4 w-4" />
@@ -779,11 +779,11 @@ const LandingPage = () => {
                   )}
 
                   {/* Sección motivacional - Ahora después del podium */}
-                  <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-100 p-6 mt-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <div className="text-center bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl border border-indigo-100 dark:border-dark-600 p-6 mt-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2">
                       ¡Podrías ser el próximo ganador!
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-gray-600 dark:text-dark-300 mb-4">
                       Únete al concurso actual y demuestra tu talento. Tu
                       historia podría ser la próxima en brillar.
                     </p>
@@ -803,7 +803,7 @@ const LandingPage = () => {
             <div className="text-center">
               <Link
                 to="/contest-history"
-                className="inline-flex items-center px-6 py-3 rounded-xl bg-white/80 backdrop-blur-sm border-2 border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 hover:border-purple-300 hover:shadow-lg transition-all duration-300 shadow-sm"
+                className="inline-flex items-center px-6 py-3 rounded-xl bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm border-2 border-indigo-200 dark:border-dark-600 text-indigo-700 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-dark-700 hover:border-purple-300 dark:hover:border-indigo-500 hover:shadow-lg transition-all duration-300 shadow-sm"
               >
                 <Trophy className="h-5 w-5 mr-2" />
                 Ver historial completo de concursos
@@ -1143,11 +1143,11 @@ const LandingPage = () => {
           </div>
 
           {/* CTA motivacional */}
-          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 rounded-2xl p-8 border border-indigo-200 dark:border-dark-600 shadow-xl">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-dark-100 mb-4">
               ¡Empieza tu colección de badges hoy!
             </h3>
-            <p className="text-gray-700 mb-6 text-lg">
+            <p className="text-gray-700 dark:text-dark-300 mb-6 text-lg">
               Tu primera historia te dará el badge "Primera Pluma". ¿Qué
               esperas?
             </p>

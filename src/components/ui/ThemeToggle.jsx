@@ -6,7 +6,7 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
 
   const sizeClasses = {
     sm: "h-8 w-16",
-    md: "h-10 w-20", 
+    md: "h-10 w-20",
     lg: "h-12 w-24",
   };
 
@@ -20,12 +20,12 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
     <button
       onClick={toggleTheme}
       className={`
-        relative inline-flex items-center rounded-full p-1 transition-all duration-300 ease-in-out
+        relative inline-flex items-center cursor-pointer rounded-full p-1 transition-all duration-300 ease-in-out
         ${sizeClasses[size]}
         ${
           isDark
-            ? "bg-indigo-600 hover:bg-indigo-700 border border-indigo-500"
-            : "bg-gray-200 hover:bg-gray-300 border border-gray-300"
+            ? "bg-indigo-400 hover:bg-indigo-500 border border-indigo-500"
+            : "bg-indigo-400 hover:bg-indigo-500 border border-gray-300"
         }
         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
         ${isDark ? "focus:ring-offset-gray-800" : "focus:ring-offset-white"}
@@ -39,8 +39,8 @@ const ThemeToggle = ({ size = "md", className = "" }) => {
         className={`
           relative rounded-full bg-white shadow-lg transition-transform duration-300 ease-in-out
           flex items-center justify-center
-          ${size === 'sm' ? 'h-6 w-6' : size === 'md' ? 'h-8 w-8' : 'h-10 w-10'}
-          ${isDark ? (size === 'sm' ? "translate-x-8" : size === 'md' ? "translate-x-10" : "translate-x-12") : "translate-x-0"}
+          ${size === "sm" ? "h-6 w-6" : size === "md" ? "h-8 w-8" : "h-10 w-10"}
+          ${isDark ? (size === "sm" ? "translate-x-8" : size === "md" ? "translate-x-10" : "translate-x-12") : "translate-x-0"}
         `}
       >
         {isDark ? (
