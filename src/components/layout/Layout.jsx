@@ -615,8 +615,8 @@ const Layout = ({ children }) => {
                             }}
                             className={`w-full flex items-center px-6 py-3 rounded-md text-sm font-medium ${
                               isActive
-                                ? "text-primary-600 bg-primary-50"
-                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                ? "text-primary-600 bg-primary-50 "
+                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 "
                             }`}
                           >
                             <IconComponent
@@ -668,7 +668,7 @@ const Layout = ({ children }) => {
                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                       isActive
                         ? "text-primary-600 bg-primary-50"
-                        : `text-gray-600 hover:text-gray-900 hover:bg-gray-100 ${
+                        : `text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-dark-300 ${
                             item.className || ""
                           }`
                     }`}
