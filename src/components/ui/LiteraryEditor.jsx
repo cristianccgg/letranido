@@ -2,6 +2,7 @@
 import { useRef, useEffect, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const LiteraryEditor = ({
   value = "",
@@ -15,6 +16,7 @@ const LiteraryEditor = ({
   const quillRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
   const isUpdatingRef = useRef(false);
+  const { isDark } = useTheme();
 
   // Configuración de Quill simple para escritura creativa
   const quillOptions = {
@@ -75,7 +77,8 @@ const LiteraryEditor = ({
       editor.style.fontSize = "16px";
       editor.style.lineHeight = "1.6";
       editor.style.minHeight = `${rows * 1.5}em`;
-      editor.style.color = "#111827";
+      editor.style.color = isDark ? "#f3f4f6" : "#111827";
+      editor.style.backgroundColor = isDark ? "#1f2937" : "#ffffff";
       
       // Desactivar auto-corrección y auto-capitalización para escritura literaria
       editor.setAttribute('autocorrect', 'off');
@@ -117,42 +120,54 @@ const LiteraryEditor = ({
     }
   }, [disabled]);
 
+  // Actualizar colores cuando cambie el tema
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.root;
+      editor.style.color = isDark ? "#f3f4f6" : "#111827";
+      editor.style.backgroundColor = isDark ? "#1f2937" : "#ffffff";
+    }
+  }, [isDark]);
+
   return (
     <div className={`literary-editor ${className}`}>
       <div
         ref={editorRef}
         className={`
-          border border-gray-300 rounded-lg
-          ${isActive ? "ring-2 ring-primary-500 border-primary-500" : ""}
-          ${disabled ? "bg-gray-100" : "bg-white"}
+          border border-gray-300 dark:border-dark-600 rounded-lg transition-colors duration-300
+          ${isActive ? "ring-2 ring-primary-500 dark:ring-primary-400 border-primary-500 dark:border-primary-400" : ""}
+          ${disabled ? "bg-gray-100 dark:bg-dark-800" : "bg-white dark:bg-dark-800"}
         `}
         style={{
           minHeight: `${rows * 1.5 + 3}em`, // +3 para la toolbar
         }}
       />
 
-      {/* Estilos CSS normales en lugar de styled-jsx */}
+      {/* Estilos CSS con soporte para modo oscuro */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
           .literary-editor .ql-toolbar {
-            border-top: 1px solid #d1d5db;
-            border-left: 1px solid #d1d5db;
-            border-right: 1px solid #d1d5db;
+            border-top: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
+            border-left: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
+            border-right: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
             border-bottom: none;
             border-radius: 0.5rem 0.5rem 0 0;
-            background: #f9fafb;
+            background: ${isDark ? '#374151' : '#f9fafb'};
             padding: 8px;
+            transition: all 0.3s ease;
           }
           
           .literary-editor .ql-container {
-            border-bottom: 1px solid #d1d5db;
-            border-left: 1px solid #d1d5db;
-            border-right: 1px solid #d1d5db;
+            border-bottom: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
+            border-left: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
+            border-right: 1px solid ${isDark ? '#4b5563' : '#d1d5db'};
             border-top: none;
             border-radius: 0 0 0.5rem 0.5rem;
             font-size: 16px;
             overflow: hidden;
+            background: ${isDark ? '#1f2937' : '#ffffff'};
+            transition: all 0.3s ease;
           }
           
           .literary-editor .ql-editor {
@@ -160,14 +175,16 @@ const LiteraryEditor = ({
             font-family: "Crimson Text", "Times New Roman", serif;
             font-size: 16px;
             line-height: 1.6;
-            color: #111827;
+            color: ${isDark ? '#f3f4f6' : '#111827'};
+            background: ${isDark ? '#1f2937' : '#ffffff'};
             position: relative;
             overflow-x: hidden;
             overflow-y: auto;
+            transition: all 0.3s ease;
           }
           
           .literary-editor .ql-editor.ql-blank::before {
-            color: #9ca3af;
+            color: ${isDark ? '#6b7280' : '#9ca3af'};
             font-style: normal;
             position: absolute;
             left: 16px;
@@ -187,15 +204,40 @@ const LiteraryEditor = ({
             width: 28px;
             height: 28px;
             border-radius: 4px;
+            color: ${isDark ? '#d1d5db' : '#374151'};
           }
           
           .literary-editor .ql-toolbar button:hover {
-            background-color: #e5e7eb;
+            background-color: ${isDark ? '#4b5563' : '#e5e7eb'};
           }
           
           .literary-editor .ql-toolbar button.ql-active {
-            background-color: #d1d5db;
-            color: #111827;
+            background-color: ${isDark ? '#6366f1' : '#d1d5db'};
+            color: ${isDark ? '#ffffff' : '#111827'};
+          }
+          
+          .literary-editor .ql-toolbar .ql-stroke {
+            stroke: ${isDark ? '#d1d5db' : '#374151'};
+          }
+          
+          .literary-editor .ql-toolbar .ql-fill {
+            fill: ${isDark ? '#d1d5db' : '#374151'};
+          }
+          
+          .literary-editor .ql-toolbar button:hover .ql-stroke {
+            stroke: ${isDark ? '#f3f4f6' : '#111827'};
+          }
+          
+          .literary-editor .ql-toolbar button:hover .ql-fill {
+            fill: ${isDark ? '#f3f4f6' : '#111827'};
+          }
+          
+          .literary-editor .ql-toolbar button.ql-active .ql-stroke {
+            stroke: ${isDark ? '#ffffff' : '#111827'};
+          }
+          
+          .literary-editor .ql-toolbar button.ql-active .ql-fill {
+            fill: ${isDark ? '#ffffff' : '#111827'};
           }
         `,
         }}

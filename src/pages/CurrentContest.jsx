@@ -622,10 +622,10 @@ const CurrentContest = () => {
       />
 
       {/* Header del concurso - Más compacto */}
-      <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 rounded-xl p-4 md:p-6 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 dark:from-primary-900/20 dark:via-dark-800 dark:to-accent-900/20 rounded-xl p-4 md:p-6 text-center relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos sutiles - Ocultos en mobile */}
-        <div className="absolute top-4 right-4 w-16 h-16 bg-primary-200 rounded-full opacity-10 hidden md:block"></div>
-        <div className="absolute bottom-4 left-4 w-12 h-12 bg-accent-200 rounded-full opacity-15 hidden md:block"></div>
+        <div className="absolute top-4 right-4 w-16 h-16 bg-primary-200 dark:bg-primary-700/30 rounded-full opacity-10 hidden md:block"></div>
+        <div className="absolute bottom-4 left-4 w-12 h-12 bg-accent-200 dark:bg-accent-700/30 rounded-full opacity-15 hidden md:block"></div>
 
         <div className="relative">
           <div className="mb-3">
@@ -635,37 +635,37 @@ const CurrentContest = () => {
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-3 transition-colors duration-300">
             {contest.title}
           </h1>
 
-          <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-4">
+          <p className="text-lg text-gray-700 dark:text-dark-300 max-w-2xl mx-auto mb-4 transition-colors duration-300">
             {contest.description}
           </p>
 
           {/* Stats del concurso - Dinámicas */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm">
             {/* Historias enviadas */}
-            <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+            <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <BookOpen className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-indigo-700">
+              <span className="truncate font-semibold text-indigo-700 dark:text-indigo-300 transition-colors duration-300">
                 {storiesLoading ? "..." : stories.length} historia
                 {stories.length !== 1 ? "s" : ""}
               </span>
             </div>
 
             {/* Contador en tiempo real */}
-            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <Clock className="h-4 w-4 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="truncate font-semibold text-purple-700 tabular-nums">
+                <span className="truncate font-semibold text-purple-700 dark:text-purple-300 tabular-nums transition-colors duration-300">
                   {timeLeft || "Cargando..."}
                 </span>
-                <span className="text-xs text-purple-500">
+                <span className="text-xs text-purple-500 dark:text-purple-400 transition-colors duration-300">
                   {(() => {
                     const phase = getContestPhase(contest);
                     if (phase === "submission") return "para enviar";
@@ -677,11 +677,11 @@ const CurrentContest = () => {
             </div>
 
             {/* Palabras escritas */}
-            <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 border border-pink-200 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
+            <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 dark:from-pink-900/20 dark:to-indigo-900/20 border border-pink-200 dark:border-pink-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
               <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <PenTool className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-pink-700 text-xs">
+              <span className="truncate font-semibold text-pink-700 dark:text-pink-300 text-xs transition-colors duration-300">
                 {storiesLoading
                   ? "..."
                   : stories
@@ -796,15 +796,15 @@ const CurrentContest = () => {
           {phaseInfo.phase === "submission" && (
             <div className="space-y-6">
               {/* Header compacto con CTA */}
-              <div className="bg-gradient-to-r from-blue-50 to-primary-50 rounded-xl p-6 text-center">
+              <div className="bg-gradient-to-r from-blue-50 to-primary-50 dark:from-blue-900/20 dark:to-primary-900/20 rounded-xl p-6 text-center transition-colors duration-300">
                 <div className="flex items-center justify-center mb-3">
-                  <PenTool className="h-6 w-6 text-blue-600 mr-2" />
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <PenTool className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2 transition-colors duration-300" />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100 transition-colors duration-300">
                     Fase de envío de historias
                   </h2>
                 </div>
 
-                <p className="text-gray-600 mb-4 max-w-xl mx-auto">
+                <p className="text-gray-600 dark:text-dark-300 mb-4 max-w-xl mx-auto transition-colors duration-300">
                   Las historias se revelarán cuando inicie la votación. ¡Aún
                   puedes participar!
                 </p>
@@ -817,11 +817,11 @@ const CurrentContest = () => {
               </div>
 
               {/* Lista de participantes - Modernizada */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 hover:border-purple-200 overflow-hidden transition-all duration-300">
-                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 border-b border-indigo-200">
+              <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 dark:border-dark-600 hover:border-purple-200 dark:hover:border-purple-500 overflow-hidden transition-all duration-300">
+                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 p-6 border-b border-indigo-200 dark:border-dark-600 transition-colors duration-300">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 flex items-center transition-colors duration-300">
                         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-md">
                           <Users className="h-4 w-4 text-white" />
                         </div>
@@ -1025,21 +1025,21 @@ const CurrentContest = () => {
 
               {/* Panel de filtros - Solo visible fuera de votación */}
               {showFilters && phaseInfo?.phase !== "voting" && (
-                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200 rounded-2xl p-6 space-y-4 shadow-lg">
+                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-2xl p-6 space-y-4 shadow-lg transition-colors duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Búsqueda */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300">
                         Buscar historias
                       </label>
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-dark-500 transition-colors duration-300" />
                         <input
                           type="text"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Título, autor o contenido..."
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 transition-colors duration-300"
                         />
                       </div>
                     </div>

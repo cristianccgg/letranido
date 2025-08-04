@@ -21,8 +21,8 @@ const ContestCard = ({
     if (isNext) {
       // Concurso siguiente (siempre en fase submission)
       const buttonClass = isEnabled
-        ? "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-medium hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300"
-        : "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-400 font-medium cursor-not-allowed";
+        ? "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-dark-700 transition-all duration-300"
+        : "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-400 dark:text-dark-500 font-medium cursor-not-allowed";
 
       const primaryButtonClass = isEnabled
         ? "flex-1"
@@ -70,13 +70,13 @@ const ContestCard = ({
             />
             <Link
               to={`/contest/${contest.id}#stories-section`}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-medium hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300 flex-1"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-dark-700 transition-all duration-300 flex-1"
             >
               Ver participantes
             </Link>
             <button
               onClick={onRulesClick}
-              className="inline-flex cursor-pointer  items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
+              className="inline-flex cursor-pointer items-center justify-center px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-gray-300 dark:hover:border-dark-500 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all duration-300 flex-1"
             >
               Ver Reglas
             </button>
@@ -93,13 +93,13 @@ const ContestCard = ({
             </Link>
             <Link
               to={`/contest/${contest.id}#stories-section`}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border-2 border-gray-200 text-gray-700 font-medium hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300 flex-1"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-dark-700 transition-all duration-300 flex-1"
             >
               Ver historias
             </Link>
             <button
               onClick={onRulesClick}
-              className="inline-flex cursor-pointer items-center justify-center px-4 py-2 rounded-lg bg-gray-50 border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-300 hover:bg-gray-100 transition-all duration-300 flex-1"
+              className="inline-flex cursor-pointer items-center justify-center px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-gray-300 dark:hover:border-dark-500 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all duration-300 flex-1"
             >
               Ver Reglas
             </button>
@@ -157,11 +157,11 @@ const ContestCard = ({
   // Si es siguiente concurso, renderizar versión expandible
   if (isNext) {
     return (
-      <div className="bg-white/95 backdrop-blur-md border-2 border-indigo-200 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 overflow-hidden">
+      <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md border-2 border-indigo-200 dark:border-dark-600 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500 overflow-hidden">
         {/* Header siempre visible - clickeable para expandir/contraer */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-6 flex items-center justify-between hover:bg-gray-50/50 transition-all duration-300 group text-left cursor-pointer"
+          className="w-full p-6 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-dark-700/50 transition-all duration-300 group text-left cursor-pointer"
         >
           <div className="flex-1">
             {/* Badge y título responsive */}
@@ -183,13 +183,13 @@ const ContestCard = ({
               </div>
 
               {/* Título con mejor responsive */}
-              <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight tracking-tight">
+              <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-dark-100 leading-tight tracking-tight transition-colors duration-300">
                 {contest.title}
               </h2>
             </div>
 
             {/* Texto de invitación a expandir */}
-            <p className="text-gray-500 text-sm italic">
+            <p className="text-gray-500 dark:text-dark-400 text-sm italic transition-colors duration-300">
               {isEnabled
                 ? "¡Ya puedes participar! Haz clic para escribir tu historia"
                 : "Haz clic para ver más detalles"}
@@ -214,8 +214,8 @@ const ContestCard = ({
         >
           <div className="px-6 pb-6 space-y-6">
             {/* Descripción del concurso (solo visible cuando está expandida) */}
-            <div className="bg-gradient-to-r from-purple-50 via-white to-indigo-50 border border-purple-200 rounded-xl p-4">
-              <p className="text-gray-700 md:text-lg leading-relaxed">
+            <div className="bg-gradient-to-r from-purple-50 via-white to-indigo-50 dark:from-purple-900/20 dark:via-dark-800 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-xl p-4 transition-colors duration-300">
+              <p className="text-gray-700 dark:text-dark-300 md:text-lg leading-relaxed transition-colors duration-300">
                 {contest.description}
               </p>
             </div>
@@ -279,7 +279,7 @@ const ContestCard = ({
 
   // Renderizado normal para concurso actual
   return (
-    <div className="bg-white/95 backdrop-blur-md border-2 border-indigo-200 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300">
+    <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md border-2 border-indigo-200 dark:border-dark-600 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500">
       <div className="mb-4">
         <span
           className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${badgeClass}`}
@@ -289,23 +289,23 @@ const ContestCard = ({
         </span>
       </div>
 
-      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight tracking-tight">
+      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-3 leading-tight tracking-tight transition-colors duration-300">
         {contest.title}
       </h2>
 
-      <p className="text-gray-700 max-w-2xl lg:max-w-4xl mx-auto md:text-lg lg:text-2xl mb-6 leading-relaxed">
+      <p className="text-gray-700 dark:text-dark-300 max-w-2xl lg:max-w-4xl mx-auto md:text-lg lg:text-2xl mb-6 leading-relaxed transition-colors duration-300">
         {contest.description}
       </p>
 
       {/* Contador solo para concurso actual */}
       {timeLeft && (
-        <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300 mb-6">
+        <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 dark:from-indigo-900/20 dark:via-dark-800 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
             <Clock className="h-5 w-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm md:text-base text-indigo-700 font-medium tracking-wide">
+              <span className="text-sm md:text-base text-indigo-700 dark:text-indigo-400 font-medium tracking-wide transition-colors duration-300">
                 {phase === "submission"
                   ? "Envíos cierran en"
                   : phase === "voting"
@@ -314,7 +314,7 @@ const ContestCard = ({
               </span>
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </div>
-            <span className="text-xl md:text-2xl font-bold text-indigo-900 tracking-tight">
+            <span className="text-xl md:text-2xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight transition-colors duration-300">
               {timeLeft}
             </span>
             <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">

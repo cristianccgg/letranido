@@ -8,6 +8,7 @@ import {
 
 import { lazy, Suspense, useState } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
@@ -317,9 +318,11 @@ function NotFoundPage() {
 function App() {
   return (
     <ErrorBoundary>
-      <GlobalAppProvider>
-        <AppContent />
-      </GlobalAppProvider>
+      <ThemeProvider>
+        <GlobalAppProvider>
+          <AppContent />
+        </GlobalAppProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

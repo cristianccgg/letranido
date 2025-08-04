@@ -26,7 +26,10 @@ import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
-import { UserWithWinnerBadges, UserWithTopBadge } from "../components/ui/UserNameWithBadges";
+import {
+  UserWithWinnerBadges,
+  UserWithTopBadge,
+} from "../components/ui/UserNameWithBadges";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
@@ -38,38 +41,34 @@ import logo from "../assets/images/letranido-logo.png";
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
   const { userBadges, loading } = useBadgesCache(userId);
-  
+
   if (loading) {
     return <span className="text-yellow-600">🏆</span>;
   }
-  
+
   // Orden de prestigio para badges (mayor a menor)
   const prestigeOrder = {
-    'contest_winner_veteran': 5, // Ganador múltiple
-    'contest_winner': 4,         // Ganador
-    'contest_finalist': 3,       // Finalista  
-    'writer_15': 2,             // Veterano escritor
-    'writer_5': 1,              // Escritor constante
-    'first_story': 0            // Primera historia
+    contest_winner_veteran: 5, // Ganador múltiple
+    contest_winner: 4, // Ganador
+    contest_finalist: 3, // Finalista
+    writer_15: 2, // Veterano escritor
+    writer_5: 1, // Escritor constante
+    first_story: 0, // Primera historia
   };
 
   // Encontrar el badge de mayor prestigio
   const topBadge = userBadges
-    .filter(badge => prestigeOrder.hasOwnProperty(badge.id))
+    .filter((badge) => prestigeOrder.hasOwnProperty(badge.id))
     .sort((a, b) => (prestigeOrder[b.id] || 0) - (prestigeOrder[a.id] || 0))[0];
-  
+
   if (topBadge) {
     return (
       <div className="group-hover:animate-pulse">
-        <Badge 
-          badge={topBadge} 
-          size="xs"
-          showDescription={true}
-        />
+        <Badge badge={topBadge} size="xs" showDescription={true} />
       </div>
     );
   }
-  
+
   // Fallback al trofeo si no hay badge
   return <span className="text-yellow-600 group-hover:animate-pulse">🏆</span>;
 };
@@ -369,7 +368,7 @@ const LandingPage = () => {
       />
 
       {/* Hero Section - Elegante y moderno */}
-      <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos modernos */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
@@ -393,14 +392,14 @@ const LandingPage = () => {
             </div>
 
             {/* Tagline */}
-            <p className="text-xl md:text-2xl lg:text-3xl text-gray-800 mb-6 font-dancing-script font-semibold">
+            <p className="text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-6 font-dancing-script font-semibold transition-colors duration-300">
               Tu nido creativo de escritura
             </p>
 
             {/* Qué es - explicación clara y directa */}
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-6 max-w-2xl leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 dark:text-dark-300 mb-6 max-w-2xl leading-relaxed transition-colors duration-300">
               Cada mes un{" "}
-              <span className="text-indigo-600 font-semibold">
+              <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
                 prompt diferente
               </span>{" "}
               que puedes interpretar como quieras: síguelo exactamente, adaptalo
@@ -411,14 +410,14 @@ const LandingPage = () => {
           {/* Beneficios específicos - más concisos */}
           <div className="mb-8 max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
-              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100">
-                <span className="font-medium">Feedback real</span>
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">Feedback real</span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-100">
-                <span className="font-medium">Tus derechos 100%</span>
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">Tus derechos 100%</span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-pink-100">
-                <span className="font-medium">Comunidad activa</span>
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">Comunidad activa</span>
               </div>
               {/* Tarjeta especial del ganador */}
               {lastContestWinners && (
@@ -432,7 +431,9 @@ const LandingPage = () => {
                   }}
                   className="flex items-center justify-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-3 border border-yellow-300 ring-2 ring-yellow-400/30 hover:ring-yellow-400/50 hover:scale-105 transition-all duration-300 hover:shadow-lg group cursor-pointer"
                 >
-                  <WinnerBadgeDisplay userId={lastContestWinners.winners[0].user_id} />
+                  <WinnerBadgeDisplay
+                    userId={lastContestWinners.winners[0].user_id}
+                  />
                   <div className="text-center">
                     <div className="font-bold text-yellow-800 text-[8px] md:text-xs leading-tight">
                       1er lugar de {lastContestWinners.contest.month}
@@ -488,7 +489,7 @@ const LandingPage = () => {
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12">
                 <div className="max-w-6xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-white/20 hover:border-purple-200 hover:bg-gradient-to-r hover:from-white hover:to-purple-50">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-white/20 dark:border-dark-600/20 hover:border-purple-200 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
@@ -499,7 +500,7 @@ const LandingPage = () => {
                           className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
-                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
                         Escritores en la comunidad
                       </div>
                     </div>
@@ -513,7 +514,7 @@ const LandingPage = () => {
                           className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
-                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
                         Historias publicadas
                       </div>
                     </div>
@@ -528,7 +529,7 @@ const LandingPage = () => {
                           className="bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
-                      <div className="text-gray-700 md:text-lg lg:text-xl text-sm font-medium">
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
                         Palabras escritas
                       </div>
                     </div>
@@ -544,7 +545,7 @@ const LandingPage = () => {
       {lastContestWinners && !loadingWinners && (
         <section
           id="winners-section"
-          className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden"
+          className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 relative overflow-hidden transition-colors duration-300"
         >
           {/* Elementos decorativos */}
           <div className="absolute inset-0 overflow-hidden">
@@ -556,10 +557,10 @@ const LandingPage = () => {
 
           <div className="max-w-6xl mx-auto px-4 relative">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
                 Ganadores de {lastContestWinners.contest.month}
               </h2>
-              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
                 "{lastContestWinners.contest.title}"
               </p>
               <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mt-6 shadow-lg"></div>
@@ -808,75 +809,75 @@ const LandingPage = () => {
       )}
 
       {/* Explicación del flujo del concurso - Modernizada */}
-      <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50">
+      <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
               ¿Cómo funciona el concurso?
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 transition-colors duration-300">
               Un proceso simple y divertido para participar en nuestra comunidad
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <PenTool className="h-8 w-8 text-indigo-600" />
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+                <PenTool className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
               </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
                 1. Escribe tu historia
               </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl mb-3">
+              <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-3 transition-colors duration-300">
                 Usa el prompt mensual como quieras: síguelo exactamente,
                 reinterpretalo o úsalo como inspiración.
               </p>
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-sm text-gray-500 dark:text-dark-400 font-medium transition-colors duration-300">
                 ✨ Total libertad creativa
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Heart className="h-8 w-8 text-purple-600" />
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 dark:border-dark-700 hover:border-pink-200 dark:hover:border-pink-500">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+                <Heart className="h-8 w-8 text-purple-600 dark:text-purple-400 transition-colors duration-300" />
               </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
                 2. Vota por tus favoritas
               </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl mb-3">
-                Cuando termine el periodo de envío, podrás leer y comentar
-                todas las historias.
+              <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-3 transition-colors duration-300">
+                Cuando termine el periodo de envío, podrás leer y comentar todas
+                las historias.
               </p>
-              <p className="text-sm text-purple-600 font-medium">
+              <p className="text-sm text-purple-600 dark:text-purple-400 font-medium transition-colors duration-300">
                 ✨ Tienes 3 votos por concurso para elegir tus favoritas
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Trophy className="h-8 w-8 text-pink-600" />
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 dark:border-dark-700 hover:border-indigo-200 dark:hover:border-indigo-500">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 dark:from-pink-800 dark:to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+                <Trophy className="h-8 w-8 text-pink-600 dark:text-pink-400 transition-colors duration-300" />
               </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 tracking-tight">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
                 3. Descubre los ganadores
               </h3>
-              <p className="text-gray-600 md:text-lg lg:text-xl">
+              <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl transition-colors duration-300">
                 Al finalizar la votación, se celebran las historias más votadas
                 con menciones especiales e insignias destacadas.
               </p>
             </div>
           </div>
-          
+
           {/* FAQ Link */}
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-dark-300 mb-4 transition-colors duration-300">
               ¿Tienes más preguntas sobre cómo participar?
             </p>
             <Link
               to="/faq"
-              className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-white hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center px-6 py-3 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl border border-indigo-200 dark:border-dark-600 text-indigo-700 dark:text-indigo-400 font-semibold hover:bg-white dark:hover:bg-dark-700 hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <HelpCircle className="h-5 w-5 mr-2" />
               Ver Preguntas Frecuentes
@@ -887,13 +888,13 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section - Original */}
-      <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50">
+      <section className="py-20 lg:py-24 bg-gradient-to-b from-indigo-50 to-purple-50 dark:from-dark-800 dark:to-dark-900 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
               Más que una plataforma, somos una comunidad
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 transition-colors duration-300">
               Donde cada historia importa y cada escritor encuentra su lugar
             </p>
           </div>
@@ -972,16 +973,16 @@ const LandingPage = () => {
       </section>
 
       {/* Sección de Derechos de Autor */}
-      <section className="py-12 lg:py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <section className="py-12 lg:py-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Shield className="h-8 w-8 text-indigo-600" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transition-colors duration-300">
+              <Shield className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-3 tracking-tight transition-colors duration-300">
               Tu obra, tus derechos
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
               En Letranido, tu creatividad está completamente protegida.
               Mantienes todos los derechos sobre tus historias.
             </p>
@@ -1051,7 +1052,7 @@ const LandingPage = () => {
       </section>
 
       {/* Sección de Badges - Movida aquí */}
-      <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
@@ -1061,28 +1062,28 @@ const LandingPage = () => {
 
         <div className="max-w-6xl mx-auto px-4 relative">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
-              <Trophy className="h-10 w-10 text-indigo-600" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full mb-6 shadow-xl transition-colors duration-300">
+              <Trophy className="h-10 w-10 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
               Sistema de Badges
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-3xl mx-auto transition-colors duration-300">
               Colecciona badges únicos que celebran tu crecimiento como escritor
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {/* Badge de Escritura */}
-            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 hover:border-purple-200">
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <PenTool className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2 transition-colors duration-300">
                   Badges de Escritura
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 transition-colors duration-300">
                   Primera Pluma, Escritor Constante, Veterano
                 </p>
                 <div className="flex justify-center space-x-1">
@@ -1094,15 +1095,15 @@ const LandingPage = () => {
             </div>
 
             {/* Badge de Ganador */}
-            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 hover:border-pink-200">
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 dark:border-dark-700 hover:border-pink-200 dark:hover:border-pink-500">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Trophy className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2 transition-colors duration-300">
                   Badges de Victoria
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 transition-colors duration-300">
                   Ganador, Finalista, Veterano Ganador
                 </p>
                 <div className="flex justify-center space-x-1">
@@ -1114,19 +1115,19 @@ const LandingPage = () => {
             </div>
 
             {/* Notificaciones */}
-            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 hover:border-indigo-200">
+            <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 dark:border-dark-700 hover:border-indigo-200 dark:hover:border-indigo-500">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2 transition-colors duration-300">
                   Notificaciones
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 transition-colors duration-300">
                   Te avisamos cuando consigas un nuevo badge
                 </p>
                 <div className="flex justify-center">
-                  <div className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                  <div className="px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full text-xs font-medium transition-colors duration-300">
                     ¡Nuevo badge!
                   </div>
                 </div>
@@ -1135,11 +1136,11 @@ const LandingPage = () => {
           </div>
 
           {/* CTA motivacional */}
-          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 border border-indigo-200 dark:border-dark-600 shadow-xl transition-colors duration-300">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-dark-100 mb-4 transition-colors duration-300">
               ¡Empieza tu colección de badges hoy!
             </h3>
-            <p className="text-gray-700 mb-6 text-lg">
+            <p className="text-gray-700 dark:text-dark-300 mb-6 text-lg transition-colors duration-300">
               Tu primera historia te dará el badge "Primera Pluma". ¿Qué
               esperas?
             </p>

@@ -362,11 +362,11 @@ const WritePrompt = () => {
   };
 
   const getWordCountColor = () => {
-    if (!contestToUse) return "text-gray-500";
-    if (wordCount < contestToUse.min_words) return "text-red-500";
-    if (wordCount > contestToUse.max_words) return "text-red-500";
-    if (wordCount > contestToUse.max_words * 0.9) return "text-yellow-500";
-    return "text-green-500";
+    if (!contestToUse) return "text-gray-500 dark:text-dark-400";
+    if (wordCount < contestToUse.min_words) return "text-red-500 dark:text-red-400";
+    if (wordCount > contestToUse.max_words) return "text-red-500 dark:text-red-400";
+    if (wordCount > contestToUse.max_words * 0.9) return "text-yellow-500 dark:text-yellow-400";
+    return "text-green-500 dark:text-green-400";
   };
 
   const getTimeLeft = () => {
@@ -434,9 +434,9 @@ const WritePrompt = () => {
     return (
       <div className="max-w-4xl mx-auto py-12">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 bg-gray-200 dark:bg-dark-700 rounded w-3/4 mb-4 transition-colors duration-300"></div>
+          <div className="h-4 bg-gray-200 dark:bg-dark-700 rounded w-1/2 mb-8 transition-colors duration-300"></div>
+          <div className="h-64 bg-gray-200 dark:bg-dark-700 rounded mb-4 transition-colors duration-300"></div>
         </div>
       </div>
     );
@@ -446,7 +446,7 @@ const WritePrompt = () => {
   if (!contestToUse) {
     return (
       <div className="max-w-4xl mx-auto py-12 text-center">
-        <div className="text-red-600 mb-4">
+        <div className="text-red-600 dark:text-red-400 mb-4 transition-colors duration-300">
           <AlertCircle className="h-12 w-12 mx-auto mb-4" />
           <h2 className="text-xl font-bold">No hay concurso disponible</h2>
           <p>Actualmente no hay concursos abiertos para participar.</p>
@@ -462,7 +462,7 @@ const WritePrompt = () => {
   if (hasUserParticipated) {
     return (
       <div className="max-w-4xl mx-auto py-12 text-center">
-        <div className="text-green-600 mb-4">
+        <div className="text-green-600 dark:text-green-400 mb-4 transition-colors duration-300">
           <PenTool className="h-12 w-12 mx-auto mb-4" />
           <h2 className="text-xl font-bold">
             ¡Ya participaste en este concurso!
@@ -490,38 +490,38 @@ const WritePrompt = () => {
       />
       <div className="max-w-4xl mx-auto">
       {/* Información del concurso */}
-      <div className="card mb-8">
+      <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 mb-8 transition-colors duration-300">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
+              <span className="bg-primary-100 dark:bg-primary-800/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300">
                 {contestToUse.category}
               </span>
-              <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-sm">
+              <span className="bg-accent-100 dark:bg-accent-800/30 text-accent-700 dark:text-accent-300 px-2 py-1 rounded text-sm transition-colors duration-300">
                 {contestToUse.month}
               </span>
-              <div className="flex items-center text-gray-500 text-sm">
+              <div className="flex items-center text-gray-500 dark:text-dark-400 text-sm transition-colors duration-300">
                 <Clock className="h-4 w-4 mr-1" />
                 {getTimeLeft()}
               </div>
               {isSubmissionClosed() && (
-                <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded text-xs font-medium transition-colors duration-300">
                   Cerrado
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-3 transition-colors duration-300">
               {isEditing ? "Editando historia" : contestToUse.title}
             </h1>
             {isEditing && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                <p className="text-blue-800 text-sm flex items-center">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-3 transition-colors duration-300">
+                <p className="text-blue-800 dark:text-blue-300 text-sm flex items-center transition-colors duration-300">
                   <Edit3 className="h-4 w-4 mr-2" />
                   Estás editando tu historia para: <strong className="ml-1">{contestToUse.title}</strong>
                 </p>
               </div>
             )}
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-gray-600 dark:text-dark-300 leading-relaxed transition-colors duration-300">
               {contestToUse.description}
             </p>
           </div>
@@ -529,11 +529,11 @@ const WritePrompt = () => {
       </div>
 
       {/* Área de escritura */}
-      <div className="card">
+      <div className="bg-white dark:bg-dark-800 shadow-lg rounded-xl p-6 border border-gray-200 dark:border-dark-600 transition-colors duration-300">
         <div className="mb-4">
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
           >
             Título de tu historia
           </label>
@@ -543,7 +543,7 @@ const WritePrompt = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Escribe un título llamativo para tu historia..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300"
             maxLength={100}
             disabled={isSubmissionClosed()}
           />
@@ -552,7 +552,7 @@ const WritePrompt = () => {
         <div className="mb-6">
           <label
             htmlFor="story"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
           >
             Tu historia
           </label>
@@ -568,17 +568,17 @@ const WritePrompt = () => {
         {/* Contador de palabras y acciones */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className={`text-sm font-medium ${getWordCountColor()}`}>
+            <div className={`text-sm font-medium transition-colors duration-300 ${getWordCountColor()}`}>
               {wordCount} / {contestToUse.max_words} palabras
             </div>
             {wordCount < contestToUse.min_words && (
-              <div className="flex items-center text-amber-600 text-sm">
+              <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm transition-colors duration-300">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 Mínimo {contestToUse.min_words} palabras
               </div>
             )}
             {wordCount > contestToUse.max_words && (
-              <div className="flex items-center text-red-600 text-sm">
+              <div className="flex items-center text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 Excede el límite por {wordCount - contestToUse.max_words}{" "}
                 palabras
@@ -615,12 +615,12 @@ const WritePrompt = () => {
       </div>
 
       {/* Consejos */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
+      <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 transition-colors duration-300">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center transition-colors duration-300">
           <PenTool className="h-5 w-5 mr-2" />
           Consejos para escribir
         </h3>
-        <ul className="text-blue-800 text-sm space-y-1">
+        <ul className="text-blue-800 dark:text-blue-300 text-sm space-y-1 transition-colors duration-300">
           <li>• Lee el prompt cuidadosamente e interpreta creativamente</li>
           <li>
             • Enfócate en crear personajes memorables y situaciones interesantes

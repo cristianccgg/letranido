@@ -2,6 +2,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap");
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-dm-serif: "DM Serif Display", serif;
   --font-dancing-script: "Dancing Script", cursive;
@@ -17,6 +19,19 @@
   --color-primary-700: #4338ca;
   --color-primary-800: #3730a3;
   --color-primary-900: #312e81;
+
+  /* Dark mode colors */
+  --color-dark-50: #f9fafb;
+  --color-dark-100: #f3f4f6;
+  --color-dark-200: #e5e7eb;
+  --color-dark-300: #d1d5db;
+  --color-dark-400: #9ca3af;
+  --color-dark-500: #6b7280;
+  --color-dark-600: #4b5563;
+  --color-dark-700: #374151;
+  --color-dark-800: #1f2937;
+  --color-dark-900: #111827;
+  --color-dark-950: #030712;
 
   /* Accent colors - Purple/Pink elegante para destacados */
   --color-accent-50: #fdf4ff;
@@ -235,6 +250,17 @@
   --spacing-vote-large: 1rem 1.5rem;
 }
 
+/* Dark mode configuration */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+.dark {
+  color-scheme: dark;
+}
+
 /* Global styles */
 html {
   margin: 0;
@@ -246,6 +272,7 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

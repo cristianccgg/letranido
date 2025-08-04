@@ -15,6 +15,7 @@ import GlobalFooter from "./GlobalFooter";
 import UserAvatar from "../ui/UserAvatar";
 import CookieBanner from "../ui/CookieBanner";
 import NotificationBell from "../ui/NotificationBell";
+import ThemeToggle from "../ui/ThemeToggle";
 import logo from "../../assets/images/letranido-logo.png";
 
 const Layout = ({ children }) => {
@@ -308,9 +309,9 @@ const Layout = ({ children }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-gradient-to-r dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 shadow-lg border-b border-indigo-200 relative z-30">
+      <header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-gradient-to-r dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 shadow-lg border-b border-indigo-200 dark:border-dark-700 relative z-30 transition-colors duration-300">
         <div className="mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-full">
           <div className="flex justify-between items-center h-16 min-w-0 max-w-7xl mx-auto">
             {/* Logo */}
@@ -319,11 +320,11 @@ const Layout = ({ children }) => {
               className="flex items-center space-x-1 sm:space-x-0 flex-shrink-0"
             >
               <img src={logo} alt="Letranido" className="xl:h-18 h-15 w-auto" />
-              <span className="text-lg sm:text-xl xl:text-4xl text-primary-600 font-dm-serif">
+              <span className="text-lg sm:text-xl xl:text-4xl text-primary-600 dark:text-primary-400 font-dm-serif transition-colors duration-300">
                 Letranido
               </span>
               {location.pathname === "/reset-password" && (
-                <span className="text-gray-500 text-sm ml-2">
+                <span className="text-gray-500 dark:text-dark-400 text-sm ml-2 transition-colors duration-300">
                   - Restablecer contraseña
                 </span>
               )}
@@ -346,8 +347,8 @@ const Layout = ({ children }) => {
                         }
                         className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                           isResourcesActive
-                            ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
-                            : "hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 text-gray-700 hover:text-gray-900"
+                            ? "bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-lg border border-white/40 dark:border-dark-600/40 text-primary-700 dark:text-primary-400 scale-105"
+                            : "hover:bg-white/60 dark:hover:bg-dark-800/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 dark:hover:border-dark-600/30 text-gray-700 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100"
                         }`}
                       >
                         <span className="truncate">{item.name}</span>
@@ -449,10 +450,10 @@ const Layout = ({ children }) => {
                     }
                     className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                       isActive
-                        ? "bg-white/80 backdrop-blur-sm shadow-lg border border-white/40 text-primary-700 scale-105"
-                        : `hover:bg-white/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 ${
+                        ? "bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-lg border border-white/40 dark:border-dark-600/40 text-primary-700 dark:text-primary-400 scale-105"
+                        : `hover:bg-white/60 dark:hover:bg-dark-800/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 dark:hover:border-dark-600/30 ${
                             item.className ||
-                            "text-gray-700 hover:text-gray-900"
+                            "text-gray-700 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100"
                           }`
                     }`}
                   >
@@ -464,6 +465,9 @@ const Layout = ({ children }) => {
 
             {/* Auth Section */}
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
+              {/* Theme Toggle */}
+              <ThemeToggle size="sm" />
+              
               {/* Notification Bell - Solo para usuarios autenticados */}
               {isAuthenticated && location.pathname !== "/reset-password" && (
                 <NotificationBell userId={user?.id} />
@@ -473,11 +477,11 @@ const Layout = ({ children }) => {
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center cursor-pointer space-x-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
+                    className="flex items-center cursor-pointer space-x-2 text-sm text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 bg-gray-50 dark:bg-dark-800 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg px-3 py-2 transition-colors duration-300"
                   >
                     <UserAvatar user={user} size="sm" />
                     <div className="hidden sm:block text-left min-w-0">
-                      <div className="font-medium text-gray-900 truncate">
+                      <div className="font-medium text-gray-900 dark:text-dark-100 truncate transition-colors duration-300">
                         {user?.name || user?.display_name}
                       </div>
                     </div>
@@ -563,7 +567,7 @@ const Layout = ({ children }) => {
                 <div className="items-center space-x-2 lg:space-x-3 hidden lg:flex">
                   <button
                     onClick={() => handleAuthClick("login")}
-                    className="text-gray-600 cursor-pointer hover:text-gray-900 font-medium text-sm md:text-base"
+                    className="text-gray-600 dark:text-dark-300 cursor-pointer hover:text-gray-900 dark:hover:text-dark-100 font-medium text-sm md:text-base transition-colors duration-300"
                   >
                     Iniciar sesión
                   </button>
@@ -581,7 +585,7 @@ const Layout = ({ children }) => {
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                className="lg:hidden p-2 rounded-md text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors duration-300"
               >
                 {isMobileMenuOpen ? (
                   <X className="h-6 w-6" />
@@ -595,7 +599,7 @@ const Layout = ({ children }) => {
 
         {/* Mobile Navigation - Simplificado */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-indigo-200">
+          <div className="lg:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 border-t border-indigo-200 dark:border-dark-700 transition-colors duration-300">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 // Handle dropdown items in mobile

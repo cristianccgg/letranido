@@ -86,7 +86,7 @@ const NewsletterSignup = () => {
   };
 
   return (
-    <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <section className="py-16 lg:py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
       {/* Elementos decorativos */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
@@ -96,15 +96,15 @@ const NewsletterSignup = () => {
       <div className="relative max-w-4xl mx-auto px-4 text-center">
         {/* Título principal */}
         <div className="mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Bell className="h-8 w-8 text-indigo-600" />
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <Bell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
             ¿No quieres perderte el próximo concurso?
           </h2>
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
             Recibe una notificación cuando inicie el siguiente concurso.{" "}
-            <span className="text-indigo-600 font-medium">
+            <span className="text-indigo-600 dark:text-indigo-400 font-medium transition-colors duration-300">
               Sin spam, solo los concursos nuevos.
             </span>
           </p>
@@ -115,7 +115,7 @@ const NewsletterSignup = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400 dark:text-dark-500" />
               </div>
               <input
                 type="email"
@@ -123,7 +123,7 @@ const NewsletterSignup = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 disabled={status === "loading" || status === "success"}
-                className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 rounded-xl text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
