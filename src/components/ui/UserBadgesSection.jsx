@@ -80,23 +80,23 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
+    <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-600 shadow-sm">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-gray-100 dark:border-dark-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Trophy className="w-6 h-6 text-purple-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-300">
                 Badges de {userName}
               </h3>
               {hasAnyBadges ? (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-400">
                   {badgeStats.total} badges conseguidos
                   {badgeStats.gold > 0 && ` • ${badgeStats.gold} de oro`}
                 </p>
               ) : (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-dark-400">
                   ¡Escribe tu primera historia para conseguir tu primer badge!
                 </p>
               )}
@@ -106,7 +106,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
           {hasAnyBadges && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 transition-colors"
+              className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
             >
               {isExpanded ? "Ver menos" : "Ver todos"}
               {isExpanded ? (
@@ -127,10 +127,10 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trophy className="w-8 h-8 text-gray-400" />
             </div>
-            <h4 className="font-medium text-gray-900 mb-2">
+            <h4 className="font-medium text-gray-900 dark:text-dark-400 mb-2">
               Aún no tienes badges
             </h4>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-dark-400 mb-4">
               Los badges se otorgan automáticamente cuando cumples ciertos
               logros.
             </p>
@@ -174,8 +174,8 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
                             flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
                             ${
                               selectedCategory === category.id
-                                ? "bg-purple-100 text-purple-700 border border-purple-200"
-                                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 border border-purple-200"
+                                : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-dark-700 dark:text-dark-400 dark:hover:bg-dark-600"
                             }
                           `}
                         >
@@ -217,7 +217,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
 
             {/* Progreso hacia siguiente badge */}
             {nextStoryBadge && userStats && (
-              <div className="border-t border-gray-100 pt-6">
+              <div className="border-t border-gray-100 dark:border-dark-700 pt-6">
                 <BadgeProgress
                   currentCount={userStats.storyCount}
                   nextBadge={nextStoryBadge}
