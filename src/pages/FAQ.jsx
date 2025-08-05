@@ -14,6 +14,13 @@ import {
   HelpCircle,
   CheckCircle,
   AlertCircle,
+  Zap,
+  MessageCircle,
+  MessageSquare,
+  Vote,
+  Crown,
+  Medal,
+  TrendingUp,
 } from "lucide-react";
 import SEOHead from "../components/SEO/SEOHead";
 
@@ -154,6 +161,159 @@ const FAQ = () => {
               <p className="text-sm text-gray-600">
                 Recuerda que siempre puedes participar en el siguiente concurso mensual con un nuevo prompt.
               </p>
+            </div>
+          ),
+        },
+      ],
+    },
+    {
+      title: "Sistema de Karma Rankings",
+      icon: Zap,
+      color: "indigo",
+      items: [
+        {
+          question: "¿Qué es el sistema de karma rankings?",
+          answer: (
+            <div className="space-y-4">
+              <p>
+                El sistema de karma es una forma de reconocer y visualizar la participación activa de los miembros en nuestra comunidad. Cada acción que realizas en Letranido te otorga puntos de karma, y estos puntos determinan tu posición en el ranking comunitario.
+              </p>
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary-600" />
+                  <h4 className="font-semibold text-primary-800">¿Por qué karma?</h4>
+                </div>
+                <p className="text-primary-700 text-sm">
+                  El karma incentiva la participación positiva, premia a quienes contribuyen activamente con historias, comentarios constructivos y votos, y crea un ambiente colaborativo donde todos ganan por participar.
+                </p>
+              </div>
+            </div>
+          ),
+        },
+        {
+          question: "¿Cómo puedo ganar puntos de karma?",
+          answer: (
+            <div className="space-y-4">
+              <p>
+                Puedes ganar karma de múltiples formas. Cada acción en la comunidad tiene un valor específico:
+              </p>
+              <div className="grid gap-3">
+                <div className="flex items-center gap-3 p-3 bg-primary-50 rounded-lg">
+                  <PenTool className="h-5 w-5 text-primary-600" />
+                  <div>
+                    <strong className="text-primary-700">Publicar historia: +15 puntos</strong>
+                    <p className="text-sm text-primary-600">La acción más valiosa - compartir tu creatividad</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                  <MessageSquare className="h-5 w-5 text-green-600" />
+                  <div>
+                    <strong className="text-green-700">Recibir comentario: +3 puntos</strong>
+                    <p className="text-sm text-green-600">Tu historia genera conversación</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                  <MessageCircle className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <strong className="text-blue-700">Dar comentario: +2 puntos</strong>
+                    <p className="text-sm text-blue-600">Ayudar a otros escritores con feedback</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
+                  <Heart className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <strong className="text-purple-700">Recibir like: +2 puntos</strong>
+                    <p className="text-sm text-purple-600">Tu historia gusta a la comunidad</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                  <Vote className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <strong className="text-orange-700">Votar: +1 punto</strong>
+                    <p className="text-sm text-orange-600">Participar en la votación democrática</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                  <Crown className="h-5 w-5 text-yellow-600" />
+                  <div>
+                    <strong className="text-yellow-700">Ganar concurso: +75 puntos</strong>
+                    <p className="text-sm text-yellow-600">El máximo reconocimiento</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg">
+                  <Medal className="h-5 w-5 text-pink-600" />
+                  <div>
+                    <strong className="text-pink-700">Ser finalista: +30 puntos</strong>
+                    <p className="text-sm text-pink-600">Entre los mejores del mes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        {
+          question: "¿Dónde puedo ver el ranking de karma?",
+          answer: (
+            <div className="space-y-4">
+              <p>
+                Puedes acceder al ranking de karma desde cualquier página de Letranido:
+              </p>
+              <div className="space-y-3">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary-100 p-2 rounded-lg">
+                      <Trophy className="h-5 w-5 text-primary-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2">Botón Rankings</h4>
+                      <p className="text-sm text-gray-600">
+                        Busca el botón flotante "Rankings Karma" en el lado izquierdo de tu pantalla. 
+                        Haz clic para abrir el sidebar con el ranking completo.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-800">¿Sabías qué?</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    El ranking se actualiza en tiempo real y muestra a todos los usuarios con karma, 
+                    incluso aquellos que solo votan o comentan sin publicar historias.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        {
+          question: "¿Puedo perder karma?",
+          answer: (
+            <div className="space-y-4">
+              <p>
+                <strong>No, nunca pierdes karma.</strong> El sistema está diseñado para ser positivo e incentivador:
+              </p>
+              <div className="space-y-3">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-semibold text-green-800">Solo se suma</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    Cada acción positiva suma puntos. No hay penalizaciones ni formas de perder karma.
+                  </p>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-800">Permanente</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Tu karma acumulado es permanente y refleja tu historia de participación en la comunidad.
+                  </p>
+                </div>
+              </div>
             </div>
           ),
         },

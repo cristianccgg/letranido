@@ -47,6 +47,7 @@ const ContestAdminPanel = () => {
   const [simulatedWinners, setSimulatedWinners] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null); // ID del concurso que se está eliminando
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
+  const [rankingLoading, setRankingLoading] = useState(false);
 
   // Función para determinar si un concurso es de prueba
   const isTestContest = (contest) => {
@@ -208,6 +209,246 @@ const ContestAdminPanel = () => {
       prize: "Insignia de Oro + Destacado del mes",
       status: "submission",
     });
+  };
+
+  // Recalcular rankings manualmente 
+  const handleRecalculateRankings = async () => {
+    if (!confirm('¿Recalcular los rankings de karma? Esta acción actualizará los datos cached de ranking para todos los usuarios.')) {
+      return;
+    }
+
+    setRankingLoading(true);
+
+    try {
+      console.log('🔄 Iniciando recalculo de rankings...');
+      
+      // 1. Llamar a la función RPC para limpiar tablas
+      const { data: rpcResult, error: rpcError } = await supabase
+        .rpc('recalculate_rankings');
+
+      if (rpcError) {
+        throw new Error('Error en RPC function: ' + rpcError.message);
+      }
+
+      console.log('📊 RPC completado:', rpcResult);
+
+      // 2. Ahora calcular los rankings usando la lógica del sidebar
+      // Obtener historias
+      const { data: stories, error: storiesError } = await supabase
+        .from('stories')
+        .select(`
+          id,
+          user_id,
+          likes_count,
+          contest_id,
+          published_at
+        `)
+        .not('published_at', 'is', null);
+
+      if (storiesError) throw storiesError;
+
+      // Obtener votos usando función RPC si está disponible
+      let votes = [];
+      try {
+        const { data: rpcVotes, error: rpcVotesError } = await supabase
+          .rpc('get_all_votes_for_rankings');
+        
+        if (rpcVotesError) {
+          console.warn('RPC votes function not available, using direct query');
+          const { data: directVotes, error: directError } = await supabase
+            .from('votes')
+            .select('user_id, created_at');
+          votes = directVotes || [];
+        } else {
+          votes = rpcVotes || [];
+        }
+      } catch (error) {
+        console.warn('Error getting votes, continuing without votes data');
+        votes = [];
+      }
+
+      // Obtener comentarios
+      const { data: comments, error: commentsError } = await supabase
+        .from('comments')
+        .select('user_id, story_id, created_at')
+        .not('user_id', 'is', null)
+        .not('story_id', 'is', null);
+
+      if (commentsError) console.warn('Error loading comments:', commentsError);
+
+      // Obtener perfiles de usuario
+      const storyUserIds = stories ? stories.map(s => s.user_id) : [];
+      const voteUserIds = votes ? votes.map(v => v.user_id) : [];
+      const commentUserIds = comments ? comments.map(c => c.user_id) : [];
+      const uniqueUserIds = [...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds])];
+      
+      let users = [];
+      if (uniqueUserIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from('user_profiles')
+          .select('id, display_name')
+          .in('id', uniqueUserIds);
+          
+        if (usersError) {
+          console.warn('Error loading users:', usersError);
+        } else {
+          users = usersData || [];
+        }
+      }
+
+      // Obtener concursos
+      const { data: contestsData, error: contestsError } = await supabase
+        .from('contests')
+        .select('id, title, month, status, finalized_at, voting_deadline');
+      
+      if (contestsError) console.warn('Error loading contests:', contestsError);
+
+      // Calcular karma usando la misma lógica que el sidebar
+      const userKarma = calculateUserKarmaForCache(stories || [], votes, comments || [], contestsData || [], users);
+      
+      // Convertir a array y ordenar
+      const rankingArray = Object.values(userKarma)
+        .filter(user => user.totalKarma > 0)
+        .sort((a, b) => b.totalKarma - a.totalKarma)
+        .map((user, index) => ({
+          user_id: user.userId,
+          user_name: user.author,
+          total_karma: user.totalKarma,
+          total_stories: user.totalStories,
+          votes_given: user.votesGiven,
+          comments_given: user.commentsGiven,
+          comments_received: user.commentsReceived,
+          contest_wins: user.contestWins,
+          position: index + 1
+        }));
+
+      console.log('📊 Rankings calculados:', rankingArray.length, 'usuarios');
+
+      // 3. Insertar los rankings calculados
+      if (rankingArray.length > 0) {
+        const { error: insertError } = await supabase
+          .from('cached_rankings')
+          .insert(rankingArray);
+
+        if (insertError) throw insertError;
+      }
+
+      // 4. Actualizar metadata
+      const { error: metadataError } = await supabase
+        .from('ranking_metadata')
+        .update({
+          total_users: rankingArray.length,
+          contest_period: new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+        })
+        .eq('updated_by_admin', true);
+
+      if (metadataError) console.warn('Error updating metadata:', metadataError);
+
+      console.log('✅ Rankings recalculados exitosamente');
+      alert(`✅ Rankings actualizados exitosamente!\n${rankingArray.length} usuarios procesados.`);
+
+    } catch (error) {
+      console.error('❌ Error recalculando rankings:', error);
+      alert('❌ Error recalculando rankings: ' + error.message);
+    } finally {
+      setRankingLoading(false);
+    }
+  };
+
+  // Función helper para calcular karma (adaptada del sidebar)
+  const calculateUserKarmaForCache = (stories, votes, comments, contests, users) => {
+    const KARMA_POINTS = {
+      STORY_PUBLISHED: 15,
+      LIKE_RECEIVED: 2,
+      COMMENT_RECEIVED: 3,
+      COMMENT_GIVEN: 2,
+      CONTEST_WIN: 75,
+      CONTEST_FINALIST: 30,
+      VOTE_GIVEN: 1,
+    };
+
+    const userKarma = {};
+
+    const initializeUser = (userId) => {
+      if (!userKarma[userId]) {
+        const userProfile = users.find(u => u.id === userId);
+        const author = userProfile?.display_name || 'Usuario Anónimo';
+        
+        userKarma[userId] = {
+          userId,
+          author,
+          totalKarma: 0,
+          totalStories: 0,
+          contestWins: 0,
+          votesGiven: 0,
+          commentsGiven: 0,
+          commentsReceived: 0
+        };
+      }
+    };
+
+    // Procesar votos
+    votes.forEach(vote => {
+      initializeUser(vote.user_id);
+      userKarma[vote.user_id].votesGiven++;
+      userKarma[vote.user_id].totalKarma += KARMA_POINTS.VOTE_GIVEN;
+    });
+
+    // Procesar comentarios
+    comments.forEach(comment => {
+      const commentAuthorId = comment.user_id;
+      const storyAuthorId = stories.find(s => s.id === comment.story_id)?.user_id;
+      
+      // Karma para quien da el comentario
+      if (commentAuthorId) {
+        initializeUser(commentAuthorId);
+        userKarma[commentAuthorId].commentsGiven++;
+        userKarma[commentAuthorId].totalKarma += KARMA_POINTS.COMMENT_GIVEN;
+      }
+      
+      // Karma para quien recibe el comentario
+      if (storyAuthorId && storyAuthorId !== commentAuthorId) {
+        initializeUser(storyAuthorId);
+        userKarma[storyAuthorId].commentsReceived++;
+        userKarma[storyAuthorId].totalKarma += KARMA_POINTS.COMMENT_RECEIVED;
+      }
+    });
+
+    // Procesar historias
+    stories.forEach(story => {
+      const userId = story.user_id;
+      initializeUser(userId);
+
+      const userStats = userKarma[userId];
+      
+      // Karma básico por historia
+      userStats.totalKarma += KARMA_POINTS.STORY_PUBLISHED;
+      userStats.totalStories++;
+
+      // Buscar información del concurso
+      const contest = contests.find(c => c.id === story.contest_id);
+      const canShowVotes = contest && (contest.status === 'results' || contest.status === 'voting');
+
+      if (canShowVotes && story.likes_count) {
+        userStats.totalKarma += story.likes_count * KARMA_POINTS.LIKE_RECEIVED;
+      }
+
+      // Detectar ganadores
+      if (contest?.status === 'results') {
+        const allContestStories = stories.filter(s => s.contest_id === story.contest_id);
+        const sortedByVotes = allContestStories.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+        const position = sortedByVotes.findIndex(s => s.id === story.id) + 1;
+        
+        if (position === 1) {
+          userStats.contestWins++;
+          userStats.totalKarma += KARMA_POINTS.CONTEST_WIN;
+        } else if (position <= 3) {
+          userStats.totalKarma += KARMA_POINTS.CONTEST_FINALIST;
+        }
+      }
+    });
+
+    return userKarma;
   };
 
   // Crear nuevo concurso usando Supabase directamente
@@ -738,6 +979,23 @@ const ContestAdminPanel = () => {
           >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Concurso
+          </button>
+          <button
+            onClick={handleRecalculateRankings}
+            disabled={rankingLoading}
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center disabled:opacity-50"
+          >
+            {rankingLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Actualizando...
+              </>
+            ) : (
+              <>
+                <Zap className="h-4 w-4 mr-2" />
+                Actualizar Rankings
+              </>
+            )}
           </button>
           <div className="text-sm text-gray-500">
             Conectado como: <span className="font-medium">{user?.name}</span>

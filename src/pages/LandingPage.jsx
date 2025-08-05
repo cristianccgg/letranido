@@ -19,6 +19,10 @@ import {
   Lock,
   Eye,
   HelpCircle,
+  Zap,
+  MessageCircle,
+  Vote,
+  Crown,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase"; // 👈 Agrega este import
@@ -547,6 +551,75 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO */}
+      <section className="py-12 lg:py-16 bg-gradient-to-r from-primary-500 to-indigo-600 relative overflow-hidden">
+        {/* Elementos decorativos */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-24 h-24 bg-white/15 rounded-full blur-lg"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center">
+            {/* Badge "NUEVO" */}
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 text-white text-sm font-semibold mb-6 backdrop-blur-sm">
+              <Sparkles className="h-4 w-4 mr-2" />
+              ¡NUEVO!
+            </div>
+
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              🏆 Sistema de Karma Rankings
+            </h2>
+            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+              Ahora puedes ganar karma por cada acción en la comunidad y ver tu
+              posición en el ranking. ¡Participa, comenta, vota y escala
+              posiciones!
+            </p>
+
+            {/* Puntos de karma destacados */}
+            <div className="grid md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <PenTool className="h-8 w-8 text-white mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white">+15</div>
+                <div className="text-sm text-white/80">Por historia</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <MessageCircle className="h-8 w-8 text-white mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white">+2</div>
+                <div className="text-sm text-white/80">Por comentario</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <Vote className="h-8 w-8 text-white mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white">+1</div>
+                <div className="text-sm text-white/80">Por voto</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <Crown className="h-8 w-8 text-white mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white">+75</div>
+                <div className="text-sm text-white/80">Por ganar</div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="text-white/80 text-sm flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Haz clic en el botón Rankings de la izquierda
+              </div>
+              <ArrowRight className="h-5 w-5 text-white/60 hidden sm:block" />
+              <Link
+                to="/faq"
+                className="inline-flex items-center px-6 py-3 bg-white text-primary-600 rounded-xl font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg"
+              >
+                <HelpCircle className="h-5 w-5 mr-2" />
+                Ver cómo funciona
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 🆕 GANADORES DEL CONCURSO ANTERIOR */}
       {lastContestWinners && !loadingWinners && (
         <section
@@ -905,8 +978,8 @@ const LandingPage = () => {
             </p>
           </div>
 
-          {/* Desktop: Grid original, Mobile: Solo las 2 features más importantes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Features principales - 3 columnas balanceadas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Feature 1 - Siempre visible */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
@@ -935,17 +1008,17 @@ const LandingPage = () => {
               </p>
             </div>
 
-            {/* Feature 3 - Solo visible en lg+ */}
+            {/* Feature 3 - Sistema de Badges mejorado */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 dark:from-pink-800 dark:to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
-                <Trophy className="h-8 w-8 text-pink-600 dark:text-pink-400 transition-colors duration-300" />
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-200 dark:from-yellow-800 dark:to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+                <Trophy className="h-8 w-8 text-yellow-600 dark:text-yellow-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-                Badges y Reconocimiento
+                Sistema de Badges
               </h3>
               <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-3 transition-colors duration-300">
-                Consigue badges únicos por escribir, ganar concursos y
-                participar. ¡Muestra tus logros y motiva a otros!
+                Colecciona reconocimientos únicos por tus logros <br />
+                ¡Cada badge cuenta tu historia como escritor!
               </p>
             </div>
           </div>
@@ -1028,111 +1101,6 @@ const LandingPage = () => {
               redes sociales si eres ganador o finalista. Puedes retirar tu obra
               cuando quieras y usarla libremente en cualquier otro lugar.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Sección de Badges - Movida aquí */}
-      <section className="py-16 lg:py-20 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300 relative overflow-hidden">
-        {/* Elementos decorativos */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
-          <div className="absolute top-32 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
-          <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-4 relative">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
-              <Trophy className="h-10 w-10 text-indigo-600" />
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight">
-              Sistema de Badges
-            </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-3xl mx-auto">
-              Colecciona badges únicos que celebran tu crecimiento como escritor
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {/* Badge de Escritura */}
-            <div className="bg-white/95 backdrop-blur-sm dark:bg-dark-800/95  p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-indigo-100 border dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transition-colors duration-300">
-                  <PenTool className="h-8 w-8 text-white dark:text-indigo-400 transition-colors duration-300" />
-                </div>
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 dark:text-dark-100 mb-2 tracking-tight transition-colors duration-300">
-                  Badges de Escritura
-                </h3>
-                <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-4 transition-colors duration-300">
-                  Primera Pluma, Escritor Constante, Veterano
-                </p>
-                <div className="flex justify-center space-x-1">
-                  <div className="w-3 h-3 bg-indigo-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                  <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Badge de Ganador */}
-            <div className="bg-white/95 backdrop-blur-sm dark:bg-dark-800/95  p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-indigo-100 border dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transition-colors duration-300">
-                  <Trophy className="h-8 w-8 text-white dark:text-indigo-400 transition-colors duration-300" />
-                </div>
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 dark:text-dark-100 mb-2 tracking-tight transition-colors duration-300">
-                  Badges de Victoria
-                </h3>
-                <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-4 transition-colors duration-300">
-                  Ganador, Finalista, Veterano Ganador
-                </p>
-                <div className="flex justify-center space-x-1">
-                  <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notificaciones */}
-            <div className="bg-white/95 backdrop-blur-sm dark:bg-dark-800/95  p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border-indigo-100 border dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transition-colors duration-300">
-                  <Sparkles className="h-8 w-8 text-white dark:text-indigo-400 transition-colors duration-300" />
-                </div>
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 dark:text-dark-100 mb-2 tracking-tight transition-colors duration-300">
-                  Notificaciones
-                </h3>
-                <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-4 transition-colors duration-300">
-                  Te avisamos cuando consigas un nuevo badge
-                </p>
-                <div className="flex justify-center">
-                  <div className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
-                    ¡Nuevo badge!
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA motivacional */}
-          <div className="text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 rounded-2xl p-8 border border-indigo-200 dark:border-dark-600 shadow-xl">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-dark-100 mb-4">
-              ¡Empieza tu colección de badges hoy!
-            </h3>
-            <p className="text-gray-700 dark:text-dark-300 mb-6 text-lg">
-              Tu primera historia te dará el badge "Primera Pluma". ¿Qué
-              esperas?
-            </p>
-            <Link
-              to="/write/:promptId?"
-              className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-            >
-              <Trophy className="h-5 w-5 mr-3" />
-              Conseguir mi primer badge
-              <ArrowRight className="h-5 w-5 ml-3" />
-            </Link>
           </div>
         </div>
       </section>
