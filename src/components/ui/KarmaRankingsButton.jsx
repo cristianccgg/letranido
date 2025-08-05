@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Trophy, Zap } from 'lucide-react';
-import KarmaRankingsSidebar from './KarmaRankingsSidebar';
+import React, { useState } from "react";
+import { Trophy, Zap } from "lucide-react";
+import KarmaRankingsSidebar from "./KarmaRankingsSidebar";
 
 const KarmaRankingsButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,37 +11,44 @@ const KarmaRankingsButton = () => {
       <button
         onClick={() => setIsOpen(true)}
         className={`
-          fixed left-0 top-1/2 -translate-y-1/2 z-30
+          fixed left-0 z-30 cursor-pointer
           bg-gradient-to-r from-yellow-400 to-orange-500 
-          text-white font-bold py-3 px-4 pr-6
+          text-white font-bold 
           rounded-r-xl shadow-lg hover:shadow-xl
           transform transition-all duration-300 hover:scale-105
           flex items-center gap-2
-          ${isOpen ? 'translate-x-0' : 'hover:translate-x-1'}
+          ${isOpen ? "translate-x-0" : "hover:translate-x-1"}
+          
+          // Desktop: posición central y tamaño normal
+          lg:top-1/2 lg:-translate-y-1/2 lg:py-3 lg:px-4 lg:pr-6
+          
+          // Mobile: posición más baja y tamaño reducido
+          top-1/3 py-2 px-2 pr-4
         `}
         aria-label="Ver Rankings de Karma"
       >
-        {/* Iconos */}
-        <div className="flex items-center gap-1">
-          <Trophy className="h-5 w-5" />
-          <Zap className="h-4 w-4" />
-        </div>
-        
-        {/* Texto */}
-        <div className="flex flex-col items-start">
-          <span className="text-sm leading-tight">Rankings</span>
-          <span className="text-xs opacity-90 leading-tight">Karma</span>
+        {/* Texto - más pequeño en mobile */}
+        <div className="flex  items-center">
+          <span
+            className="lg:text-sm text-xs leading-tight"
+            style={{ writingMode: "vertical-rl" }}
+          >
+            Rankings
+          </span>
+          <span
+            className="lg:text-xs text-[10px] opacity-90 leading-tight"
+            style={{ writingMode: "vertical-rl" }}
+          >
+            Karma
+          </span>
         </div>
 
-        {/* Indicador visual */}
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+        {/* Indicador visual - más pequeño en mobile */}
+        <div className="absolute -top-1 -right-1 lg:w-3 lg:h-3 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
       </button>
 
       {/* Sidebar */}
-      <KarmaRankingsSidebar 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
-      />
+      <KarmaRankingsSidebar isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 };
