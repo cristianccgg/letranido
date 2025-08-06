@@ -1,5 +1,5 @@
 // pages/ContestHistory.jsx - NUEVO: Lista de concursos pasados
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Trophy,
@@ -30,9 +30,10 @@ const ContestHistory = () => {
   const [contestsWithWinners, setContestsWithWinners] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ SOLO MOSTRAR CONCURSOS FINALIZADOS
-  const finishedContests = contests.filter(
-    (contest) => contest.status === "results"
+  // ✅ SOLO MOSTRAR CONCURSOS FINALIZADOS - MEMOIZADO PARA EVITAR BUCLES
+  const finishedContests = useMemo(() => 
+    contests.filter((contest) => contest.status === "results"),
+    [contests]
   );
 
   // ✅ CARGAR GANADORES PARA CADA CONCURSO
@@ -92,7 +93,8 @@ const ContestHistory = () => {
     };
 
     loadContestWinners();
-  }, [finishedContests, getStoriesByContest]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finishedContests]);
 
   // ✅ FILTROS
   const filteredContests = contestsWithWinners.filter((contest) => {
@@ -173,7 +175,7 @@ const ContestHistory = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-dark-800/95 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500  backdrop-blur-md rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white dark:bg-dark-800 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="grid md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
@@ -235,7 +237,7 @@ const ContestHistory = () => {
             {filteredContests.map((contest) => (
               <div
                 key={contest.id}
-                className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-600 hover:border-purple-200 dark:hover:border-purple-500 overflow-hidden"
+                className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-indigo-100 dark:border-dark-600 hover:border-purple-200 dark:hover:border-purple-500 overflow-hidden"
               >
                 {/* Contest Header */}
                 <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 p-6 text-white">
@@ -261,7 +263,7 @@ const ContestHistory = () => {
                 </div>
 
                 {/* Winner Section */}
-                <div className="p-6 dark:bg-dark-800/95">
+                <div className="p-6 dark:bg-dark-800">
                   {contest.winner ? (
                     <div className="mb-4">
                       <div className="flex items-center mb-3">
