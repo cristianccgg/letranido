@@ -35,12 +35,12 @@ const KarmaRankingsButton = () => {
           >
             Rankings
           </span>
-          <span
+          {/* <span
             className="lg:text-xs text-[10px] opacity-90 leading-tight"
             style={{ writingMode: "vertical-rl" }}
           >
             Karma
-          </span>
+          </span> */}
         </div>
 
         {/* Indicador visual - más pequeño en mobile */}
