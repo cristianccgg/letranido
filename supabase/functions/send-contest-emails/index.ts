@@ -15,8 +15,7 @@ interface EmailRequest {
     | "submission_reminder"
     | "voting_started"
     | "results"
-    | "manual_general"
-    | "manual_newsletter"
+    | "manual_regular"
     | "manual_essential"
     | "newsletter_subscription";
   contestId?: string;
@@ -139,96 +138,21 @@ serve(async (req) => {
     // Get users for email based on notification type
     let users, usersError;
     
-    // Use the new granular notification system
-    if (emailType === "submission_reminder") {
-      // Para recordatorios, usar la nueva función que filtra usuarios que NO han enviado historia
-      console.log("📧 Obteniendo usuarios para recordatorio (sin historia enviada)...");
-      if (!contest?.id) {
-        throw new Error("Se requiere contest_id para recordatorios");
-      }
+    // SISTEMA SIMPLIFICADO: Solo 2 tipos de notificaciones
+    if (emailType === "manual_essential") {
+      // Essential emails go to all users with valid email
+      console.log("📧 Obteniendo todos los usuarios para email esencial...");
+      const { data, error } = await supabaseClient
+        .rpc("get_essential_email_recipients");
+      users = data;
+      usersError = error;
+    } else {
+      // Todos los demás emails (concursos, generales, newsletter) van a usuarios con notificaciones activas
+      console.log("📧 Obteniendo usuarios con notificaciones activas...");
       
-      const { data: reminderUsers, error: reminderError } = await supabaseClient
-        .rpc("get_reminder_email_recipients", { contest_id_param: contest.id });
-      
-      console.log("📧 Obteniendo newsletter subscribers...");
-      const { data: newsletterUsers, error: newsletterError } = await supabaseClient
-        .from("newsletter_subscribers")
-        .select("email, created_at")
-        .eq("is_active", true);
-      
-      if (reminderError) {
-        console.error("Error obteniendo usuarios para recordatorio:", reminderError);
-        usersError = reminderError;
-      } else if (newsletterError) {
-        console.error("Error obteniendo newsletter subscribers:", newsletterError);
-        usersError = newsletterError;
-      } else {
-        // Combinar usuarios que necesitan recordatorio + newsletter subscribers
-        const allUsers = [...(reminderUsers || [])];
-        const reminderEmails = new Set(reminderUsers?.map(u => u.email) || []);
-        
-        // Agregar newsletter subscribers que no estén ya en la lista de recordatorios
-        (newsletterUsers || []).forEach(subscriber => {
-          if (!reminderEmails.has(subscriber.email)) {
-            allUsers.push({
-              user_id: null, // No tienen user_id porque no están registrados
-              email: subscriber.email,
-              display_name: subscriber.email.split('@')[0], // Usar parte del email como nombre
-              created_at: subscriber.created_at
-            });
-          }
-        });
-        
-        users = allUsers;
-        console.log(`📧 Reminder: ${reminderUsers?.length || 0} users without stories + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
-      }
-    } else if (emailType === "new_contest") {
-      // Para nuevo concurso, enviar solo a usuarios que NO han enviado historia aún
-      console.log("📧 Obteniendo usuarios para nuevo concurso (sin historia enviada)...");
-      if (!contest?.id) {
-        throw new Error("Se requiere contest_id para nuevo concurso");
-      }
-      
-      const { data: reminderUsers, error: reminderError } = await supabaseClient
-        .rpc("get_reminder_email_recipients", { contest_id_param: contest.id });
-      
-      console.log("📧 Obteniendo newsletter subscribers...");
-      const { data: newsletterUsers, error: newsletterError } = await supabaseClient
-        .from("newsletter_subscribers")
-        .select("email, created_at")
-        .eq("is_active", true);
-      
-      if (reminderError) {
-        console.error("Error obteniendo usuarios para nuevo concurso:", reminderError);
-        usersError = reminderError;
-      } else if (newsletterError) {
-        console.error("Error obteniendo newsletter subscribers:", newsletterError);
-        usersError = newsletterError;
-      } else {
-        // Combinar usuarios que necesitan recordatorio + newsletter subscribers
-        const allUsers = [...(reminderUsers || [])];
-        const reminderEmails = new Set(reminderUsers?.map(u => u.email) || []);
-        
-        // Agregar newsletter subscribers que no estén ya en la lista
-        (newsletterUsers || []).forEach(subscriber => {
-          if (!reminderEmails.has(subscriber.email)) {
-            allUsers.push({
-              user_id: null,
-              email: subscriber.email,
-              display_name: subscriber.email.split('@')[0],
-              created_at: subscriber.created_at
-            });
-          }
-        });
-        
-        users = allUsers;
-        console.log(`📧 New contest: ${reminderUsers?.length || 0} users without stories + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
-      }
-    } else if (emailType === "voting_started" || emailType === "results") {
-      // Para otros emails de concurso, usar la función original
-      console.log("📧 Obteniendo usuarios registrados con contest_notifications...");
+      // Obtener usuarios registrados con notificaciones activas
       const { data: registeredUsers, error: registeredError } = await supabaseClient
-        .rpc("get_contest_email_recipients");
+        .rpc("get_regular_email_recipients");
       
       console.log("📧 Obteniendo newsletter subscribers...");
       const { data: newsletterUsers, error: newsletterError } = await supabaseClient
@@ -243,17 +167,17 @@ serve(async (req) => {
         console.error("Error obteniendo newsletter subscribers:", newsletterError);
         usersError = newsletterError;
       } else {
-        // Combinar ambas listas y eliminar duplicados por email
+        // Combinar usuarios registrados + newsletter subscribers (sin duplicados)
         const allUsers = [...(registeredUsers || [])];
-        const newsletterEmails = new Set(registeredUsers?.map(u => u.email) || []);
+        const registeredEmails = new Set(registeredUsers?.map(u => u.email) || []);
         
         // Agregar newsletter subscribers que no estén ya registrados
         (newsletterUsers || []).forEach(subscriber => {
-          if (!newsletterEmails.has(subscriber.email)) {
+          if (!registeredEmails.has(subscriber.email)) {
             allUsers.push({
-              user_id: null, // No tienen user_id porque no están registrados
+              user_id: null,
               email: subscriber.email,
-              display_name: subscriber.email.split('@')[0], // Usar parte del email como nombre
+              display_name: subscriber.email.split('@')[0],
               created_at: subscriber.created_at
             });
           }
@@ -262,18 +186,6 @@ serve(async (req) => {
         users = allUsers;
         console.log(`📧 Combined: ${registeredUsers?.length || 0} registered users + ${newsletterUsers?.length || 0} newsletter subscribers = ${users.length} total recipients`);
       }
-    } else if (emailType === "manual_essential") {
-      // Essential emails go to all users with valid email
-      const { data, error } = await supabaseClient
-        .rpc("get_essential_email_recipients");
-      users = data;
-      usersError = error;
-    } else {
-      // General emails and newsletters use general_notifications
-      const { data, error } = await supabaseClient
-        .rpc("get_general_email_recipients");
-      users = data;
-      usersError = error;
     }
 
     if (usersError) {
@@ -353,8 +265,7 @@ serve(async (req) => {
         };
         break;
 
-      case "manual_general":
-      case "manual_newsletter":
+      case "manual_regular":
       case "manual_essential":
         // Para emails manuales, usar template con formato de marca
         if (!subject || !htmlContent) {
@@ -823,14 +734,10 @@ function generateManualEmailHTML(subject: string, content: string, emailType: st
   let headerColor = "#6366f1";
   let headerText = "Letranido";
   
-  if (emailType === "manual_general") {
-    headerEmoji = "📝";
-    headerColor = "#8b5cf6";
-    headerText = "Actualización General";
-  } else if (emailType === "manual_newsletter") {
+  if (emailType === "manual_regular") {
     headerEmoji = "📰";
     headerColor = "#6366f1";
-    headerText = "Newsletter";
+    headerText = "Letranido";
   } else if (emailType === "manual_essential") {
     headerEmoji = "🛡️";
     headerColor = "#dc2626";

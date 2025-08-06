@@ -26,8 +26,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. Función para obtener usuarios que quieren emails generales
-CREATE OR REPLACE FUNCTION get_general_email_recipients()
+-- 2. Función para obtener usuarios que quieren emails regulares (simplificado)
+CREATE OR REPLACE FUNCTION get_regular_email_recipients()
 RETURNS TABLE(
   user_id uuid,
   email text,
@@ -45,8 +45,7 @@ BEGIN
   WHERE 
     up.email IS NOT NULL 
     AND up.email != ''
-    AND up.general_notifications = true
-    AND up.email_notifications = true  -- Campo maestro debe estar activo
+    AND up.email_notifications = true  -- Solo verificar el campo maestro
   ORDER BY up.created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
@@ -75,13 +74,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4. Función para estadísticas de notificaciones
+-- 4. Función para estadísticas de notificaciones (simplificado)
 CREATE OR REPLACE FUNCTION get_notification_stats()
 RETURNS TABLE(
   total_users bigint,
   users_with_email bigint,
-  contest_subscribers bigint,
-  general_subscribers bigint,
+  regular_subscribers bigint,
   essential_eligible bigint,
   no_notifications bigint
 ) AS $$
@@ -90,8 +88,7 @@ BEGIN
   SELECT 
     (SELECT COUNT(*) FROM public.user_profiles),
     (SELECT COUNT(*) FROM public.user_profiles WHERE email IS NOT NULL AND email != ''),
-    (SELECT COUNT(*) FROM public.user_profiles WHERE contest_notifications = true AND email IS NOT NULL),
-    (SELECT COUNT(*) FROM public.user_profiles WHERE general_notifications = true AND email IS NOT NULL),
+    (SELECT COUNT(*) FROM public.user_profiles WHERE email_notifications = true AND email IS NOT NULL),
     (SELECT COUNT(*) FROM public.user_profiles WHERE email IS NOT NULL AND email != ''),
     (SELECT COUNT(*) FROM public.user_profiles WHERE email_notifications = false OR email IS NULL);
 END;
@@ -113,18 +110,10 @@ BEGIN
   
   -- Verificar que el usuario tenga activo ese tipo de notificación
   CASE notification_type
-    WHEN 'contest' THEN
+    WHEN 'regular' THEN
       RETURN EXISTS(
         SELECT 1 FROM public.user_profiles 
         WHERE email = user_email 
-        AND contest_notifications = true 
-        AND email_notifications = true
-      );
-    WHEN 'general' THEN
-      RETURN EXISTS(
-        SELECT 1 FROM public.user_profiles 
-        WHERE email = user_email 
-        AND general_notifications = true 
         AND email_notifications = true
       );
     WHEN 'essential' THEN
@@ -171,17 +160,16 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 7. Comentarios para documentación
-COMMENT ON FUNCTION get_contest_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails sobre concursos';
-COMMENT ON FUNCTION get_general_email_recipients() IS 'Obtiene todos los usuarios que quieren recibir emails generales (newsletter, tips)';
+COMMENT ON FUNCTION get_contest_email_recipients() IS 'LEGACY: Obtiene usuarios con contest_notifications activo (usado para migración)';
+COMMENT ON FUNCTION get_regular_email_recipients() IS 'SISTEMA SIMPLIFICADO: Obtiene usuarios que quieren recibir emails (concursos, newsletter, tips)';
 COMMENT ON FUNCTION get_essential_email_recipients() IS 'Obtiene todos los usuarios con email válido para emails esenciales';
-COMMENT ON FUNCTION get_reminder_email_recipients(uuid) IS 'Obtiene usuarios que necesitan recordatorio - NO han enviado historia al concurso específico';
-COMMENT ON FUNCTION get_notification_stats() IS 'Obtiene estadísticas de suscripciones a notificaciones';
+COMMENT ON FUNCTION get_reminder_email_recipients(uuid) IS 'LEGACY: Obtiene usuarios que necesitan recordatorio (usado para migración)';
+COMMENT ON FUNCTION get_notification_stats() IS 'Obtiene estadísticas simplificadas de notificaciones';
 COMMENT ON FUNCTION validate_email_recipient(text, text) IS 'Valida si un email puede recibir un tipo específico de notificación';
 
 -- Ejemplos de uso:
--- SELECT * FROM get_contest_email_recipients();
--- SELECT * FROM get_general_email_recipients();
+-- SELECT * FROM get_regular_email_recipients();
 -- SELECT * FROM get_essential_email_recipients();
--- SELECT * FROM get_reminder_email_recipients('uuid-del-concurso');
 -- SELECT * FROM get_notification_stats();
--- SELECT validate_email_recipient('usuario@example.com', 'contest');
+-- SELECT validate_email_recipient('usuario@example.com', 'regular');
+-- SELECT validate_email_recipient('usuario@example.com', 'essential');

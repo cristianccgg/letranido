@@ -41,9 +41,6 @@ const Preferences = () => {
   
   const [showCookieSettings, setShowCookieSettings] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [contestNotifications, setContestNotifications] = useState(true);
-  const [generalNotifications, setGeneralNotifications] = useState(false);
-  const [newsletterContests, setNewsletterContests] = useState(true);
   const [loadingEmailPrefs, setLoadingEmailPrefs] = useState(false);
   const [savingEmailPrefs, setSavingEmailPrefs] = useState(false);
   const [emailResult, setEmailResult] = useState(null);
@@ -62,47 +59,17 @@ const Preferences = () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('email_notifications, contest_notifications, general_notifications, newsletter_contests')
+        .select('email_notifications')
         .eq('id', user.id)
         .single();
 
       if (error) throw error;
 
       if (data) {
-        // Si las nuevas columnas existen, usarlas; si no, usar email_notifications como fallback
-        setEmailNotifications(data.email_notifications || false);
-        setContestNotifications(data.contest_notifications ?? data.email_notifications ?? false);
-        setGeneralNotifications(data.general_notifications ?? false);
-        setNewsletterContests(data.newsletter_contests ?? true);
+        setEmailNotifications(data.email_notifications ?? true);
       }
     } catch (error) {
       console.error('Error loading email preferences:', error);
-      // Si las columnas nuevas no existen, usar solo email_notifications
-      if (error.message.includes('does not exist')) {
-        try {
-          const { data: fallbackData, error: fallbackError } = await supabase
-            .from('user_profiles')
-            .select('email_notifications')
-            .eq('id', user.id)
-            .single();
-          
-          if (!fallbackError && fallbackData) {
-            const emailEnabled = fallbackData.email_notifications;
-            setEmailNotifications(emailEnabled);
-            setContestNotifications(emailEnabled);
-            setGeneralNotifications(false);
-            setEmailResult({
-              success: true,
-              message: 'Preferencias cargadas (modo compatibilidad)'
-            });
-            setLoadingEmailPrefs(false);
-            return;
-          }
-        } catch (fallbackErr) {
-          console.error('Fallback error:', fallbackErr);
-        }
-      }
-      
       setEmailResult({
         success: false,
         message: 'Error cargando preferencias: ' + error.message
@@ -114,44 +81,17 @@ const Preferences = () => {
   const handleSaveEmailPreferences = async () => {
     setSavingEmailPrefs(true);
     try {
-      // Intentar guardar con las nuevas columnas
-      const updateData = {
-        email_notifications: emailNotifications,
-        contest_notifications: contestNotifications,
-        general_notifications: generalNotifications,
-        newsletter_contests: newsletterContests
-      };
-
       const { error } = await supabase
         .from('user_profiles')
-        .update(updateData)
+        .update({ email_notifications: emailNotifications })
         .eq('id', user.id);
 
-      if (error) {
-        // Si falla (columnas no existen), usar solo email_notifications
-        if (error.message.includes('does not exist')) {
-          const { error: fallbackError } = await supabase
-            .from('user_profiles')
-            .update({ 
-              email_notifications: emailNotifications || contestNotifications
-            })
-            .eq('id', user.id);
-          
-          if (fallbackError) throw fallbackError;
-          
-          setEmailResult({
-            success: true,
-            message: 'Preferencias guardadas (modo compatibilidad). Considera ejecutar la migración de base de datos.'
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        setEmailResult({
-          success: true,
-          message: 'Preferencias de email guardadas exitosamente.'
-        });
-      }
+      if (error) throw error;
+
+      setEmailResult({
+        success: true,
+        message: 'Preferencias de email guardadas exitosamente.'
+      });
 
       // Limpiar mensaje después de 3 segundos
       setTimeout(() => setEmailResult(null), 3000);
@@ -191,11 +131,11 @@ const Preferences = () => {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <div className="text-center">
-          <Loader className="h-8 w-8 animate-spin text-primary-600 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <Loader className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Autenticación requerida
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Necesitas iniciar sesión para acceder a tus preferencias
           </p>
         </div>
@@ -207,96 +147,103 @@ const Preferences = () => {
     <div className="max-w-4xl mx-auto py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <Settings className="h-8 w-8 text-primary-600" />
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+          <Settings className="h-8 w-8 text-primary-600 dark:text-primary-400" />
           Preferencias
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Configura tu experiencia en Letranido según tus necesidades
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Información de Cuenta */}
-        <section className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <User className="h-5 w-5 text-blue-600" />
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             Información de Cuenta
           </h2>
           
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Nombre de usuario
               </label>
-              <div className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">
+              <div className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
                 {user?.display_name || user?.name || 'Usuario'}
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
               </label>
-              <div className="text-gray-900 bg-gray-50 px-3 py-2 rounded-md">
+              <div className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
                 {user?.email || 'No disponible'}
               </div>
             </div>
           </div>
 
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Para cambiar tu nombre de usuario o email, ve a tu perfil.
           </div>
         </section>
 
         {/* Notificaciones por Email */}
-        <section className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Mail className="h-5 w-5 text-green-600" />
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
             Notificaciones por Email
           </h2>
           
           {loadingEmailPrefs ? (
             <div className="flex items-center justify-center py-8">
-              <Loader className="h-6 w-6 animate-spin text-primary-600" />
-              <span className="ml-2 text-gray-600">Cargando preferencias...</span>
+              <Loader className="h-6 w-6 animate-spin text-primary-600 dark:text-primary-400" />
+              <span className="ml-2 text-gray-600 dark:text-gray-400">Cargando preferencias...</span>
             </div>
           ) : (
             <>
               {emailResult && (
-                <div className={`mb-4 p-4 rounded-lg ${emailResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                <div className={`mb-4 p-4 rounded-lg ${emailResult.success ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'}`}>
                   <div className="flex items-center">
                     {emailResult.success ? (
-                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
                     ) : (
-                      <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+                      <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
                     )}
-                    <span className={`text-sm ${emailResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                    <span className={`text-sm ${emailResult.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
                       {emailResult.message}
                     </span>
                   </div>
                 </div>
               )}
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="space-y-6">
+                {/* Notificaciones esenciales - siempre activas */}
+                <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">Notificaciones esenciales</h3>
-                    <p className="text-sm text-gray-600">
-                      Confirmaciones de cuenta, cambios de seguridad, actualizaciones importantes
+                    <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      Notificaciones esenciales
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Confirmaciones de cuenta, cambios de seguridad, actualizaciones críticas
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-green-600 font-medium">Siempre activas</span>
+                    <span className="text-sm text-green-600 dark:text-green-400 font-medium">Siempre activas</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
+                {/* Nueva interfaz simplificada */}
+                <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">Notificaciones de concursos</h3>
-                    <p className="text-sm text-gray-600">
-                      Nuevos concursos, fechas límite, resultados de votaciones
+                    <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                      <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      Notificaciones de Letranido
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Concursos, newsletter, tips de escritura, actualizaciones y más
                     </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -306,62 +253,20 @@ const Preferences = () => {
                       checked={emailNotifications}
                       onChange={(e) => {
                         setEmailNotifications(e.target.checked);
-                        setContestNotifications(e.target.checked);
                         if (emailResult) setEmailResult(null);
                       }}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600 dark:peer-checked:bg-primary-500"></div>
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">Notificaciones generales</h3>
-                    <p className="text-sm text-gray-600">
-                      Tips de escritura, actualizaciones de funciones
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={generalNotifications}
-                      onChange={(e) => {
-                        setGeneralNotifications(e.target.checked);
-                        if (emailResult) setEmailResult(null);
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">Newsletter de concursos</h3>
-                    <p className="text-sm text-gray-600">
-                      Resúmenes semanales de concursos, ganadores destacados
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={newsletterContests}
-                      onChange={(e) => {
-                        setNewsletterContests(e.target.checked);
-                        if (emailResult) setEmailResult(null);
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
               </div>
 
               <div className="flex justify-end mt-6">
                 <button
                   onClick={handleSaveEmailPreferences}
                   disabled={savingEmailPrefs}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:bg-gray-400"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600"
                 >
                   {savingEmailPrefs ? (
                     <>
@@ -381,22 +286,22 @@ const Preferences = () => {
         </section>
 
         {/* Configuración de Cookies */}
-        <section className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Cookie className="h-5 w-5 text-orange-600" />
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Cookie className="h-5 w-5 text-orange-600 dark:text-orange-400" />
             Configuración de Cookies
           </h2>
           
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+          <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-gray-900">Estado actual</h3>
+              <h3 className="font-medium text-gray-900 dark:text-white">Estado actual</h3>
               <span className={`text-sm font-medium ${getCookieStatusColor()}`}>
                 {getCookieStatusText()}
               </span>
             </div>
             
             {cookieConsent && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 <p>
                   <strong>Última actualización:</strong> {' '}
                   {cookieConsent.timestamp 
@@ -425,8 +330,8 @@ const Preferences = () => {
                         key={key}
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           value 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200' 
+                            : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200'
                         }`}
                       >
                         {labels[key]}: {value ? 'Sí' : 'No'}
@@ -441,7 +346,7 @@ const Preferences = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowCookieSettings(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
             >
               <Settings className="h-4 w-4" />
               Configurar Cookies
@@ -449,7 +354,7 @@ const Preferences = () => {
             
             <button
               onClick={showCookieBannerAgain}
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
               Mostrar Banner Nuevamente
@@ -461,20 +366,20 @@ const Preferences = () => {
                   resetCookieConsent();
                 }
               }}
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
               Resetear Todo
             </button>
           </div>
 
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             <p>
               Las cookies nos ayudan a mejorar tu experiencia. Puedes configurar qué tipos 
               aceptas o consultar nuestra{' '}
               <a 
                 href="/cookie-policy" 
-                className="text-primary-600 hover:text-primary-700 underline"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -486,38 +391,38 @@ const Preferences = () => {
         </section>
 
         {/* Privacidad y Seguridad */}
-        <section className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Shield className="h-5 w-5 text-red-600" />
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
             Privacidad y Seguridad
           </h2>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
+            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
               <div>
-                <h3 className="font-medium text-gray-900">Política de Privacidad</h3>
-                <p className="text-sm text-gray-600">Revisa cómo protegemos tus datos</p>
+                <h3 className="font-medium text-gray-900 dark:text-white">Política de Privacidad</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Revisa cómo protegemos tus datos</p>
               </div>
               <a
                 href="/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
               >
                 Ver política →
               </a>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-b border-gray-200">
+            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
               <div>
-                <h3 className="font-medium text-gray-900">Términos de Servicio</h3>
-                <p className="text-sm text-gray-600">Conoce las reglas de la plataforma</p>
+                <h3 className="font-medium text-gray-900 dark:text-white">Términos de Servicio</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Conoce las reglas de la plataforma</p>
               </div>
               <a
                 href="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
               >
                 Ver términos →
               </a>
@@ -525,8 +430,8 @@ const Preferences = () => {
 
             <div className="flex items-center justify-between py-3">
               <div>
-                <h3 className="font-medium text-gray-900">Eliminar Cuenta</h3>
-                <p className="text-sm text-gray-600">Elimina permanentemente tu cuenta y datos</p>
+                <h3 className="font-medium text-gray-900 dark:text-white">Eliminar Cuenta</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Elimina permanentemente tu cuenta y datos</p>
               </div>
               <button 
                 onClick={() => {
@@ -556,7 +461,7 @@ ${user?.display_name || user?.name}`);
                   
                   window.open(`mailto:admin@letranido.com?subject=${subject}&body=${body}`, '_blank');
                 }}
-                className="text-red-600 hover:text-red-700 text-sm font-medium"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium"
               >
                 Solicitar eliminación →
               </button>

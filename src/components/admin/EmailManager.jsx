@@ -267,7 +267,7 @@ const EmailManager = () => {
     setPreviewLoading(prev => ({ ...prev, 'blog': false }));
   };
 
-  const handleBlogSend = async (emailCategory = 'manual_newsletter') => {
+  const handleBlogSend = async (emailCategory = 'manual_regular') => {
     if (!selectedBlogPost && blogEmailType !== 'newsletter') {
       setResult({ 
         success: false, 
@@ -419,7 +419,7 @@ const EmailManager = () => {
           </div>
           <div className="mt-3 p-3 bg-blue-100 rounded-lg">
             <p className="text-xs text-blue-800">
-              <strong>⚠️ IMPORTANTE:</strong> Los emails de concurso solo van a usuarios con <code>contest_notifications=true</code> + newsletter subscribers.
+              <strong>📰 SISTEMA SIMPLIFICADO:</strong> Los emails van a usuarios con <code>email_notifications=true</code> + newsletter subscribers.
             </p>
           </div>
         </div>
@@ -546,40 +546,30 @@ const EmailManager = () => {
               </button>
             </div>
             
-            {/* Opciones de envío */}
-            <div className="grid md:grid-cols-3 gap-3">
+            {/* Opciones de envío simplificadas */}
+            <div className="grid md:grid-cols-2 gap-4">
               <button
-                onClick={() => handleBlogSend('manual_general')}
+                onClick={() => handleBlogSend('manual_regular')}
                 disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
-                className="px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
+                className="px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
-                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                Enviar General
-              </button>
-              
-              <button
-                onClick={() => handleBlogSend('manual_newsletter')}
-                disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
-                className="px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
-              >
-                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                Enviar Newsletter
+                {loading['blog'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                📰 Enviar a Suscriptores
               </button>
               
               <button
                 onClick={() => handleBlogSend('manual_essential')}
                 disabled={loading['blog'] || previewLoading['blog'] || (!selectedBlogPost && blogEmailType !== 'newsletter')}
-                className="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300 text-sm"
+                className="px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
               >
-                {loading['blog'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                Enviar Esencial
+                {loading['blog'] ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                🛡️ Enviar Esencial
               </button>
             </div>
             
-            <div className="mt-3 text-xs text-gray-600 space-y-1">
-              <div>• <strong>General:</strong> Usuarios con general_notifications=true</div>
-              <div>• <strong>Newsletter:</strong> Usuarios con general_notifications=true</div>
-              <div>• <strong>Esencial:</strong> TODOS los usuarios (ignora preferencias)</div>
+            <div className="mt-3 text-xs text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg">
+              <div>• <strong>📰 Suscriptores:</strong> Solo usuarios con notificaciones activadas</div>
+              <div>• <strong>🛡️ Esencial:</strong> TODOS los usuarios (para emergencias/seguridad)</div>
             </div>
           </div>
         </div>
@@ -590,21 +580,19 @@ const EmailManager = () => {
         <div className="mb-8">
           <h3 className="text-xl font-bold text-gray-900 mb-6">Emails Manuales</h3>
           
-          {/* Información sobre tipos de emails */}
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-            <h4 className="font-semibold text-yellow-800 mb-3">📬 Tipos de Email Manual</h4>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
+          {/* Información sobre tipos de emails simplificada */}
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <h4 className="font-semibold text-blue-800 mb-3">📬 Sistema Simplificado de Emails</h4>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="font-semibold text-purple-700">📝 Generales</div>
-                <div className="text-gray-600">Solo usuarios que activaron <code>general_notifications</code></div>
+                <div className="font-semibold text-blue-700">📰 Emails Regulares</div>
+                <div className="text-gray-600">Solo usuarios con <code>email_notifications=true</code></div>
+                <div className="text-xs text-gray-500 mt-1">Concursos, newsletter, tips, actualizaciones</div>
               </div>
               <div>
-                <div className="font-semibold text-indigo-700">📰 Newsletter</div>
-                <div className="text-gray-600">Solo usuarios que activaron <code>general_notifications</code></div>
-              </div>
-              <div>
-                <div className="font-semibold text-red-700">🛡️ Esenciales</div>
-                <div className="text-gray-600">TODOS los usuarios con email (ignora preferencias)</div>
+                <div className="font-semibold text-red-700">🛡️ Emails Esenciales</div>
+                <div className="text-gray-600">TODOS los usuarios con email válido</div>
+                <div className="text-xs text-gray-500 mt-1">Seguridad, términos legales, emergencias</div>
               </div>
             </div>
           </div>
@@ -682,65 +670,39 @@ const EmailManager = () => {
             </div>
           </div>
 
-          {/* Botones para enviar - Modernizados */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white/95 backdrop-blur-sm border border-purple-100 hover:border-purple-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-              <h4 className="font-bold text-gray-900 mb-2 text-lg">📝 Generales</h4>
-              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Tips, actualizaciones, newsletter general</p>
-              <div className="text-xs text-purple-600 bg-purple-50 p-2 rounded-lg mb-3">
-                <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
+          {/* Botones de envío simplificados */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white/95 backdrop-blur-sm border border-blue-100 hover:border-blue-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <h4 className="font-bold text-gray-900 mb-2 text-lg">📰 Email Regular</h4>
+              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Newsletter, tips, actualizaciones, concursos</p>
+              <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg mb-3">
+                <strong>👥 Destinatarios:</strong> Usuarios con notificaciones activadas + newsletter subscribers
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => handlePreviewEmail('manual_general', manualEmailForm)}
-                  disabled={previewLoading['manual_general'] || loading['manual_general']}
+                  onClick={() => handlePreviewEmail('manual_regular', manualEmailForm)}
+                  disabled={previewLoading['manual_regular'] || loading['manual_regular']}
                   className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
                 >
-                  {previewLoading['manual_general'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                  {previewLoading['manual_regular'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
                   Preview
                 </button>
                 <button
-                  onClick={() => handleSendManualEmail('manual_general')}
-                  disabled={loading['manual_general'] || previewLoading['manual_general']}
-                  className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                  onClick={() => handleSendManualEmail('manual_regular')}
+                  disabled={loading['manual_regular'] || previewLoading['manual_regular']}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
-                  {loading['manual_general'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                  Enviar
-                </button>
-              </div>
-            </div>
-            
-            <div className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-indigo-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-              <h4 className="font-bold text-gray-900 mb-2 text-lg">📰 Newsletter</h4>
-              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Newsletter específico</p>
-              <div className="text-xs text-indigo-600 bg-indigo-50 p-2 rounded-lg mb-3">
-                <strong>👥 Destinatarios:</strong> Usuarios con <code>general_notifications=true</code>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handlePreviewEmail('manual_newsletter', manualEmailForm)}
-                  disabled={previewLoading['manual_newsletter'] || loading['manual_newsletter']}
-                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
-                >
-                  {previewLoading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
-                  Preview
-                </button>
-                <button
-                  onClick={() => handleSendManualEmail('manual_newsletter')}
-                  disabled={loading['manual_newsletter'] || previewLoading['manual_newsletter']}
-                  className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
-                >
-                  {loading['manual_newsletter'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                  {loading['manual_regular'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
                   Enviar
                 </button>
               </div>
             </div>
             
             <div className="bg-white/95 backdrop-blur-sm border border-red-100 hover:border-red-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-              <h4 className="font-bold text-gray-900 mb-2 text-lg">🛡️ Emails Esenciales</h4>
-              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Seguridad, términos legales, confirmaciones críticas</p>
+              <h4 className="font-bold text-gray-900 mb-2 text-lg">🛡️ Email Esencial</h4>
+              <p className="text-sm text-gray-600 mb-2 leading-relaxed">Seguridad, términos legales, emergencias</p>
               <div className="text-xs text-red-600 bg-red-50 p-2 rounded-lg mb-3">
-                <strong>⚠️ CUIDADO:</strong> Va a <strong>TODOS</strong> los usuarios con email válido, independientemente de sus preferencias
+                <strong>⚠️ CUIDADO:</strong> Va a <strong>TODOS</strong> los usuarios con email válido
               </div>
               <div className="flex gap-2">
                 <button
@@ -754,7 +716,7 @@ const EmailManager = () => {
                 <button
                   onClick={() => handleSendManualEmail('manual_essential')}
                   disabled={loading['manual_essential'] || previewLoading['manual_essential']}
-                  className="flex-1 px-3 py-2 bg-gradient-to-r from-pink-500 to-red-600 text-white rounded-lg hover:from-pink-600 hover:to-red-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   {loading['manual_essential'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
                   Enviar
@@ -790,16 +752,15 @@ const EmailManager = () => {
         </div>
       )}
 
-      {/* Información del sistema - Modernizada */}
-      <div className="mt-8 p-6 bg-gradient-to-r from-green-50 via-blue-50 to-indigo-50 border border-green-200 rounded-2xl shadow-lg">
-        <h4 className="font-semibold text-green-800 mb-2">✅ Sistema Simplificado</h4>
-        <ul className="text-sm text-green-700 space-y-1">
-          <li>• ✅ <strong>3 categorías alineadas</strong> - Esenciales, Concursos, Generales</li>
-          <li>• ✅ <strong>Emails de concurso</strong> - Solo a usuarios con contest_notifications = true</li>
-          <li>• ✅ <strong>Emails generales</strong> - Solo a usuarios con general_notifications = true</li>
-          <li>• ✅ <strong>Emails esenciales</strong> - A todos los usuarios con email válido</li>
-          <li>• ✅ <strong>Modo test activo</strong> - Solo envía a cristianccggg@gmail.com</li>
-          <li>• ✅ <strong>Formulario simple</strong> - Escribe tu contenido y envía</li>
+      {/* Información del sistema simplificado */}
+      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-2xl shadow-lg">
+        <h4 className="font-semibold text-blue-800 mb-2">🎯 Sistema Super Simplificado</h4>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>• 📰 <strong>Emails regulares:</strong> Solo usuarios con email_notifications = true + newsletter subscribers</li>
+          <li>• 🛡️ <strong>Emails esenciales:</strong> TODOS los usuarios con email válido</li>
+          <li>• 🧪 <strong>Modo test activo:</strong> Solo envía a cristianccggg@gmail.com</li>
+          <li>• ⚡ <strong>Sin complejidad:</strong> Ya no hay contest_notifications, general_notifications, etc.</li>
+          <li>• 👥 <strong>Combinación automática:</strong> Usuarios registrados + newsletter subscribers</li>
         </ul>
       </div>
 
