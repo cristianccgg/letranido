@@ -182,17 +182,17 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
+      <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100">
             {mode === "login" ? "Iniciar Sesión" : mode === "register" ? "Crear Cuenta" : "Recuperar Contraseña"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-gray-500 dark:text-dark-400" />
           </button>
         </div>
 
@@ -219,17 +219,17 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           {/* Name field (only for register) */}
           {mode === "register" && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
                 Tu nombre de escritor
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
-                    errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
+                    errors.name ? "border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20" : "border-gray-300 dark:border-dark-600"
                   }`}
                   placeholder="Tu nombre de escritor"
                   disabled={isLoading}
@@ -244,17 +244,17 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           {/* Email field */}
           {!(mode === "reset-password" && resetPasswordSuccess) && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
                 Correo electrónico
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
-                    errors.email ? "border-red-300 bg-red-50" : "border-gray-300"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
+                    errors.email ? "border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20" : "border-gray-300 dark:border-dark-600"
                   }`}
                   placeholder="tu@email.com"
                   disabled={isLoading}
@@ -269,19 +269,19 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           {/* Password field (not shown for reset-password) */}
           {mode !== "reset-password" && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
                 Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
-                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 bg-white ${
+                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
                     errors.password
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                      ? "border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-dark-600"
                   }`}
                   placeholder="••••••••"
                   disabled={isLoading}
@@ -289,7 +289,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -316,21 +316,21 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           {/* Confirm Password field (only for register) */}
           {mode === "register" && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
                 Confirmar contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={(e) =>
                     handleInputChange("confirmPassword", e.target.value)
                   }
-                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${
+                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
                     errors.confirmPassword
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                      ? "border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20"
+                      : "border-gray-300 dark:border-dark-600"
                   }`}
                   placeholder="••••••••"
                   disabled={isLoading}
@@ -357,7 +357,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
           {/* Email notifications consent (only for register) */}
           {mode === "register" && (
-            <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
               <input
                 type="checkbox"
                 id="emailNotifications"
@@ -366,10 +366,10 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
               />
               <div className="flex-1">
-                <label htmlFor="emailNotifications" className="text-sm font-medium text-gray-700">
+                <label htmlFor="emailNotifications" className="text-sm font-medium text-gray-700 dark:text-dark-300">
                   📧 Notificaciones por email
                 </label>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-gray-600 dark:text-dark-400 mt-1">
                   Acepto recibir emails sobre nuevos concursos, recordatorios y resultados. 
                   Puedes desuscribirte en cualquier momento desde tu perfil o desde los emails.
                 </p>
@@ -379,58 +379,56 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
           {/* Terms and Privacy consent (only for register) - REQUIRED */}
           {mode === "register" && (
-            <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <div className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  id="termsAccepted"
-                  checked={formData.termsAccepted || false}
-                  onChange={(e) => handleInputChange("termsAccepted", e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1 flex-shrink-0"
-                  required
-                />
-                <div className="flex-1">
-                  <label htmlFor="termsAccepted" className="text-sm font-medium text-gray-900">
-                    ⚖️ Aceptación de términos legales <span className="text-red-600">*</span>
-                  </label>
-                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">
-                    He leído y acepto los{" "}
-                    <a 
-                      href="/terms" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 underline font-medium"
-                    >
-                      Términos de Servicio
-                    </a>
-                    , la{" "}
-                    <a 
-                      href="/privacy" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 underline font-medium"
-                    >
-                      Política de Privacidad
-                    </a>
-                    {" "}y la{" "}
-                    <a 
-                      href="/dmca" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:text-primary-700 underline font-medium"
-                    >
-                      Política DMCA
-                    </a>
-                    . Entiendo que solo puedo publicar contenido 100% original de mi autoría.
-                  </p>
-                </div>
+            <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
+              <input
+                type="checkbox"
+                id="termsAccepted"
+                checked={formData.termsAccepted || false}
+                onChange={(e) => handleInputChange("termsAccepted", e.target.checked)}
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1 flex-shrink-0"
+                required
+              />
+              <div className="flex-1">
+                <label htmlFor="termsAccepted" className="text-sm font-medium text-gray-900 dark:text-dark-100">
+                  ⚖️ Aceptación de términos legales <span className="text-red-600">*</span>
+                </label>
+                <p className="text-xs text-gray-700 dark:text-dark-300 mt-1 leading-relaxed">
+                  He leído y acepto los{" "}
+                  <a 
+                    href="/terms" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline font-medium"
+                  >
+                    Términos de Servicio
+                  </a>
+                  , la{" "}
+                  <a 
+                    href="/privacy" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline font-medium"
+                  >
+                    Política de Privacidad
+                  </a>
+                  {" "}y la{" "}
+                  <a 
+                    href="/dmca" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline font-medium"
+                  >
+                    Política DMCA
+                  </a>
+                  . Entiendo que solo puedo publicar contenido 100% original de mi autoría.
+                </p>
+                {errors.termsAccepted && (
+                  <div className="mt-2 flex items-center text-red-600">
+                    <AlertTriangle className="h-4 w-4 mr-1 flex-shrink-0" />
+                    <p className="text-xs">{errors.termsAccepted}</p>
+                  </div>
+                )}
               </div>
-              {errors.termsAccepted && (
-                <div className="mt-2 flex items-center text-red-600">
-                  <AlertTriangle className="h-4 w-4 mr-1 flex-shrink-0" />
-                  <p className="text-xs">{errors.termsAccepted}</p>
-                </div>
-              )}
             </div>
           )}
 
@@ -464,7 +462,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 onClick={() => {
                   setMode("reset-password");
                 }}
-                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
                 disabled={isLoading}
               >
                 ¿Olvidaste tu contraseña?
@@ -473,13 +471,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
           )}
 
           {/* Mode Toggle */}
-          <div className="text-center pt-4 border-t border-gray-200">
-            <p className="text-gray-600 text-sm">
+          <div className="text-center pt-4 border-t border-gray-200 dark:border-dark-600">
+            <p className="text-gray-600 dark:text-dark-300 text-sm">
               {mode === "login" ? "¿No tienes cuenta?" : mode === "register" ? "¿Ya tienes cuenta?" : "¿Ya recordaste tu contraseña?"}
               <button
                 type="button"
                 onClick={() => setMode(mode === "login" ? "register" : "login")}
-                className="text-primary-600 hover:text-primary-700 font-medium ml-1"
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium ml-1"
                 disabled={isLoading}
               >
                 {mode === "login" ? "Créala aquí" : mode === "register" ? "Inicia sesión" : "Inicia sesión"}
@@ -489,13 +487,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
           {/* Terms Notice (only for register) */}
           {mode === "register" && (
-            <div className="text-xs text-gray-500 text-center">
+            <div className="text-xs text-gray-500 dark:text-dark-400 text-center">
               Al crear una cuenta, aceptas nuestros{" "}
-              <a href="/terms" className="text-primary-600 hover:underline">
+              <a href="/terms" className="text-primary-600 dark:text-primary-400 hover:underline">
                 Términos de Servicio
               </a>{" "}
               y{" "}
-              <a href="/privacy" className="text-primary-600 hover:underline">
+              <a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">
                 Política de Privacidad
               </a>
             </div>
