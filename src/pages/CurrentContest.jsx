@@ -55,6 +55,7 @@ const CurrentContest = () => {
     toggleLike,
     getContestPhase,
     loadGalleryStories,
+    openAuthModal,
   } = useGlobalApp();
 
   // ✅ LOCAL STATE PARA CURRENTCONTEST - USA GALLERYSTORIES DEL CONTEXTO
@@ -64,7 +65,6 @@ const CurrentContest = () => {
   const stories = galleryStories;
   const storiesLoading = galleryLoading;
   const [error, setError] = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -223,7 +223,7 @@ const CurrentContest = () => {
   // eslint-disable-next-line no-unused-vars
   const handleVote = async (storyId) => {
     if (!isAuthenticated) {
-      setShowAuthModal(true);
+      openAuthModal("register");
       return;
     }
 
@@ -1395,14 +1395,6 @@ const CurrentContest = () => {
       )}
 
       {/* Modals */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={() => setShowAuthModal(false)}
-          initialMode="register"
-        />
-      )}
 
       {showRulesModal && (
         <ContestRulesModal

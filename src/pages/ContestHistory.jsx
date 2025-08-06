@@ -17,7 +17,13 @@ import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
-  const { contests, contestsLoading, getStoriesByContest, clearFinishedContestsCache, clearFinishedStoriesCache } = useGlobalApp();
+  const { 
+    contests, 
+    contestsLoading, 
+    getStoriesByContest, 
+    clearFinishedContestsCache, 
+    clearFinishedStoriesCache
+  } = useGlobalApp();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
