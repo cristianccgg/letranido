@@ -35,26 +35,25 @@ const SocialContainer = ({ onFeedbackClick }) => {
 
   return (
     <>
-      {/* Desktop: Sidebar fijo elegante */}
-      <div className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 flex-col gap-3 p-4 bg-gradient-to-b from-white/95 to-indigo-50/95 backdrop-blur-md rounded-tl-2xl rounded-bl-2xl border-l border-t border-b border-indigo-200/50 shadow-2xl hover:shadow-indigo-200/25 transition-all duration-500 hover:scale-105">
-        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-indigo-100">
-          <Sparkles className="h-4 w-4 text-indigo-500" />
-          <span className="text-xs font-medium text-indigo-700 hidden lg:block">
-            Conecta
-          </span>
-        </div>
+      {/* Desktop: Pill compacto en el lateral */}
+      <div className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 flex-col gap-2 p-3 bg-white/90 backdrop-blur-md rounded-full border border-indigo-200/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+        {/* Indicador sutil */}
+        <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mb-1 opacity-60 group-hover:opacity-100 transition-opacity"></div>
 
-        <div className="flex flex-col gap-3 items-center">
-          <div className="transform hover:scale-110 transition-transform duration-200">
+        <div className="flex flex-col gap-2 items-center">
+          <div className="transform hover:scale-125 transition-all duration-200 hover:rotate-6">
             <FeedbackButton onClick={onFeedbackClick} />
           </div>
-          <div className="transform hover:scale-110 transition-transform duration-200">
+          <div className="transform hover:scale-125 transition-all duration-200 hover:-rotate-6">
             <InstagramButton />
           </div>
-          <div className="transform hover:scale-110 transition-transform duration-200">
+          <div className="transform hover:scale-125 transition-all duration-200 hover:rotate-6">
             <FacebookButton />
           </div>
         </div>
+
+        {/* Indicador sutil inferior */}
+        <div className="w-1 h-8 bg-gradient-to-t from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mt-1 opacity-60 group-hover:opacity-100 transition-opacity"></div>
       </div>
 
       {/* Mobile: Floating Action Button con botones desplegables */}
