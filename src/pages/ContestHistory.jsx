@@ -10,13 +10,14 @@ import {
   Loader,
   AlertCircle,
   BookOpen,
+  RefreshCw,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
-  const { contests, contestsLoading, getStoriesByContest } = useGlobalApp();
+  const { contests, contestsLoading, getStoriesByContest, clearFinishedContestsCache } = useGlobalApp();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -179,6 +180,18 @@ const ContestHistory = () => {
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
               />
             </div>
+            
+            {/* Cache Control */}
+            <div className="flex items-center justify-end">
+              <button
+                onClick={clearFinishedContestsCache}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors border border-gray-300 dark:border-dark-600"
+                title="Limpiar caché de concursos finalizados para forzar recarga"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Actualizar caché
+              </button>
+            </div>
           </div>
         </div>
 
@@ -254,14 +267,14 @@ const ContestHistory = () => {
                           {contest.winner.title}
                         </h3>
 
-                        <p className="text-sm text-gray-600 dark:text-dark-300 mb-3">
+                        <div className="text-sm text-gray-600 dark:text-dark-300 mb-3">
                           por{" "}
                           <UserWithWinnerBadges
                             userId={contest.winner.user_id}
                             userName={contest.winner.author}
                             className="inline-flex"
                           />
-                        </p>
+                        </div>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1 px-2 py-1 bg-white/80 dark:bg-dark-700/80 rounded-full">

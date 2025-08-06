@@ -68,6 +68,11 @@ const initialState = {
     lastContestsUpdate: null,
     lastGalleryUpdate: null,
   },
+  
+  // Cache de concursos finalizados
+  finishedContestsCache: {},
+  finishedContestsCacheTimestamp: null,
+  
   initialized: false,
 };
 
@@ -108,6 +113,10 @@ const actions = {
   // Cookie Consent
   SET_COOKIE_CONSENT: "SET_COOKIE_CONSENT",
   SET_SHOW_COOKIE_BANNER: "SET_SHOW_COOKIE_BANNER",
+
+  // Cache de concursos finalizados
+  SET_FINISHED_CONTESTS_CACHE: "SET_FINISHED_CONTESTS_CACHE",
+  CLEAR_FINISHED_CONTESTS_CACHE: "CLEAR_FINISHED_CONTESTS_CACHE",
 
   // Global
   SET_GLOBAL_LOADING: "SET_GLOBAL_LOADING",
@@ -292,6 +301,23 @@ function globalAppReducer(state, action) {
           lastVotingStatsUpdate: null,
           lastGalleryUpdate: null,
         },
+      };
+    
+    case actions.SET_FINISHED_CONTESTS_CACHE:
+      return {
+        ...state,
+        finishedContestsCache: {
+          ...state.finishedContestsCache,
+          ...action.payload.cache,
+        },
+        finishedContestsCacheTimestamp: action.payload.timestamp,
+      };
+    
+    case actions.CLEAR_FINISHED_CONTESTS_CACHE:
+      return {
+        ...state,
+        finishedContestsCache: {},
+        finishedContestsCacheTimestamp: null,
       };
 
     case actions.SET_AUTH_MODAL:
@@ -907,9 +933,14 @@ export function GlobalAppProvider({ children }) {
 
   // ✅ NUEVAS FUNCIONES COMPLETAS PARA STORIES
 
-  const getStoriesByContest = useCallback(async (contestId) => {
+  const getStoriesByContest = useCallback(async (contestId, forceRefresh = false) => {
     if (!contestId) {
       return { success: false, error: "ID de concurso requerido" };
+    }
+
+    // ✅ VERIFICAR CACHÉ PARA CONCURSOS CERRADOS
+    if (!forceRefresh && state.finishedContestsCache[contestId]) {
+      return state.finishedContestsCache[contestId];
     }
 
     try {
@@ -1015,7 +1046,22 @@ export function GlobalAppProvider({ children }) {
         };
       });
 
-      return { success: true, stories: processedStories };
+      // ✅ PREPARAR RESULTADO
+      const result = { success: true, stories: processedStories };
+
+      // ✅ GUARDAR EN CACHÉ SI EL CONCURSO ESTÁ CERRADO
+      if (contest && contest.status === "results") {
+        console.log("💾 Guardando concurso cerrado en caché:", contestId);
+        dispatch({
+          type: actions.SET_FINISHED_CONTESTS_CACHE,
+          payload: {
+            cache: { [contestId]: result },
+            timestamp: Date.now(),
+          },
+        });
+      }
+
+      return result;
     } catch (err) {
       console.error("💥 Error fetching stories:", err);
       return {
@@ -1023,7 +1069,7 @@ export function GlobalAppProvider({ children }) {
         error: err.message || "Error al cargar las historias",
       };
     }
-  }, []);
+  }, [state.finishedContestsCache, dispatch]);
 
   const getStoryById = useCallback(async (storyId) => {
     if (!storyId) {
@@ -3330,6 +3376,12 @@ export function GlobalAppProvider({ children }) {
     getContestPhase,
     getContestById,
     debugAuth,
+
+    // Cache de concursos finalizados
+    clearFinishedContestsCache: useCallback(() => {
+      console.log("🧹 Limpiando caché de concursos finalizados");
+      dispatch({ type: actions.CLEAR_FINISHED_CONTESTS_CACHE });
+    }, [dispatch]),
 
     // Dispatch para casos especiales
     dispatch,
