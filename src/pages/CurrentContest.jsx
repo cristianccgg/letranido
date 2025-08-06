@@ -153,7 +153,14 @@ const CurrentContest = () => {
         setContest(contestData);
 
         // 2. Cargar historias usando SIEMPRE galleryStories para máxima reactividad
-        await loadGalleryStories({ contestId: contestData.id });
+        // ✅ OPTIMIZACIÓN: Durante votación ciega, no cargar likes_count ni views_count
+        const contestPhase = getContestPhase(contestData);
+        const isBlindVoting = contestPhase === "voting";
+        
+        await loadGalleryStories({ 
+          contestId: contestData.id,
+          blindVoting: isBlindVoting
+        });
       } catch (err) {
         console.error("💥 Error general cargando concurso:", err);
         setError("Error inesperado: " + err.message);
@@ -199,7 +206,10 @@ const CurrentContest = () => {
         refreshContests(),
         refreshUserData(),
         contest?.id
-          ? loadGalleryStories({ contestId: contest.id })
+          ? loadGalleryStories({ 
+              contestId: contest.id,
+              blindVoting: phaseInfo?.phase === "voting"
+            })
           : Promise.resolve(),
       ]);
     } catch (err) {

@@ -1,20 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import InstagramButton from "./InstagramButton";
 import FeedbackButton from "./FeedbackButton";
+import FacebookButton from "./FacebookButton";
+import { MessageCircleHeart } from "lucide-react";
 
 const SocialContainer = ({ onFeedbackClick }) => {
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const toggleMenu = () => {
+    setOpenMenu(!openMenu);
+  };
+
   return (
     <div className="fixed bottom-5 right-3 md:bottom-1/2 md:right-0 z-50 p-2 rounded-full md:rounded-none md:rounded-tl-2xl md:rounded-bl-2xl bg-white/90 backdrop-blur-sm border border-indigo-200 shadow-xl hover:shadow-2xl transition-all duration-300">
       {/* Desktop: ambos botones verticales */}
       <div className="hidden md:flex md:flex-col gap-2 items-center justify-center">
         <FeedbackButton onClick={onFeedbackClick} />
         <InstagramButton />
+        <FacebookButton />
       </div>
-      
+
       {/* Mobile: solo Instagram */}
-      <div className="md:hidden flex items-center justify-center">
-        <InstagramButton />
-      </div>
+      <button
+        onClick={toggleMenu}
+        className="md:hidden cursor-pointer flex items-center justify-center"
+      >
+        <MessageCircleHeart />
+      </button>
+      {openMenu && (
+        <div className="flex flex-col items-center justify-center mt-2">
+          <FeedbackButton onClick={onFeedbackClick} />
+          <InstagramButton />
+          <FacebookButton />
+        </div>
+      )}
     </div>
   );
 };

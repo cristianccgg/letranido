@@ -73,6 +73,10 @@ const initialState = {
   finishedContestsCache: {},
   finishedContestsCacheTimestamp: null,
   
+  // Cache de historias individuales de concursos cerrados
+  finishedStoriesCache: {},
+  finishedStoriesCacheTimestamp: null,
+  
   initialized: false,
 };
 
@@ -117,6 +121,10 @@ const actions = {
   // Cache de concursos finalizados
   SET_FINISHED_CONTESTS_CACHE: "SET_FINISHED_CONTESTS_CACHE",
   CLEAR_FINISHED_CONTESTS_CACHE: "CLEAR_FINISHED_CONTESTS_CACHE",
+  
+  // Cache de historias individuales
+  SET_FINISHED_STORIES_CACHE: "SET_FINISHED_STORIES_CACHE",
+  CLEAR_FINISHED_STORIES_CACHE: "CLEAR_FINISHED_STORIES_CACHE",
 
   // Global
   SET_GLOBAL_LOADING: "SET_GLOBAL_LOADING",
@@ -318,6 +326,23 @@ function globalAppReducer(state, action) {
         ...state,
         finishedContestsCache: {},
         finishedContestsCacheTimestamp: null,
+      };
+    
+    case actions.SET_FINISHED_STORIES_CACHE:
+      return {
+        ...state,
+        finishedStoriesCache: {
+          ...state.finishedStoriesCache,
+          ...action.payload.cache,
+        },
+        finishedStoriesCacheTimestamp: action.payload.timestamp,
+      };
+    
+    case actions.CLEAR_FINISHED_STORIES_CACHE:
+      return {
+        ...state,
+        finishedStoriesCache: {},
+        finishedStoriesCacheTimestamp: null,
       };
 
     case actions.SET_AUTH_MODAL:
@@ -1071,9 +1096,14 @@ export function GlobalAppProvider({ children }) {
     }
   }, [state.finishedContestsCache, dispatch]);
 
-  const getStoryById = useCallback(async (storyId) => {
+  const getStoryById = useCallback(async (storyId, forceRefresh = false) => {
     if (!storyId) {
       return { success: false, error: "ID de historia requerido" };
+    }
+
+    // ✅ VERIFICAR CACHÉ PARA HISTORIAS DE CONCURSOS CERRADOS
+    if (!forceRefresh && state.finishedStoriesCache[storyId]) {
+      return state.finishedStoriesCache[storyId];
     }
 
     try {
@@ -1138,7 +1168,22 @@ export function GlobalAppProvider({ children }) {
         },
       };
 
-      return { success: true, story: processedStory };
+      // ✅ PREPARAR RESULTADO
+      const result = { success: true, story: processedStory };
+
+      // ✅ GUARDAR EN CACHÉ SI ES DE UN CONCURSO CERRADO
+      if (contest && contest.status === "results") {
+        console.log("💾 Guardando historia de concurso cerrado en caché:", storyId);
+        dispatch({
+          type: actions.SET_FINISHED_STORIES_CACHE,
+          payload: {
+            cache: { [storyId]: result },
+            timestamp: Date.now(),
+          },
+        });
+      }
+
+      return result;
     } catch (err) {
       console.error("💥 Error fetching story:", err);
       return {
@@ -1146,7 +1191,7 @@ export function GlobalAppProvider({ children }) {
         error: err.message || "Error al cargar la historia",
       };
     }
-  }, []);
+  }, [state.finishedStoriesCache, dispatch]);
 
   const recordStoryView = useCallback(
     async (storyId) => {
@@ -1526,8 +1571,18 @@ export function GlobalAppProvider({ children }) {
       try {
         console.log("🔍 Cargando historias para galería:", filters);
 
+        // ✅ OPTIMIZACIÓN: Durante votación ciega, no cargar likes_count y views_count
+        const isBlindVoting = filters.blindVoting === true;
+        const selectFields = isBlindVoting 
+          ? "id, title, content, user_id, contest_id, created_at, updated_at, word_count, is_mature"
+          : "*";
+          
+        if (isBlindVoting) {
+          console.log("🤐 Votación ciega: cargando solo campos esenciales");
+        }
+
         // Construir query básico
-        let query = supabase.from("stories").select("*");
+        let query = supabase.from("stories").select(selectFields);
 
         // Aplicar filtros básicos
         if (filters.contestId) {
@@ -3381,6 +3436,12 @@ export function GlobalAppProvider({ children }) {
     clearFinishedContestsCache: useCallback(() => {
       console.log("🧹 Limpiando caché de concursos finalizados");
       dispatch({ type: actions.CLEAR_FINISHED_CONTESTS_CACHE });
+    }, [dispatch]),
+    
+    // Cache de historias individuales
+    clearFinishedStoriesCache: useCallback(() => {
+      console.log("🧹 Limpiando caché de historias individuales");
+      dispatch({ type: actions.CLEAR_FINISHED_STORIES_CACHE });
     }, [dispatch]),
 
     // Dispatch para casos especiales

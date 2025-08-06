@@ -17,7 +17,7 @@ import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
-  const { contests, contestsLoading, getStoriesByContest, clearFinishedContestsCache } = useGlobalApp();
+  const { contests, contestsLoading, getStoriesByContest, clearFinishedContestsCache, clearFinishedStoriesCache } = useGlobalApp();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -181,17 +181,22 @@ const ContestHistory = () => {
               />
             </div>
             
-            {/* Cache Control */}
-            <div className="flex items-center justify-end">
-              <button
-                onClick={clearFinishedContestsCache}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors border border-gray-300 dark:border-dark-600"
-                title="Limpiar caché de concursos finalizados para forzar recarga"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Actualizar caché
-              </button>
-            </div>
+            {/* Cache Control - Solo en desarrollo */}
+            {import.meta.env.DEV && (
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={() => {
+                    clearFinishedContestsCache();
+                    clearFinishedStoriesCache();
+                  }}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors border border-gray-300 dark:border-dark-600"
+                  title="[DEV] Limpiar caché de concursos e historias finalizadas para forzar recarga"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  🔧 Dev: Actualizar caché
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
