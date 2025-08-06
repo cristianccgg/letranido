@@ -1,4 +1,21 @@
 {
+  "redirects": [
+    {
+      "source": "http://letranido.com/(.*)",
+      "destination": "https://www.letranido.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "http://www.letranido.com/(.*)",
+      "destination": "https://www.letranido.com/$1", 
+      "permanent": true
+    },
+    {
+      "source": "https://letranido.com/(.*)",
+      "destination": "https://www.letranido.com/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ],
