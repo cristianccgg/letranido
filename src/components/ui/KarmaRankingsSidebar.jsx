@@ -46,15 +46,11 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     }, 300);
   };
 
-  // Detectar scroll cerca del final
-  const handleScroll = (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    
-    // Cargar más cuando esté a 100px del final
-    if (scrollHeight - scrollTop <= clientHeight + 100) {
-      loadMoreUsers();
-    }
+  // Función para mostrar menos usuarios (volver a los primeros 5)
+  const showLessUsers = () => {
+    setDisplayedUsers(allUsers.slice(0, USERS_PER_BATCH));
   };
+
 
   const loadCompactRankings = async () => {
     setLoading(true);
@@ -465,7 +461,6 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         {/* Content */}
         <div 
           className="flex-1 overflow-y-auto"
-          onScroll={handleScroll}
           style={{ maxHeight: 'calc(100vh - 200px)' }}
         >
           {loading ? (
@@ -516,18 +511,34 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                       </div>
                     )}
                     
-                    {/* Botón Ver más (backup del scroll infinito) */}
-                    {!loadingMore && displayedUsers.length < allUsers.length && (
-                      <div className="p-4 text-center">
-                        <button
-                          onClick={loadMoreUsers}
-                          className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
-                        >
-                          Ver más escritores
-                          <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                            +{Math.min(USERS_PER_BATCH, allUsers.length - displayedUsers.length)}
-                          </span>
-                        </button>
+                    {/* Botón Ver más/menos */}
+                    {!loadingMore && (
+                      <div className="p-4 text-center space-y-2">
+                        {/* Botón Ver más */}
+                        {displayedUsers.length < allUsers.length && (
+                          <button
+                            onClick={loadMoreUsers}
+                            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
+                          >
+                            Ver más escritores
+                            <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
+                              +{Math.min(USERS_PER_BATCH, allUsers.length - displayedUsers.length)}
+                            </span>
+                          </button>
+                        )}
+                        
+                        {/* Botón Ver menos (solo si hay más de los iniciales) */}
+                        {displayedUsers.length > USERS_PER_BATCH && (
+                          <button
+                            onClick={showLessUsers}
+                            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
+                          >
+                            Ver menos escritores
+                            <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
+                              -{displayedUsers.length - USERS_PER_BATCH}
+                            </span>
+                          </button>
+                        )}
                       </div>
                     )}
                     

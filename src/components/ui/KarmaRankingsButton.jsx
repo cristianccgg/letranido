@@ -22,8 +22,8 @@ const KarmaRankingsButton = () => {
           // Desktop: posición central y tamaño normal
           lg:top-1/2 lg:-translate-y-1/2 lg:py-3 lg:px-4 lg:pr-6
           
-          // Mobile: posición más baja y tamaño reducido
-          top-1/3 py-2 px-2 pr-4
+          // Mobile: posición más baja y tamaño muy reducido
+          top-1/3 py-1 px-1 pr-2
         `}
         aria-label="Ver Rankings de Karma"
       >
