@@ -251,16 +251,6 @@ const GlobalFooter = () => {
             <div>
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-primary-200">
-                {/* Botón de feedback - Mobile y Desktop */}
-
-                <li>
-                  <Link
-                    to="/faq"
-                    className="hover:text-white transition-colors"
-                  >
-                    Preguntas frecuentes
-                  </Link>
-                </li>
                 <li>
                   <Link
                     to="/community-guidelines"
@@ -291,6 +281,14 @@ const GlobalFooter = () => {
                     className="hover:text-white transition-colors"
                   >
                     Política de cookies
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/faq"
+                    className="hover:text-white transition-colors"
+                  >
+                    Preguntas frecuentes
                   </Link>
                 </li>
                 <li>
