@@ -36,7 +36,7 @@ const SocialContainer = ({ onFeedbackClick }) => {
   return (
     <>
       {/* Desktop: Pill compacto en el lateral */}
-      <div className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 flex-col gap-2 p-3 bg-white/90 backdrop-blur-md rounded-full border border-indigo-200/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+      <div className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 flex-col gap-2 p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-full border border-indigo-200/50 dark:border-indigo-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
         {/* Indicador sutil */}
         <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mb-1 opacity-60 group-hover:opacity-100 transition-opacity"></div>
 
