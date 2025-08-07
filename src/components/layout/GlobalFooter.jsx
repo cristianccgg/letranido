@@ -296,7 +296,7 @@ const GlobalFooter = () => {
                 <li>
                   <button
                     onClick={() => setShowFeedbackModal(true)}
-                    className="hover:text-white transition-colors text-left flex items-center gap-2"
+                    className="hover:text-white cursor-pointer transition-colors text-left flex items-center gap-2"
                   >
                     💬 Enviar feedback
                   </button>

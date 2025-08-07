@@ -1,11 +1,4 @@
-import {
-  X,
-  Trophy,
-  Clock,
-  Star,
-  Heart,
-  Shield,
-} from "lucide-react";
+import { X, Trophy, Clock, Star, Heart, Shield } from "lucide-react";
 
 const ContestRulesModal = ({ isOpen, onClose, contest }) => {
   if (!isOpen) return null;
@@ -35,12 +28,12 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
         ? `Cierra: ${new Date(contest.submission_deadline).toLocaleDateString(
             "es-ES",
             {
-              weekday: 'short',
-              day: 'numeric',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'America/Bogota'
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "America/Bogota",
             }
           )}`
         : "Cierre: fecha no disponible",
@@ -52,42 +45,48 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
   const getIconColor = (type) => {
     switch (type) {
       case "success":
-        return "text-purple-600";
+        return "text-purple-600 dark:text-purple-300";
       case "warning":
-        return "text-pink-600";
+        return "text-pink-600 dark:text-pink-300";
       case "info":
-        return "text-indigo-600";
+        return "text-indigo-600 dark:text-indigo-300";
       default:
-        return "text-gray-600";
+        return "text-gray-600 dark:text-gray-300";
     }
   };
 
   const getBgColor = (type) => {
     switch (type) {
       case "success":
-        return "bg-purple-50 border-purple-200";
+        return "bg-purple-50 border-purple-200 dark:bg-purple-900 dark:border-purple-700";
       case "warning":
-        return "bg-pink-50 border-pink-200";
+        return "bg-pink-50 border-pink-200 dark:bg-pink-900 dark:border-pink-700";
       case "info":
-        return "bg-indigo-50 border-indigo-200";
+        return "bg-indigo-50 border-indigo-200 dark:bg-indigo-900 dark:border-indigo-700";
       default:
-        return "bg-gray-50 border-gray-200";
+        return "bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-700";
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-hidden ring-1 ring-slate-200" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="overflow-y-auto max-h-[calc(85vh-120px)]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-t-2xl">
+          <div className="bg-gradient-to-r dark:from-indigo-900 dark:to-purple-900 from-indigo-600 to-purple-600 text-white p-4 rounded-t-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold flex items-center">
+                <h2 className="text-lg font-bold flex items-center dark:text-purple-300">
                   <Trophy className="h-5 w-5 mr-2" />
                   Reglas del Concurso
                 </h2>
-                <p className="text-white/90 text-xs mt-1">
+                <p className="text-white/90 dark:text-purple-300 text-xs mt-1">
                   {contest.month} - "{contest.title}"
                 </p>
               </div>
@@ -104,60 +103,60 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
           <div className="p-4 space-y-3">
             {/* Essential Rules Grid */}
             <div className="grid grid-cols-1 gap-2">
-            {essentialRules.map((rule, index) => {
-              const Icon = rule.icon;
-              return (
-                <div
-                  key={index}
-                  className={`border rounded-lg p-3 ${getBgColor(rule.type)} hover:shadow-sm transition-shadow`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className={`h-4 w-4 ${getIconColor(rule.type)}`} />
-                    <div>
-                      <h4 className="font-semibold text-gray-900 text-xs">
-                        {rule.title}
-                      </h4>
-                      <p className="text-gray-600 text-xs">
-                        {rule.description}
-                      </p>
+              {essentialRules.map((rule, index) => {
+                const Icon = rule.icon;
+                return (
+                  <div
+                    key={index}
+                    className={`border rounded-lg p-3 ${getBgColor(rule.type)} hover:shadow-sm transition-shadow`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className={`h-4 w-4 ${getIconColor(rule.type)}`} />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-300 text-xs">
+                          {rule.title}
+                        </h4>
+                        <p className="text-gray-600 dark:text-gray-400 text-xs">
+                          {rule.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
 
-          {/* Quick Facts */}
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-3">
-            <h4 className="font-semibold text-slate-900 mb-2 text-xs flex items-center">
-              <Heart className="h-3 w-3 mr-1 text-slate-600" />
-              Datos importantes:
-            </h4>
-            <ul className="space-y-1 text-xs text-slate-600">
-              <li>• Una historia por persona</li>
-              <li>• Sin contenido ofensivo o sexual</li>
-              <li>• Ganadores por likes de la comunidad</li>
-            </ul>
-          </div>
+            {/* Quick Facts */}
+            <div className="bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
+              <h4 className="font-semibold text-slate-900 dark:text-slate-300 mb-2 text-xs flex items-center">
+                <Heart className="h-3 w-3 mr-1 text-slate-600 dark:text-slate-300" />
+                Datos importantes:
+              </h4>
+              <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                <li>• Una historia por persona</li>
+                <li>• Sin contenido ofensivo o sexual</li>
+                <li>• Ganadores por likes de la comunidad</li>
+              </ul>
+            </div>
 
-          {/* Legal Notice - Conciso */}
-          <div className="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 rounded-lg p-3">
-            <h4 className="font-semibold text-red-900 mb-1 text-xs flex items-center">
-              <Shield className="h-3 w-3 mr-1" />
-              Compromiso Legal
-            </h4>
-            <p className="text-red-800 text-xs">
-              Historia 100% original, sin IA, aceptas términos de uso.
-            </p>
+            {/* Legal Notice - Conciso */}
+            <div className="bg-gradient-to-br dark:from-red-900 dark:to-red-800 from-red-50 to-pink-50 border border-red-200 dark:border-red-700 rounded-lg p-3">
+              <h4 className="font-semibold text-red-900 dark:text-red-300 mb-1 text-xs flex items-center">
+                <Shield className="h-3 w-3 mr-1" />
+                Compromiso Legal
+              </h4>
+              <p className="text-red-800 dark:text-red-300 text-xs">
+                Historia 100% original, sin IA, aceptas términos de uso.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-200 bg-slate-50 p-4 rounded-b-2xl">
-          <button 
-            onClick={onClose} 
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all text-sm"
+        <div className="border-t dark:bg-slate-800  dark:border-slate-700 border-slate-200 bg-slate-50 p-4 rounded-b-2xl">
+          <button
+            onClick={onClose}
+            className="w-full bg-gradient-to-r cursor-pointer dark:from-indigo-900 dark:to-indigo-700 from-indigo-600 to-purple-600 text-white dark:text-primary-200 py-2 px-4 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all text-sm"
           >
             ¡Entendido, vamos a escribir!
           </button>

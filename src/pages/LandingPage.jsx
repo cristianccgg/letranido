@@ -34,6 +34,7 @@ import {
   UserWithWinnerBadges,
   UserWithTopBadge,
 } from "../components/ui/UserNameWithBadges";
+import KarmaRankingsSidebar from "../components/ui/KarmaRankingsSidebar";
 import NextContestPreview from "../components/ui/NextContestPreview";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
@@ -280,6 +281,9 @@ const LandingPage = () => {
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [rulesModalContest, setRulesModalContest] = useState(null);
+
+  // Estado para el sidebar de rankings
+  const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
 
   // ✅ Contador para el siguiente concurso
   const [nextTimeLeft, setNextTimeLeft] = useState("");
@@ -605,16 +609,16 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <div className="text-white/80 text-sm flex items-center gap-2">
                 <Zap className="h-4 w-4" />
-                Haz clic en el botón Rankings de la izquierda
+                ¡Ve tu posición en el ranking ahora mismo!
               </div>
               <ArrowRight className="h-5 w-5 text-white/60 hidden sm:block" />
-              <Link
-                to="/faq"
-                className="inline-flex items-center px-6 py-3 bg-white text-primary-600 rounded-xl font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg"
+              <button
+                onClick={() => setShowRankingsSidebar(true)}
+                className="inline-flex cursor-pointer items-center px-6 py-3 bg-white dark:bg-white/95 text-primary-600 dark:text-primary-700 rounded-xl font-semibold hover:bg-white/90 dark:hover:bg-white/85 transition-all duration-200 shadow-lg hover:scale-105 transform"
               >
-                <HelpCircle className="h-5 w-5 mr-2" />
-                Ver cómo funciona
-              </Link>
+                <Trophy className="h-5 w-5 mr-2" />
+                Ver Rankings
+              </button>
             </div>
           </div>
         </div>
@@ -1113,6 +1117,12 @@ const LandingPage = () => {
         isOpen={showRulesModal}
         onClose={() => setShowRulesModal(false)}
         contest={rulesModalContest || currentContest}
+      />
+
+      {/* Sidebar de rankings */}
+      <KarmaRankingsSidebar
+        isOpen={showRankingsSidebar}
+        onClose={() => setShowRankingsSidebar(false)}
       />
     </div>
   );

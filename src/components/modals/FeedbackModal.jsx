@@ -79,12 +79,12 @@ const FeedbackModal = ({ isOpen, onClose }) => {
   if (showSuccess) {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <Heart className="h-8 w-8 text-green-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">¡Feedback enviado!</h3>
-          <p className="text-gray-600">Gracias por ayudarnos a mejorar Letranido</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">¡Feedback enviado!</h3>
+          <p className="text-gray-600 dark:text-gray-300">Gracias por ayudarnos a mejorar Letranido</p>
         </div>
       </div>
     );
@@ -92,10 +92,10 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden ring-1 ring-slate-200" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden ring-1 ring-slate-200 dark:ring-gray-600" onClick={(e) => e.stopPropagation()}>
         <div className="overflow-y-auto max-h-[calc(90vh-60px)]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-t-2xl">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white p-4 rounded-t-2xl">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold flex items-center">
@@ -118,14 +118,14 @@ const FeedbackModal = ({ isOpen, onClose }) => {
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Tu email
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="tu@email.com"
                 required
               />
@@ -133,7 +133,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
             {/* Tipo de feedback */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                 Tipo de feedback
               </label>
               <div className="grid grid-cols-1 gap-2">
@@ -147,16 +147,16 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                       className={`p-3 rounded-lg border-2 text-left transition-all duration-200 hover:scale-105 ${
                         formData.type === type.id
                           ? `${type.bgColor} border-current ${type.color}`
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                          : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <IconComponent className={`h-5 w-5 ${formData.type === type.id ? type.color : 'text-gray-400'}`} />
+                        <IconComponent className={`h-5 w-5 ${formData.type === type.id ? type.color : 'text-gray-400 dark:text-gray-500'}`} />
                         <div>
-                          <div className={`font-medium ${formData.type === type.id ? type.color : 'text-gray-900'}`}>
+                          <div className={`font-medium ${formData.type === type.id ? type.color : 'text-gray-900 dark:text-gray-100'}`}>
                             {type.label}
                           </div>
-                          <div className="text-xs text-gray-500">{type.description}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{type.description}</div>
                         </div>
                       </div>
                     </button>
@@ -167,14 +167,14 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
             {/* Mensaje */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Tu mensaje
               </label>
               <textarea
                 value={formData.message}
                 onChange={(e) => handleChange('message', e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="Cuéntanos qué opinas, qué problema encontraste, o qué sugerencia tienes..."
                 required
               />
@@ -182,7 +182,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
             {/* Error */}
             {error && (
-              <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                 {error}
               </div>
             )}
@@ -192,14 +192,14 @@ const FeedbackModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors font-medium"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
