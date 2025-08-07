@@ -390,53 +390,24 @@ const Preferences = () => {
           </div>
         </section>
 
-        {/* Privacidad y Seguridad */}
+        {/* Eliminar Cuenta */}
         <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
-            Privacidad y Seguridad
+            Eliminar Cuenta
           </h2>
           
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Política de Privacidad</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Revisa cómo protegemos tus datos</p>
-              </div>
-              <a
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
-              >
-                Ver política →
-              </a>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900 dark:text-white">Eliminar permanentemente mi cuenta</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Esta acción es irreversible y eliminará todos tus datos personales
+              </p>
             </div>
-
-            <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Términos de Servicio</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Conoce las reglas de la plataforma</p>
-              </div>
-              <a
-                href="/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
-              >
-                Ver términos →
-              </a>
-            </div>
-
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <h3 className="font-medium text-gray-900 dark:text-white">Eliminar Cuenta</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Elimina permanentemente tu cuenta y datos</p>
-              </div>
-              <button 
-                onClick={() => {
-                  const subject = encodeURIComponent('Solicitud de Eliminación de Cuenta - Letranido');
-                  const body = encodeURIComponent(`Hola,
+            <button 
+              onClick={() => {
+                const subject = encodeURIComponent('Solicitud de Eliminación de Cuenta - Letranido');
+                const body = encodeURIComponent(`Hola,
 
 Solicito la eliminación completa de mi cuenta de Letranido.
 
@@ -458,14 +429,13 @@ Confirmo que esta solicitud es voluntaria y que soy el titular de la cuenta.
 
 Saludos,
 ${user?.display_name || user?.name}`);
-                  
-                  window.open(`mailto:admin@letranido.com?subject=${subject}&body=${body}`, '_blank');
-                }}
-                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium"
-              >
-                Solicitar eliminación →
-              </button>
-            </div>
+                
+                window.open(`mailto:admin@letranido.com?subject=${subject}&body=${body}`, '_blank');
+              }}
+              className="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors text-sm font-medium"
+            >
+              Solicitar Eliminación
+            </button>
           </div>
         </section>
       </div>
