@@ -99,9 +99,13 @@
         "script",
         "https://connect.facebook.net/en_US/fbevents.js"
       );
-      fbq("init", "1833827130549550"); // Reemplaza TU_PIXEL_ID con tu ID real
+      fbq("init", "1833827130549550");
       fbq("track", "PageView");
     </script>
+    <!-- End Meta Pixel Code -->
+  </head>
+  <body>
+    <!-- Meta Pixel Noscript -->
     <noscript
       ><img
         height="1"
@@ -109,9 +113,6 @@
         style="display: none"
         src="https://www.facebook.com/tr?id=1833827130549550&ev=PageView&noscript=1"
     /></noscript>
-    <!-- End Meta Pixel Code -->
-  </head>
-  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
