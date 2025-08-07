@@ -4,7 +4,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12">
+    <div className="max-w-4xl mx-auto py-12 dark:bg-gray-900 min-h-screen">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Política de Privacidad"
@@ -12,29 +12,29 @@ const PrivacyPolicy = () => {
         keywords="política de privacidad, protección datos, privacidad usuario, gdpr, derechos usuario, letranido"
         url="/privacy"
       />
-      
-      <div className="prose prose-gray max-w-none">
+
+      <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Política de Privacidad
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-gray-300">
             Cómo protegemos y manejamos tu información en Letranido
           </p>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Última actualización: {new Date().toLocaleDateString("es-ES")}
           </p>
         </div>
 
         {/* Resumen Ejecutivo */}
         <section className="mb-8">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-green-900 mb-4 flex items-center">
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-green-900 dark:text-green-200 mb-4 flex items-center">
               <Shield className="h-6 w-6 mr-2" />
               Resumen: Tu privacidad es nuestra prioridad
             </h2>
-            <ul className="text-green-800 space-y-2">
+            <ul className="text-green-800 dark:text-green-200 space-y-2">
               <li>
                 ✅ <strong>Mínima recopilación:</strong> Solo email, nombre de
                 usuario y contenido que publicas
@@ -61,12 +61,12 @@ const PrivacyPolicy = () => {
 
         {/* 1. Información que Recopilamos */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Database className="h-6 w-6 mr-2 text-blue-600" />
             1. Información que Recopilamos
           </h2>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             1.1 Información de Cuenta
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -87,7 +87,9 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">1.2 Contenido Creado</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            1.2 Contenido Creado
+          </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
               <strong>Historias:</strong> Texto completo de tus participaciones
@@ -104,25 +106,36 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">1.3 Consentimientos Legales</h3>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <p className="text-blue-800 mb-2">
-              <strong>Para protección legal, almacenamos tus consentimientos al enviar historias:</strong>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            1.3 Consentimientos Legales
+          </h3>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 dark:text-blue-200 mb-2">
+              <strong>
+                Para protección legal, almacenamos tus consentimientos al enviar
+                historias:
+              </strong>
             </p>
-            <ul className="text-blue-800 text-sm space-y-1">
+            <ul className="text-blue-800 dark:text-blue-200 text-sm space-y-1">
               <li>• Confirmación de originalidad del contenido</li>
               <li>• Aceptación de no uso de Inteligencia Artificial</li>
-              <li>• Autorización para compartir contenido ganador (opcional)</li>
+              <li>
+                • Autorización para compartir contenido ganador (opcional)
+              </li>
               <li>• Marcado de contenido maduro cuando corresponda</li>
               <li>• Aceptación de términos y condiciones</li>
-              <li>• Marca de tiempo y información técnica básica (navegador)</li>
+              <li>
+                • Marca de tiempo y información técnica básica (navegador)
+              </li>
             </ul>
-            <p className="text-blue-700 text-sm mt-2">
-              <strong>Propósito:</strong> Estos registros nos protegen legalmente a ambos en caso de disputas de derechos de autor o reclamaciones.
+            <p className="text-blue-700 dark:text-blue-200 text-sm mt-2">
+              <strong>Propósito:</strong> Estos registros nos protegen
+              legalmente a ambos en caso de disputas de derechos de autor o
+              reclamaciones.
             </p>
           </div>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             1.4 Información Técnica Mínima
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -137,8 +150,8 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-            <p className="text-blue-800 text-sm">
+          <div className="bg-blue-50 dark:bg-blue-800/20 border border-blue-200 rounded-lg p-4 mt-4">
+            <p className="text-blue-800 dark:text-blue-200 text-sm">
               <strong>NO recopilamos:</strong> Ubicación precisa, datos de
               dispositivo personal, historial de navegación fuera de Letranido,
               información de redes sociales, datos biométricos, o información
@@ -149,12 +162,12 @@ const PrivacyPolicy = () => {
 
         {/* 2. Cómo Usamos tu Información */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Eye className="h-6 w-6 mr-2 text-green-600" />
             2. Cómo Usamos tu Información
           </h2>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             2.1 Operación de la Plataforma
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -163,10 +176,15 @@ const PrivacyPolicy = () => {
             <li>Facilitar votación y participación en concursos</li>
             <li>Prevenir spam, fraude y comportamiento abusivo</li>
             <li>Generar estadísticas agregadas y anónimas</li>
-            <li>Mantener registros de consentimientos legales para protección jurídica</li>
+            <li>
+              Mantener registros de consentimientos legales para protección
+              jurídica
+            </li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">2.2 Comunicaciones</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            2.2 Comunicaciones
+          </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
               <strong>Esenciales:</strong> Confirmación de cuenta, cambios en
@@ -181,8 +199,8 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800 text-sm">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+            <p className="text-yellow-800 dark:text-yellow-200 text-sm">
               <strong>Importante:</strong> Nunca usamos tu contenido para
               entrenar modelos de IA, ni lo licenciamos a terceros sin tu
               consentimiento explícito.
@@ -192,15 +210,15 @@ const PrivacyPolicy = () => {
 
         {/* 3. Compartir Información */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Lock className="h-6 w-6 mr-2 text-red-600" />
             3. Cuándo Compartimos tu Información
           </h2>
 
-          <h3 className="text-lg font-semibold mb-2 text-green-700">
+          <h3 className="text-lg font-semibold mb-2 text-green-700 dark:text-green-400">
             3.1 Públicamente (por tu elección)
           </h3>
-          <ul className="list-disc pl-6 mb-4 text-green-800">
+          <ul className="list-disc pl-6 mb-4 text-green-800 dark:text-green-200">
             <li>
               Tu nombre de usuario y historias son visibles para otros usuarios
             </li>
@@ -211,10 +229,10 @@ const PrivacyPolicy = () => {
             <li>Fecha de unión a la plataforma</li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2 text-red-700">
+          <h3 className="text-lg font-semibold mb-2 text-red-700 dark:text-red-400">
             3.2 NUNCA Compartimos
           </h3>
-          <ul className="list-disc pl-6 mb-4 text-red-800">
+          <ul className="list-disc pl-6 mb-4 text-red-800 dark:text-red-200">
             <li>Tu dirección de email</li>
             <li>Tu IP o información técnica</li>
             <li>Historias en borrador o privadas</li>
@@ -222,7 +240,7 @@ const PrivacyPolicy = () => {
             <li>Información personal identificable</li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             3.3 Excepciones Legales
           </h3>
           <p className="mb-4">Solo compartimos información si:</p>
@@ -242,7 +260,9 @@ const PrivacyPolicy = () => {
             4. Seguridad de tus Datos
           </h2>
 
-          <h3 className="text-lg font-semibold mb-2">4.1 Medidas Técnicas</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            4.1 Medidas Técnicas
+          </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
               <strong>Encriptación:</strong> Todas las comunicaciones usan
@@ -261,7 +281,7 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             4.2 Medidas Administrativas
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -271,8 +291,8 @@ const PrivacyPolicy = () => {
             <li>Capacitación en privacidad para el equipo</li>
           </ul>
 
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800 text-sm">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+            <p className="text-red-800 dark:text-red-200 text-sm">
               <strong>⚠️ Limitaciones:</strong> Ningún sistema es 100% seguro.
               Te notificaremos inmediatamente en caso de cualquier brecha de
               seguridad.
@@ -287,11 +307,11 @@ const PrivacyPolicy = () => {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                 ✅ Derechos que tienes:
               </h4>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                 <li>• Acceder a todos tus datos</li>
                 <li>• Corregir información incorrecta</li>
                 <li>• Eliminar tu cuenta completamente</li>
@@ -301,11 +321,11 @@ const PrivacyPolicy = () => {
               </ul>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                 📞 Cómo ejercer tus derechos:
               </h4>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                 <li>• Configuración de cuenta</li>
                 <li>• Email: privacy@letranido.com</li>
                 <li>• Respuesta: 30 días máximo</li>
@@ -315,7 +335,7 @@ const PrivacyPolicy = () => {
             </div>
           </div>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             5.1 Eliminación de Cuenta
           </h3>
           <p className="mb-4">Si eliminas tu cuenta:</p>
@@ -345,7 +365,7 @@ const PrivacyPolicy = () => {
             6. Cookies y Tracking
           </h2>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             6.1 Cookies Esenciales (No puedes desactivar)
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -360,7 +380,9 @@ const PrivacyPolicy = () => {
             </li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">6.2 NO Usamos</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            6.2 NO Usamos
+          </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>❌ Cookies de publicidad</li>
             <li>
@@ -373,23 +395,23 @@ const PrivacyPolicy = () => {
 
         {/* 7. Menores de Edad */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <AlertTriangle className="h-6 w-6 mr-2 text-orange-600" />
             7. Protección de Menores
           </h2>
 
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-orange-900 mb-2">
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4 mb-4">
+            <h3 className="font-semibold text-orange-900 dark:text-orange-200 mb-2">
               Política para menores de 13 años
             </h3>
-            <p className="text-orange-800 text-sm">
+            <p className="text-orange-800 dark:text-orange-200 text-sm">
               No recopilamos intencionalmente información de menores de 13 años.
               Si descubrimos que tenemos datos de un menor de 13, los
               eliminaremos inmediatamente.
             </p>
           </div>
 
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             7.1 Usuarios de 13-17 años
           </h3>
           <ul className="list-disc pl-6 mb-4">
@@ -419,16 +441,16 @@ const PrivacyPolicy = () => {
 
         {/* 9. Contacto */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Mail className="h-6 w-6 mr-2 text-blue-600" />
             9. Contacto sobre Privacidad
           </h2>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-4">
               ¿Preguntas sobre tu privacidad?
             </h3>
-            <div className="text-blue-800 space-y-2">
+            <div className="text-blue-800 dark:text-blue-200 space-y-2">
               <p>
                 <strong>Email legal:</strong> legal@letranido.com
               </p>
@@ -437,7 +459,8 @@ const PrivacyPolicy = () => {
                 consulta]"
               </p>
               <p>
-                <strong>Email general:</strong> info@letranido.com (solo consultas no legales)
+                <strong>Email general:</strong> info@letranido.com (solo
+                consultas no legales)
               </p>
               <p>
                 <strong>Tiempo de respuesta:</strong> 3-5 días hábiles
@@ -447,8 +470,8 @@ const PrivacyPolicy = () => {
               </p>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-blue-300">
-              <p className="text-blue-700 text-sm">
+            <div className="mt-4 pt-4 border-t border-blue-300 dark:border-blue-600">
+              <p className="text-blue-700 dark:text-blue-200 text-sm">
                 <strong>Para solicitudes de datos:</strong> Incluye tu email de
                 registro y una descripción específica de lo que necesitas.
               </p>
@@ -457,12 +480,12 @@ const PrivacyPolicy = () => {
         </section>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 pt-8 mt-12">
-          <div className="bg-gray-50 rounded-lg p-6 text-center">
-            <h3 className="font-semibold text-gray-900 mb-2">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-8 mt-12">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
               Tu privacidad, nuestra responsabilidad
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
               Estamos comprometidos con proteger tu información personal y darte
               control total sobre tus datos. Si algo no está claro, no dudes en
               contactarnos.

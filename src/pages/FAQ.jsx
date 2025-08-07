@@ -51,29 +51,29 @@ const FAQ = () => {
                 Cada mes lanzamos un nuevo concurso con un prompt único. El proceso tiene tres fases:
               </p>
               <div className="grid gap-3">
-                <div className="flex items-start gap-3 p-3 bg-indigo-50 rounded-lg">
+                <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                   <PenTool className="h-5 w-5 text-indigo-600 mt-1" />
                   <div>
                     <strong className="text-indigo-700">Fase de Envío</strong>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Los escritores envían sus historias basadas en el prompt del mes.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <Heart className="h-5 w-5 text-purple-600 mt-1" />
                   <div>
-                    <strong className="text-purple-700">Fase de Votación</strong>
-                    <p className="text-sm text-gray-600">
+                    <strong className="text-purple-700 dark:text-purple-300">Fase de Votación</strong>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       La comunidad lee todas las historias y elige sus 3 favoritas.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-pink-50 rounded-lg">
+                <div className="flex items-start gap-3 p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
                   <Trophy className="h-5 w-5 text-pink-600 mt-1" />
                   <div>
-                    <strong className="text-pink-700">Resultados</strong>
-                    <p className="text-sm text-gray-600">
+                    <strong className="text-pink-700 dark:text-pink-300">Resultados</strong>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Se anuncian los ganadores y se otorgan badges especiales.
                     </p>
                   </div>
@@ -86,14 +86,14 @@ const FAQ = () => {
           question: "¿Puedo participar si soy principiante?",
           answer: (
             <div className="space-y-3">
-              <p className="font-medium text-green-700">
+              <p className="font-medium text-green-700 dark:text-green-400">
                 ¡Por supuesto! Letranido está diseñado para escritores de todos los niveles.
               </p>
               <p>
                 No importa si nunca has escrito una historia antes o si eres un autor experimentado. 
                 Nuestra comunidad es muy acogedora y siempre está dispuesta a ayudar y dar feedback constructivo.
               </p>
-              <div className="bg-green-50 p-3 rounded-lg">
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
                 <p className="text-sm text-green-700">
                   💡 <strong>Tip:</strong> Tu primera historia te dará automáticamente el badge "Primera Pluma".
                 </p>
@@ -108,14 +108,14 @@ const FAQ = () => {
               <p>
                 Sí, cada concurso tiene un límite de palabras específico que depende de la temática y el tipo de concurso.
               </p>
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <ul className="space-y-2">
                   <li><strong>Rango general:</strong> Mínimo 100 - Máximo 1,000 palabras</li>
                   <li><strong>Puede variar:</strong> Algunos concursos pueden tener límites diferentes</li>
                   <li><strong>Siempre especificado:</strong> El límite exacto se muestra en cada prompt</li>
                 </ul>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Revisa siempre los detalles del concurso actual para conocer el límite específico de ese mes.
               </p>
             </div>
@@ -138,8 +138,8 @@ const FAQ = () => {
                 Una vez que termine la fase de envío y comience la votación, las historias quedan bloqueadas 
                 para mantener la integridad del concurso.
               </p>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-700">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
                   <strong>Tip:</strong> Aprovecha todo el período de envío para perfeccionar tu historia antes del cierre.
                 </p>
               </div>
@@ -153,12 +153,12 @@ const FAQ = () => {
               <p>
                 Si no logras enviar tu historia antes del cierre del concurso, tendrás que esperar al siguiente mes.
               </p>
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm">
                   <strong>Consejo:</strong> ¡No dejes todo para el último momento! Tienes todo el mes para escribir y perfeccionar tu historia.
                 </p>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Recuerda que siempre puedes participar en el siguiente concurso mensual con un nuevo prompt.
               </p>
             </div>
@@ -178,12 +178,12 @@ const FAQ = () => {
               <p>
                 El sistema de karma es una forma de reconocer y visualizar la participación activa de los miembros en nuestra comunidad. Cada acción que realizas en Letranido te otorga puntos de karma, y estos puntos determinan tu posición en el ranking comunitario.
               </p>
-              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+              <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-5 w-5 text-primary-600" />
                   <h4 className="font-semibold text-primary-800">¿Por qué karma?</h4>
                 </div>
-                <p className="text-primary-700 text-sm">
+                <p className="text-primary-700 dark:text-primary-300 text-sm">
                   El karma incentiva la participación positiva, premia a quienes contribuyen activamente con historias, comentarios constructivos y votos, y crea un ambiente colaborativo donde todos ganan por participar.
                 </p>
               </div>
@@ -198,53 +198,53 @@ const FAQ = () => {
                 Puedes ganar karma de múltiples formas. Cada acción en la comunidad tiene un valor específico:
               </p>
               <div className="grid gap-3">
-                <div className="flex items-center gap-3 p-3 bg-primary-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
                   <PenTool className="h-5 w-5 text-primary-600" />
                   <div>
-                    <strong className="text-primary-700">Publicar historia: +15 puntos</strong>
-                    <p className="text-sm text-primary-600">La acción más valiosa - compartir tu creatividad</p>
+                    <strong className="text-primary-700 dark:text-primary-300">Publicar historia: +15 puntos</strong>
+                    <p className="text-sm text-primary-600 dark:text-primary-300">La acción más valiosa - compartir tu creatividad</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-green-600" />
                   <div>
-                    <strong className="text-green-700">Recibir comentario: +3 puntos</strong>
-                    <p className="text-sm text-green-600">Tu historia genera conversación</p>
+                    <strong className="text-green-700 dark:text-green-300">Recibir comentario: +3 puntos</strong>
+                    <p className="text-sm text-green-600 dark:text-green-300">Tu historia genera conversación</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                   <MessageCircle className="h-5 w-5 text-blue-600" />
                   <div>
-                    <strong className="text-blue-700">Dar comentario: +2 puntos</strong>
-                    <p className="text-sm text-blue-600">Ayudar a otros escritores con feedback</p>
+                    <strong className="text-blue-700 dark:text-blue-300">Dar comentario: +2 puntos</strong>
+                    <p className="text-sm text-blue-600 dark:text-blue-300">Ayudar a otros escritores con feedback</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
                   <Heart className="h-5 w-5 text-purple-600" />
                   <div>
-                    <strong className="text-purple-700">Recibir like: +2 puntos</strong>
-                    <p className="text-sm text-purple-600">Tu historia gusta a la comunidad</p>
+                    <strong className="text-purple-700 dark:text-purple-300">Recibir like: +2 puntos</strong>
+                    <p className="text-sm text-purple-600 dark:text-purple-300">Tu historia gusta a la comunidad</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                   <Vote className="h-5 w-5 text-orange-600" />
                   <div>
-                    <strong className="text-orange-700">Votar: +1 punto</strong>
-                    <p className="text-sm text-orange-600">Participar en la votación democrática</p>
+                    <strong className="text-orange-700 dark:text-orange-300">Votar: +1 punto</strong>
+                    <p className="text-sm text-orange-600 dark:text-orange-300">Participar en la votación democrática</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <Crown className="h-5 w-5 text-yellow-600" />
                   <div>
-                    <strong className="text-yellow-700">Ganar concurso: +75 puntos</strong>
-                    <p className="text-sm text-yellow-600">El máximo reconocimiento</p>
+                    <strong className="text-yellow-700 dark:text-yellow-300">Ganar concurso: +75 puntos</strong>
+                    <p className="text-sm text-yellow-600 dark:text-yellow-300">El máximo reconocimiento</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg">
                   <Medal className="h-5 w-5 text-pink-600" />
                   <div>
-                    <strong className="text-pink-700">Ser finalista: +30 puntos</strong>
-                    <p className="text-sm text-pink-600">Entre los mejores del mes</p>
+                    <strong className="text-pink-700 dark:text-pink-300">Ser finalista: +30 puntos</strong>
+                    <p className="text-sm text-pink-600 dark:text-pink-300">Entre los mejores del mes</p>
                   </div>
                 </div>
               </div>
@@ -259,26 +259,26 @@ const FAQ = () => {
                 Puedes acceder al ranking de karma desde cualquier página de Letranido:
               </p>
               <div className="space-y-3">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-primary-100 p-2 rounded-lg">
                       <Trophy className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Botón Rankings</h4>
-                      <p className="text-sm text-gray-600">
+                      <h4 className="font-semibold text-gray-800 dark:text-white mb-2">Botón Rankings</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Busca el botón flotante "Rankings Karma" en el lado izquierdo de tu pantalla. 
                         Haz clic para abrir el sidebar con el ranking completo.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap className="h-4 w-4 text-blue-600" />
                     <span className="text-sm font-semibold text-blue-800">¿Sabías qué?</span>
                   </div>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
                     El ranking se actualiza en tiempo real y muestra a todos los usuarios con karma, 
                     incluso aquellos que solo votan o comentan sin publicar historias.
                   </p>
@@ -295,7 +295,7 @@ const FAQ = () => {
                 <strong>No, nunca pierdes karma.</strong> El sistema está diseñado para ser positivo e incentivador:
               </p>
               <div className="space-y-3">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-semibold text-green-800">Solo se suma</span>
@@ -304,12 +304,12 @@ const FAQ = () => {
                     Cada acción positiva suma puntos. No hay penalizaciones ni formas de perder karma.
                   </p>
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4 text-blue-600" />
                     <span className="text-sm font-semibold text-blue-800">Permanente</span>
                   </div>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
                     Tu karma acumulado es permanente y refleja tu historia de participación en la comunidad.
                   </p>
                 </div>
@@ -413,11 +413,11 @@ const FAQ = () => {
           question: "¿Puede alguien más usar mi historia sin permiso?",
           answer: (
             <div className="space-y-3">
-              <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                <p className="font-medium text-red-700">
+              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-700">
+                <p className="font-medium text-red-700 dark:text-red-300">
                   No, está estrictamente prohibido
                 </p>
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-red-600 dark:text-red-300">
                   Nadie puede republicar, copiar o usar tu historia sin tu permiso expreso.
                 </p>
               </div>
@@ -432,7 +432,7 @@ const FAQ = () => {
           question: "¿Puedo publicar mi historia en otros lugares?",
           answer: (
             <div className="space-y-3">
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="font-medium text-blue-700">
                   ¡Por supuesto! Tu historia es tuya.
                 </p>
@@ -441,7 +441,7 @@ const FAQ = () => {
                 Puedes publicar tu historia en blogs, redes sociales, libros, revistas, o cualquier 
                 otro lugar que desees. No hay restricciones sobre dónde puedes usar tu propio trabajo.
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Solo te pedimos que menciones a Letranido si la historia ganó un premio en nuestros concursos.
               </p>
             </div>
@@ -454,13 +454,13 @@ const FAQ = () => {
               <p>
                 Sí, puedes eliminar tus historias desde tu perfil en cualquier momento.
               </p>
-              <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
-                <p className="text-sm text-amber-700">
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-700">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
                   <strong>Nota importante:</strong> Aunque elimines tu historia, puede que permanezca visible 
                   en los listados de concursos anteriores por su valor histórico en la competición.
                 </p>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Los comentarios y votos asociados también se eliminarán junto con la historia.
               </p>
             </div>
@@ -494,7 +494,7 @@ const FAQ = () => {
                 </div>
               </div>
               <div className="bg-blue-50 p-3 rounded-lg mt-3">
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
                   <strong>Estrategia:</strong> Lee todas las historias antes de votar. Una vez que uses tus 3 votos, 
                   tendrás que quitar un voto existente para votar por una historia diferente.
                 </p>
@@ -510,7 +510,7 @@ const FAQ = () => {
                 ¡Sí! Los comentarios son una parte importante de nuestra comunidad. Puedes dejar 
                 feedback constructivo, elogios, o preguntas sobre las historias.
               </p>
-              <div className="bg-yellow-50 p-3 rounded-lg">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
                 <p className="text-sm">
                   <strong>Código de conducta:</strong> Mantén los comentarios respetuosos y constructivos. 
                   Los comentarios ofensivos o spam serán eliminados.
@@ -540,7 +540,7 @@ const FAQ = () => {
           question: "¿Es gratis registrarse?",
           answer: (
             <div className="space-y-3">
-              <div className="bg-green-50 p-3 rounded-lg">
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
                 <p className="font-medium text-green-700">
                   ¡Sí, es completamente gratis!
                 </p>
@@ -566,8 +566,8 @@ const FAQ = () => {
                 <li>3. Actualiza tu nombre</li>
                 <li>4. Guarda los cambios</li>
               </ol>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-700">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
                   <strong>Nota:</strong> Por ahora puedes cambiar tu nombre. Las opciones de biografía y foto de perfil 
                   se implementarán próximamente.
                 </p>
@@ -593,7 +593,7 @@ const FAQ = () => {
                   <span className="text-sm">Email: info@letranido.com</span>
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Tiempo de respuesta típico: 24-48 horas
               </p>
             </div>
@@ -611,7 +611,7 @@ const FAQ = () => {
                 <li>• Envía un email a legal@letranido.com</li>
                 <li>• Describe específicamente qué regla se está violando</li>
               </ul>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Todos los reportes son revisados por nuestro equipo de moderación en menos de 24 horas.
               </p>
             </div>
@@ -627,7 +627,7 @@ const FAQ = () => {
                   <span className="text-sm">Instagram: @letranido</span>
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Síguenos para actualizaciones, consejos de escritura, y anuncios de nuevos concursos.
               </p>
             </div>
@@ -638,7 +638,7 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <SEOHead
         title="Preguntas Frecuentes (FAQ)"
         description="Encuentra respuestas a las preguntas más comunes sobre Letranido: concursos, badges, derechos de autor, votación y más."
@@ -652,10 +652,10 @@ const FAQ = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full mb-6 shadow-xl">
             <HelpCircle className="h-10 w-10 text-indigo-600" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
             Preguntas Frecuentes
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Todo lo que necesitas saber sobre Letranido, nuestra comunidad de escritores 
             y cómo participar en nuestros concursos mensuales.
           </p>
@@ -672,7 +672,7 @@ const FAQ = () => {
             };
 
             return (
-              <div key={sectionIndex} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/40 overflow-hidden">
+              <div key={sectionIndex} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/40 dark:border-gray-700/40 overflow-hidden">
                 {/* Section Header */}
                 <div className={`bg-gradient-to-r ${colorClasses[section.color]} p-6 text-white`}>
                   <div className="flex items-center gap-3">
@@ -691,10 +691,10 @@ const FAQ = () => {
                       <div key={itemIndex}>
                         <button
                           onClick={() => toggleItem(globalIndex)}
-                          className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors focus:outline-none focus:bg-gray-50"
+                          className="w-full px-6 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
                         >
                           <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900 pr-4">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
                               {item.question}
                             </h3>
                             {isOpen ? (
@@ -707,7 +707,7 @@ const FAQ = () => {
 
                         {isOpen && (
                           <div className="px-6 pb-6">
-                            <div className="text-gray-700 leading-relaxed">
+                            <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                               {typeof item.answer === "string" ? (
                                 <p>{item.answer}</p>
                               ) : (
@@ -726,11 +726,11 @@ const FAQ = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="mt-16 text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-8 border border-indigo-200 shadow-xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+        <div className="mt-16 text-center bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 border border-indigo-200 dark:border-indigo-700 shadow-xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
             ¿No encontraste lo que buscabas?
           </h2>
-          <p className="text-gray-700 mb-6 text-lg">
+          <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">
             Nuestro equipo de soporte está aquí para ayudarte con cualquier pregunta adicional.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -755,29 +755,29 @@ const FAQ = () => {
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           <Link
             to="/contest/current"
-            className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
+            className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Trophy className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Concurso Actual</h3>
-            <p className="text-sm text-gray-600">Ver el concurso del mes en curso</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Concurso Actual</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Ver el concurso del mes en curso</p>
           </Link>
 
           <Link
             to="/profile"
-            className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
+            className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Users className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Mi Perfil</h3>
-            <p className="text-sm text-gray-600">Gestiona tu cuenta y configuración</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Mi Perfil</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Gestiona tu cuenta y configuración</p>
           </Link>
 
           <Link
             to="/community-guidelines"
-            className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
+            className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Shield className="h-8 w-8 text-pink-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Reglas de la Comunidad</h3>
-            <p className="text-sm text-gray-600">Conoce nuestras normas de convivencia</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Reglas de la Comunidad</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Conoce nuestras normas de convivencia</p>
           </Link>
         </div>
       </div>
