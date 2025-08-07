@@ -1,7 +1,7 @@
 // components/layout/GlobalFooter.jsx - ACTUALIZADO PARA CONTEXTO UNIFICADO
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Instagram } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ Cambiado
 import ContestActionButton from "../ui/ContestActionButton";
 import ContestPhaseBadge from "../ui/ContestPhaseBadge";
@@ -183,15 +183,35 @@ const GlobalFooter = () => {
                   Redes sociales
                 </h4>
                 <div className="flex items-center gap-3">
-                  <a
-                    href="https://www.instagram.com/letranido/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-primary-200 hover:text-white transition-colors"
-                  >
-                    <Instagram className="h-4 w-4" />
-                    Instagram
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://www.instagram.com/letranido"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 z-50 text-primary-200 hover:text-white transition-all duration-300 transform hover:scale-105"
+                      title="Síguenos en Instagram @letranido"
+                    >
+                      <div className="md:w-8 md:h-8 w-10 h-10 flex bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-full items-center justify-center shadow-lg transition-all duration-300 group-hover:from-pink-600 group-hover:to-purple-700">
+                        <Instagram className="w-4 h-4 md:w-5 md:h-5" />
+                      </div>
+                      <span className="hidden md:inline">Instagram</span>
+                    </a>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://web.facebook.com/profile.php?id=61579066655489"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 z-50 text-primary-200 hover:text-white transition-all duration-300 transform hover:scale-105"
+                      title="Síguenos en Facebook @letranido"
+                    >
+                      <div className="md:w-8 md:h-8 w-10 h-10 flex bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full items-center justify-center shadow-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-blue-700 group-hover:shadow-xl">
+                        <Facebook className="w-4 h-4 md:w-5 md:h-5" />
+                      </div>
+                      <span className="hidden md:inline">Facebook</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -232,14 +252,7 @@ const GlobalFooter = () => {
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-primary-200">
                 {/* Botón de feedback - Mobile y Desktop */}
-                <li>
-                  <button
-                    onClick={() => setShowFeedbackModal(true)}
-                    className="hover:text-white transition-colors text-left flex items-center gap-2"
-                  >
-                    💬 Enviar feedback
-                  </button>
-                </li>
+
                 <li>
                   <Link
                     to="/faq"
@@ -280,6 +293,14 @@ const GlobalFooter = () => {
                     Política de cookies
                   </Link>
                 </li>
+                <li>
+                  <button
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="hover:text-white transition-colors text-left flex items-center gap-2"
+                  >
+                    💬 Enviar feedback
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
@@ -306,10 +327,10 @@ const GlobalFooter = () => {
           }}
         />
       )}
-      
-      <FeedbackModal 
-        isOpen={showFeedbackModal} 
-        onClose={() => setShowFeedbackModal(false)} 
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
       />
     </footer>
   );
