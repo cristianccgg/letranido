@@ -501,9 +501,9 @@ const LandingPage = () => {
               )}
 
               {/* Estadísticas integradas en el hero */}
-              <div className="mt-12">
+              <div className="mt-12 ">
                 <div className="max-w-6xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-white/20 dark:border-dark-600/20 hover:border-purple-200 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
