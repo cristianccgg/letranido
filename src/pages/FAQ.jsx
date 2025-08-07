@@ -21,12 +21,15 @@ import {
   Crown,
   Medal,
   TrendingUp,
+  Instagram,
+  Facebook,
 } from "lucide-react";
 import SEOHead from "../components/SEO/SEOHead";
+import FeedbackModal from "../components/modals/FeedbackModal";
 
 const FAQ = () => {
   const [openItems, setOpenItems] = useState(new Set([0])); // Primer item abierto por defecto
-
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const toggleItem = (index) => {
     const newOpenItems = new Set(openItems);
     if (newOpenItems.has(index)) {
@@ -48,31 +51,40 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Cada mes lanzamos un nuevo concurso con un prompt único. El proceso tiene tres fases:
+                Cada mes lanzamos un nuevo concurso con un prompt único. El
+                proceso tiene tres fases:
               </p>
               <div className="grid gap-3">
                 <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                   <PenTool className="h-5 w-5 text-indigo-600 mt-1" />
                   <div>
-                    <strong className="text-indigo-700">Fase de Envío</strong>
+                    <strong className="text-indigo-700 dark:text-indigo-300">
+                      Fase de Envío
+                    </strong>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Los escritores envían sus historias basadas en el prompt del mes.
+                      Los escritores envían sus historias basadas en el prompt
+                      del mes.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <Heart className="h-5 w-5 text-purple-600 mt-1" />
                   <div>
-                    <strong className="text-purple-700 dark:text-purple-300">Fase de Votación</strong>
+                    <strong className="text-purple-700 dark:text-purple-300">
+                      Fase de Votación
+                    </strong>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      La comunidad lee todas las historias y elige sus 3 favoritas.
+                      La comunidad lee todas las historias y elige sus 3
+                      favoritas.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
                   <Trophy className="h-5 w-5 text-pink-600 mt-1" />
                   <div>
-                    <strong className="text-pink-700 dark:text-pink-300">Resultados</strong>
+                    <strong className="text-pink-700 dark:text-pink-300">
+                      Resultados
+                    </strong>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       Se anuncian los ganadores y se otorgan badges especiales.
                     </p>
@@ -87,15 +99,18 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p className="font-medium text-green-700 dark:text-green-400">
-                ¡Por supuesto! Letranido está diseñado para escritores de todos los niveles.
+                ¡Por supuesto! Letranido está diseñado para escritores de todos
+                los niveles.
               </p>
               <p>
-                No importa si nunca has escrito una historia antes o si eres un autor experimentado. 
-                Nuestra comunidad es muy acogedora y siempre está dispuesta a ayudar y dar feedback constructivo.
+                No importa si nunca has escrito una historia antes o si eres un
+                autor experimentado. Nuestra comunidad es muy acogedora y
+                siempre está dispuesta a ayudar y dar feedback constructivo.
               </p>
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
                 <p className="text-sm text-green-700">
-                  💡 <strong>Tip:</strong> Tu primera historia te dará automáticamente el badge "Primera Pluma".
+                  💡 <strong>Tip:</strong> Tu primera historia te dará
+                  automáticamente el badge "Primera Pluma".
                 </p>
               </div>
             </div>
@@ -106,17 +121,28 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Sí, cada concurso tiene un límite de palabras específico que depende de la temática y el tipo de concurso.
+                Sí, cada concurso tiene un límite de palabras específico que
+                depende de la temática y el tipo de concurso.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <ul className="space-y-2">
-                  <li><strong>Rango general:</strong> Mínimo 100 - Máximo 1,000 palabras</li>
-                  <li><strong>Puede variar:</strong> Algunos concursos pueden tener límites diferentes</li>
-                  <li><strong>Siempre especificado:</strong> El límite exacto se muestra en cada prompt</li>
+                  <li>
+                    <strong>Rango general:</strong> Mínimo 100 - Máximo 1,000
+                    palabras
+                  </li>
+                  <li>
+                    <strong>Puede variar:</strong> Algunos concursos pueden
+                    tener límites diferentes
+                  </li>
+                  <li>
+                    <strong>Siempre especificado:</strong> El límite exacto se
+                    muestra en cada prompt
+                  </li>
                 </ul>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Revisa siempre los detalles del concurso actual para conocer el límite específico de ese mes.
+                Revisa siempre los detalles del concurso actual para conocer el
+                límite específico de ese mes.
               </p>
             </div>
           ),
@@ -125,22 +151,27 @@ const FAQ = () => {
           question: "¿Puedo editar mi historia después de enviarla?",
           answer: (
             <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
                 <div>
-                  <p className="font-medium text-green-700">Sí, durante la fase de envío</p>
+                  <p className="font-medium text-green-700">
+                    Sí, durante la fase de envío
+                  </p>
                   <p className="text-sm text-green-600">
-                    Puedes editar tu historia libremente mientras el concurso esté en fase de envío.
+                    Puedes editar tu historia libremente mientras el concurso
+                    esté en fase de envío.
                   </p>
                 </div>
               </div>
               <p>
-                Una vez que termine la fase de envío y comience la votación, las historias quedan bloqueadas 
-                para mantener la integridad del concurso.
+                Una vez que termine la fase de envío y comience la votación, las
+                historias quedan bloqueadas para mantener la integridad del
+                concurso.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Tip:</strong> Aprovecha todo el período de envío para perfeccionar tu historia antes del cierre.
+                  <strong>Tip:</strong> Aprovecha todo el período de envío para
+                  perfeccionar tu historia antes del cierre.
                 </p>
               </div>
             </div>
@@ -151,15 +182,19 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Si no logras enviar tu historia antes del cierre del concurso, tendrás que esperar al siguiente mes.
+                Si no logras enviar tu historia antes del cierre del concurso,
+                tendrás que esperar al siguiente mes.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm">
-                  <strong>Consejo:</strong> ¡No dejes todo para el último momento! Tienes todo el mes para escribir y perfeccionar tu historia.
+                  <strong>Consejo:</strong> ¡No dejes todo para el último
+                  momento! Tienes todo el mes para escribir y perfeccionar tu
+                  historia.
                 </p>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Recuerda que siempre puedes participar en el siguiente concurso mensual con un nuevo prompt.
+                Recuerda que siempre puedes participar en el siguiente concurso
+                mensual con un nuevo prompt.
               </p>
             </div>
           ),
@@ -176,15 +211,23 @@ const FAQ = () => {
           answer: (
             <div className="space-y-4">
               <p>
-                El sistema de karma es una forma de reconocer y visualizar la participación activa de los miembros en nuestra comunidad. Cada acción que realizas en Letranido te otorga puntos de karma, y estos puntos determinan tu posición en el ranking comunitario.
+                El sistema de karma es una forma de reconocer y visualizar la
+                participación activa de los miembros en nuestra comunidad. Cada
+                acción que realizas en Letranido te otorga puntos de karma, y
+                estos puntos determinan tu posición en el ranking comunitario.
               </p>
               <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-5 w-5 text-primary-600" />
-                  <h4 className="font-semibold text-primary-800">¿Por qué karma?</h4>
+                  <h4 className="font-semibold text-primary-800 dark:text-primary-300">
+                    ¿Por qué karma?
+                  </h4>
                 </div>
                 <p className="text-primary-700 dark:text-primary-300 text-sm">
-                  El karma incentiva la participación positiva, premia a quienes contribuyen activamente con historias, comentarios constructivos y votos, y crea un ambiente colaborativo donde todos ganan por participar.
+                  El karma incentiva la participación positiva, premia a quienes
+                  contribuyen activamente con historias, comentarios
+                  constructivos y votos, y crea un ambiente colaborativo donde
+                  todos ganan por participar.
                 </p>
               </div>
             </div>
@@ -195,56 +238,85 @@ const FAQ = () => {
           answer: (
             <div className="space-y-4">
               <p>
-                Puedes ganar karma de múltiples formas. Cada acción en la comunidad tiene un valor específico:
+                Puedes ganar karma de múltiples formas. Cada acción en la
+                comunidad tiene un valor específico:
               </p>
               <div className="grid gap-3">
                 <div className="flex items-center gap-3 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
                   <PenTool className="h-5 w-5 text-primary-600" />
                   <div>
-                    <strong className="text-primary-700 dark:text-primary-300">Publicar historia: +15 puntos</strong>
-                    <p className="text-sm text-primary-600 dark:text-primary-300">La acción más valiosa - compartir tu creatividad</p>
+                    <strong className="text-primary-700 dark:text-primary-300">
+                      Publicar historia: +15 puntos
+                    </strong>
+                    <p className="text-sm text-primary-600 dark:text-primary-300">
+                      La acción más valiosa - compartir tu creatividad
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-green-600" />
                   <div>
-                    <strong className="text-green-700 dark:text-green-300">Recibir comentario: +3 puntos</strong>
-                    <p className="text-sm text-green-600 dark:text-green-300">Tu historia genera conversación</p>
+                    <strong className="text-green-700 dark:text-green-300">
+                      Recibir comentario: +3 puntos
+                    </strong>
+                    <p className="text-sm text-green-600 dark:text-green-300">
+                      Tu historia genera conversación
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-800/20 rounded-lg">
                   <MessageCircle className="h-5 w-5 text-blue-600" />
                   <div>
-                    <strong className="text-blue-700 dark:text-blue-300">Dar comentario: +2 puntos</strong>
-                    <p className="text-sm text-blue-600 dark:text-blue-300">Ayudar a otros escritores con feedback</p>
+                    <strong className="text-blue-700 dark:text-blue-300">
+                      Dar comentario: +2 puntos
+                    </strong>
+                    <p className="text-sm text-blue-600 dark:text-blue-300">
+                      Ayudar a otros escritores con feedback
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <Heart className="h-5 w-5 text-purple-600" />
                   <div>
-                    <strong className="text-purple-700 dark:text-purple-300">Recibir like: +2 puntos</strong>
-                    <p className="text-sm text-purple-600 dark:text-purple-300">Tu historia gusta a la comunidad</p>
+                    <strong className="text-purple-700 dark:text-purple-300">
+                      Recibir like: +2 puntos
+                    </strong>
+                    <p className="text-sm text-purple-600 dark:text-purple-300">
+                      Tu historia gusta a la comunidad
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                   <Vote className="h-5 w-5 text-orange-600" />
                   <div>
-                    <strong className="text-orange-700 dark:text-orange-300">Votar: +1 punto</strong>
-                    <p className="text-sm text-orange-600 dark:text-orange-300">Participar en la votación democrática</p>
+                    <strong className="text-orange-700 dark:text-orange-300">
+                      Votar: +1 punto
+                    </strong>
+                    <p className="text-sm text-orange-600 dark:text-orange-300">
+                      Participar en la votación democrática
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <Crown className="h-5 w-5 text-yellow-600" />
                   <div>
-                    <strong className="text-yellow-700 dark:text-yellow-300">Ganar concurso: +75 puntos</strong>
-                    <p className="text-sm text-yellow-600 dark:text-yellow-300">El máximo reconocimiento</p>
+                    <strong className="text-yellow-700 dark:text-yellow-300">
+                      Ganar concurso: +75 puntos
+                    </strong>
+                    <p className="text-sm text-yellow-600 dark:text-yellow-300">
+                      El máximo reconocimiento
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-pink-50 dark:bg-red-800/20 rounded-lg">
                   <Medal className="h-5 w-5 text-pink-600" />
                   <div>
-                    <strong className="text-pink-700 dark:text-pink-300">Ser finalista: +30 puntos</strong>
-                    <p className="text-sm text-pink-600 dark:text-pink-300">Entre los mejores del mes</p>
+                    <strong className="text-pink-700 dark:text-pink-300">
+                      Ser finalista: +30 puntos
+                    </strong>
+                    <p className="text-sm text-pink-600 dark:text-pink-300">
+                      Entre los mejores del mes
+                    </p>
                   </div>
                 </div>
               </div>
@@ -256,7 +328,8 @@ const FAQ = () => {
           answer: (
             <div className="space-y-4">
               <p>
-                Puedes acceder al ranking de karma desde cualquier página de Letranido:
+                Puedes acceder al ranking de karma desde cualquier página de
+                Letranido:
               </p>
               <div className="space-y-3">
                 <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -265,10 +338,13 @@ const FAQ = () => {
                       <Trophy className="h-5 w-5 text-primary-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-2">Botón Rankings</h4>
+                      <h4 className="font-semibold text-gray-800 dark:text-white mb-2">
+                        Botón Rankings
+                      </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Busca el botón flotante "Rankings Karma" en el lado izquierdo de tu pantalla. 
-                        Haz clic para abrir el sidebar con el ranking completo.
+                        Busca el botón flotante "Rankings Karma" en el lado
+                        izquierdo de tu pantalla. Haz clic para abrir el sidebar
+                        con el ranking completo.
                       </p>
                     </div>
                   </div>
@@ -276,11 +352,14 @@ const FAQ = () => {
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-800">¿Sabías qué?</span>
+                    <span className="text-sm font-semibold text-blue-800">
+                      ¿Sabías qué?
+                    </span>
                   </div>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    El ranking se actualiza en tiempo real y muestra a todos los usuarios con karma, 
-                    incluso aquellos que solo votan o comentan sin publicar historias.
+                    El ranking se actualiza en tiempo real y muestra a todos los
+                    usuarios con karma, incluso aquellos que solo votan o
+                    comentan sin publicar historias.
                   </p>
                 </div>
               </div>
@@ -292,25 +371,32 @@ const FAQ = () => {
           answer: (
             <div className="space-y-4">
               <p>
-                <strong>No, nunca pierdes karma.</strong> El sistema está diseñado para ser positivo e incentivador:
+                <strong>No, nunca pierdes karma.</strong> El sistema está
+                diseñado para ser positivo e incentivador:
               </p>
               <div className="space-y-3">
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-semibold text-green-800">Solo se suma</span>
+                    <span className="text-sm font-semibold text-green-800">
+                      Solo se suma
+                    </span>
                   </div>
                   <p className="text-sm text-green-700">
-                    Cada acción positiva suma puntos. No hay penalizaciones ni formas de perder karma.
+                    Cada acción positiva suma puntos. No hay penalizaciones ni
+                    formas de perder karma.
                   </p>
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-800">Permanente</span>
+                    <span className="text-sm font-semibold text-blue-800">
+                      Permanente
+                    </span>
                   </div>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Tu karma acumulado es permanente y refleja tu historia de participación en la comunidad.
+                    Tu karma acumulado es permanente y refleja tu historia de
+                    participación en la comunidad.
                   </p>
                 </div>
               </div>
@@ -329,23 +415,42 @@ const FAQ = () => {
           answer: (
             <div className="space-y-4">
               <p>
-                Los badges son reconocimientos especiales que celebran tus logros como escritor en la comunidad.
+                Los badges son reconocimientos especiales que celebran tus
+                logros como escritor en la comunidad.
               </p>
               <div className="grid gap-3">
-                <div className="p-3 bg-indigo-50 rounded-lg">
-                  <h4 className="font-semibold text-indigo-700 mb-2">🖋️ Badges de Escritura</h4>
+                <div className="p-3 bg-indigo-50 dark:bg-purple-800/20  rounded-lg">
+                  <h4 className="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">
+                    🖋️ Badges de Escritura
+                  </h4>
                   <ul className="text-sm space-y-1">
-                    <li>• <strong>Primera Pluma:</strong> Envía tu primera historia</li>
-                    <li>• <strong>Escritor Constante:</strong> Participa en 3 concursos</li>
-                    <li>• <strong>Veterano:</strong> Participa en 10 concursos</li>
+                    <li>
+                      • <strong>Primera Pluma:</strong> Envía tu primera
+                      historia
+                    </li>
+                    <li>
+                      • <strong>Escritor Constante:</strong> Participa en 3
+                      concursos
+                    </li>
+                    <li>
+                      • <strong>Veterano:</strong> Participa en 10 concursos
+                    </li>
                   </ul>
                 </div>
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <h4 className="font-semibold text-purple-700 mb-2">🏆 Badges de Victoria</h4>
+                <div className="p-3 bg-purple-50 dark:bg-purple-800/20 rounded-lg">
+                  <h4 className="font-semibold text-purple-700 dark:text-indigo-300 mb-2">
+                    🏆 Badges de Victoria
+                  </h4>
                   <ul className="text-sm space-y-1">
-                    <li>• <strong>Ganador:</strong> Gana un concurso mensual</li>
-                    <li>• <strong>Finalista:</strong> Queda en el top 3</li>
-                    <li>• <strong>Veterano Ganador:</strong> Gana 3 concursos</li>
+                    <li>
+                      • <strong>Ganador:</strong> Gana un concurso mensual
+                    </li>
+                    <li>
+                      • <strong>Finalista:</strong> Queda en el top 3
+                    </li>
+                    <li>
+                      • <strong>Veterano Ganador:</strong> Gana 3 concursos
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -356,18 +461,21 @@ const FAQ = () => {
           question: "¿Puedo perder un badge una vez que lo tengo?",
           answer: (
             <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-1" />
+              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-300 mt-1" />
                 <div>
-                  <p className="font-medium text-green-700">Los badges son permanentes</p>
-                  <p className="text-sm text-green-600">
+                  <p className="font-medium text-green-700 dark:text-green-300">
+                    Los badges son permanentes
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-300">
                     Una vez que ganas un badge, es tuyo para siempre.
                   </p>
                 </div>
               </div>
               <p>
-                Los badges representan logros que ya has alcanzado, por lo que no se pueden quitar. 
-                Tu colección solo puede crecer con el tiempo.
+                Los badges representan logros que ya has alcanzado, por lo que
+                no se pueden quitar. Tu colección solo puede crecer con el
+                tiempo.
               </p>
             </div>
           ),
@@ -376,9 +484,10 @@ const FAQ = () => {
           question: "¿Los badges aparecen en mi perfil público?",
           answer: (
             <p>
-              Sí, todos tus badges se muestran orgullosamente en tu perfil público. Otros usuarios pueden 
-              ver tus logros cuando visitan tu perfil o cuando comentas en historias. Es una forma de 
-              mostrar tu experiencia y trayectoria en la comunidad.
+              Sí, todos tus badges se muestran orgullosamente en tu perfil
+              público. Otros usuarios pueden ver tus logros cuando visitan tu
+              perfil o cuando comentas en historias. Es una forma de mostrar tu
+              experiencia y trayectoria en la comunidad.
             </p>
           ),
         },
@@ -393,18 +502,22 @@ const FAQ = () => {
           question: "¿Mantengo los derechos de mi historia?",
           answer: (
             <div className="space-y-3">
-              <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                <Shield className="h-6 w-6 text-green-600 mt-1" />
+              <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
+                <Shield className="h-6 w-6 text-green-600 dark:text-green-300 mt-1" />
                 <div>
-                  <p className="font-bold text-green-700 text-lg">¡Absolutamente sí!</p>
-                  <p className="text-green-600">
-                    Mantienes todos los derechos de autor sobre tus historias. Son tuyas y siempre lo serán.
+                  <p className="font-bold text-green-700 dark:text-green-300 text-lg">
+                    ¡Absolutamente sí!
+                  </p>
+                  <p className="text-green-600 dark:text-green-300">
+                    Mantienes todos los derechos de autor sobre tus historias.
+                    Son tuyas y siempre lo serán.
                   </p>
                 </div>
               </div>
               <p>
-                Letranido solo proporciona la plataforma para compartir tu trabajo. No tenemos ningún 
-                derecho sobre tu contenido más allá del permiso básico para mostrarlo en el sitio web.
+                Letranido solo proporciona la plataforma para compartir tu
+                trabajo. No tenemos ningún derecho sobre tu contenido más allá
+                del permiso básico para mostrarlo en el sitio web.
               </p>
             </div>
           ),
@@ -418,12 +531,14 @@ const FAQ = () => {
                   No, está estrictamente prohibido
                 </p>
                 <p className="text-sm text-red-600 dark:text-red-300">
-                  Nadie puede republicar, copiar o usar tu historia sin tu permiso expreso.
+                  Nadie puede republicar, copiar o usar tu historia sin tu
+                  permiso expreso.
                 </p>
               </div>
               <p>
-                Si encuentras tu trabajo siendo usado sin autorización, contacta inmediatamente al 
-                equipo de moderación. Tomamos muy en serio la protección de la propiedad intelectual.
+                Si encuentras tu trabajo siendo usado sin autorización, contacta
+                inmediatamente al equipo de moderación. Tomamos muy en serio la
+                protección de la propiedad intelectual.
               </p>
             </div>
           ),
@@ -433,16 +548,18 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                <p className="font-medium text-blue-700">
+                <p className="font-medium text-blue-700 dark:text-blue-300">
                   ¡Por supuesto! Tu historia es tuya.
                 </p>
               </div>
               <p>
-                Puedes publicar tu historia en blogs, redes sociales, libros, revistas, o cualquier 
-                otro lugar que desees. No hay restricciones sobre dónde puedes usar tu propio trabajo.
+                Puedes publicar tu historia en blogs, redes sociales, libros,
+                revistas, o cualquier otro lugar que desees. No hay
+                restricciones sobre dónde puedes usar tu propio trabajo.
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Solo te pedimos que menciones a Letranido si la historia ganó un premio en nuestros concursos.
+                Solo te pedimos que menciones a Letranido si la historia ganó un
+                premio en nuestros concursos.
               </p>
             </div>
           ),
@@ -452,16 +569,19 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Sí, puedes eliminar tus historias desde tu perfil en cualquier momento.
+                Sí, puedes eliminar tus historias desde tu perfil en cualquier
+                momento.
               </p>
               <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-700">
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  <strong>Nota importante:</strong> Aunque elimines tu historia, puede que permanezca visible 
-                  en los listados de concursos anteriores por su valor histórico en la competición.
+                  <strong>Nota importante:</strong> Aunque elimines tu historia,
+                  puede que permanezca visible en los listados de concursos
+                  anteriores por su valor histórico en la competición.
                 </p>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Los comentarios y votos asociados también se eliminarán junto con la historia.
+                Los comentarios y votos asociados también se eliminarán junto
+                con la historia.
               </p>
             </div>
           ),
@@ -478,25 +598,31 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Durante la fase de votación, los miembros de la comunidad pueden leer todas las 
-                historias enviadas y elegir sus favoritas.
+                Durante la fase de votación, los miembros de la comunidad pueden
+                leer todas las historias enviadas y elegir sus favoritas.
               </p>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 p-2 bg-red-50 rounded">
+                <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
                   <Heart className="h-4 w-4 text-red-500" />
-                  <span className="text-sm font-medium">Tienes 3 votos por concurso</span>
+                  <span className="text-sm font-medium">
+                    Tienes 3 votos por concurso
+                  </span>
                 </div>
-                <div className="text-sm text-gray-600 ml-6">
-                  • Máximo 3 votos por usuario en cada concurso<br/>
-                  • No puedes votar por tu propia historia<br/>
-                  • Los votos son anónimos durante la votación<br/>
-                  • Puedes cambiar tus votos cuando quieras (quitar uno para votar por otra historia)
+                <div className="text-sm text-gray-600 dark:text-gray-300 ml-6">
+                  • Máximo 3 votos por usuario en cada concurso
+                  <br />
+                  • No puedes votar por tu propia historia
+                  <br />
+                  • Los votos son anónimos durante la votación
+                  <br />• Puedes cambiar tus votos cuando quieras (quitar uno
+                  para votar por otra historia)
                 </div>
               </div>
-              <div className="bg-blue-50 p-3 rounded-lg mt-3">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mt-3">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Estrategia:</strong> Lee todas las historias antes de votar. Una vez que uses tus 3 votos, 
-                  tendrás que quitar un voto existente para votar por una historia diferente.
+                  <strong>Estrategia:</strong> Lee todas las historias antes de
+                  votar. Una vez que uses tus 3 votos, tendrás que quitar un
+                  voto existente para votar por una historia diferente.
                 </p>
               </div>
             </div>
@@ -507,13 +633,15 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                ¡Sí! Los comentarios son una parte importante de nuestra comunidad. Puedes dejar 
-                feedback constructivo, elogios, o preguntas sobre las historias.
+                ¡Sí! Los comentarios son una parte importante de nuestra
+                comunidad. Puedes dejar feedback constructivo, elogios, o
+                preguntas sobre las historias.
               </p>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
                 <p className="text-sm">
-                  <strong>Código de conducta:</strong> Mantén los comentarios respetuosos y constructivos. 
-                  Los comentarios ofensivos o spam serán eliminados.
+                  <strong>Código de conducta:</strong> Mantén los comentarios
+                  respetuosos y constructivos. Los comentarios ofensivos o spam
+                  serán eliminados.
                 </p>
               </div>
             </div>
@@ -523,9 +651,10 @@ const FAQ = () => {
           question: "¿Cuándo se anuncian los resultados?",
           answer: (
             <p>
-              Los resultados se anuncian automáticamente al final del período de votación, 
-              típicamente el último día del mes. Los ganadores reciben notificaciones especiales 
-              y sus badges se actualizan inmediatamente.
+              Los resultados se anuncian automáticamente al final del período de
+              votación, típicamente el último día del mes. Los ganadores reciben
+              notificaciones especiales y sus badges se actualizan
+              inmediatamente.
             </p>
           ),
         },
@@ -541,16 +670,17 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                <p className="font-medium text-green-700">
+                <p className="font-medium text-green-700 dark:text-green-300">
                   ¡Sí, es completamente gratis!
                 </p>
-                <p className="text-sm text-green-600">
+                <p className="text-sm text-green-600 dark:text-green-300">
                   Registrarse y participar en la comunidad es gratuito.
                 </p>
               </div>
               <p>
-                Puedes participar en concursos, votar, comentar, y ganar badges sin ningún costo. 
-                Nuestro objetivo es mantener la escritura creativa accesible para todos.
+                Puedes participar en concursos, votar, comentar, y ganar badges
+                sin ningún costo. Nuestro objetivo es mantener la escritura
+                creativa accesible para todos.
               </p>
             </div>
           ),
@@ -561,15 +691,24 @@ const FAQ = () => {
             <div className="space-y-3">
               <p>Puedes actualizar tu perfil en cualquier momento:</p>
               <ol className="space-y-1 ml-4">
-                <li>1. Ve a tu <Link to="/profile" className="text-indigo-600 hover:underline">perfil</Link></li>
+                <li>
+                  1. Ve a tu{" "}
+                  <Link
+                    to="/profile"
+                    className="text-indigo-600 dark:text-purple-300 hover:underline"
+                  >
+                    perfil
+                  </Link>
+                </li>
                 <li>2. Haz clic en "Editar perfil"</li>
                 <li>3. Actualiza tu nombre</li>
                 <li>4. Guarda los cambios</li>
               </ol>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Nota:</strong> Por ahora puedes cambiar tu nombre. Las opciones de biografía y foto de perfil 
-                  se implementarán próximamente.
+                  <strong>Nota:</strong> Por ahora puedes cambiar tu nombre. Las
+                  opciones de biografía y foto de perfil se implementarán
+                  próximamente.
                 </p>
               </div>
             </div>
@@ -586,11 +725,23 @@ const FAQ = () => {
           question: "¿Cómo puedo contactar al equipo de soporte?",
           answer: (
             <div className="space-y-3">
-              <p>Tenemos varios canales para ayudarte:</p>
+              <p>Puedes escribirnos a:</p>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded">
-                  <Mail className="h-4 w-4 text-blue-500" />
+                <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                  <Mail className="h-4 w-4 text-blue-500 dark:text-blue-300" />
                   <span className="text-sm">Email: info@letranido.com</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                  <MessageCircle className="h-4 w-4 text-blue-500 dark:text-blue-300" />
+                  <span className="text-sm">
+                    O directamente desde este formulario:{" "}
+                    <button
+                      onClick={() => setShowFeedbackModal(true)}
+                      className="text-blue-600 cursor-pointer dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-colors underline font-medium"
+                    >
+                      Enviar feedback
+                    </button>
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -604,7 +755,8 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Si encuentras contenido que viola nuestras reglas comunitarias, puedes reportarlo:
+                Si encuentras contenido que viola nuestras reglas comunitarias,
+                puedes reportarlo:
               </p>
               <ul className="space-y-1 ml-4">
                 <li>• Usa el botón "Reportar" en cada historia o comentario</li>
@@ -612,7 +764,8 @@ const FAQ = () => {
                 <li>• Describe específicamente qué regla se está violando</li>
               </ul>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Todos los reportes son revisados por nuestro equipo de moderación en menos de 24 horas.
+                Todos los reportes son revisados por nuestro equipo de
+                moderación en menos de 24 horas.
               </p>
             </div>
           ),
@@ -623,12 +776,32 @@ const FAQ = () => {
             <div className="space-y-3">
               <p>¡Sí! Puedes encontrarnos en:</p>
               <div className="grid gap-2">
-                <div className="flex items-center gap-2 p-2 bg-purple-50 rounded">
-                  <span className="text-sm">Instagram: @letranido</span>
+                <div className="flex items-center gap-2 p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                  <Instagram className="h-4 w-4 text-purple-500 dark:text-purple-300" />
+                  <a
+                    href="https://www.instagram.com/letranido"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm"
+                  >
+                    @letranido
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                  <Facebook className="h-4 w-4 text-purple-500 dark:text-purple-300" />
+                  <a
+                    href="https://web.facebook.com/profile.php?id=61579066655489"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm"
+                  >
+                    Facebook
+                  </a>
                 </div>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Síguenos para actualizaciones, consejos de escritura, y anuncios de nuevos concursos.
+                Síguenos para actualizaciones, consejos de escritura, y anuncios
+                de nuevos concursos.
               </p>
             </div>
           ),
@@ -656,8 +829,8 @@ const FAQ = () => {
             Preguntas Frecuentes
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Todo lo que necesitas saber sobre Letranido, nuestra comunidad de escritores 
-            y cómo participar en nuestros concursos mensuales.
+            Todo lo que necesitas saber sobre Letranido, nuestra comunidad de
+            escritores y cómo participar en nuestros concursos mensuales.
           </p>
         </div>
 
@@ -672,9 +845,14 @@ const FAQ = () => {
             };
 
             return (
-              <div key={sectionIndex} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/40 dark:border-gray-700/40 overflow-hidden">
+              <div
+                key={sectionIndex}
+                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/40 dark:border-gray-700/40 overflow-hidden"
+              >
                 {/* Section Header */}
-                <div className={`bg-gradient-to-r ${colorClasses[section.color]} p-6 text-white`}>
+                <div
+                  className={`bg-gradient-to-r ${colorClasses[section.color]} p-6 text-white`}
+                >
                   <div className="flex items-center gap-3">
                     <SectionIcon className="h-6 w-6" />
                     <h2 className="text-2xl font-bold">{section.title}</h2>
@@ -731,7 +909,8 @@ const FAQ = () => {
             ¿No encontraste lo que buscabas?
           </h2>
           <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">
-            Nuestro equipo de soporte está aquí para ayudarte con cualquier pregunta adicional.
+            Nuestro equipo de soporte está aquí para ayudarte con cualquier
+            pregunta adicional.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -758,8 +937,12 @@ const FAQ = () => {
             className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Trophy className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Concurso Actual</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Ver el concurso del mes en curso</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Concurso Actual
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Ver el concurso del mes en curso
+            </p>
           </Link>
 
           <Link
@@ -767,8 +950,12 @@ const FAQ = () => {
             className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Users className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Mi Perfil</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Gestiona tu cuenta y configuración</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Mi Perfil
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Gestiona tu cuenta y configuración
+            </p>
           </Link>
 
           <Link
@@ -776,11 +963,19 @@ const FAQ = () => {
             className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/40 dark:border-gray-700/40 hover:shadow-xl hover:scale-105 transition-all duration-300 text-center"
           >
             <Shield className="h-8 w-8 text-pink-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Reglas de la Comunidad</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Conoce nuestras normas de convivencia</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Reglas de la Comunidad
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Conoce nuestras normas de convivencia
+            </p>
           </Link>
         </div>
       </div>
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </div>
   );
 };
