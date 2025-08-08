@@ -23,7 +23,7 @@ const KarmaRankingsButton = () => {
           lg:top-1/2 lg:-translate-y-1/2 lg:py-3 lg:px-4 lg:pr-6
           
           // Mobile: posición más baja y tamaño muy reducido
-          top-1/3 py-1 px-1 pr-2
+          top-1/2 py-1 px-1 pr-2
         `}
         aria-label="Ver Rankings de Karma"
       >
