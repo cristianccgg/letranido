@@ -26,6 +26,7 @@ const WritePrompt = () => {
   const [wordCount, setWordCount] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [originalStory, setOriginalStory] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO
   const {
@@ -167,6 +168,9 @@ const WritePrompt = () => {
   }, [contestToUse?.id, loadDraft, isEditing]);
 
   const handleSubmit = () => {
+    // ✅ PREVENIR DOBLES CLICS
+    if (isSubmitting) return;
+
     // ✅ VALIDACIONES BÁSICAS
     if (!title.trim()) {
       alert("Debes escribir un título para tu historia");
@@ -218,6 +222,9 @@ const WritePrompt = () => {
     noAIConfirmed,
     shareWinnerContentAccepted,
   }) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
     try {
       if (isEditing && originalStory) {
         // MODO EDICIÓN: Actualizar historia existente
@@ -363,6 +370,8 @@ const WritePrompt = () => {
     } catch (error) {
       console.error("Error en el proceso de envío:", error);
       alert("Error inesperado. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -625,6 +634,7 @@ const WritePrompt = () => {
               <button
                 onClick={handleSubmit}
                 disabled={
+                  isSubmitting ||
                   isSubmissionClosed() ||
                   !title.trim() ||
                   !text.trim() ||
@@ -635,11 +645,13 @@ const WritePrompt = () => {
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 <Send className="h-4 w-4 mr-2" />
-                {isEditing
-                  ? "Actualizar historia"
-                  : isAuthenticated
-                    ? "Enviar historia"
-                    : "Registrarse y continuar"}
+                {isSubmitting 
+                  ? "Enviando..." 
+                  : isEditing
+                    ? "Actualizar historia"
+                    : isAuthenticated
+                      ? "Enviar historia"
+                      : "Registrarse y continuar"}
               </button>
             </div>
           </div>
