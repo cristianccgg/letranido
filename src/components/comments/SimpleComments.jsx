@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { MessageSquare, Send, Trash2, Flag, User } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import { useTheme } from "../../contexts/ThemeContext";
+import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalytics";
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
 import { UserWithTopBadge } from "../ui/UserNameWithBadges";
@@ -24,7 +25,7 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-const SimpleComments = ({ storyId, storyTitle }) => {
+const SimpleComments = ({ storyId, storyTitle, contestId }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,9 @@ const SimpleComments = ({ storyId, storyTitle }) => {
     reportComment,
     openAuthModal
   } = useGlobalApp();
+
+  // ✅ ANALYTICS
+  const { trackEvent } = useGoogleAnalytics();
 
   // Hook para tema
   const { isDark } = useTheme();
@@ -110,6 +114,13 @@ const SimpleComments = ({ storyId, storyTitle }) => {
       const result = await addComment(storyId, newComment.trim());
       
       if (result.success) {
+        // Track comment analytics
+        trackEvent(AnalyticsEvents.COMMENT_POSTED, {
+          story_id: storyId,
+          contest_id: contestId,
+          comment_length: newComment.trim().length,
+          story_title: storyTitle,
+        });
         // Transformar el comentario agregado al formato esperado
         const newCommentData = {
           id: result.comment.id,

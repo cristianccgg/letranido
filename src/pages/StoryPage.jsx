@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
+import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
 // ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
@@ -33,6 +35,7 @@ const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { trackEvent } = useGoogleAnalytics();
 
   // ✅ TODO DESDE EL CONTEXTO GLOBAL
   const {
@@ -72,6 +75,14 @@ const StoryPage = () => {
   // Refs para control
   const loadingRef = useRef(false);
   const storyContentRef = useRef(null);
+  
+  // ✅ READING ANALYTICS
+  const readingAnalytics = useReadingAnalytics(
+    story?.id,
+    story?.title,
+    story?.word_count,
+    story?.contest_id
+  );
 
   // ✅ CARGAR HISTORIA Y DATOS RELACIONADOS
   useEffect(() => {
@@ -225,6 +236,16 @@ const StoryPage = () => {
           return Math.max(0, newCount);
         });
 
+        // Track analytics del like
+        trackEvent(AnalyticsEvents.STORY_LIKED, {
+          story_id: id,
+          contest_id: story?.contest_id,
+          story_title: story?.title,
+          author_id: story?.user_id,
+          liked: result.liked,
+          total_likes: likesCount + (result.liked ? 1 : -1),
+        });
+        
         console.log(
           `${result.liked ? "❤️" : "💔"} Like ${
             result.liked ? "agregado" : "removido"
@@ -752,7 +773,11 @@ const StoryPage = () => {
 
         {/* Comments Section */}
         <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg p-6">
-          <SimpleComments storyId={story.id} storyTitle={story.title} />
+          <SimpleComments 
+            storyId={story.id} 
+            storyTitle={story.title} 
+            contestId={story.contest_id}
+          />
         </div>
 
         {/* Related Actions */}

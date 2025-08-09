@@ -6,6 +6,7 @@ import {
   useGoogleAnalytics,
   AnalyticsEvents,
 } from "../hooks/useGoogleAnalytics";
+import { useWritingAnalytics } from "../hooks/useWritingAnalytics";
 import { useDraftManager } from "../hooks/useDraftManager";
 import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
@@ -59,6 +60,14 @@ const WritePrompt = () => {
     console.log(`📝 Usando concurso actual: "${currentContest?.title}"`);
     return currentContest;
   }, [promptId, contests, currentContest]);
+
+  // ✅ WRITING ANALYTICS
+  const {
+    startWritingSession,
+    trackWordCount,
+    trackDraftSaved,
+    endWritingSession,
+  } = useWritingAnalytics(contestToUse?.id, isEditing);
 
   // ✅ DRAFT MANAGER
   const { saveDraft, loadDraft, saveTempDraft, clearDraft } = useDraftManager(
@@ -148,24 +157,37 @@ const WritePrompt = () => {
       .trim();
 
     const words = cleanText.split(/\s+/).filter((word) => word.length > 0);
-    setWordCount(words.length);
+    const newWordCount = words.length;
+    setWordCount(newWordCount);
+
+    // Track word count para analytics
+    if (newWordCount > 0) {
+      trackWordCount(newWordCount, title);
+    }
 
     // Auto-guardar con debounce (500ms)
     const timeoutId = setTimeout(() => {
       saveDraft(title, text);
+      // Track draft saved
+      if (title.trim() || text.trim()) {
+        trackDraftSaved(newWordCount, title);
+      }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [text, title, contestToUse?.id, saveDraft]);
+  }, [text, title, contestToUse?.id, saveDraft, trackWordCount, trackDraftSaved]);
 
-  // ✅ CARGAR BORRADOR
+  // ✅ CARGAR BORRADOR Y INICIAR SESIÓN DE ESCRITURA
   useEffect(() => {
     if (!contestToUse?.id || isEditing) return;
 
     const draft = loadDraft();
     if (draft.title) setTitle(draft.title);
     if (draft.text) setText(draft.text);
-  }, [contestToUse?.id, loadDraft, isEditing]);
+    
+    // Iniciar sesión de escritura analytics
+    startWritingSession();
+  }, [contestToUse?.id, loadDraft, isEditing, startWritingSession]);
 
   const handleSubmit = () => {
     // ✅ PREVENIR DOBLES CLICS
@@ -359,6 +381,9 @@ const WritePrompt = () => {
           // Cerrar modal
           setShowConfirmationModal(false);
 
+          // Finalizar sesión de escritura con éxito
+          endWritingSession('completed', wordCount, title);
+          
           // Redirigir al concurso específico con mensaje
           navigate(`/contest/${contestToUse.id}`, {
             state: { message: result.message },

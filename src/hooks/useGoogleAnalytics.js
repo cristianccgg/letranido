@@ -66,10 +66,37 @@ export const useGoogleAnalytics = () => {
 
 // Eventos específicos para Letranido
 export const AnalyticsEvents = {
+  // Autenticación y usuarios
   USER_SIGNUP: "user_signup",
-  STORY_PUBLISHED: "story_published",
-  CONTEST_JOINED: "contest_joined",
-  STORY_READ: "story_read",
-  CONTEST_SUBMISSION: "contest_submission",
+  USER_LOGIN: "user_login",
   PROFILE_COMPLETED: "profile_completed",
+  
+  // Escritura y creación
+  STORY_PUBLISHED: "story_published",
+  STORY_DRAFT_SAVED: "story_draft_saved",
+  WRITING_STARTED: "writing_started",
+  WRITING_ABANDONED: "writing_abandoned",
+  WRITING_TIME_SPENT: "writing_time_spent",
+  STORY_WORD_COUNT_MILESTONE: "story_word_count_milestone",
+  
+  // Lectura y engagement
+  STORY_READ: "story_read",
+  STORY_READ_COMPLETE: "story_read_complete",
+  STORY_READ_TIME: "story_read_time",
+  STORY_SCROLL_DEPTH: "story_scroll_depth",
+  
+  // Concursos
+  CONTEST_JOINED: "contest_joined",
+  CONTEST_SUBMISSION: "contest_submission",
+  CONTEST_VIEWED: "contest_viewed",
+  CONTEST_DEADLINE_WARNING: "contest_deadline_warning",
+  
+  // Interacciones sociales
+  STORY_LIKED: "story_liked",
+  COMMENT_POSTED: "comment_posted",
+  
+  // Navegación y UX
+  SEARCH_PERFORMED: "search_performed",
+  FILTER_APPLIED: "filter_applied",
+  GALLERY_BROWSED: "gallery_browsed",
 };
