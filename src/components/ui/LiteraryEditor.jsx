@@ -100,14 +100,16 @@ const LiteraryEditor = ({
     };
   }, []); // Solo ejecutar una vez al montar
 
-  // Sincronizar valor solo cuando cambie externamente
+  // Sincronizar valor solo cuando cambie externamente - OPTIMIZADO
   useEffect(() => {
-    if (quillRef.current && !isUpdatingRef.current) {
+    if (quillRef.current && !isUpdatingRef.current && value !== undefined) {
       const currentContent = quillRef.current.root.innerHTML;
-      // Solo actualizar si el contenido es realmente diferente
-      if (value !== currentContent) {
+      const cleanValue = value || "";
+      
+      // Solo actualizar si el contenido es realmente diferente y no está vacío de forma natural
+      if (cleanValue !== currentContent && !(cleanValue === "" && currentContent === "<p><br></p>")) {
         isUpdatingRef.current = true;
-        quillRef.current.root.innerHTML = value || "";
+        quillRef.current.root.innerHTML = cleanValue;
         isUpdatingRef.current = false;
       }
     }

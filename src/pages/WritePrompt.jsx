@@ -146,7 +146,7 @@ const WritePrompt = () => {
     }
   }, [editStoryId, isAuthenticated, user?.id, navigate]);
 
-  // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS (sin HTML)
+  // ✅ AUTO-GUARDAR Y CONTEO DE PALABRAS (sin HTML) - OPTIMIZADO PARA EVITAR LOOPS
   useEffect(() => {
     if (!contestToUse?.id) return;
 
@@ -160,34 +160,40 @@ const WritePrompt = () => {
     const newWordCount = words.length;
     setWordCount(newWordCount);
 
-    // Track word count para analytics
+    // Track word count para analytics (solo si hay cambio significativo)
     if (newWordCount > 0) {
       trackWordCount(newWordCount, title);
     }
 
-    // Auto-guardar con debounce (500ms)
+    // Auto-guardar con debounce (1000ms para evitar loops)
     const timeoutId = setTimeout(() => {
-      saveDraft(title, text);
-      // Track draft saved
+      // Solo guardar si hay contenido real
       if (title.trim() || text.trim()) {
+        saveDraft(title, text);
         trackDraftSaved(newWordCount, title);
       }
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [text, title, contestToUse?.id, saveDraft, trackWordCount, trackDraftSaved]);
+  }, [text, title, contestToUse?.id]); // ✅ Removidas las funciones de la dependencia
 
-  // ✅ CARGAR BORRADOR Y INICIAR SESIÓN DE ESCRITURA
+  // ✅ CARGAR BORRADOR Y INICIAR SESIÓN DE ESCRITURA - SOLO UNA VEZ
   useEffect(() => {
     if (!contestToUse?.id || isEditing) return;
 
-    const draft = loadDraft();
-    if (draft.title) setTitle(draft.title);
-    if (draft.text) setText(draft.text);
+    // Flag para evitar loops de carga
+    let hasLoaded = false;
     
-    // Iniciar sesión de escritura analytics
+    if (!hasLoaded) {
+      const draft = loadDraft();
+      if (draft.title && !title) setTitle(draft.title);
+      if (draft.text && !text) setText(draft.text);
+      hasLoaded = true;
+    }
+    
+    // Iniciar sesión de escritura analytics solo una vez
     startWritingSession();
-  }, [contestToUse?.id, loadDraft, isEditing, startWritingSession]);
+  }, [contestToUse?.id, isEditing]); // ✅ Removidas las funciones que causan re-renders
 
   const handleSubmit = () => {
     // ✅ PREVENIR DOBLES CLICS
