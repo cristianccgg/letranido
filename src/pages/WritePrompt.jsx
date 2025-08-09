@@ -28,6 +28,8 @@ const WritePrompt = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [originalStory, setOriginalStory] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
+  const [showSaveIndicator, setShowSaveIndicator] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO
   const {
@@ -171,6 +173,11 @@ const WritePrompt = () => {
       if (title.trim() || text.trim()) {
         saveDraft(title, text);
         trackDraftSaved(newWordCount, title);
+
+        // Mostrar indicador de guardado
+        setLastSaved(new Date());
+        setShowSaveIndicator(true);
+        setTimeout(() => setShowSaveIndicator(false), 2000);
       }
     }, 1000);
 
@@ -183,14 +190,14 @@ const WritePrompt = () => {
 
     // Flag para evitar loops de carga
     let hasLoaded = false;
-    
+
     if (!hasLoaded) {
       const draft = loadDraft();
       if (draft.title && !title) setTitle(draft.title);
       if (draft.text && !text) setText(draft.text);
       hasLoaded = true;
     }
-    
+
     // Iniciar sesión de escritura analytics solo una vez
     startWritingSession();
   }, [contestToUse?.id, isEditing]); // ✅ Removidas las funciones que causan re-renders
@@ -252,7 +259,7 @@ const WritePrompt = () => {
   }) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-    
+
     try {
       if (isEditing && originalStory) {
         // MODO EDICIÓN: Actualizar historia existente
@@ -388,8 +395,8 @@ const WritePrompt = () => {
           setShowConfirmationModal(false);
 
           // Finalizar sesión de escritura con éxito
-          endWritingSession('completed', wordCount, title);
-          
+          endWritingSession("completed", wordCount, title);
+
           // Redirigir al concurso específico con mensaje
           navigate(`/contest/${contestToUse.id}`, {
             state: { message: result.message },
@@ -643,6 +650,21 @@ const WritePrompt = () => {
               >
                 {wordCount} / {contestToUse.max_words} palabras
               </div>
+
+              {/* Indicador de guardado */}
+              <div className="flex items-center gap-2">
+                {showSaveIndicator && (
+                  <div className="flex items-center text-green-600 dark:text-green-400 text-sm animate-fade-in">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                    Guardado
+                  </div>
+                )}
+                {lastSaved && !showSaveIndicator && (
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                    Guardado {lastSaved.toLocaleTimeString()}
+                  </div>
+                )}
+              </div>
               {wordCount < contestToUse.min_words && (
                 <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm transition-colors duration-300">
                   <AlertCircle className="h-4 w-4 mr-1" />
@@ -673,11 +695,11 @@ const WritePrompt = () => {
                   wordCount > contestToUse.max_words ||
                   hasUserParticipated
                 }
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="btn-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 <Send className="h-4 w-4 mr-2" />
-                {isSubmitting 
-                  ? "Enviando..." 
+                {isSubmitting
+                  ? "Enviando..."
                   : isEditing
                     ? "Actualizar historia"
                     : isAuthenticated
@@ -690,6 +712,21 @@ const WritePrompt = () => {
 
         {/* Consejos */}
         <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 transition-colors duration-300">
+          {/* CSS para animaciones */}
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+              @keyframes fade-in {
+                0% { opacity: 0; transform: translateY(-5px); }
+                100% { opacity: 1; transform: translateY(0); }
+              }
+              .animate-fade-in {
+                animation: fade-in 0.3s ease-out;
+              }
+            `,
+            }}
+          />
+
           <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center transition-colors duration-300">
             <PenTool className="h-5 w-5 mr-2" />
             Consejos para escribir

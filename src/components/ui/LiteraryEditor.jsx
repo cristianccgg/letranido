@@ -84,6 +84,24 @@ const LiteraryEditor = ({
       editor.setAttribute('autocorrect', 'off');
       editor.setAttribute('autocapitalize', 'off');
       editor.setAttribute('spellcheck', 'false');
+      
+      // Mejoras UX: atajos de teclado
+      quillRef.current.keyboard.addBinding({
+        key: 's',
+        ctrlKey: true
+      }, function(range, context) {
+        // Ctrl+S no hace nada visible (ya se guarda automáticamente)
+        // Pero previene el diálogo del navegador
+        return false;
+      });
+
+      quillRef.current.keyboard.addBinding({
+        key: 's',
+        metaKey: true
+      }, function(range, context) {
+        // Cmd+S en Mac
+        return false;
+      });
 
       // Establecer valor inicial
       if (value) {

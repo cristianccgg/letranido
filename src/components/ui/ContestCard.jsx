@@ -236,7 +236,7 @@ const ContestCard = ({
                   <span className="text-xl md:text-2xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight">
                     {timeLeft}
                   </span>
-                  <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
+                  <div className="text-xs text-red-600 dark:text-red-400 font-medium mt-1 animate-pulse transition-colors duration-300">
                     ¡No te quedes sin participar!
                   </div>
                 </div>
@@ -319,7 +319,7 @@ const ContestCard = ({
             <span className="text-xl md:text-2xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight transition-colors duration-300">
               {timeLeft}
             </span>
-            <div className="text-xs text-red-600 font-medium mt-1 animate-pulse">
+            <div className="text-xs text-red-600 dark:text-red-400 font-medium mt-1 animate-pulse transition-colors duration-300">
               {phase === "submission"
                 ? "¡No te quedes sin participar!"
                 : phase === "voting"
