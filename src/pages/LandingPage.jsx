@@ -399,23 +399,54 @@ const LandingPage = () => {
               />
             </div>
 
-            {/* Tagline */}
-            <p className="text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-6 font-dancing-script font-semibold transition-colors duration-300">
-              Tu nido creativo de escritura
-            </p>
+            {/* HERO PRINCIPAL - Claro y motivacional */}
+            <div className="mb-8">
+              {/* Tagline emocional */}
+              <p className="font-dancing-script text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-4 font-semibold transition-colors duration-300">
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  Escribe
+                </span>
+                .
+                <span className="text-purple-600 dark:text-purple-400">
+                  {" "}
+                  Recibe feedback
+                </span>
+                .
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  {" "}
+                  Crece como escritor
+                </span>
+                .
+              </p>
 
-            {/* Qué es - explicación clara y directa */}
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-700 dark:text-dark-300 mb-6 max-w-2xl leading-relaxed transition-colors duration-300">
-              Cada mes un{" "}
-              <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
-                prompt diferente
-              </span>{" "}
-              que puedes interpretar como quieras: síguelo exactamente, adaptalo
-              o úsalo como inspiración
-            </p>
+              {/* Explicación clara del concepto */}
+              <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-6 max-w-3xl leading-relaxed transition-colors duration-300">
+                Cada mes un{" "}
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
+                  prompt diferente
+                </span>{" "}
+                que puedes interpretar como quieras: síguelo exactamente,
+                adaptalo o úsalo como inspiración
+              </p>
+
+              {/* Social proof mínimo */}
+              <div className="flex items-center justify-center gap-6 mb-8 text-gray-600 dark:text-dark-400 text-sm md:text-base">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span>
+                    <strong>{stats.totalUsers || 0}</strong> escritores
+                    participan
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  <span>100% gratis</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Beneficios específicos - más concisos */}
+          {/* Beneficios y ganador - diseño original */}
           <div className="mb-8 max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
               <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300">
@@ -619,6 +650,69 @@ const LandingPage = () => {
                 <Trophy className="h-5 w-5 mr-2" />
                 Ver Rankings
               </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCIÓN DE BENEFICIOS Y PROCESO */}
+      <section className="py-16 bg-white/50 dark:bg-dark-900/50 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Proceso simple */}
+          <div className="max-w-4xl mx-auto bg-white/90 dark:bg-dark-800/90 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-indigo-200 dark:border-dark-600">
+            <h3 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-dark-100">
+              ¿Cómo funciona?
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PenTool className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-dark-100 mb-2">
+                  Escribe
+                </h4>
+                <p className="text-gray-600 dark:text-dark-400 text-sm">
+                  Lee el prompt y escribe tu historia (100-1000 palabras)
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Vote className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-dark-100 mb-2">
+                  Participa
+                </h4>
+                <p className="text-gray-600 dark:text-dark-400 text-sm">
+                  Lee y vota por las historias que más te gusten
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Crown className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-dark-100 mb-2">
+                  Crece
+                </h4>
+                <p className="text-gray-600 dark:text-dark-400 text-sm">
+                  Recibe feedback y construye tu reputación como escritor
+                </p>
+              </div>
+            </div>
+
+            {/* Beneficios rápidos */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-dark-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-dark-400">
+                <MessageCircle className="w-4 h-4 text-indigo-600" />
+                <span>Feedback constructivo</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-dark-400">
+                <Shield className="w-4 h-4 text-purple-600" />
+                <span>Tus derechos 100%</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-dark-400">
+                <Users className="w-4 h-4 text-pink-600" />
+                <span>Comunidad activa</span>
+              </div>
             </div>
           </div>
         </div>
