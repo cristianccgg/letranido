@@ -285,6 +285,14 @@ const GlobalFooter = () => {
                 </li>
                 <li>
                   <Link
+                    to="/dmca"
+                    className="hover:text-white transition-colors"
+                  >
+                    Política DMCA
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/faq"
                     className="hover:text-white transition-colors"
                   >
