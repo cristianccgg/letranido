@@ -18,6 +18,7 @@ import { useToast, ToastContainer } from "./components/ui/Toast";
 import SocialContainer from "./components/ui/SocialContainer";
 import FeedbackModal from "./components/modals/FeedbackModal";
 import { Analytics } from "@vercel/analytics/react";
+import { FEATURES } from "./lib/config";
 
 // Páginas críticas - carga inmediata
 import LandingPage from "./pages/LandingPage";
@@ -44,6 +45,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const WritingResources = lazy(() => import("./pages/WritingResources"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const PremiumPlans = lazy(() => import("./pages/PremiumPlans"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -245,6 +247,14 @@ function AppContent() {
               path="/recursos/blog/:postId"
               element={<Navigate to="/blog/:postId" replace />}
             />
+
+            {/* Premium Plans - Solo visible en desarrollo */}
+            {FEATURES.PREMIUM_PLANS && (
+              <Route path="/planes" element={<PremiumPlans />} />
+            )}
+            {FEATURES.BETA_ROUTES && (
+              <Route path="/planes-beta" element={<PremiumPlans />} />
+            )}
 
             {/* Legal - Con rutas canónicas */}
             <Route path="/terms" element={<TermsOfService />} />

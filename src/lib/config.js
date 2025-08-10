@@ -40,6 +40,14 @@ export const APP_CONFIG = {
   version: '1.0.0',
 };
 
+// Feature flags para desarrollo gradual
+export const FEATURES = {
+  PREMIUM_PLANS: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM === 'true',
+  FEEDBACK_SYSTEM: import.meta.env.VITE_ENABLE_FEEDBACK === 'true',
+  PREMIUM_EDITOR: import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true',
+  BETA_ROUTES: import.meta.env.DEV || import.meta.env.VITE_BETA_ROUTES === 'true',
+};
+
 // URLs importantes
 export const URLS = {
   home: SITE_CONFIG.url,
