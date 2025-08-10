@@ -168,9 +168,11 @@ const LandingPage = () => {
 
           console.log("📊 Real combined stats calculated:", realStats);
           // ✅ Solo actualizar si los valores son diferentes para evitar re-renders innecesarios
-          setHistoricalStats(prevStats => {
-            if (prevStats.totalStories !== realStats.totalStories || 
-                prevStats.totalWords !== realStats.totalWords) {
+          setHistoricalStats((prevStats) => {
+            if (
+              prevStats.totalStories !== realStats.totalStories ||
+              prevStats.totalWords !== realStats.totalWords
+            ) {
               return realStats;
             }
             return prevStats;
@@ -458,7 +460,7 @@ const LandingPage = () => {
                     <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
                       {lastContestWinners.contest.month}
                     </div>
-                    <div className="font-medium text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
+                    <div className="font-semibold text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
                       {lastContestWinners.winners[0].author}
                     </div>
                   </div>
