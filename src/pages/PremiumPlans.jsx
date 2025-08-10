@@ -109,7 +109,11 @@ const PremiumPlans = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-300 mr-3" />
-                  <span className="text-white font-medium">Editor mejorado</span>
+                  <span className="text-white font-medium">Bio personalizada</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="w-5 h-5 text-green-300 mr-3" />
+                  <span className="text-white font-medium">Ubicación y website</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-300 mr-3" />
@@ -198,16 +202,16 @@ const PremiumPlans = () => {
                 <div className="flex items-start">
                   <Crown className="w-6 h-6 text-purple-500 mt-1 mr-3" />
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Portafolio Personal</h4>
-                    <p className="text-gray-600 dark:text-gray-300">Crea tu espacio privado para guardar y desarrollar tus historias</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Perfil Profesional</h4>
+                    <p className="text-gray-600 dark:text-gray-300">Bio personalizada, ubicación y link a tu website personal</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start">
                   <MessageSquare className="w-6 h-6 text-blue-500 mt-1 mr-3" />
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Análisis de Progreso</h4>
-                    <p className="text-gray-600 dark:text-gray-300">Estadísticas detalladas de tu evolución como escritor</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Portafolio + Estadísticas</h4>
+                    <p className="text-gray-600 dark:text-gray-300">Espacio privado para tus historias y análisis detallado de progreso</p>
                   </div>
                 </div>
               </div>

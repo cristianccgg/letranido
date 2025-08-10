@@ -24,7 +24,9 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import UserBadgesSection from "../components/ui/UserBadgesSection";
+import PremiumProfileFields from "../components/premium/PremiumProfileFields";
 import SEOHead from "../components/SEO/SEOHead";
+import { FEATURES } from "../lib/config";
 
 const UnifiedProfile = () => {
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -125,6 +127,40 @@ const UnifiedProfile = () => {
       console.error("Error updating display name:", err);
     } finally {
       setNameUpdateLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (profileData) => {
+    try {
+      // Importar supabase aquí para actualizar perfil
+      const { supabase } = await import("../lib/supabase");
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          bio: profileData.bio?.trim() || null,
+          location: profileData.location?.trim() || null,
+          website: profileData.website?.trim() || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        alert("❌ Error al actualizar el perfil: " + error.message);
+        return false;
+      }
+
+      alert("✅ Perfil actualizado exitosamente");
+      
+      // Recargar la página para mostrar cambios
+      window.location.reload();
+      
+      return true;
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert("❌ Error inesperado al actualizar el perfil");
+      return false;
     }
   };
 
@@ -309,6 +345,15 @@ const UnifiedProfile = () => {
           userId={user?.id}
           userName={user?.name || user?.display_name || "Usuario"}
         />
+
+        {/* Premium Profile Fields */}
+        {FEATURES.PREMIUM_PLANS && (
+          <PremiumProfileFields 
+            user={user}
+            isOwnProfile={true}
+            onUpdateProfile={handleUpdateProfile}
+          />
+        )}
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Main Content */}
