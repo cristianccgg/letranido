@@ -1,0 +1,495 @@
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye } from 'lucide-react';
+import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import UserBadgesSection from '../ui/UserBadgesSection';
+import { FEATURES } from '../../lib/config';
+
+const ProfileTabs = ({ user, votingStats }) => {
+  const [activeTab, setActiveTab] = useState('resumen');
+  const { userStories, userStoriesLoading, deleteUserStory } = useGlobalApp();
+
+  const tabs = [
+    {
+      id: 'resumen',
+      name: 'Resumen',
+      icon: User,
+      count: null
+    },
+    {
+      id: 'historias',
+      name: 'Mis Historias',
+      icon: BookOpen,
+      count: userStories.length > 0 ? userStories.length : null
+    },
+    {
+      id: 'logros',
+      name: 'Logros',
+      icon: Trophy,
+      count: user?.wins_count || 0
+    }
+  ];
+
+  // Agregar pestaña de configuración si premium está habilitado
+  if (FEATURES.PREMIUM_PLANS) {
+    tabs.push({
+      id: 'configuracion',
+      name: 'Configuración',
+      icon: Settings,
+      count: null
+    });
+  }
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+  };
+
+  // Función para eliminar historia con confirmación
+  const handleDeleteStory = async (storyId, storyTitle) => {
+    const confirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar "${storyTitle}"?\n\nEsta acción no se puede deshacer.`
+    );
+
+    if (confirmed) {
+      const result = await deleteUserStory(storyId);
+      if (result.success) {
+        alert('✅ Historia eliminada exitosamente');
+      } else {
+        alert('❌ Error al eliminar: ' + result.error);
+      }
+    }
+  };
+
+  const ResumenTab = () => {
+    // Calcular estadísticas en tiempo real desde userStories
+    const { totalLikes, totalViews, recentStory } = useMemo(() => {
+      const totalLikes = userStories.reduce(
+        (total, story) => total + (story.likes_count || 0),
+        0
+      );
+      const totalViews = userStories.reduce(
+        (total, story) => total + (story.views_count || 0),
+        0
+      );
+      const recentStory = userStories.length > 0 ? userStories[0] : null;
+      
+      return { totalLikes, totalViews, recentStory };
+    }, [userStories]);
+
+    return (
+      <div className="space-y-6">
+        {/* Estadísticas principales */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {userStories.length}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Historias</div>
+          </div>
+          
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {totalLikes}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Likes Recibidos</div>
+          </div>
+          
+          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              {totalViews}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+          </div>
+          
+          <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+              {votingStats?.userVotesCount || 0}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Votos Dados</div>
+          </div>
+        </div>
+
+        {/* Badges y Logros */}
+        <UserBadgesSection
+          userId={user?.id}
+          userName={user?.name || user?.display_name || "Usuario"}
+        />
+        
+        {/* Actividad Reciente */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Actividad Reciente
+          </h3>
+          {recentStory ? (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-medium text-gray-900 dark:text-white">
+                  {recentStory.title}
+                </h4>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  recentStory.contest?.status === 'submission' 
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                    : recentStory.contest?.status === 'voting'
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                }`}>
+                  {recentStory.contest?.status}
+                </span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                Concurso: {recentStory.contest?.title}
+              </p>
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <span>{recentStory.word_count || 0} palabras</span>
+                <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 dark:text-gray-400">
+                ¡Escribe tu primera historia para ver tu actividad aquí!
+              </p>
+              <Link
+                to="/contest"
+                className="inline-flex items-center mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Ver Concurso Actual
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const HistoriasTab = () => {
+    // Función helper para determinar si se puede editar/eliminar
+    const canEditStory = (story) => {
+      return story.contest?.status === 'submission';
+    };
+
+
+    return (
+      <div className="space-y-4">
+        {userStoriesLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Cargando tus historias...</p>
+          </div>
+        ) : userStories.length === 0 ? (
+          <div className="text-center py-8">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Aún no tienes historias
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              ¡Participa en un concurso para escribir tu primera historia!
+            </p>
+            <Link
+              to="/contest"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Ver Concurso Actual
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Mis Historias ({userStories.length})
+              </h3>
+            </div>
+            
+            <div className="grid gap-4">
+              {userStories.map((story) => (
+                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        {story.title}
+                      </h4>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        Concurso: {story.contest?.title}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        story.contest?.status === 'submission' 
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                          : story.contest?.status === 'voting'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                      }`}>
+                        {story.contest?.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <span>{story.word_count || 0} palabras</span>
+                      <span className="mx-2">•</span>
+                      <span>{story.likes_count || 0} ❤️</span>
+                      <span className="mx-2">•</span>
+                      <span>{story.views_count || 0} 👁️</span>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      {/* Ver historia */}
+                      <Link
+                        to={`/story/${story.id}`}
+                        className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
+                        title="Ver historia"
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        Ver
+                      </Link>
+                      
+                      {/* Editar historia (solo si está en submission) */}
+                      {canEditStory(story) && (
+                        <Link
+                          to={`/write/${story.contest_id}?edit=${story.id}`}
+                          className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm"
+                          title="Editar historia"
+                        >
+                          <Edit3 className="w-4 h-4 mr-1" />
+                          Editar
+                        </Link>
+                      )}
+                      
+                      {/* Eliminar historia (solo si está en submission) */}
+                      {canEditStory(story) && (
+                        <button
+                          onClick={() => handleDeleteStory(story.id, story.title)}
+                          className="inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm"
+                          title="Eliminar historia"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const LogrosTab = () => {
+    const { totalLikes, totalViews } = useMemo(() => {
+      const totalLikes = userStories.reduce(
+        (total, story) => total + (story.likes_count || 0),
+        0
+      );
+      const totalViews = userStories.reduce(
+        (total, story) => total + (story.views_count || 0),
+        0
+      );
+      return { totalLikes, totalViews };
+    }, [userStories]);
+
+    return (
+      <div className="space-y-6">
+        {/* Badges Section */}
+        <UserBadgesSection
+          userId={user?.id}
+          userName={user?.name || user?.display_name || "Usuario"}
+        />
+        
+        {/* Estadísticas Detalladas */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+            Estadísticas de Escritura
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Estadísticas de Creación */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-white">Creación</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Total historias</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">{userStories.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Palabras escritas</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
+                    {userStories.reduce((total, story) => total + (story.word_count || 0), 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Estadísticas de Engagement */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-white">Engagement</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Likes recibidos</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">{totalLikes}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Lecturas totales</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">{totalViews}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Promedio likes/historia</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">
+                    {userStories.length > 0 ? Math.round((totalLikes / userStories.length) * 10) / 10 : 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Estadísticas de Participación */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900 dark:text-white">Participación</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Votos dados</span>
+                  <span className="font-semibold text-orange-600 dark:text-orange-400">
+                    {votingStats?.userVotesCount || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Concursos activos</span>
+                  <span className="font-semibold text-orange-600 dark:text-orange-400">
+                    {votingStats?.currentContestVotes || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Progreso y Próximos Objetivos */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Próximos Objetivos
+          </h3>
+          <div className="space-y-4">
+            {userStories.length < 5 && (
+              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="flex items-center">
+                  <Trophy className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
+                  <span className="text-gray-900 dark:text-white">Escritor Novato</span>
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {userStories.length}/5 historias
+                </span>
+              </div>
+            )}
+            
+            {totalLikes < 50 && (
+              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="flex items-center">
+                  <Trophy className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" />
+                  <span className="text-gray-900 dark:text-white">Popular</span>
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {totalLikes}/50 likes
+                </span>
+              </div>
+            )}
+            
+            {(votingStats?.userVotesCount || 0) < 25 && (
+              <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <div className="flex items-center">
+                  <Trophy className="w-5 h-5 text-orange-600 dark:text-orange-400 mr-3" />
+                  <span className="text-gray-900 dark:text-white">Crítico Activo</span>
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {votingStats?.userVotesCount || 0}/25 votos
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ConfiguracionTab = () => (
+    <div className="text-center py-8">
+      <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Configuración de Cuenta
+      </h3>
+      <p className="text-gray-600 dark:text-gray-400">
+        Próximamente: configuraciones avanzadas de cuenta y preferencias
+      </p>
+    </div>
+  );
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'resumen':
+        return <ResumenTab />;
+      case 'historias':
+        return <HistoriasTab />;
+      case 'logros':
+        return <LogrosTab />;
+      case 'configuracion':
+        return <ConfiguracionTab />;
+      default:
+        return <ResumenTab />;
+    }
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      {/* Tabs Header */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="flex space-x-8 px-6" aria-label="Tabs">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`
+                  flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                  ${isActive
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
+                  }
+                `}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{tab.name}</span>
+                {tab.count !== null && (
+                  <span className={`
+                    px-2 py-1 rounded-full text-xs
+                    ${isActive 
+                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' 
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }
+                  `}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="p-6">
+        {renderTabContent()}
+      </div>
+    </div>
+  );
+};
+
+export default ProfileTabs;

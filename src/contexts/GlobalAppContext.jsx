@@ -526,11 +526,16 @@ export function GlobalAppProvider({ children }) {
 
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
-              // Solo cargar datos si es un login real (no parte de INITIAL_SESSION)
+              // Verificar si es el mismo usuario para evitar carga duplicada
+              if (state.user && state.user.id === session.user.id && state.userStories.length > 0) {
+                console.log(
+                  "🔄 SIGNED_IN event - mismo usuario con datos ya cargados, saltando"
+                );
+                return;
+              }
               console.log(
-                "🔄 SIGNED_IN event - usuario ya autenticado, saltando carga duplicada"
+                "🔄 SIGNED_IN event - usuario nuevo o sin datos, cargando..."
               );
-              return;
             }
 
             if (event === "INITIAL_SESSION" && session?.user) {
