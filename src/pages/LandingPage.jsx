@@ -1,11 +1,10 @@
 // pages/LandingPage.jsx - VERSIÓN CORREGIDA SIN HISTORIAS
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
   Trophy,
   Users,
-  Star,
   Clock,
   ArrowRight,
   Sparkles,
@@ -62,19 +61,21 @@ const WinnerBadgeDisplay = ({ userId }) => {
 
   // Encontrar el badge de mayor prestigio
   const topBadge = userBadges
-    .filter((badge) => prestigeOrder.hasOwnProperty(badge.id))
+    .filter((badge) =>
+      Object.prototype.hasOwnProperty.call(prestigeOrder, badge.id)
+    )
     .sort((a, b) => (prestigeOrder[b.id] || 0) - (prestigeOrder[a.id] || 0))[0];
 
   if (topBadge) {
     return (
-      <div className="group-hover:animate-pulse">
-        <Badge badge={topBadge} size="xs" showDescription={true} />
+      <div>
+        <Badge badge={topBadge} size="xs" showDescription={false} />
       </div>
     );
   }
 
   // Fallback al trofeo si no hay badge
-  return <span className="text-yellow-600 group-hover:animate-pulse">🏆</span>;
+  return <span className="text-yellow-600">🏆</span>;
 };
 
 const LandingPage = () => {
@@ -166,8 +167,16 @@ const LandingPage = () => {
           };
 
           console.log("📊 Real combined stats calculated:", realStats);
-          setHistoricalStats(realStats);
+          // ✅ Solo actualizar si los valores son diferentes para evitar re-renders innecesarios
+          setHistoricalStats(prevStats => {
+            if (prevStats.totalStories !== realStats.totalStories || 
+                prevStats.totalWords !== realStats.totalWords) {
+              return realStats;
+            }
+            return prevStats;
+          });
         }
+        // ✅ ELIMINADO: No resetear a 0 si no hay historias, mantener fallback
       } catch (error) {
         console.error("❌ Error loading historical stats:", error);
         // Mantener fallback si hay error
@@ -328,33 +337,6 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, [nextContest?.submission_deadline, currentContestPhase]);
 
-  // Configuración del segundo botón según la fase (Optimizado con useMemo)
-  const secondaryButton = useMemo(() => {
-    if (!currentContestPhase || !currentContest) return null;
-    if (currentContestPhase === "submission") {
-      return {
-        text: "Ver participantes",
-        href: "/contest/current",
-        icon: Users,
-      };
-    }
-    if (currentContestPhase === "voting") {
-      return {
-        text: "Leer y votar",
-        href: "/contest/current",
-        icon: Eye,
-      };
-    }
-    if (currentContestPhase === "finished") {
-      return {
-        text: "Ver ganador",
-        href: "/contest/current",
-        icon: Trophy,
-      };
-    }
-    return null;
-  }, [currentContestPhase, currentContest]);
-
   // ✅ LOADING STATE
   if (globalLoading || contestsLoading || !initialized) {
     return (
@@ -436,22 +418,22 @@ const LandingPage = () => {
           {/* Beneficios y ganador - diseño original */}
           <div className="mb-8 max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Feedback real
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Tus derechos 100%
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-4 py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Comunidad activa
                 </span>
               </div>
-              {/* Tarjeta especial del ganador */}
+              {/* Tarjeta especial del ganador - MEJORADA */}
               {lastContestWinners && (
                 <button
                   onClick={() => {
@@ -461,16 +443,22 @@ const LandingPage = () => {
                       winnersSection.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
-                  className="flex items-center justify-center gap-2 bg-white/90 dark:bg-primary-800 backdrop-blur-sm rounded-lg px-4 py-3 border border-yellow-300 ring-2 ring-yellow-400/30 hover:ring-yellow-400/50 hover:scale-105 transition-all duration-300 hover:shadow-lg group cursor-pointer"
+                  className="flex items-center justify-center gap-1 md:gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:bg-gradient-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-[auto]"
                 >
+                  {/* Efecto de brillo sutil */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
                   <WinnerBadgeDisplay
                     userId={lastContestWinners.winners[0].user_id}
                   />
-                  <div className="text-center">
-                    <div className="font-bold text-yellow-800 dark:text-dark-100 text-[8px] md:text-xs leading-tight">
-                      1er lugar de {lastContestWinners.contest.month}
+                  <div className="text-center relative z-10">
+                    <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
+                      1ER LUGAR
                     </div>
-                    <div className="font-medium text-gray-700 dark:text-dark-100 text-[8px] md:text-xs truncate max-w-[80px] md:max-w-none">
+                    <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
+                      {lastContestWinners.contest.month}
+                    </div>
+                    <div className="font-medium text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
                       {lastContestWinners.winners[0].author}
                     </div>
                   </div>
@@ -525,7 +513,7 @@ const LandingPage = () => {
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
-                          key={`users-${historicalStats.totalUsers}`}
+                          key="users-counter"
                           end={historicalStats.totalUsers}
                           duration={2000}
                           startDelay={200}
@@ -539,7 +527,7 @@ const LandingPage = () => {
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
-                          key={`stories-${historicalStats.totalStories}`}
+                          key="stories-counter"
                           end={historicalStats.totalStories}
                           duration={2200}
                           startDelay={400}
@@ -553,7 +541,7 @@ const LandingPage = () => {
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
-                          key={`words-${historicalStats.totalWords}`}
+                          key="words-counter"
                           end={historicalStats.totalWords}
                           duration={2500}
                           startDelay={600}
