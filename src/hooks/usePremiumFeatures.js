@@ -68,6 +68,41 @@ export const usePremiumFeatures = () => {
   // Obtener límite de concursos por mes
   const getContestLimit = () => userLimits?.contests_per_month || 1;
 
+  // Verificar cuántos concursos ha participado este mes
+  const checkMonthlyContestLimit = async () => {
+    if (!user?.id) return { canParticipate: true, used: 0, limit: 1 };
+
+    try {
+      // Calcular el primer día de este mes
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const { data, error } = await supabase
+        .from('stories')
+        .select('id')
+        .eq('user_id', user.id)
+        .gte('created_at', firstDayOfMonth.toISOString());
+
+      if (error) {
+        console.error('Error checking monthly contest limit:', error);
+        return { canParticipate: true, used: 0, limit: getContestLimit() };
+      }
+
+      const used = data?.length || 0;
+      const limit = getContestLimit();
+      
+      return {
+        canParticipate: used < limit,
+        used,
+        limit,
+        remaining: Math.max(0, limit - used)
+      };
+    } catch (error) {
+      console.error('Error in checkMonthlyContestLimit:', error);
+      return { canParticipate: true, used: 0, limit: getContestLimit() };
+    }
+  };
+
   // Verificar si el usuario ha alcanzado algún límite
   const checkWordLimit = (wordCount) => {
     const limit = getWordLimit();
@@ -87,6 +122,7 @@ export const usePremiumFeatures = () => {
       website: 'Website personal solo disponible para usuarios premium',
       portfolio: 'Portafolio personal solo disponible para usuarios premium',
       words: `Límite de ${getWordLimit()} palabras. Upgrade a premium para 3,000 palabras`,
+      contests: `Límite de ${getContestLimit()} concurso por mes. Upgrade a premium para concursos ilimitados`,
       feedback: 'Feedback profesional incluido en plan premium'
     };
     
@@ -111,6 +147,7 @@ export const usePremiumFeatures = () => {
     getWordLimit,
     getContestLimit,
     checkWordLimit,
+    checkMonthlyContestLimit,
     
     // Utilidades
     getUpgradeMessage,

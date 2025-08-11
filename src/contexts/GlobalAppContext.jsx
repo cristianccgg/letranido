@@ -1816,14 +1816,22 @@ export function GlobalAppProvider({ children }) {
 
         if (insertError) throw insertError;
 
-        // Agregar al estado local
+        // Agregar al estado local con la misma estructura que loadUserStories
         const processedStory = {
           ...newStory,
           likes_count: 0,
           views_count: 0,
           excerpt: newStory.content.substring(0, 200) + "...",
           readTime: Math.ceil(newStory.word_count / 200) + " min",
-          contests: contest,
+          contest: contest ? {
+            id: contest.id,
+            title: contest.title,
+            status: contest.status,
+            month: contest.month,
+            category: contest.category,
+            submission_deadline: contest.submission_deadline,
+            voting_deadline: contest.voting_deadline
+          } : null
         };
 
         dispatch({ type: actions.ADD_USER_STORY, payload: processedStory });

@@ -7,7 +7,7 @@ import { FEATURES } from '../../lib/config';
 
 const ProfileTabs = ({ user, votingStats }) => {
   const [activeTab, setActiveTab] = useState('resumen');
-  const { userStories, userStoriesLoading, deleteUserStory } = useGlobalApp();
+  const { userStories, userStoriesLoading, deleteUserStory, currentContest, getContestPhase } = useGlobalApp();
 
   const tabs = [
     {
@@ -151,7 +151,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                 ¡Escribe tu primera historia para ver tu actividad aquí!
               </p>
               <Link
-                to="/contest"
+                to={currentContest?.id ? `/contest/${currentContest.id}` : "/contest/current"}
                 className="inline-flex items-center mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -167,7 +167,11 @@ const ProfileTabs = ({ user, votingStats }) => {
   const HistoriasTab = () => {
     // Función helper para determinar si se puede editar/eliminar
     const canEditStory = (story) => {
-      return story.contest?.status === 'submission';
+      if (!story.contest) return false;
+      
+      // Usar getContestPhase para determinar la fase actual del concurso
+      const phase = getContestPhase(story.contest);
+      return phase === 'submission';
     };
 
 
@@ -188,7 +192,7 @@ const ProfileTabs = ({ user, votingStats }) => {
               ¡Participa en un concurso para escribir tu primera historia!
             </p>
             <Link
-              to="/contest"
+              to={currentContest?.id ? `/contest/${currentContest.id}` : "/contest/current"}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <BookOpen className="w-4 h-4 mr-2" />

@@ -8,6 +8,8 @@ import {
 } from "../hooks/useGoogleAnalytics";
 import { useWritingAnalytics } from "../hooks/useWritingAnalytics";
 import { useDraftManager } from "../hooks/useDraftManager";
+import { usePremiumFeatures } from "../hooks/usePremiumFeatures";
+import { FEATURES } from "../lib/config";
 import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
@@ -45,6 +47,9 @@ const WritePrompt = () => {
 
   // ✅ GOOGLE ANALYTICS
   const { trackEvent } = useGoogleAnalytics();
+
+  // ✅ PREMIUM FEATURES
+  const { getWordLimit, checkWordLimit, isPremium, checkMonthlyContestLimit, getUpgradeMessage } = usePremiumFeatures();
 
   // ✅ DETERMINAR CONCURSO A USAR
   const contestToUse = useMemo(() => {
@@ -202,7 +207,7 @@ const WritePrompt = () => {
     startWritingSession();
   }, [contestToUse?.id, isEditing]); // ✅ Removidas las funciones que causan re-renders
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // ✅ PREVENIR DOBLES CLICS
     if (isSubmitting) return;
 
@@ -221,11 +226,12 @@ const WritePrompt = () => {
       return;
     }
 
-    if (wordCount > (contestToUse?.max_words || 1000)) {
+    const userWordLimit = getWordLimit();
+    if (wordCount > userWordLimit) {
       alert(
-        `Tu texto no puede superar las ${
-          contestToUse?.max_words || 1000
-        } palabras`
+        `Tu texto no puede superar las ${userWordLimit} palabras${
+          FEATURES.PREMIUM_PLANS && !isPremium() ? ' (Upgrade a premium para 3,000 palabras)' : ''
+        }`
       );
       return;
     }
@@ -244,6 +250,21 @@ const WritePrompt = () => {
       }
       setShowAuthModal(true);
       return;
+    }
+
+    // ✅ VERIFICAR LÍMITE MENSUAL DE CONCURSOS (solo para nuevas historias)
+    if (!isEditing) {
+      const monthlyLimit = await checkMonthlyContestLimit();
+      if (!monthlyLimit.canParticipate) {
+        alert(
+          `Has alcanzado tu límite de ${monthlyLimit.limit} concurso${
+            monthlyLimit.limit > 1 ? 's' : ''
+          } por mes. ${
+            FEATURES.PREMIUM_PLANS && !isPremium() ? 'Upgrade a premium para concursos ilimitados.' : ''
+          }`
+        );
+        return;
+      }
     }
 
     // ✅ PROCEDER CON CONFIRMACIÓN
@@ -424,11 +445,13 @@ const WritePrompt = () => {
 
   const getWordCountColor = () => {
     if (!contestToUse) return "text-gray-500 dark:text-dark-400";
+    const userWordLimit = getWordLimit();
+    
     if (wordCount < contestToUse.min_words)
       return "text-red-500 dark:text-red-400";
-    if (wordCount > contestToUse.max_words)
+    if (wordCount > userWordLimit)
       return "text-red-500 dark:text-red-400";
-    if (wordCount > contestToUse.max_words * 0.9)
+    if (wordCount > userWordLimit * 0.9)
       return "text-yellow-500 dark:text-yellow-400";
     return "text-green-500 dark:text-green-400";
   };
@@ -651,7 +674,12 @@ const WritePrompt = () => {
               <div
                 className={`text-sm font-medium transition-colors duration-300 ${getWordCountColor()}`}
               >
-                {wordCount} / {contestToUse.max_words} palabras
+                {wordCount} / {getWordLimit()} palabras
+                {FEATURES.PREMIUM_PLANS && !isPremium() && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                    (Premium: 3,000)
+                  </span>
+                )}
               </div>
 
               {/* Indicador de guardado */}
@@ -676,11 +704,15 @@ const WritePrompt = () => {
                   Mínimo {contestToUse.min_words} palabras
                 </div>
               )}
-              {wordCount > contestToUse.max_words && (
+              {wordCount > getWordLimit() && (
                 <div className="flex items-center text-red-600 dark:text-red-400 text-sm transition-colors duration-300">
                   <AlertCircle className="h-4 w-4 mr-1" />
-                  Excede el límite por {wordCount - contestToUse.max_words}{" "}
-                  palabras
+                  Excede el límite por {wordCount - getWordLimit()} palabras
+                  {FEATURES.PREMIUM_PLANS && !isPremium() && (
+                    <span className="text-xs ml-2 text-blue-600 dark:text-blue-400">
+                      (Upgrade para 3,000)
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -701,7 +733,7 @@ const WritePrompt = () => {
                   !title.trim() ||
                   !text.trim() ||
                   wordCount < contestToUse.min_words ||
-                  wordCount > contestToUse.max_words ||
+                  wordCount > getWordLimit() ||
                   (!isEditing && hasUserParticipated)
                 }
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"

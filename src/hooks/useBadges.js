@@ -22,6 +22,7 @@ export const useBadges = (userId) => {
       } catch (err) {
         console.error("Error loading badge definitions:", err);
         setError(err.message);
+        setBadgeDefinitions([]); // Set empty array instead of leaving undefined
       }
     };
 
@@ -69,6 +70,7 @@ export const useBadges = (userId) => {
     } catch (err) {
       console.error("Error loading user badges:", err);
       setError(err.message);
+      setUserBadges([]); // Set empty array to prevent loops
     } finally {
       setLoading(false);
     }
@@ -111,7 +113,7 @@ export const useBadges = (userId) => {
       };
     } catch (err) {
       console.error("Error getting user stats:", err);
-      return null;
+      return { storyCount: 0, contestWins: 0 }; // Return default values instead of null
     }
   }, [userId]);
 

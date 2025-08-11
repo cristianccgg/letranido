@@ -37,13 +37,14 @@ const UnifiedProfile = () => {
   });
   const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
 
-  // ✅ Cargar historias del usuario al entrar al perfil
+  // ✅ Cargar historias del usuario al entrar al perfil (solo una vez por usuario)
   useEffect(() => {
     if (user?.id && userStories.length === 0 && !userStoriesLoading) {
       console.log('📚 Cargando datos del usuario al entrar al perfil...');
       refreshUserData();
     }
-  }, [user?.id, userStories.length, userStoriesLoading, refreshUserData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // Only depend on user.id to prevent infinite loops
 
   // 🔍 Log para verificar datos en cada render
   console.log("🔍 UnifiedProfile render:", {
