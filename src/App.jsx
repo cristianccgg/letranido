@@ -312,11 +312,17 @@ function NotFoundPage() {
           Volver al inicio
         </a>
         {currentContest && (
-          <a href="/contest/current" className="btn-secondary">
+          <a 
+            href="/contest/current" 
+            className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors inline-block text-center"
+          >
             Ver concurso actual
           </a>
         )}
-        <a href="/contest-history" className="btn-secondary">
+        <a 
+          href="/contest-history" 
+          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors inline-block text-center"
+        >
           Ver historial de concursos
         </a>
       </div>

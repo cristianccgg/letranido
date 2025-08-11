@@ -589,7 +589,10 @@ const CurrentContest = () => {
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <div className="space-x-4">
-            <button onClick={() => navigate("/")} className="btn-secondary">
+            <button 
+              onClick={() => navigate("/")} 
+              className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors"
+            >
               Volver al inicio
             </button>
             <button onClick={handleRefresh} className="btn-primary">

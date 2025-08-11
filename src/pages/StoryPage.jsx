@@ -359,7 +359,7 @@ const StoryPage = () => {
           <div className="space-x-4">
             <button
               onClick={() => navigate("/contest/current")}
-              className="btn-secondary"
+              className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors inline-flex items-center"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Volver

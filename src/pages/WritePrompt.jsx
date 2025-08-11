@@ -645,8 +645,9 @@ const WritePrompt = () => {
           </div>
 
           {/* Contador de palabras y acciones */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="space-y-4">
+            {/* Información de guardado y validación */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <div
                 className={`text-sm font-medium transition-colors duration-300 ${getWordCountColor()}`}
               >
@@ -667,6 +668,8 @@ const WritePrompt = () => {
                   </div>
                 )}
               </div>
+              
+              {/* Mensajes de validación */}
               {wordCount < contestToUse.min_words && (
                 <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm transition-colors duration-300">
                   <AlertCircle className="h-4 w-4 mr-1" />
@@ -682,8 +685,12 @@ const WritePrompt = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/")} className="btn-secondary">
+            {/* Botones de acción */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:justify-end">
+              <button 
+                onClick={() => navigate("/")} 
+                className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors text-center"
+              >
                 Cancelar
               </button>
               <button
@@ -697,16 +704,18 @@ const WritePrompt = () => {
                   wordCount > contestToUse.max_words ||
                   (!isEditing && hasUserParticipated)
                 }
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
               >
-                <Send className="h-4 w-4 mr-2" />
-                {isSubmitting
-                  ? "Enviando..."
-                  : isEditing
-                    ? "Actualizar historia"
-                    : isAuthenticated
-                      ? "Enviar historia"
-                      : "Registrarse y continuar"}
+                <Send className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">
+                  {isSubmitting
+                    ? "Enviando..."
+                    : isEditing
+                      ? "Actualizar historia"
+                      : isAuthenticated
+                        ? "Enviar historia"
+                        : "Registrarse y continuar"}
+                </span>
               </button>
             </div>
           </div>

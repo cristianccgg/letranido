@@ -205,19 +205,19 @@ const ProfileTabs = ({ user, votingStats }) => {
             
             <div className="grid gap-4">
               {userStories.map((story) => (
-                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2 sm:gap-0">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">
                         {story.title}
                       </h4>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      <p className="text-gray-600 dark:text-gray-400 text-sm truncate">
                         Concurso: {story.contest?.title}
                       </p>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         story.contest?.status === 'submission' 
                           ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
                           : story.contest?.status === 'voting'
@@ -229,35 +229,35 @@ const ProfileTabs = ({ user, votingStats }) => {
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
+                    <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-2">
                       <span>{story.word_count || 0} palabras</span>
-                      <span className="mx-2">•</span>
+                      <span>•</span>
                       <span>{story.likes_count || 0} ❤️</span>
-                      <span className="mx-2">•</span>
+                      <span>•</span>
                       <span>{story.views_count || 0} 👁️</span>
                     </div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                       {/* Ver historia */}
                       <Link
                         to={`/story/${story.id}`}
-                        className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
+                        className="inline-flex items-center px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
                         title="Ver historia"
                       >
                         <Eye className="w-4 h-4 mr-1" />
-                        Ver
+                        <span className="hidden sm:inline">Ver</span>
                       </Link>
                       
                       {/* Editar historia (solo si está en submission) */}
                       {canEditStory(story) && (
                         <Link
                           to={`/write/${story.contest_id}?edit=${story.id}`}
-                          className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm"
+                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm flex-shrink-0"
                           title="Editar historia"
                         >
                           <Edit3 className="w-4 h-4 mr-1" />
-                          Editar
+                          <span className="hidden sm:inline">Editar</span>
                         </Link>
                       )}
                       
@@ -265,11 +265,11 @@ const ProfileTabs = ({ user, votingStats }) => {
                       {canEditStory(story) && (
                         <button
                           onClick={() => handleDeleteStory(story.id, story.title)}
-                          className="inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm"
+                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm flex-shrink-0"
                           title="Eliminar historia"
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
-                          Eliminar
+                          <span className="hidden sm:inline">Eliminar</span>
                         </button>
                       )}
                     </div>
@@ -420,7 +420,7 @@ const ProfileTabs = ({ user, votingStats }) => {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       {/* Tabs Header */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8 px-6" aria-label="Tabs">
+        <nav className="flex overflow-x-auto scrollbar-hide px-4 sm:px-6" aria-label="Tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -430,7 +430,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`
-                  flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                  flex items-center space-x-2 py-4 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0
                   ${isActive
                     ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
@@ -438,7 +438,8 @@ const ProfileTabs = ({ user, votingStats }) => {
                 `}
               >
                 <Icon className="w-4 h-4" />
-                <span>{tab.name}</span>
+                <span className="hidden sm:inline">{tab.name}</span>
+                <span className="sm:hidden">{tab.name.split(' ')[0]}</span>
                 {tab.count !== null && (
                   <span className={`
                     px-2 py-1 rounded-full text-xs
@@ -457,7 +458,7 @@ const ProfileTabs = ({ user, votingStats }) => {
       </div>
 
       {/* Tab Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {renderTabContent()}
       </div>
     </div>

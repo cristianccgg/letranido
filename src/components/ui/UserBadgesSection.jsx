@@ -150,12 +150,12 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
             <div>
               {!isExpanded ? (
                 /* Vista compacta - solo primeros 4 badges */
-                <BadgeGrid badges={userBadges} maxVisible={4} size="md" />
+                <BadgeGrid badges={userBadges} maxVisible={4} size="sm" className="justify-center sm:justify-start" />
               ) : (
                 /* Vista expandida */
                 <div>
                   {/* Filtros por categoría */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {categories.map((category) => {
                       const Icon = category.icon;
                       const categoryBadges =
@@ -171,7 +171,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
                           key={category.id}
                           onClick={() => setSelectedCategory(category.id)}
                           className={`
-                            flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0
                             ${
                               selectedCategory === category.id
                                 ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 border border-purple-200"
@@ -180,7 +180,8 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
                           `}
                         >
                           <Icon className="w-4 h-4" />
-                          {category.name}
+                          <span className="hidden sm:inline">{category.name}</span>
+                          <span className="sm:hidden">{category.name.charAt(0)}</span>
                           {categoryBadges.length > 0 && (
                             <span className="bg-gray-200 text-gray-700 text-xs px-1.5 py-0.5 rounded-full">
                               {categoryBadges.length}
@@ -193,14 +194,14 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
 
                   {/* Grid de badges filtrados */}
                   {filteredBadges.length > 0 ? (
-                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
                       {filteredBadges.map((badge, index) => (
                         <div
                           key={badge.id || index}
                           className="flex flex-col items-center"
                         >
-                          <Badge badge={badge} size="md" />
-                          <span className="text-xs text-gray-600 mt-2 text-center">
+                          <Badge badge={badge} size="sm" />
+                          <span className="text-xs text-gray-600 mt-1 text-center line-clamp-2 break-words">
                             {badge.name}
                           </span>
                         </div>

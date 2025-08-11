@@ -110,7 +110,7 @@ const NotificationBell = ({ userId, className = "" }) => {
 
       {/* Dropdown de notificaciones */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[500px] overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 sm:w-96 sm:max-w-none bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[500px] overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-gray-100 bg-gray-50">
             <div className="flex items-center justify-between">
