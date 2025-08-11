@@ -341,7 +341,7 @@ const ProfileTabs = ({ user, votingStats }) => {
           </div>
         </div>
         
-        {/* Progreso y Próximos Objetivos */}
+        {/* TODO: Próximos Objetivos - Comentado temporalmente para evitar inconsistencias
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Próximos Objetivos
@@ -384,6 +384,7 @@ const ProfileTabs = ({ user, votingStats }) => {
             )}
           </div>
         </div>
+        */}
       </div>
     );
   };
