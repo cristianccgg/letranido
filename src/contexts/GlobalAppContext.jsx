@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { supabase } from "../lib/supabase";
 import logger, { devLog } from "../lib/logger";
+import { SITE_CONFIG } from "../lib/config";
 
 // ✅ ESTADO INICIAL COMPLETO
 const initialState = {
@@ -2566,7 +2567,7 @@ export function GlobalAppProvider({ children }) {
         const { error } = await supabase.auth.resetPasswordForEmail(
           email.trim().toLowerCase(),
           {
-            redirectTo: `${window.location.origin}/reset-password`,
+            redirectTo: `${SITE_CONFIG.url}/reset-password`,
           }
         );
         
