@@ -845,6 +845,16 @@ export function GlobalAppProvider({ children }) {
           ? story.content.substring(0, 200) + "..."
           : "Sin contenido disponible",
         readTime: Math.ceil((story.word_count || 0) / 200) + " min",
+        // Incluir información del concurso para poder verificar su estado
+        contest: story.contests ? {
+          id: story.contests.id,
+          title: story.contests.title,
+          status: story.contests.status,
+          month: story.contests.month,
+          category: story.contests.category,
+          submission_deadline: story.contests.submission_deadline,
+          voting_deadline: story.contests.voting_deadline
+        } : null
       }));
 
       if (isMounted.current) {

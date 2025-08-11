@@ -26,7 +26,7 @@ const ProfileTabs = ({ user, votingStats }) => {
       id: 'logros',
       name: 'Logros',
       icon: Trophy,
-      count: user?.wins_count || 0
+      count: null
     }
   ];
 
@@ -304,68 +304,39 @@ const ProfileTabs = ({ user, votingStats }) => {
           userName={user?.name || user?.display_name || "Usuario"}
         />
         
-        {/* Estadísticas Detalladas */}
+        {/* Estadísticas Básicas */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-            Estadísticas de Escritura
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Tu Actividad
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Estadísticas de Creación */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-gray-900 dark:text-white">Creación</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Total historias</span>
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">{userStories.length}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Palabras escritas</span>
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">
-                    {userStories.reduce((total, story) => total + (story.word_count || 0), 0)}
-                  </span>
-                </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {userStories.length}
               </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Historias</div>
             </div>
-
-            {/* Estadísticas de Engagement */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-gray-900 dark:text-white">Engagement</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Likes recibidos</span>
-                  <span className="font-semibold text-green-600 dark:text-green-400">{totalLikes}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Lecturas totales</span>
-                  <span className="font-semibold text-green-600 dark:text-green-400">{totalViews}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Promedio likes/historia</span>
-                  <span className="font-semibold text-green-600 dark:text-green-400">
-                    {userStories.length > 0 ? Math.round((totalLikes / userStories.length) * 10) / 10 : 0}
-                  </span>
-                </div>
+            
+            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {totalLikes}
               </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Likes</div>
             </div>
-
-            {/* Estadísticas de Participación */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-gray-900 dark:text-white">Participación</h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Votos dados</span>
-                  <span className="font-semibold text-orange-600 dark:text-orange-400">
-                    {votingStats?.userVotesCount || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Concursos activos</span>
-                  <span className="font-semibold text-orange-600 dark:text-orange-400">
-                    {votingStats?.currentContestVotes || 0}
-                  </span>
-                </div>
+            
+            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {totalViews}
               </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+            </div>
+            
+            <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {votingStats?.userVotesCount || 0}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Votos</div>
             </div>
           </div>
         </div>

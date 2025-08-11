@@ -530,8 +530,10 @@ const WritePrompt = () => {
     );
   }
 
-  // ✅ VERIFICAR SI YA PARTICIPÓ
-  if (hasUserParticipated) {
+  // ✅ VERIFICAR SI YA PARTICIPÓ (pero permitir edición)
+  // Si hay editStoryId, esperar a que se procese antes de bloquear
+  const shouldBlockForParticipation = hasUserParticipated && !isEditing && !editStoryId;
+  if (shouldBlockForParticipation) {
     return (
       <div className="max-w-4xl mx-auto py-12 text-center">
         <div className="text-green-600 dark:text-green-400 mb-4 transition-colors duration-300">
@@ -693,9 +695,9 @@ const WritePrompt = () => {
                   !text.trim() ||
                   wordCount < contestToUse.min_words ||
                   wordCount > contestToUse.max_words ||
-                  hasUserParticipated
+                  (!isEditing && hasUserParticipated)
                 }
-                className="btn-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-colors"
               >
                 <Send className="h-4 w-4 mr-2" />
                 {isSubmitting
