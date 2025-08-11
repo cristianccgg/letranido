@@ -153,23 +153,25 @@ const ContestHistory = () => {
           </p>
 
           {/* Link al concurso actual */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-blue-900 dark:text-blue-300 text-lg mb-1">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 sm:p-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-300 text-lg mb-2">
                   ¿Buscas el concurso actual?
                 </h3>
                 <p className="text-blue-700 dark:text-blue-300 text-sm">
                   Participa o vota en el concurso activo de este mes
                 </p>
               </div>
-              <Link
-                to="/contest/current"
-                className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
-              >
-                Ver concurso actual
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
+              <div className="flex-shrink-0">
+                <Link
+                  to="/contest/current"
+                  className="inline-flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-center"
+                >
+                  Ver concurso actual
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

@@ -591,8 +591,36 @@ const Layout = ({ children }) => {
 
         {/* Mobile Navigation - Simplificado */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 border-t border-indigo-200 dark:border-dark-700 transition-colors duration-300 relative z-50">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+          <>
+            {/* CSS Animation Definition */}
+            <style>
+              {`
+                @keyframes slideDownFadeIn {
+                  0% {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                  }
+                  100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+              `}
+            </style>
+            
+            {/* Overlay para blur del fondo - solo debajo del header */}
+            <div 
+              className="lg:hidden fixed top-16 left-0 right-0 bottom-0 bg-black/20 backdrop-blur-sm z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            <div 
+              className="lg:hidden bg-white dark:bg-gray-900 border-t border-b border-gray-300 dark:border-gray-600 absolute top-full left-0 right-0 z-50 shadow-2xl"
+              style={{
+                animation: 'slideDownFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+              }}
+            >
+            <div className="px-4 pt-3 pb-4 space-y-1">
               {navigation.map((item) => {
                 // Handle dropdown items in mobile
                 if (item.type === "dropdown") {
@@ -665,10 +693,10 @@ const Layout = ({ children }) => {
                       }
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                    className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                       isActive
-                        ? "text-primary-600 bg-primary-50"
-                        : `text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-dark-300 ${
+                        ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
+                        : `text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm ${
                             item.className || ""
                           }`
                     }`}
@@ -681,7 +709,7 @@ const Layout = ({ children }) => {
               {/* Mobile Auth Section */}
               {isAuthenticated && location.pathname !== "/reset-password" ? (
                 <>
-                  <div className="border-t border-gray-200 dark:border-dark-600 my-2"></div>
+                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
                   
                   {/* User Profile Section */}
                   <div className="px-3 py-3 bg-gray-50 dark:bg-dark-800 rounded-lg mx-2 mb-2">
@@ -707,7 +735,7 @@ const Layout = ({ children }) => {
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+                    className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
                   >
                     <User className="h-5 w-5" />
                     <span>Mi perfil</span>
@@ -716,7 +744,7 @@ const Layout = ({ children }) => {
                   <Link
                     to="/preferences"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+                    className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
                   >
                     <Settings className="h-5 w-5" />
                     <span>Preferencias</span>
@@ -731,7 +759,7 @@ const Layout = ({ children }) => {
                     <ThemeToggle size="sm" />
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-dark-600 my-2"></div>
+                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
                   
                   <button
                     onClick={() => {
@@ -746,7 +774,7 @@ const Layout = ({ children }) => {
                 </>
               ) : (
                 <>
-                  <div className="border-t border-gray-200 dark:border-dark-600 my-2"></div>
+                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
                   
                   {/* Theme Toggle for non-authenticated users */}
                   <div className="flex items-center space-x-2 px-3 py-2">
@@ -757,7 +785,7 @@ const Layout = ({ children }) => {
                     <ThemeToggle size="sm" />
                   </div>
                   
-                  <div className="border-t border-gray-200 dark:border-dark-600 my-2"></div>
+                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
 
                   <button
                     onClick={() => {
@@ -814,6 +842,7 @@ const Layout = ({ children }) => {
               )}
             </div>
           </div>
+          </>
         )}
       </header>
 
