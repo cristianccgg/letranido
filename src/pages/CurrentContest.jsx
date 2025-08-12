@@ -540,6 +540,25 @@ const CurrentContest = () => {
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
+  // ✅ ESTADÍSTICAS DEL CONCURSO MEMOIZADAS - Evita recálculos innecesarios
+  const contestStats = useMemo(() => {
+    if (storiesLoading || !stories.length) {
+      return {
+        totalStories: 0,
+        totalWords: 0,
+        formattedWords: "0",
+      };
+    }
+
+    const totalWords = stories.reduce((total, story) => total + (story.word_count || 0), 0);
+    
+    return {
+      totalStories: stories.length,
+      totalWords,
+      formattedWords: totalWords.toLocaleString(),
+    };
+  }, [stories, storiesLoading]);
+
   // ✅ CAMBIAR ORDENAMIENTO AUTOMÁTICAMENTE EN FASE DE RESULTADOS
   useEffect(() => {
     if (contest && phaseInfo?.phase === "results" && sortBy === "random") {
@@ -698,8 +717,8 @@ const CurrentContest = () => {
                 <BookOpen className="h-4 w-4 text-white" />
               </div>
               <span className="truncate font-semibold text-indigo-700 dark:text-indigo-300 transition-colors duration-300">
-                {storiesLoading ? "..." : stories.length} historia
-                {stories.length !== 1 ? "s" : ""}
+                {storiesLoading ? "..." : contestStats.totalStories} historia
+                {contestStats.totalStories !== 1 ? "s" : ""}
               </span>
             </div>
 
@@ -729,14 +748,7 @@ const CurrentContest = () => {
                 <PenTool className="h-4 w-4 text-white" />
               </div>
               <span className="truncate font-semibold text-pink-700 dark:text-pink-300 text-xs transition-colors duration-300">
-                {storiesLoading
-                  ? "..."
-                  : stories
-                      .reduce(
-                        (total, story) => total + (story.word_count || 0),
-                        0
-                      )
-                      .toLocaleString()}{" "}
+                {storiesLoading ? "..." : contestStats.formattedWords}{" "}
                 palabras <br /> escritas
               </span>
             </div>
@@ -785,7 +797,7 @@ const CurrentContest = () => {
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
                     <span>
-                      <strong>{stories.length}</strong> historias disponibles
+                      <strong>{contestStats.totalStories}</strong> historias disponibles
                     </span>
                   </div>
                 </div>
@@ -811,9 +823,9 @@ const CurrentContest = () => {
                       🚀 ¡Sigue leyendo!
                     </span>
                     <div className="text-green-100 text-sm mt-1">
-                      {stories.length - votingStats.currentContestVotes}{" "}
+                      {contestStats.totalStories - votingStats.currentContestVotes}{" "}
                       historia
-                      {stories.length - votingStats.currentContestVotes !== 1
+                      {contestStats.totalStories - votingStats.currentContestVotes !== 1
                         ? "s"
                         : ""}{" "}
                       por descubrir
@@ -821,7 +833,7 @@ const CurrentContest = () => {
                   </div>
                 )}
               {votingStats.currentContestVotes > 0 &&
-                votingStats.currentContestVotes === stories.length && (
+                votingStats.currentContestVotes === contestStats.totalStories && (
                   <div className="bg-white/20 rounded-lg px-4 py-3">
                     <span className="text-lg font-bold text-white">
                       🎉 ¡Increíble!
@@ -877,12 +889,12 @@ const CurrentContest = () => {
                       <p className="text-sm text-gray-600 mt-1">
                         {storiesLoading
                           ? "Cargando..."
-                          : `${stories.length} historias enviadas`}
+                          : `${contestStats.totalStories} historias enviadas`}
                       </p>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-green-600">
-                        {storiesLoading ? "..." : stories.length}
+                        {storiesLoading ? "..." : contestStats.totalStories}
                       </div>
                     </div>
                   </div>
