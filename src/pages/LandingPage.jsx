@@ -24,7 +24,6 @@ import {
   Crown,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import { supabase } from "../lib/supabase";
 import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -91,114 +90,29 @@ const LandingPage = () => {
     // App state
     initialized,
     globalLoading,
+    // Global stats
+    globalStats,
+    globalStatsLoading,
+    loadGlobalStats,
   } = useGlobalApp();
 
-  // ✅ ESTADÍSTICAS HISTÓRICAS REALES - Incluyendo conteo dinámico de usuarios
-  const [historicalStats, setHistoricalStats] = useState({
-    totalUsers: 34, // Fallback inicial
-    totalStories: 13,
-    totalWords: 7800,
-  });
+  // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
+  const historicalStats = {
+    totalUsers: globalStats.totalUsers ?? 34,
+    totalStories: globalStats.totalStories ?? 13,
+    totalWords: globalStats.totalWords ?? 7800,
+  };
 
-  // Cargar estadísticas reales una sola vez cuando se inicializa la app
+  // ✅ Cargar estadísticas si no están disponibles (solo si es necesario)
   useEffect(() => {
-    const loadHistoricalStats = async () => {
-      if (!initialized || !contests.length) return;
-
-      console.log("📊 Loading real historical stats from all contests and total users");
-
-      try {
-        // 1. Obtener TOTAL de usuarios registrados en la plataforma
-        const { count: totalRegisteredUsers, error: usersError } = await supabase
-          .from('user_profiles')
-          .select('*', { count: 'exact', head: true });
-
-        if (usersError) {
-          console.error("❌ Error counting total users:", usersError);
-        }
-
-        // 2. Obtener historias de TODOS los concursos (finalizados Y activos)
-        const allContests = contests.filter(
-          (c) =>
-            c.status === "results" ||
-            c.status === "voting" ||
-            c.status === "submission"
-        );
-
-        console.log(
-          "📊 Loading stats from contests:",
-          allContests.map((c) => ({
-            title: c.title,
-            status: c.status,
-          }))
-        );
-
-        if (allContests.length === 0) {
-          console.log("📊 No contests found, keeping fallback stats");
-          return;
-        }
-
-        // Obtener historias de todos los concursos
-        const allStoriesPromises = allContests.map((contest) =>
-          getStoriesByContest(contest.id)
-        );
-
-        const allStoriesResults = await Promise.all(allStoriesPromises);
-
-        // Combinar todas las historias
-        const allHistoricalStories = allStoriesResults
-          .filter((result) => result.success)
-          .flatMap((result) => result.stories);
-
-        console.log(
-          "📊 Stories found per contest:",
-          allStoriesResults.map((result, index) => ({
-            contest: allContests[index].title,
-            success: result.success,
-            storiesCount: result.success ? result.stories.length : 0,
-          }))
-        );
-
-        console.log("📊 Total combined stories:", allHistoricalStories.length);
-        console.log("📊 Total registered users:", totalRegisteredUsers);
-
-        if (allHistoricalStories.length > 0) {
-          // Contar palabras totales históricas
-          const totalHistoricalWords = allHistoricalStories.reduce(
-            (acc, story) => {
-              return acc + (story.word_count || 600);
-            },
-            0
-          );
-
-          const realStats = {
-            totalUsers: totalRegisteredUsers || 34, // ✅ Total de usuarios registrados en la plataforma
-            totalStories: allHistoricalStories.length,
-            totalWords: totalHistoricalWords,
-          };
-
-          console.log("📊 Real combined stats calculated:", realStats);
-          // ✅ Solo actualizar si los valores son diferentes para evitar re-renders innecesarios
-          setHistoricalStats((prevStats) => {
-            if (
-              prevStats.totalUsers !== realStats.totalUsers ||
-              prevStats.totalStories !== realStats.totalStories ||
-              prevStats.totalWords !== realStats.totalWords
-            ) {
-              return realStats;
-            }
-            return prevStats;
-          });
-        }
-        // ✅ ELIMINADO: No resetear a 0 si no hay historias, mantener fallback
-      } catch (error) {
-        console.error("❌ Error loading historical stats:", error);
-        // Mantener fallback si hay error
-      }
-    };
-
-    loadHistoricalStats();
-  }, [initialized, contests, getStoriesByContest]);
+    // Si no tenemos stats y no estamos cargando, intentar cargar
+    if (!globalStats.lastUpdated && !globalStatsLoading && initialized) {
+      console.log("📊 Stats no disponibles, cargando desde contexto...");
+      loadGlobalStats().catch(error => {
+        console.error("❌ Error cargando stats desde contexto:", error);
+      });
+    }
+  }, [globalStats.lastUpdated, globalStatsLoading, initialized, loadGlobalStats]);
 
   // 🆕 ESTADO PARA GANADORES DEL CONCURSO ANTERIOR
   const [lastContestWinners, setLastContestWinners] = useState(null);

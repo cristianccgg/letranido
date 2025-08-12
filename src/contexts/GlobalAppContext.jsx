@@ -78,6 +78,15 @@ const initialState = {
   finishedStoriesCache: {},
   finishedStoriesCacheTimestamp: null,
   
+  // Estadísticas globales con cache
+  globalStats: {
+    totalUsers: null,
+    totalStories: null,
+    totalWords: null,
+    lastUpdated: null,
+  },
+  globalStatsLoading: false,
+  
   initialized: false,
 };
 
@@ -126,6 +135,11 @@ const actions = {
   // Cache de historias individuales
   SET_FINISHED_STORIES_CACHE: "SET_FINISHED_STORIES_CACHE",
   CLEAR_FINISHED_STORIES_CACHE: "CLEAR_FINISHED_STORIES_CACHE",
+
+  // Estadísticas globales
+  SET_GLOBAL_STATS: "SET_GLOBAL_STATS",
+  SET_GLOBAL_STATS_LOADING: "SET_GLOBAL_STATS_LOADING",
+  INVALIDATE_GLOBAL_STATS: "INVALIDATE_GLOBAL_STATS",
 
   // Global
   SET_GLOBAL_LOADING: "SET_GLOBAL_LOADING",
@@ -205,6 +219,11 @@ function globalAppReducer(state, action) {
       return {
         ...state,
         userStories: [action.payload, ...state.userStories],
+        // Invalidar stats cuando se agrega una nueva historia
+        globalStats: {
+          ...state.globalStats,
+          lastUpdated: null, // Forzar recarga en próxima consulta
+        },
       };
 
     case actions.UPDATE_USER_STORY:
@@ -344,6 +363,31 @@ function globalAppReducer(state, action) {
         ...state,
         finishedStoriesCache: {},
         finishedStoriesCacheTimestamp: null,
+      };
+
+    case actions.SET_GLOBAL_STATS:
+      return {
+        ...state,
+        globalStats: {
+          ...action.payload,
+          lastUpdated: Date.now(),
+        },
+        globalStatsLoading: false,
+      };
+
+    case actions.SET_GLOBAL_STATS_LOADING:
+      return {
+        ...state,
+        globalStatsLoading: action.payload,
+      };
+
+    case actions.INVALIDATE_GLOBAL_STATS:
+      return {
+        ...state,
+        globalStats: {
+          ...state.globalStats,
+          lastUpdated: null, // Forzar recarga
+        },
       };
 
     case actions.SET_AUTH_MODAL:
@@ -728,6 +772,9 @@ export function GlobalAppProvider({ children }) {
 
         // 3. Los datos del usuario se cargan en el auth listener, no aquí
         // Esto evita re-ejecuciones cuando cambia el usuario
+
+        // 4. Cargar estadísticas globales en la inicialización se hace después
+        console.log("📊 Preparando carga de estadísticas globales...");
 
         dispatch({ type: actions.SET_INITIALIZED, payload: true });
         console.log("✅ App marcada como inicializada");
@@ -3366,7 +3413,86 @@ export function GlobalAppProvider({ children }) {
     [state.contests]
   );
 
-  // ✅ VALOR DEL CONTEXTO
+  // ✅ FUNCIÓN PARA CARGAR ESTADÍSTICAS GLOBALES
+  const loadGlobalStats = useCallback(async (forceRefresh = false) => {
+    // Cache de 2 horas (7200000ms) - más largo como solicitaste
+    const CACHE_DURATION = 2 * 60 * 60 * 1000; 
+    
+    // Si tenemos cache válido y no forzamos refresh, usar cache
+    if (!forceRefresh && state.globalStats.lastUpdated && 
+        (Date.now() - state.globalStats.lastUpdated) < CACHE_DURATION) {
+      console.log("📊 Usando estadísticas globales desde cache");
+      return state.globalStats;
+    }
+
+    // Si ya estamos cargando, evitar llamadas duplicadas
+    if (state.globalStatsLoading) {
+      console.log("📊 Ya hay una carga de estadísticas en progreso");
+      return state.globalStats;
+    }
+
+    dispatch({ type: actions.SET_GLOBAL_STATS_LOADING, payload: true });
+
+    try {
+      console.log("📊 Cargando estadísticas globales desde Supabase");
+
+      // 1. Contar total de usuarios registrados
+      const { count: totalUsers, error: usersError } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true });
+
+      if (usersError) {
+        console.error("❌ Error contando usuarios:", usersError);
+      }
+
+      // 2. Obtener todas las historias para contar stories y palabras
+      const { data: allStories, error: storiesError } = await supabase
+        .from('stories')
+        .select('word_count');
+
+      if (storiesError) {
+        console.error("❌ Error obteniendo historias:", storiesError);
+        throw storiesError;
+      }
+
+      // 3. Calcular estadísticas
+      const totalStories = allStories?.length || 0;
+      const totalWords = allStories?.reduce((acc, story) => {
+        return acc + (story.word_count || 600); // Fallback de 600 palabras
+      }, 0) || 0;
+
+      const stats = {
+        totalUsers: totalUsers || 0,
+        totalStories,
+        totalWords,
+      };
+
+      console.log("📊 Estadísticas globales calculadas:", stats);
+
+      // 4. Guardar en el estado
+      dispatch({ type: actions.SET_GLOBAL_STATS, payload: stats });
+
+      return stats;
+
+    } catch (error) {
+      console.error("❌ Error cargando estadísticas globales:", error);
+      dispatch({ type: actions.SET_GLOBAL_STATS_LOADING, payload: false });
+      
+      // Devolver stats actuales como fallback
+      return state.globalStats;
+    }
+  }, [state.globalStats, state.globalStatsLoading, dispatch]);
+
+  // ✅ CARGAR ESTADÍSTICAS GLOBALES DESPUÉS DE INICIALIZACIÓN
+  useEffect(() => {
+    if (state.initialized && !state.globalStats.lastUpdated && !state.globalStatsLoading) {
+      console.log("📊 Cargando estadísticas globales tras inicialización");
+      loadGlobalStats().catch(error => {
+        console.error("❌ Error cargando estadísticas globales:", error);
+      });
+    }
+  }, [state.initialized, state.globalStats.lastUpdated, state.globalStatsLoading, loadGlobalStats]);
+
   // ✅ FUNCIÓN DE DEBUG
   const debugAuth = useCallback(async () => {
     console.log("🔍 DEBUG: Verificando estado de Supabase...");
@@ -3455,6 +3581,13 @@ export function GlobalAppProvider({ children }) {
     getContestPhase,
     getContestById,
     debugAuth,
+
+    // Funciones de estadísticas globales
+    loadGlobalStats,
+    invalidateGlobalStats: useCallback(() => {
+      console.log("🔄 Invalidando cache de estadísticas globales");
+      dispatch({ type: actions.INVALIDATE_GLOBAL_STATS });
+    }, [dispatch]),
 
     // Cache de concursos finalizados
     clearFinishedContestsCache: useCallback(() => {
@@ -3614,6 +3747,7 @@ const findNextContest = (contests, currentContest) => {
   console.log("🔍 No se encontró siguiente concurso");
   return null;
 };
+
 
 // ✅ HOOK PRINCIPAL
 export function useGlobalApp() {
