@@ -24,6 +24,7 @@ import {
   Crown,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { supabase } from "../lib/supabase";
 import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -92,7 +93,7 @@ const LandingPage = () => {
     globalLoading,
   } = useGlobalApp();
 
-  // ✅ ESTADÍSTICAS HISTÓRICAS REALES - Sin queries adicionales, usando datos actuales
+  // ✅ ESTADÍSTICAS HISTÓRICAS REALES - Incluyendo conteo dinámico de usuarios
   const [historicalStats, setHistoricalStats] = useState({
     totalUsers: 34, // Fallback inicial
     totalStories: 13,
@@ -104,10 +105,19 @@ const LandingPage = () => {
     const loadHistoricalStats = async () => {
       if (!initialized || !contests.length) return;
 
-      console.log("📊 Loading real historical stats from all contests");
+      console.log("📊 Loading real historical stats from all contests and total users");
 
       try {
-        // Obtener historias de TODOS los concursos (finalizados Y activos)
+        // 1. Obtener TOTAL de usuarios registrados en la plataforma
+        const { count: totalRegisteredUsers, error: usersError } = await supabase
+          .from('user_profiles')
+          .select('*', { count: 'exact', head: true });
+
+        if (usersError) {
+          console.error("❌ Error counting total users:", usersError);
+        }
+
+        // 2. Obtener historias de TODOS los concursos (finalizados Y activos)
         const allContests = contests.filter(
           (c) =>
             c.status === "results" ||
@@ -150,6 +160,7 @@ const LandingPage = () => {
         );
 
         console.log("📊 Total combined stories:", allHistoricalStories.length);
+        console.log("📊 Total registered users:", totalRegisteredUsers);
 
         if (allHistoricalStories.length > 0) {
           // Contar palabras totales históricas
@@ -161,7 +172,7 @@ const LandingPage = () => {
           );
 
           const realStats = {
-            totalUsers: 34, // ✅ Valor real actual - se actualizará cuando implementemos conteo automático
+            totalUsers: totalRegisteredUsers || 34, // ✅ Total de usuarios registrados en la plataforma
             totalStories: allHistoricalStories.length,
             totalWords: totalHistoricalWords,
           };
@@ -170,6 +181,7 @@ const LandingPage = () => {
           // ✅ Solo actualizar si los valores son diferentes para evitar re-renders innecesarios
           setHistoricalStats((prevStats) => {
             if (
+              prevStats.totalUsers !== realStats.totalUsers ||
               prevStats.totalStories !== realStats.totalStories ||
               prevStats.totalWords !== realStats.totalWords
             ) {
