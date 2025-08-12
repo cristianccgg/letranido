@@ -30,6 +30,7 @@ import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import ShareDropdown from "../components/ui/ShareDropdown";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";
+import { preloadUsersBadges } from "../hooks/useBadgesCache";
 
 const CurrentContest = () => {
   const { id } = useParams();
@@ -156,10 +157,10 @@ const CurrentContest = () => {
         // ✅ OPTIMIZACIÓN: Durante votación ciega, no cargar likes_count ni views_count
         const contestPhase = getContestPhase(contestData);
         const isBlindVoting = contestPhase === "voting";
-        
-        await loadGalleryStories({ 
+
+        await loadGalleryStories({
           contestId: contestData.id,
-          blindVoting: isBlindVoting
+          blindVoting: isBlindVoting,
         });
       } catch (err) {
         console.error("💥 Error general cargando concurso:", err);
@@ -174,6 +175,22 @@ const CurrentContest = () => {
     initialized,
     // Removidas las funciones que no cambian para evitar re-renders
   ]);
+
+  // ✅ OPTIMIZACIÓN: Precargar badges cuando se cargan las historias
+  useEffect(() => {
+    const preloadBadges = async () => {
+      if (galleryStories.length > 0) {
+        const userIds = galleryStories
+          .map((story) => story.user_id)
+          .filter(Boolean);
+        if (userIds.length > 0) {
+          await preloadUsersBadges(userIds);
+        }
+      }
+    };
+
+    preloadBadges();
+  }, [galleryStories.length]);
 
   // ✅ SCROLL A SECCIÓN DE HISTORIAS SI VIENE DEL HASH
   useEffect(() => {
@@ -206,12 +223,22 @@ const CurrentContest = () => {
         refreshContests(),
         refreshUserData(),
         contest?.id
-          ? loadGalleryStories({ 
+          ? loadGalleryStories({
               contestId: contest.id,
-              blindVoting: phaseInfo?.phase === "voting"
+              blindVoting: phaseInfo?.phase === "voting",
             })
           : Promise.resolve(),
       ]);
+
+      // Recargar badges después del refresh si hay historias
+      if (galleryStories.length > 0) {
+        const userIds = galleryStories
+          .map((story) => story.user_id)
+          .filter(Boolean);
+        if (userIds.length > 0) {
+          await preloadUsersBadges(userIds);
+        }
+      }
     } catch (err) {
       console.error("Error refreshing:", err);
     } finally {
@@ -589,8 +616,8 @@ const CurrentContest = () => {
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <div className="space-x-4">
-            <button 
-              onClick={() => navigate("/")} 
+            <button
+              onClick={() => navigate("/")}
               className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors"
             >
               Volver al inicio
@@ -907,17 +934,16 @@ const CurrentContest = () => {
                           className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
                         >
                           <div className="flex items-center gap-3">
-                            {/* Avatar */}
-                            <UserAvatar
-                              user={{
-                                name: story.author,
-                                email: `${story.author}@mock.com`,
-                              }}
-                              size="md"
-                            />
-
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
+                                {/* Avatar */}
+                                <UserAvatar
+                                  user={{
+                                    name: story.author,
+                                    email: `${story.author}@mock.com`,
+                                  }}
+                                  size="md"
+                                />
                                 <UserWithTopBadge
                                   userId={story.user_id}
                                   userName={story.author}
@@ -932,39 +958,30 @@ const CurrentContest = () => {
                                   </span>
                                 )}
                               </div>
-
                               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-dark-400">
                                 <span>{story.authorWins || 0} victorias</span>
                                 <span>•</span>
                                 <span>{formatDate(story.created_at)}</span>
                               </div>
                             </div>
-
-                            {/* Indicador de envío */}
-                            <div className="flex items-center">
-                              <div
-                                className="w-2 h-2 bg-green-500 rounded-full"
-                                title="Historia enviada"
-                              ></div>
-                            </div>
                           </div>
 
                           {/* Preview mínimo SIN spoilers */}
                           <div className="mt-3 pt-3 border-t border-gray-200 dark:border-dark-600">
                             <div className="flex items-center justify-between text-xs text-gray-400 dark:text-dark-500">
-                              <span className="flex items-center">
-                                <PenTool className="h-3 w-3 mr-1" />
-                                Historia enviada
+                              <span className="flex items-center gap-2">
+                                <span className="flex items-center">
+                                  <PenTool className="h-3 w-3 mr-1" />
+                                  Historia enviada
+                                </span>
+                                {story.is_mature && (
+                                  <span className="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs font-medium">
+                                    18+
+                                  </span>
+                                )}
                               </span>
                               <span>{story.word_count || 0} palabras</span>
                             </div>
-                            {story.is_mature && (
-                              <div className="mt-2">
-                                <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
-                                  Contenido 18+
-                                </span>
-                              </div>
-                            )}
                           </div>
                         </div>
                       ))}
