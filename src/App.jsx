@@ -42,6 +42,7 @@ const Preferences = lazy(() => import("./pages/Preferences"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const MaintenancePage = lazy(() => import("./pages/MaintenancePage"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const WritingResources = lazy(() => import("./pages/WritingResources"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -232,6 +233,9 @@ function AppContent() {
 
             {/* FAQ */}
             <Route path="/faq" element={<FAQ />} />
+
+            {/* How It Works */}
+            <Route path="/como-funciona" element={<HowItWorks />} />
 
             {/* Writing Resources */}
             <Route path="/writing-resources" element={<WritingResources />} />

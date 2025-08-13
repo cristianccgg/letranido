@@ -13,9 +13,9 @@ overrideConsoleForProduction();
 initEmailJS();
 
 createRoot(document.getElementById("root")).render(
-  <ErrorBoundary>
-    <HelmetProvider>
+  <HelmetProvider>
+    <ErrorBoundary>
       <App />
-    </HelmetProvider>
-  </ErrorBoundary>
+    </ErrorBoundary>
+  </HelmetProvider>
 );

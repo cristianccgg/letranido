@@ -1,7 +1,7 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, X, ChevronDown, LogOut, Settings } from "lucide-react";
+import { User, Menu, X, ChevronDown, LogOut, Settings, HelpCircle, BookOpen } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
@@ -18,6 +18,7 @@ const Layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isResourcesMenuOpen, setIsResourcesMenuOpen] = useState(false);
+  const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
   const [isCompactNav, setIsCompactNav] = useState(false);
 
   // ✅ TODO DESDE EL CONTEXTO UNIFICADO - sin hooks múltiples
@@ -214,6 +215,24 @@ const Layout = ({ children }) => {
       name: "Blog",
       href: "/blog",
     },
+    {
+      name: "Ayuda",
+      type: "dropdown",
+      items: [
+        {
+          name: "Cómo Funciona",
+          href: "/como-funciona",
+          icon: BookOpen,
+          description: "Aprende paso a paso cómo participar en nuestros concursos"
+        },
+        {
+          name: "Preguntas Frecuentes",
+          href: "/faq", 
+          icon: HelpCircle,
+          description: "Encuentra respuestas a las dudas más comunes"
+        }
+      ]
+    },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
           {
@@ -251,6 +270,24 @@ const Layout = ({ children }) => {
       name: "Blog",
       href: "/blog",
     },
+    {
+      name: "Ayuda",
+      type: "dropdown",
+      items: [
+        {
+          name: "Cómo Funciona",
+          href: "/como-funciona",
+          icon: BookOpen,
+          description: "Aprende paso a paso cómo participar en nuestros concursos"
+        },
+        {
+          name: "Preguntas Frecuentes",
+          href: "/faq", 
+          icon: HelpCircle,
+          description: "Encuentra respuestas a las dudas más comunes"
+        }
+      ]
+    },
   ];
 
   // No mostrar navegación de usuario autenticado en página de reset
@@ -283,6 +320,7 @@ const Layout = ({ children }) => {
         setIsUserMenuOpen(false);
         setIsMobileMenuOpen(false);
         setIsResourcesMenuOpen(false);
+        setIsHelpMenuOpen(false);
       }
     };
 
@@ -329,36 +367,37 @@ const Layout = ({ children }) => {
               {navigation.map((item) => {
                 // Handle dropdown items
                 if (item.type === "dropdown") {
-                  const isResourcesActive = item.items.some(
+                  const isDropdownActive = item.items.some(
                     (subItem) => location.pathname === subItem.href
                   );
+                  
+                  const isDropdownOpen = item.name === "Ayuda" ? isHelpMenuOpen : isResourcesMenuOpen;
+                  const setDropdownOpen = item.name === "Ayuda" ? setIsHelpMenuOpen : setIsResourcesMenuOpen;
 
                   return (
                     <div key={item.name} className="relative">
                       <button
-                        onClick={() =>
-                          setIsResourcesMenuOpen(!isResourcesMenuOpen)
-                        }
+                        onClick={() => setDropdownOpen(!isDropdownOpen)}
                         className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
-                          isResourcesActive
+                          isDropdownActive
                             ? "bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-lg border border-white/40 dark:border-dark-600/40 text-primary-700 dark:text-primary-400 scale-105"
                             : "hover:bg-white/60 dark:hover:bg-dark-800/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 dark:hover:border-dark-600/30 text-gray-700 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100"
                         }`}
                       >
                         <span className="truncate">{item.name}</span>
                         <ChevronDown
-                          className={`ml-1 h-3 w-3 transition-transform duration-200 ${isResourcesMenuOpen ? "rotate-180" : ""}`}
+                          className={`ml-1 h-3 w-3 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
                         />
                       </button>
 
                       {/* Dropdown Menu */}
-                      {isResourcesMenuOpen && (
+                      {isDropdownOpen && (
                         <>
                           {/* Overlay para cerrar el menu */}
                           <div
                             className="fixed inset-0"
                             style={{ zIndex: 9998 }}
-                            onClick={() => setIsResourcesMenuOpen(false)}
+                            onClick={() => setDropdownOpen(false)}
                           />
                           <div
                             className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2"
@@ -380,7 +419,7 @@ const Layout = ({ children }) => {
                                 <Link
                                   key={subItem.name}
                                   to={subItem.href}
-                                  onClick={() => setIsResourcesMenuOpen(false)}
+                                  onClick={() => setDropdownOpen(false)}
                                   className={`flex items-start px-4 py-3 transition-colors ${
                                     isActive
                                       ? "bg-indigo-50 text-indigo-700"
@@ -622,47 +661,29 @@ const Layout = ({ children }) => {
             >
             <div className="px-4 pt-3 pb-4 space-y-1">
               {navigation.map((item) => {
-                // Handle dropdown items in mobile
+                // Handle dropdown items in mobile - Mostrar como elementos individuales
                 if (item.type === "dropdown") {
-                  return (
-                    <div key={item.name} className="space-y-1">
-                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {item.name}
-                      </div>
-                      {item.items.map((subItem) => {
-                        const IconComponent = subItem.icon;
-                        const isActive = location.pathname === subItem.href;
+                  return item.items.map((subItem) => {
+                    const isActive = location.pathname === subItem.href;
 
-                        return (
-                          <button
-                            key={subItem.name}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigate(subItem.href);
-                              setIsMobileMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center px-6 py-3 rounded-md text-sm font-medium ${
-                              isActive
-                                ? "text-primary-600 bg-primary-50 "
-                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 "
-                            }`}
-                          >
-                            <IconComponent
-                              className={`h-4 w-4 mr-3 ${
-                                isActive ? "text-primary-600" : "text-gray-400"
-                              }`}
-                            />
-                            <div className="text-left">
-                              <div className="font-medium">{subItem.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {subItem.description}
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
+                    return (
+                      <button
+                        key={subItem.name}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(subItem.href);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                          isActive
+                            ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
+                            : "text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm"
+                        }`}
+                      >
+                        <span>{subItem.name}</span>
+                      </button>
+                    );
+                  });
                 }
 
                 // Handle regular navigation items

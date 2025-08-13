@@ -550,8 +550,11 @@ const CurrentContest = () => {
       };
     }
 
-    const totalWords = stories.reduce((total, story) => total + (story.word_count || 0), 0);
-    
+    const totalWords = stories.reduce(
+      (total, story) => total + (story.word_count || 0),
+      0
+    );
+
     return {
       totalStories: stories.length,
       totalWords,
@@ -748,8 +751,8 @@ const CurrentContest = () => {
                 <PenTool className="h-4 w-4 text-white" />
               </div>
               <span className="truncate font-semibold text-pink-700 dark:text-pink-300 text-xs transition-colors duration-300">
-                {storiesLoading ? "..." : contestStats.formattedWords}{" "}
-                palabras <br /> escritas
+                {storiesLoading ? "..." : contestStats.formattedWords} palabras{" "}
+                <br /> escritas
               </span>
             </div>
           </div>
@@ -797,7 +800,8 @@ const CurrentContest = () => {
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
                     <span>
-                      <strong>{contestStats.totalStories}</strong> historias disponibles
+                      <strong>{contestStats.totalStories}</strong> historias
+                      disponibles
                     </span>
                   </div>
                 </div>
@@ -823,9 +827,12 @@ const CurrentContest = () => {
                       🚀 ¡Sigue leyendo!
                     </span>
                     <div className="text-green-100 text-sm mt-1">
-                      {contestStats.totalStories - votingStats.currentContestVotes}{" "}
+                      {contestStats.totalStories -
+                        votingStats.currentContestVotes}{" "}
                       historia
-                      {contestStats.totalStories - votingStats.currentContestVotes !== 1
+                      {contestStats.totalStories -
+                        votingStats.currentContestVotes !==
+                      1
                         ? "s"
                         : ""}{" "}
                       por descubrir
@@ -833,7 +840,8 @@ const CurrentContest = () => {
                   </div>
                 )}
               {votingStats.currentContestVotes > 0 &&
-                votingStats.currentContestVotes === contestStats.totalStories && (
+                votingStats.currentContestVotes ===
+                  contestStats.totalStories && (
                   <div className="bg-white/20 rounded-lg px-4 py-3">
                     <span className="text-lg font-bold text-white">
                       🎉 ¡Increíble!

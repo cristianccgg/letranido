@@ -620,19 +620,29 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* FAQ Link */}
+          {/* Links to more info */}
           <div className="text-center mt-12">
-            <p className="text-gray-600 dark:text-dark-300 mb-4">
-              ¿Tienes más preguntas sobre cómo participar?
+            <p className="text-gray-600 dark:text-dark-300 mb-6">
+              ¿Quieres conocer más detalles sobre el proceso?
             </p>
-            <Link
-              to="/faq"
-              className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-white hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              <HelpCircle className="h-5 w-5 mr-2" />
-              Ver Preguntas Frecuentes
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/como-funciona"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-xl"
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Guía Completa
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+              <Link
+                to="/faq"
+                className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-200 text-indigo-700 font-semibold hover:bg-white hover:shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                <HelpCircle className="h-5 w-5 mr-2" />
+                Preguntas Frecuentes
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
