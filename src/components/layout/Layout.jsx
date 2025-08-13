@@ -432,12 +432,10 @@ const Layout = ({ children, onFeedbackClick }) => {
                             onClick={() => setDropdownOpen(false)}
                           />
                           <div
-                            className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2"
+                            className="absolute left-0 mt-4 w-80  dark:bg-dark-700 dark:border-primary-500 bg-white  rounded-lg shadow-xl border border-gray-200 py-2"
                             style={{
                               zIndex: 9999,
                               top: "100%",
-                              backgroundColor: "#ffffff",
-                              border: "1px solid #e5e7eb",
                               boxShadow:
                                 "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
                             }}
@@ -461,14 +459,14 @@ const Layout = ({ children, onFeedbackClick }) => {
                                         onFeedbackClick();
                                       }
                                     }}
-                                    className="w-full cursor-pointer flex items-start px-4 py-3 transition-colors text-gray-700 hover:bg-gray-50 text-left"
+                                    className="w-full cursor-pointer flex items-start px-4 py-3 transition-colors text-gray-700 dark:text-dark-100 dark:hover:bg-dark-600 hover:bg-gray-50  text-left"
                                   >
-                                    <IconComponent className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0 text-gray-400" />
+                                    <IconComponent className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0 text-gray-400 dark:text-dark-100" />
                                     <div>
                                       <div className="font-medium text-sm">
                                         {subItem.name}
                                       </div>
-                                      <div className="text-xs text-gray-500 mt-1">
+                                      <div className="text-xs text-gray-500 mt-1 dark:text-indigo-100">
                                         {subItem.description}
                                       </div>
                                     </div>
@@ -481,24 +479,24 @@ const Layout = ({ children, onFeedbackClick }) => {
                                   key={subItem.name}
                                   to={subItem.href}
                                   onClick={() => setDropdownOpen(false)}
-                                  className={`flex items-start px-4 py-3 transition-colors ${
+                                  className={`flex  items-start  px-4 py-3 transition-colors ${
                                     isActive
-                                      ? "bg-indigo-50 text-indigo-700"
-                                      : "text-gray-700 hover:bg-gray-50"
+                                      ? "bg-indigo-50 text-indigo-700 dark:bg-primary-800 dark:text-indigo-100"
+                                      : "text-gray-700 hover:bg-gray-50 dark:text-dark-100 dark:hover:bg-dark-600"
                                   }`}
                                 >
                                   <IconComponent
                                     className={`h-5 w-5 mt-0.5 mr-3 flex-shrink-0 ${
                                       isActive
-                                        ? "text-indigo-600"
-                                        : "text-gray-400"
+                                        ? "text-indigo-600 dark:text-indigo-100"
+                                        : "text-gray-400 dark:text-dark-100"
                                     }`}
                                   />
                                   <div>
                                     <div className="font-medium text-sm">
                                       {subItem.name}
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">
+                                    <div className="text-xs text-gray-500 mt-1 dark:text-dark-300">
                                       {subItem.description}
                                     </div>
                                   </div>
