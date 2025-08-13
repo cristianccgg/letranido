@@ -410,7 +410,7 @@ const Layout = ({ children, onFeedbackClick }) => {
                     <div key={item.name} className="relative">
                       <button
                         onClick={() => setDropdownOpen(!isDropdownOpen)}
-                        className={`flex items-center px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                        className={`flex items-center cursor-pointer px-2 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                           isDropdownActive
                             ? "bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-lg border border-white/40 dark:border-dark-600/40 text-primary-700 dark:text-primary-400 scale-105"
                             : "hover:bg-white/60 dark:hover:bg-dark-800/60 hover:shadow-md hover:scale-105 backdrop-blur-sm border border-transparent hover:border-white/30 dark:hover:border-dark-600/30 text-gray-700 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100"
