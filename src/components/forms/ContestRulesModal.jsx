@@ -1,4 +1,4 @@
-import { X, Trophy, Clock, Star, Heart, Shield } from "lucide-react";
+import { X, Trophy, Clock, Star, Heart, Shield, ExternalLink } from "lucide-react";
 
 const ContestRulesModal = ({ isOpen, onClose, contest }) => {
   if (!isOpen) return null;
@@ -6,29 +6,30 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
   const essentialRules = [
     {
       icon: Shield,
-      title: "Tu historia debe ser original",
-      description: "100% escrita por ti, sin IA ni contenido copiado",
+      title: "Historia 100% original",
+      description: "Escrita por ti, sin IA ni plagio. Verificamos originalidad",
       type: "warning",
     },
     {
       icon: Star,
-      title: "100-1,000 palabras",
-      description: "Respeta los límites de extensión",
+      title: contest?.word_limit 
+        ? `Máximo ${contest.word_limit.toLocaleString()} palabras`
+        : "100-1,000 palabras",
+      description: "Respeta el límite exacto del concurso",
       type: "info",
     },
     {
       icon: Heart,
-      title: "Tienes 3 votos para usar",
-      description: "Lee todas las historias y elige tus 3 favoritas",
+      title: "3 votos para otorgar",
+      description: "Vota por tus favoritas durante la fase de votación",
       type: "success",
     },
     {
       icon: Clock,
       title: contest?.submission_deadline
-        ? `Cierra: ${new Date(contest.submission_deadline).toLocaleDateString(
+        ? `Envíos hasta: ${new Date(contest.submission_deadline).toLocaleDateString(
             "es-ES",
             {
-              weekday: "short",
               day: "numeric",
               month: "short",
               hour: "2-digit",
@@ -36,8 +37,8 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
               timeZone: "America/Bogota",
             }
           )}`
-        : "Cierre: fecha no disponible",
-      description: "Envía tu historia antes de la fecha límite",
+        : "Fecha límite por confirmar",
+      description: "Después comienza la votación comunitaria",
       type: "info",
     },
   ];
@@ -130,35 +131,58 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
             <div className="bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 from-slate-50 to-slate-100 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
               <h4 className="font-semibold text-slate-900 dark:text-slate-300 mb-2 text-xs flex items-center">
                 <Heart className="h-3 w-3 mr-1 text-slate-600 dark:text-slate-300" />
-                Datos importantes:
+                Reglas adicionales:
               </h4>
               <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                <li>• Una historia por persona</li>
-                <li>• Sin contenido ofensivo o sexual</li>
-                <li>• Ganadores por likes de la comunidad</li>
+                <li>• Una historia por concurso</li>
+                <li>• Sin contenido sexual explícito o violencia extrema</li>
+                <li>• Top 3 gana badges automáticamente</li>
+                <li>• No puedes votar por tu propia historia</li>
               </ul>
             </div>
 
             {/* Legal Notice - Conciso */}
             <div className="bg-gradient-to-br dark:from-red-900 dark:to-red-800 from-red-50 to-pink-50 border border-red-200 dark:border-red-700 rounded-lg p-3">
-              <h4 className="font-semibold text-red-900 dark:text-red-300 mb-1 text-xs flex items-center">
-                <Shield className="h-3 w-3 mr-1" />
-                Compromiso Legal
-              </h4>
-              <p className="text-red-800 dark:text-red-300 text-xs">
-                Historia 100% original, sin IA, aceptas términos de uso.
-              </p>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-red-900 dark:text-red-300 mb-1 text-xs flex items-center">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Compromiso Legal
+                  </h4>
+                  <p className="text-red-800 dark:text-red-300 text-xs">
+                    Historia 100% original, sin IA, aceptas términos de uso.
+                  </p>
+                </div>
+                <a 
+                  href="/como-funciona" 
+                  target="_blank"
+                  className="ml-2 p-1 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition-colors"
+                  title="Ver guía completa"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="border-t dark:bg-slate-800  dark:border-slate-700 border-slate-200 bg-slate-50 p-4 rounded-b-2xl">
+          <div className="text-center mb-2">
+            <a 
+              href="/como-funciona" 
+              target="_blank"
+              className="text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Ver proceso completo
+            </a>
+          </div>
           <button
             onClick={onClose}
             className="w-full bg-gradient-to-r cursor-pointer dark:from-indigo-900 dark:to-indigo-700 from-indigo-600 to-purple-600 text-white dark:text-primary-200 py-2 px-4 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all text-sm"
           >
-            ¡Entendido, vamos a escribir!
+            ¡Perfecto, a escribir!
           </button>
         </div>
       </div>
