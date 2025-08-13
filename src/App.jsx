@@ -177,7 +177,7 @@ function AppContent() {
   return (
     <Router>
       <ScrollToTop />
-      <Layout>
+      <Layout onFeedbackClick={() => setShowFeedbackModal(true)}>
         <Suspense
           fallback={
             <div className="min-h-screen flex items-center justify-center">

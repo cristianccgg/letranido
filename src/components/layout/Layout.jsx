@@ -1,7 +1,17 @@
 // components/layout/Layout.jsx - VERSIÓN COMPLETAMENTE REFACTORIZADA
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, X, ChevronDown, LogOut, Settings, HelpCircle, BookOpen } from "lucide-react";
+import {
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  Settings,
+  HelpCircle,
+  BookOpen,
+  MessageCircle,
+} from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
@@ -12,7 +22,7 @@ import ThemeToggle from "../ui/ThemeToggle";
 import KarmaRankingsButton from "../ui/KarmaRankingsButton";
 import logo from "../../assets/images/letranido-logo.png";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, onFeedbackClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -223,15 +233,23 @@ const Layout = ({ children }) => {
           name: "Cómo Funciona",
           href: "/como-funciona",
           icon: BookOpen,
-          description: "Aprende paso a paso cómo participar en nuestros concursos"
+          description:
+            "Aprende paso a paso cómo participar en nuestros concursos",
         },
         {
           name: "Preguntas Frecuentes",
-          href: "/faq", 
+          href: "/faq",
           icon: HelpCircle,
-          description: "Encuentra respuestas a las dudas más comunes"
-        }
-      ]
+          description: "Encuentra respuestas a las dudas más comunes",
+        },
+        {
+          name: "Enviar Feedback",
+          href: "#feedback",
+          icon: MessageCircle,
+          description: "Comparte tu opinión para mejorar Letranido",
+          isAction: true,
+        },
+      ],
     },
     ...(user?.is_admin || user?.email === "admin@literalab.com"
       ? [
@@ -278,15 +296,23 @@ const Layout = ({ children }) => {
           name: "Cómo Funciona",
           href: "/como-funciona",
           icon: BookOpen,
-          description: "Aprende paso a paso cómo participar en nuestros concursos"
+          description:
+            "Aprende paso a paso cómo participar en nuestros concursos",
         },
         {
           name: "Preguntas Frecuentes",
-          href: "/faq", 
+          href: "/faq",
           icon: HelpCircle,
-          description: "Encuentra respuestas a las dudas más comunes"
-        }
-      ]
+          description: "Encuentra respuestas a las dudas más comunes",
+        },
+        {
+          name: "Enviar Feedback",
+          href: "#feedback",
+          icon: MessageCircle,
+          description: "Comparte tu opinión para mejorar Letranido",
+          isAction: true,
+        },
+      ],
     },
   ];
 
@@ -370,9 +396,15 @@ const Layout = ({ children }) => {
                   const isDropdownActive = item.items.some(
                     (subItem) => location.pathname === subItem.href
                   );
-                  
-                  const isDropdownOpen = item.name === "Ayuda" ? isHelpMenuOpen : isResourcesMenuOpen;
-                  const setDropdownOpen = item.name === "Ayuda" ? setIsHelpMenuOpen : setIsResourcesMenuOpen;
+
+                  const isDropdownOpen =
+                    item.name === "Ayuda"
+                      ? isHelpMenuOpen
+                      : isResourcesMenuOpen;
+                  const setDropdownOpen =
+                    item.name === "Ayuda"
+                      ? setIsHelpMenuOpen
+                      : setIsResourcesMenuOpen;
 
                   return (
                     <div key={item.name} className="relative">
@@ -413,7 +445,36 @@ const Layout = ({ children }) => {
                             {item.items.map((subItem) => {
                               const IconComponent = subItem.icon;
                               const isActive =
+                                !subItem.isAction &&
                                 location.pathname === subItem.href;
+
+                              if (subItem.isAction) {
+                                return (
+                                  <button
+                                    key={subItem.name}
+                                    onClick={() => {
+                                      setDropdownOpen(false);
+                                      if (
+                                        subItem.href === "#feedback" &&
+                                        onFeedbackClick
+                                      ) {
+                                        onFeedbackClick();
+                                      }
+                                    }}
+                                    className="w-full cursor-pointer flex items-start px-4 py-3 transition-colors text-gray-700 hover:bg-gray-50 text-left"
+                                  >
+                                    <IconComponent className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0 text-gray-400" />
+                                    <div>
+                                      <div className="font-medium text-sm">
+                                        {subItem.name}
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {subItem.description}
+                                      </div>
+                                    </div>
+                                  </button>
+                                );
+                              }
 
                               return (
                                 <Link
@@ -646,223 +707,291 @@ const Layout = ({ children }) => {
                 }
               `}
             </style>
-            
+
             {/* Overlay para blur del fondo - solo debajo del header */}
-            <div 
+            <div
               className="lg:hidden fixed top-16 left-0 right-0 bottom-0 bg-black/20 backdrop-blur-sm z-40"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            
-            <div 
+
+            <div
               className="lg:hidden bg-white dark:bg-gray-900 border-t border-b border-gray-300 dark:border-gray-600 absolute top-full left-0 right-0 z-50 shadow-2xl"
               style={{
-                animation: 'slideDownFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                animation:
+                  "slideDownFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards",
               }}
             >
-            <div className="px-4 pt-3 pb-4 space-y-1">
-              {navigation.map((item) => {
-                // Handle dropdown items in mobile - Mostrar como elementos individuales
-                if (item.type === "dropdown") {
-                  return item.items.map((subItem) => {
-                    const isActive = location.pathname === subItem.href;
+              <div className="px-4 pt-3 pb-4 space-y-1">
+                {navigation.map((item) => {
+                  // Handle dropdown items in mobile - Mostrar con dropdown colapsible
+                  if (item.type === "dropdown") {
+                    const isDropdownActive = item.items.some(
+                      (subItem) =>
+                        !subItem.isAction && location.pathname === subItem.href
+                    );
+                    const isDropdownOpen =
+                      item.name === "Ayuda"
+                        ? isHelpMenuOpen
+                        : isResourcesMenuOpen;
+                    const setDropdownOpen =
+                      item.name === "Ayuda"
+                        ? setIsHelpMenuOpen
+                        : setIsResourcesMenuOpen;
 
                     return (
-                      <button
-                        key={subItem.name}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate(subItem.href);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                          isActive
-                            ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
-                            : "text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm"
+                      <div key={item.name} className="space-y-1">
+                        <button
+                          onClick={() => setDropdownOpen(!isDropdownOpen)}
+                          className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                            isDropdownActive
+                              ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
+                              : "text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm"
+                          }`}
+                        >
+                          <span>{item.name}</span>
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+
+                        {isDropdownOpen && (
+                          <div className="ml-4 space-y-1">
+                            {item.items.map((subItem) => {
+                              const IconComponent = subItem.icon;
+                              const isActive =
+                                !subItem.isAction &&
+                                location.pathname === subItem.href;
+
+                              if (subItem.isAction) {
+                                return (
+                                  <button
+                                    key={subItem.name}
+                                    onClick={() => {
+                                      if (
+                                        subItem.href === "#feedback" &&
+                                        onFeedbackClick
+                                      ) {
+                                        onFeedbackClick();
+                                      }
+                                      setIsMobileMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                  >
+                                    <IconComponent className="h-4 w-4 mr-3 text-gray-400 dark:text-gray-500" />
+                                    <span>{subItem.name}</span>
+                                  </button>
+                                );
+                              }
+
+                              return (
+                                <button
+                                  key={subItem.name}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    navigate(subItem.href);
+                                    setIsMobileMenuOpen(false);
+                                  }}
+                                  className={`w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    isActive
+                                      ? "text-primary-600 bg-primary-50 dark:bg-primary-900 dark:text-primary-200"
+                                      : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                                  }`}
+                                >
+                                  <IconComponent
+                                    className={`h-4 w-4 mr-3 ${isActive ? "text-primary-600 dark:text-primary-200" : "text-gray-400 dark:text-gray-500"}`}
+                                  />
+                                  <span>{subItem.name}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Handle regular navigation items
+                  const isActive = location.pathname === item.href;
+
+                  if (item.disabled) {
+                    return (
+                      <div
+                        key={item.name}
+                        className={`flex items-center px-3 py-2 rounded-md text-base font-medium cursor-not-allowed opacity-60 ${
+                          item.className || "text-gray-400"
                         }`}
                       >
-                        <span>{subItem.name}</span>
-                      </button>
+                        <span>{item.name}</span>
+                      </div>
                     );
-                  });
-                }
+                  }
 
-                // Handle regular navigation items
-                const isActive = location.pathname === item.href;
-
-                if (item.disabled) {
                   return (
-                    <div
+                    <button
                       key={item.name}
-                      className={`flex items-center px-3 py-2 rounded-md text-base font-medium cursor-not-allowed opacity-60 ${
-                        item.className || "text-gray-400"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (item.name.includes("Escribir") && isAuthenticated) {
+                          handleWriteClick(e);
+                        } else {
+                          navigate(item.href);
+                        }
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                        isActive
+                          ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
+                          : `text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm ${
+                              item.className || ""
+                            }`
                       }`}
                     >
                       <span>{item.name}</span>
-                    </div>
+                    </button>
                   );
-                }
+                })}
 
-                return (
-                  <button
-                    key={item.name}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (item.name.includes("Escribir") && isAuthenticated) {
-                        handleWriteClick(e);
-                      } else {
-                        navigate(item.href);
-                      }
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                      isActive
-                        ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
-                        : `text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm ${
-                            item.className || ""
-                          }`
-                    }`}
-                  >
-                    <span>{item.name}</span>
-                  </button>
-                );
-              })}
+                {/* Mobile Auth Section */}
+                {isAuthenticated && location.pathname !== "/reset-password" ? (
+                  <>
+                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
 
-              {/* Mobile Auth Section */}
-              {isAuthenticated && location.pathname !== "/reset-password" ? (
-                <>
-                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
-                  
-                  {/* User Profile Section */}
-                  <div className="px-3 py-3 bg-gray-50 dark:bg-dark-800 rounded-lg mx-2 mb-2">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <UserAvatar user={user} size="md" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 dark:text-dark-100 truncate">
-                          {user?.name || user?.display_name}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-dark-400 truncate">
-                          {user?.email}
+                    {/* User Profile Section */}
+                    <div className="px-3 py-3 bg-gray-50 dark:bg-dark-800 rounded-lg mx-2 mb-2">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <UserAvatar user={user} size="md" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 dark:text-dark-100 truncate">
+                            {user?.name || user?.display_name}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-dark-400 truncate">
+                            {user?.email}
+                          </div>
                         </div>
                       </div>
+                      {!canWriteInAnyContest() && isAuthenticated && (
+                        <div className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+                          ✓ Ya participaste en todos los concursos disponibles
+                        </div>
+                      )}
                     </div>
-                    {!canWriteInAnyContest() && isAuthenticated && (
-                      <div className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
-                        ✓ Ya participaste en todos los concursos disponibles
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Menu Items */}
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
-                  >
-                    <User className="h-5 w-5" />
-                    <span>Mi perfil</span>
-                  </Link>
-
-                  <Link
-                    to="/preferences"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span>Preferencias</span>
-                  </Link>
-
-                  {/* Theme Toggle */}
-                  <div className="flex items-center space-x-2 px-3 py-2">
-                    <div className="h-5 w-5 flex items-center justify-center">
-                      🌙
-                    </div>
-                    <span className="text-base font-medium text-gray-600 dark:text-dark-300 flex-1">Modo oscuro</span>
-                    <ThemeToggle size="sm" />
-                  </div>
-
-                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
-                  
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    <span>Cerrar sesión</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
-                  
-                  {/* Theme Toggle for non-authenticated users */}
-                  <div className="flex items-center space-x-2 px-3 py-2">
-                    <div className="h-5 w-5 flex items-center justify-center">
-                      🌙
-                    </div>
-                    <span className="text-base font-medium text-gray-600 dark:text-dark-300 flex-1">Modo oscuro</span>
-                    <ThemeToggle size="sm" />
-                  </div>
-                  
-                  <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
-
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleAuthClick("login");
-                    }}
-                    className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
-                  >
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                    {/* Menu Items */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 16l-4-4m0 0l4-4m0 0v3H3v2h8v3z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>Iniciar sesión</span>
-                  </button>
+                      <User className="h-5 w-5" />
+                      <span>Mi perfil</span>
+                    </Link>
 
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleAuthClick("register");
-                    }}
-                    className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-xl text-base font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 mx-2 my-2"
-                  >
-                    <span className="text-lg">✨</span>
-                    <span>Únete Gratis</span>
-                  </button>
+                    <Link
+                      to="/preferences"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center space-x-2 px-3 py-3 rounded-lg text-base font-medium text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm transition-all duration-200"
+                    >
+                      <Settings className="h-5 w-5" />
+                      <span>Preferencias</span>
+                    </Link>
 
-                  <div className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg mx-2 mt-2">
-                    <div className="text-sm text-gray-600 dark:text-dark-300">
-                      <span className="font-medium text-indigo-600 dark:text-indigo-400">
-                        ¡Empieza tu aventura!
+                    {/* Theme Toggle */}
+                    <div className="flex items-center space-x-2 px-3 py-2">
+                      <div className="h-5 w-5 flex items-center justify-center">
+                        🌙
+                      </div>
+                      <span className="text-base font-medium text-gray-600 dark:text-dark-300 flex-1">
+                        Modo oscuro
                       </span>
-                      <br />
-                      <span className="text-xs">
-                        Participa en concursos, gana badges y conecta con otros escritores.
-                      </span>
+                      <ThemeToggle size="sm" />
                     </div>
-                  </div>
-                </>
-              )}
+
+                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span>Cerrar sesión</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
+
+                    {/* Theme Toggle for non-authenticated users */}
+                    <div className="flex items-center space-x-2 px-3 py-2">
+                      <div className="h-5 w-5 flex items-center justify-center">
+                        🌙
+                      </div>
+                      <span className="text-base font-medium text-gray-600 dark:text-dark-300 flex-1">
+                        Modo oscuro
+                      </span>
+                      <ThemeToggle size="sm" />
+                    </div>
+
+                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleAuthClick("login");
+                      }}
+                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors"
+                    >
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 16l-4-4m0 0l4-4m0 0v3H3v2h8v3z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>Iniciar sesión</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleAuthClick("register");
+                      }}
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-xl text-base font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 mx-2 my-2"
+                    >
+                      <span className="text-lg">✨</span>
+                      <span>Únete Gratis</span>
+                    </button>
+
+                    <div className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg mx-2 mt-2">
+                      <div className="text-sm text-gray-600 dark:text-dark-300">
+                        <span className="font-medium text-indigo-600 dark:text-indigo-400">
+                          ¡Empieza tu aventura!
+                        </span>
+                        <br />
+                        <span className="text-xs">
+                          Participa en concursos, gana badges y conecta con
+                          otros escritores.
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
           </>
         )}
       </header>
