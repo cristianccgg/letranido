@@ -328,7 +328,7 @@ const PrivacyPolicy = () => {
               <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                 <li>• Configuración de cuenta</li>
                 <li>• Email: privacy@letranido.com</li>
-                <li>• Respuesta: 30 días máximo</li>
+                <li>• Respuesta: Dentro de un plazo razonable</li>
                 <li>• Sin costo para ti</li>
                 <li>• Proceso simple y rápido</li>
               </ul>
@@ -432,10 +432,10 @@ const PrivacyPolicy = () => {
             Podemos actualizar esta política ocasionalmente. Cuando lo hagamos:
           </p>
           <ul className="list-disc pl-6 mb-4">
-            <li>Te notificaremos por email 30 días antes</li>
+            <li>Te notificaremos cuando sea posible</li>
             <li>Publicaremos los cambios en la plataforma</li>
             <li>Mantendremos historial de versiones</li>
-            <li>Cambios sustanciales requerirán tu consentimiento</li>
+            <li>Tu uso continuado constituye aceptación de los cambios</li>
           </ul>
         </section>
 
@@ -463,7 +463,7 @@ const PrivacyPolicy = () => {
                 consultas no legales)
               </p>
               <p>
-                <strong>Tiempo de respuesta:</strong> 3-5 días hábiles
+                <strong>Tiempo de respuesta:</strong> Dentro de un plazo razonable
               </p>
               <p>
                 <strong>Idiomas:</strong> Español, Inglés

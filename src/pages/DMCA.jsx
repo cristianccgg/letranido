@@ -184,7 +184,6 @@ const DMCA = () => {
               <li>Tu información de contacto completa</li>
               <li>Identificación del contenido removido</li>
               <li>Declaración bajo pena de perjurio de que el contenido es original</li>
-              <li>Consentimiento a la jurisdicción del tribunal de Bogotá, Colombia</li>
               <li>Tu firma física o electrónica</li>
             </ol>
           </div>
@@ -192,7 +191,7 @@ const DMCA = () => {
           <p className="text-sm text-gray-600 mb-4">
             <strong>Tiempo límite:</strong> 14 días desde la notificación de remoción.<br/>
             <strong>Proceso:</strong> Enviamos tu contranotificación al denunciante original. 
-            Si no inician acción legal en 10-14 días, podemos restaurar el contenido.
+            Los usuarios deben resolver cualquier disputa legal entre ellos directamente.
           </p>
         </section>
 
@@ -263,7 +262,7 @@ const DMCA = () => {
             <div className="text-blue-800 space-y-2">
               <p><strong>Nombre:</strong> Agente Legal Letranido</p>
               <p><strong>Email:</strong> legal@letranido.com</p>
-              <p><strong>Dirección:</strong> Bogotá, Colombia</p>
+              <p><strong>Ubicación:</strong> Colombia</p>
               <p><strong>Horario de atención:</strong> 24/7 para reportes urgentes</p>
               
               <div className="mt-4 pt-4 border-t border-blue-300">
