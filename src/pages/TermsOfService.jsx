@@ -42,8 +42,8 @@ const TermsOfService = () => {
           <p>
             Estos términos constituyen un acuerdo legal entre tú ("Usuario") y
             Letranido ("Nosotros", "Plataforma"). Nos reservamos el derecho de
-            modificar estos términos en cualquier momento, con notificación
-            previa de al menos 30 días.
+            modificar estos términos en cualquier momento. Tu uso continuado
+            de la plataforma constituye aceptación de los términos actualizados.
           </p>
         </section>
 
