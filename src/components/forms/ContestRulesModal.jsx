@@ -7,7 +7,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
     {
       icon: Shield,
       title: "Historia 100% original",
-      description: "Escrita por ti, sin IA ni plagio. Verificamos originalidad",
+      description: "Escrita por ti, sin plagio. Tu responsabilidad garantizarlo",
       type: "warning",
     },
     {
@@ -150,7 +150,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
                     Compromiso Legal
                   </h4>
                   <p className="text-red-800 dark:text-red-300 text-xs">
-                    Historia 100% original, sin IA, aceptas términos de uso.
+                    Historia 100% original, aceptas términos de uso.
                   </p>
                 </div>
                 <a 
