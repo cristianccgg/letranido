@@ -14,14 +14,13 @@ const SubmissionConfirmationModal = ({
   const [hasMatureContent, setHasMatureContent] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [confirmOriginal, setConfirmOriginal] = useState(false);
-  const [confirmNoAI, setConfirmNoAI] = useState(false);
   const [shareWinnerContent, setShareWinnerContent] = useState(false);
   const [acknowledgePublicRisk, setAcknowledgePublicRisk] = useState(false);
 
   if (!isOpen) return null;
 
   const canSubmit =
-    acceptTerms && confirmOriginal && confirmNoAI && shareWinnerContent && acknowledgePublicRisk && !isSubmitting;
+    acceptTerms && confirmOriginal && shareWinnerContent && acknowledgePublicRisk && !isSubmitting;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -30,7 +29,6 @@ const SubmissionConfirmationModal = ({
       hasMatureContent,
       termsAccepted: true,
       originalConfirmed: true,
-      noAIConfirmed: true,
       shareWinnerContentAccepted: true,
       publicRiskAcknowledged: true,
     });
@@ -100,35 +98,6 @@ const SubmissionConfirmationModal = ({
                   </span>
                 </label>
 
-                {/* No AI Confirmation */}
-                <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={confirmNoAI}
-                    onChange={(e) => setConfirmNoAI(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-pink-600 border-pink-300 rounded focus:ring-pink-500 focus:ring-2"
-                    required
-                  />
-                  <span className="text-xs text-pink-800 dark:text-pink-200">
-                    <strong>NO he usado Inteligencia Artificial</strong><br />
-                    Sin ChatGPT, Claude, GPT-4, Copilot u otra IA
-                  </span>
-                </label>
-
-                {/* Terms Acceptance */}
-                <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={acceptTerms}
-                    onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-pink-600 border-pink-300 rounded focus:ring-pink-500 focus:ring-2"
-                    required
-                  />
-                  <span className="text-xs text-pink-800 dark:text-pink-200">
-                    <strong>Acepto términos y condiciones</strong><br />
-                    Letranido puede mostrar mi historia en la plataforma
-                  </span>
-                </label>
 
                 {/* Sharing Authorization for Winners */}
                 <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
@@ -159,9 +128,33 @@ const SubmissionConfirmationModal = ({
                     Al publicar, otros usuarios podrán leer mi contenido. Publico voluntariamente y Letranido no controla el uso posterior por terceros.
                   </span>
                 </label>
+
+                {/* Terms Acceptance - MOVED TO END */}
+                <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-pink-600 border-pink-300 rounded focus:ring-pink-500 focus:ring-2"
+                    required
+                  />
+                  <span className="text-xs text-pink-800 dark:text-pink-200">
+                    <strong>He leído y acepto los términos y condiciones</strong><br />
+                    Incluye reglas de originalidad, derechos de autor, responsabilidades y uso de la plataforma.{" "}
+                    <a 
+                      href="/terms" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline hover:text-pink-600 dark:hover:text-pink-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Leer términos completos
+                    </a>
+                  </span>
+                </label>
               </div>
 
-              {(!confirmOriginal || !confirmNoAI || !acceptTerms || !shareWinnerContent || !acknowledgePublicRisk) && (
+              {(!confirmOriginal || !acceptTerms || !shareWinnerContent || !acknowledgePublicRisk) && (
                 <div className="mt-3 p-2 bg-pink-100 dark:bg-pink-900/30 border border-pink-300 dark:border-pink-600 rounded-lg">
                   <p className="text-pink-800 dark:text-pink-200 text-xs flex items-center">
                     <AlertCircle className="h-3 w-3 mr-1" />

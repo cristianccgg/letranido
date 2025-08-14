@@ -275,7 +275,6 @@ const WritePrompt = () => {
     hasMatureContent,
     termsAccepted,
     originalConfirmed,
-    noAIConfirmed,
     shareWinnerContentAccepted,
     publicRiskAcknowledged,
   }) => {
@@ -329,7 +328,6 @@ const WritePrompt = () => {
           .update({
             terms_accepted: termsAccepted,
             original_confirmed: originalConfirmed,
-            no_ai_confirmed: noAIConfirmed,
             share_winner_content_accepted: shareWinnerContentAccepted,
             public_risk_acknowledged: publicRiskAcknowledged,
             mature_content_marked: hasMatureContent,
@@ -384,7 +382,6 @@ const WritePrompt = () => {
               story_id: result.storyId, // Insertar directamente con story_id
               terms_accepted: termsAccepted,
               original_confirmed: originalConfirmed,
-              no_ai_confirmed: noAIConfirmed,
               share_winner_content_accepted: shareWinnerContentAccepted,
               public_risk_acknowledged: publicRiskAcknowledged,
               mature_content_marked: hasMatureContent,

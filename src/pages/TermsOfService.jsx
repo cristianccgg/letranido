@@ -64,10 +64,6 @@ const TermsOfService = () => {
                 ❌ Prohibido copiar, parafrasear o adaptar obras existentes
               </li>
               <li>
-                ❌ Prohibido uso de Inteligencia Artificial para generar
-                contenido
-              </li>
-              <li>
                 ❌ Prohibido contenido basado en universos con derechos de autor
               </li>
             </ul>
@@ -91,26 +87,21 @@ const TermsOfService = () => {
           </ul>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            2.2 Prohibición de IA
+            2.2 Herramientas Permitidas
           </h3>
           <p className="mb-4">
-            <strong>
-              Estrictamente prohibido el uso de herramientas de IA
-            </strong>{" "}
-            como:
+            Puedes usar herramientas de apoyo que no generen contenido por ti:
           </p>
           <ul className="list-disc pl-6 mb-4">
-            <li>
-              ChatGPT, Claude, GPT-4, Bard, o cualquier modelo de lenguaje
-            </li>
-            <li>Herramientas de escritura asistida por IA</li>
-            <li>Generadores de contenido automático</li>
-            <li>Parafraseo asistido por IA de contenido existente</li>
+            <li>✅ Correctores ortográficos y gramaticales (Grammarly, etc.)</li>
+            <li>✅ Diccionarios y sinónimos</li>
+            <li>✅ Herramientas de investigación y referencia</li>
+            <li>✅ Editores de texto y procesadores de palabras</li>
           </ul>
           <p>
             <em>
-              Nota: Puedes usar correctores ortográficos (Grammarly, etc.) para
-              revisión.
+              Enfoque: Que las palabras y la creatividad sean tuyas, 
+              independientemente de las herramientas de apoyo que uses.
             </em>
           </p>
 
