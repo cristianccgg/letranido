@@ -97,8 +97,44 @@ Estamos implementando un sistema premium con **2 planes principales** y **feedba
 - Seguro para commits y deployments
 
 ### **📊 Métricas actuales:**
-- 34 usuarios registrados (objetivo: 50-100 antes de monetizar)
-- 2 semanas en vivo
+- 55 usuarios registrados (objetivo: 80-120 antes de monetizar)
+- 37 usuarios activos mensuales
+- ~1 mes en vivo
+
+---
+
+## 📊 MÉTRICAS Y CRONOGRAMA PARA ACTIVAR PREMIUM
+
+### **🎯 Objetivos de usuarios antes del lanzamiento:**
+- **80-120 usuarios registrados** (actual: 55)
+- **50-70 usuarios activos mensuales** (actual: 37)
+- **Al menos 3-4 meses de operación** (actual: ~1 mes)
+
+### **📈 Indicadores clave a rastrear:**
+
+#### **Métricas de compromiso (críticas):**
+- **Retención semanal >40%** (usuarios que regresan)
+- **Participación en concursos >60%** de usuarios activos
+- **Promedio 2+ historias por usuario activo**
+- **Tiempo de permanencia >10 min** por sesión
+
+#### **Indicadores de demanda premium:**
+- **Usuarios golpeando límites** (1000 palabras, 1 concurso/mes)
+- **5+ usuarios pidiendo más límites** por semana
+- **Engagement alto** (comentarios, likes entre usuarios)
+- **Usuarios completando perfil** con bio/descripción
+
+### **🗓️ Cronograma sugerido:**
+- **Mes 1-2:** Perfeccionar funcionalidades core + medir engagement
+- **Mes 3:** Beta premium gratuito (1 mes) para early adopters
+- **Mes 4:** Lanzamiento premium real con pagos
+
+### **🚦 Señales para activar premium:**
+- ✅ **5+ usuarios pidiendo más límites** por semana
+- ✅ **70+ usuarios registrados**
+- ✅ **Feedback profesional confirmado**
+- ✅ **Concursos mensuales consistentes**
+- ✅ **Retención >40%** y engagement sostenido
 
 ---
 
@@ -189,7 +225,8 @@ SELECT id, display_name, plan_type, is_pro FROM user_profiles;
 ## 🎪 CONTEXTO DE NEGOCIO
 
 ### **Validación del Mercado:**
-- ✅ 34 usuarios en 2 semanas (crecimiento sólido)
+- ✅ 55 usuarios en ~1 mes (crecimiento sólido)
+- ✅ 37 MAU (67% tasa de activación)
 - ✅ Engagement alto con concursos
 - ✅ Demanda potencial de feedback profesional
 
@@ -248,6 +285,7 @@ SELECT id, display_name, plan_type, is_pro FROM user_profiles;
 
 ---
 
-*Última actualización: Agosto 2025 - Actualización de estado de implementaciones*
-*Estado actual: Límites dinámicos implementados, sistema de pestañas completo, perfiles integrados*
-*Próxima revisión: Implementar estadísticas avanzadas premium y sistema de pagos*
+*Última actualización: Agosto 2025 - Métricas y cronograma de lanzamiento agregados*
+*Estado actual: 55 usuarios, 37 MAU (67% activación), límites dinámicos implementados*
+*Objetivo: Alcanzar 80+ usuarios y métricas de engagement antes del lanzamiento premium*
+*Próxima revisión: Monitorear métricas de retención y demanda de límites*
