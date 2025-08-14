@@ -277,6 +277,7 @@ const WritePrompt = () => {
     originalConfirmed,
     noAIConfirmed,
     shareWinnerContentAccepted,
+    publicRiskAcknowledged,
   }) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -330,6 +331,7 @@ const WritePrompt = () => {
             original_confirmed: originalConfirmed,
             no_ai_confirmed: noAIConfirmed,
             share_winner_content_accepted: shareWinnerContentAccepted,
+            public_risk_acknowledged: publicRiskAcknowledged,
             mature_content_marked: hasMatureContent,
             user_agent: navigator.userAgent,
           })
@@ -384,6 +386,7 @@ const WritePrompt = () => {
               original_confirmed: originalConfirmed,
               no_ai_confirmed: noAIConfirmed,
               share_winner_content_accepted: shareWinnerContentAccepted,
+              public_risk_acknowledged: publicRiskAcknowledged,
               mature_content_marked: hasMatureContent,
               ip_address: null, // Se puede obtener del cliente si es necesario
               user_agent: navigator.userAgent,

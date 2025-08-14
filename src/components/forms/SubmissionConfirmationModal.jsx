@@ -16,11 +16,12 @@ const SubmissionConfirmationModal = ({
   const [confirmOriginal, setConfirmOriginal] = useState(false);
   const [confirmNoAI, setConfirmNoAI] = useState(false);
   const [shareWinnerContent, setShareWinnerContent] = useState(false);
+  const [acknowledgePublicRisk, setAcknowledgePublicRisk] = useState(false);
 
   if (!isOpen) return null;
 
   const canSubmit =
-    acceptTerms && confirmOriginal && confirmNoAI && shareWinnerContent && !isSubmitting;
+    acceptTerms && confirmOriginal && confirmNoAI && shareWinnerContent && acknowledgePublicRisk && !isSubmitting;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -31,13 +32,14 @@ const SubmissionConfirmationModal = ({
       originalConfirmed: true,
       noAIConfirmed: true,
       shareWinnerContentAccepted: true,
+      publicRiskAcknowledged: true,
     });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden ring-1 ring-slate-200 dark:ring-gray-600" onClick={(e) => e.stopPropagation()}>
-        <div className="overflow-y-auto max-h-[calc(85vh-120px)]">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50" onClick={onClose}>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[95vh] sm:max-h-[85vh] overflow-hidden ring-1 ring-slate-200 dark:ring-gray-600" onClick={(e) => e.stopPropagation()}>
+        <div className="overflow-y-auto max-h-[calc(95vh-100px)] sm:max-h-[calc(85vh-120px)]">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white p-4 rounded-t-2xl">
             <div className="flex items-center justify-between">
@@ -56,7 +58,7 @@ const SubmissionConfirmationModal = ({
           </div>
 
           {/* Content */}
-          <div className="p-4 space-y-4">
+          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
             {/* Story Info - Compact */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-3">
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -76,13 +78,13 @@ const SubmissionConfirmationModal = ({
             </div>
 
             {/* Legal Confirmations - REQUIRED */}
-            <div className="bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/30 dark:to-red-900/30 border border-pink-200 dark:border-pink-700 rounded-lg p-4">
-              <h3 className="font-semibold text-pink-900 dark:text-pink-100 mb-3 flex items-center text-sm">
+            <div className="bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/30 dark:to-red-900/30 border border-pink-200 dark:border-pink-700 rounded-lg p-3">
+              <h3 className="font-semibold text-pink-900 dark:text-pink-100 mb-2 flex items-center text-sm">
                 <Shield className="h-4 w-4 mr-1" />
                 Confirmaciones Legales
               </h3>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {/* Original Work Confirmation */}
                 <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
                   <input
@@ -142,9 +144,24 @@ const SubmissionConfirmationModal = ({
                     Contenido para redes sociales y reconocimiento
                   </span>
                 </label>
+
+                {/* Public Risk Acknowledgment */}
+                <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-pink-200 dark:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/20 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={acknowledgePublicRisk}
+                    onChange={(e) => setAcknowledgePublicRisk(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-pink-600 border-pink-300 rounded focus:ring-pink-500 focus:ring-2"
+                    required
+                  />
+                  <span className="text-xs text-pink-800 dark:text-pink-200">
+                    <strong>Entiendo que mi historia será pública</strong><br />
+                    Al publicar, otros usuarios podrán leer mi contenido. Publico voluntariamente y Letranido no controla el uso posterior por terceros.
+                  </span>
+                </label>
               </div>
 
-              {(!confirmOriginal || !confirmNoAI || !acceptTerms || !shareWinnerContent) && (
+              {(!confirmOriginal || !confirmNoAI || !acceptTerms || !shareWinnerContent || !acknowledgePublicRisk) && (
                 <div className="mt-3 p-2 bg-pink-100 dark:bg-pink-900/30 border border-pink-300 dark:border-pink-600 rounded-lg">
                   <p className="text-pink-800 dark:text-pink-200 text-xs flex items-center">
                     <AlertCircle className="h-3 w-3 mr-1" />
@@ -154,22 +171,22 @@ const SubmissionConfirmationModal = ({
               )}
             </div>
 
-            {/* Content Rating */}
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-3">
-              <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-2 flex items-center text-sm">
+            {/* Content Rating - Optional */}
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50 border border-gray-200 dark:border-gray-600 rounded-lg p-2.5">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center text-sm">
                 <FileText className="h-4 w-4 mr-1" />
-                Clasificación
+                Clasificación de Contenido (Opcional)
               </h3>
-              <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-indigo-200 dark:border-indigo-600 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 transition-colors">
+              <label className="flex items-start gap-2 cursor-pointer p-2 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-500 hover:bg-gray-50/50 dark:hover:bg-gray-600/50 transition-colors">
                 <input
                   type="checkbox"
                   checked={hasMatureContent}
                   onChange={(e) => setHasMatureContent(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-indigo-600 border-indigo-300 rounded focus:ring-indigo-500 focus:ring-2"
+                  className="mt-1 w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500 focus:ring-2"
                 />
-                <span className="text-xs text-indigo-800 dark:text-indigo-200">
-                  <strong>Contenido maduro (18+)</strong><br />
-                  Violencia, lenguaje fuerte o temas adultos
+                <span className="text-xs text-gray-700 dark:text-gray-300">
+                  <strong>Mi historia contiene contenido maduro (18+)</strong><br />
+                  <em>Marca solo si incluye: violencia, lenguaje fuerte o temas adultos</em>
                 </span>
               </label>
             </div>
@@ -178,7 +195,7 @@ const SubmissionConfirmationModal = ({
 
 
         {/* Footer */}
-        <div className="border-t border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 p-4 rounded-b-2xl">
+        <div className="border-t border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 p-3 sm:p-4 rounded-b-2xl">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}

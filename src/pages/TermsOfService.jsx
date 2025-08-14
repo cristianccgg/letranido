@@ -497,10 +497,23 @@ const TermsOfService = () => {
             </li>
           </ul>
 
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            7.4 Backup y Preservación de Contenido
+          </h3>
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4 mb-4">
+            <p className="text-orange-800 dark:text-orange-200 text-sm mb-2">
+              <strong>⚠️ Responsabilidad del Usuario:</strong>
+            </p>
+            <ul className="text-orange-800 dark:text-orange-200 text-sm space-y-1">
+              <li>• <strong>NO garantizamos</strong> la preservación permanente del contenido</li>
+              <li>• <strong>Podemos eliminar contenido</strong> sin previo aviso por violaciones o mantenimiento</li>
+              <li>• <strong>Es tu responsabilidad</strong> mantener copias de respaldo de tus historias</li>
+              <li>• <strong>Problemas técnicos</strong> pueden resultar en pérdida de datos</li>
+              <li>• <strong>No somos responsables</strong> por contenido perdido o eliminado</li>
+            </ul>
+          </div>
           <p>
-            No garantizamos la preservación permanente del contenido en la
-            plataforma. Es responsabilidad del usuario mantener copias de
-            respaldo.
+            <strong>Recomendación:</strong> Guarda copias locales de todas tus historias antes de publicar.
           </p>
         </section>
 
