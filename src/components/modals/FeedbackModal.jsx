@@ -108,14 +108,14 @@ const FeedbackModal = ({ isOpen, onClose }) => {
               </div>
               <button
                 onClick={onClose}
-                className="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20"
+                className="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
@@ -133,10 +133,10 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
             {/* Tipo de feedback */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 sm:mb-3">
                 Tipo de feedback
               </label>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
                 {feedbackTypes.map((type) => {
                   const IconComponent = type.icon;
                   return (
@@ -144,19 +144,19 @@ const FeedbackModal = ({ isOpen, onClose }) => {
                       key={type.id}
                       type="button"
                       onClick={() => handleChange('type', type.id)}
-                      className={`p-3 rounded-lg border-2 text-left transition-all duration-200 hover:scale-105 ${
+                      className={`p-2 sm:p-3 rounded-lg border-2 text-left transition-all duration-200 hover:scale-105 cursor-pointer ${
                         formData.type === type.id
                           ? `${type.bgColor} border-current ${type.color}`
                           : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <IconComponent className={`h-5 w-5 ${formData.type === type.id ? type.color : 'text-gray-400 dark:text-gray-500'}`} />
-                        <div>
-                          <div className={`font-medium ${formData.type === type.id ? type.color : 'text-gray-900 dark:text-gray-100'}`}>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <IconComponent className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${formData.type === type.id ? type.color : 'text-gray-400 dark:text-gray-500'}`} />
+                        <div className="min-w-0">
+                          <div className={`font-medium text-xs sm:text-sm leading-tight ${formData.type === type.id ? type.color : 'text-gray-900 dark:text-gray-100'}`}>
                             {type.label}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{type.description}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{type.description}</div>
                         </div>
                       </div>
                     </button>
@@ -173,7 +173,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
               <textarea
                 value={formData.message}
                 onChange={(e) => handleChange('message', e.target.value)}
-                rows={4}
+                rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 placeholder="Cuéntanos qué opinas, qué problema encontraste, o qué sugerencia tienes..."
                 required
@@ -192,14 +192,14 @@ const FeedbackModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors font-medium"
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors font-medium cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
                   <>

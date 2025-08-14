@@ -39,6 +39,7 @@ import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
 import { useBadgesCache } from "../hooks/useBadgesCache";
 import Badge from "../components/ui/Badge";
+import WelcomeBanner from "../components/ui/WelcomeBanner";
 import logo from "../assets/images/letranido-logo.png";
 
 // Componente para mostrar el badge del ganador
@@ -286,6 +287,9 @@ const LandingPage = () => {
         keywords="escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido, literatura"
         url="/"
       />
+
+      {/* Welcome Banner */}
+      <WelcomeBanner />
 
       {/* Hero Section - Elegante y moderno */}
       <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
