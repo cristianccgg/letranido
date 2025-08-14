@@ -430,7 +430,25 @@ const TermsOfService = () => {
             <li>No infringir marcas registradas o patentes</li>
             <li>Cumplir con las leyes aplicables de su jurisdicción</li>
             <li>Respaldar su propio contenido</li>
+            <li><strong>Cualquier disputa por plagio, robo de ideas o contenido entre usuarios</strong></li>
           </ul>
+
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">
+              ⚠️ Riesgo de Publicación Pública
+            </h4>
+            <p className="text-yellow-800 dark:text-yellow-200 text-sm mb-2">
+              <strong>Al publicar en Letranido, reconoces y aceptas que:</strong>
+            </p>
+            <ul className="text-yellow-800 dark:text-yellow-200 text-sm space-y-1">
+              <li>• Tu contenido será visible públicamente para todos los usuarios</li>
+              <li>• <strong>Exists el riesgo</strong> de que otros usuarios puedan copiar, adaptar o usar tus ideas</li>
+              <li>• <strong>Letranido NO es responsable</strong> por disputas de originalidad entre usuarios</li>
+              <li>• <strong>Letranido NO puede prevenir</strong> el uso no autorizado de tu contenido por parte de otros usuarios</li>
+              <li>• Es tu responsabilidad proteger tu propiedad intelectual y tomar acciones legales si es necesario</li>
+              <li>• Publicas bajo tu propio riesgo y responsabilidad</li>
+            </ul>
+          </div>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             7.3 Indemnización
@@ -445,6 +463,8 @@ const TermsOfService = () => {
             <li>Infracción de derechos de terceros</li>
             <li>Contenido que publiques o compartas</li>
             <li>Tu uso o mal uso de la plataforma</li>
+            <li><strong>Disputas con otros usuarios por alegado plagio, robo de ideas o contenido</strong></li>
+            <li><strong>Uso no autorizado de tu contenido por parte de otros usuarios</strong></li>
           </ul>
 
           <p>
