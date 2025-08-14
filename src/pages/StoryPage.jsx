@@ -17,6 +17,7 @@ import {
   AlertCircle,
   ExternalLink,
   MessageSquare,
+  Lightbulb,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -24,6 +25,7 @@ import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
 import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
 // ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
+import CommentGuideModal from "../components/modals/CommentGuideModal";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
@@ -71,6 +73,8 @@ const StoryPage = () => {
   const [votingInfo, setVotingInfo] = useState({});
   // ✅ REMOVED: Modal local reemplazado por modal global del contexto
   const [viewRecorded, setViewRecorded] = useState(false);
+  const [showCommentGuide, setShowCommentGuide] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(0);
 
   // Refs para control
   const loadingRef = useRef(false);
@@ -773,10 +777,29 @@ const StoryPage = () => {
 
         {/* Comments Section */}
         <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-gray-600 dark:text-dark-300" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
+                Comentarios ({commentsCount})
+              </h3>
+            </div>
+            
+            <button
+              onClick={() => setShowCommentGuide(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm"
+              title="Ver guía para comentarios constructivos"
+            >
+              <Lightbulb className="h-3.5 w-3.5 text-blue-500" />
+              Guía de comentarios
+            </button>
+          </div>
+          
           <SimpleComments 
             storyId={story.id} 
             storyTitle={story.title} 
             contestId={story.contest_id}
+            onCommentsCountChange={setCommentsCount}
           />
         </div>
 
@@ -855,6 +878,12 @@ const StoryPage = () => {
               )}
           </div>
         </div>
+
+        {/* Comment Guide Modal */}
+        <CommentGuideModal 
+          isOpen={showCommentGuide}
+          onClose={() => setShowCommentGuide(false)}
+        />
 
         {/* ✅ Auth Modal ahora se maneja globalmente en Layout.jsx */}
       </div>

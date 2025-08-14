@@ -25,7 +25,7 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-const SimpleComments = ({ storyId, storyTitle, contestId }) => {
+const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -52,12 +52,22 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
   // Hook para tema
   const { isDark } = useTheme();
 
-  // Placeholders responsive
+  // Placeholders con ejemplos específicos
   const getPlaceholder = () => {
+    const examples = [
+      "Me gustó mucho cómo desarrollaste el personaje principal...",
+      "La descripción del ambiente me transportó completamente...", 
+      "Quizás podrías explorar más la motivación del protagonista...",
+      "El diálogo se siente muy natural y realista...",
+      "La construcción del suspenso está muy bien lograda..."
+    ];
+    
+    const randomExample = examples[Math.floor(Math.random() * examples.length)];
+    
     if (isMobile) {
-      return "¿Qué te pareció? Comparte tu opinión constructiva...";
+      return `Ej: "${randomExample}"`;
     }
-    return "¿Qué te pareció la historia? Comparte tu opinión constructiva: destaca lo que más te gustó, sugiere mejoras o comenta sobre el estilo, personajes o trama...";
+    return `Comparte qué te gustó, sugiere mejoras o comenta sobre estilo/personajes. Ej: "${randomExample}"`;
   };
 
   // ✅ CARGAR COMENTARIOS REALES
@@ -82,9 +92,12 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
           }));
           
           setComments(transformedComments);
+          // Notificar al padre sobre el número de comentarios
+          onCommentsCountChange?.(transformedComments.length);
         } else {
           console.error("Error loading comments:", result.error);
           setComments([]);
+          onCommentsCountChange?.(0);
         }
       } catch (error) {
         console.error("Error loading comments:", error);
@@ -132,7 +145,12 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
           is_featured: result.comment.is_featured
         };
 
-        setComments((prev) => [newCommentData, ...prev]);
+        setComments((prev) => {
+          const newComments = [newCommentData, ...prev];
+          // Notificar al padre sobre el nuevo número de comentarios
+          onCommentsCountChange?.(newComments.length);
+          return newComments;
+        });
         setNewComment("");
       } else {
         console.error("Error adding comment:", result.error);
@@ -156,7 +174,12 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
       const result = await deleteComment(commentId);
       
       if (result.success) {
-        setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+        setComments((prev) => {
+          const newComments = prev.filter((comment) => comment.id !== commentId);
+          // Notificar al padre sobre el nuevo número de comentarios
+          onCommentsCountChange?.(newComments.length);
+          return newComments;
+        });
       } else {
         console.error("Error deleting comment:", result.error);
         alert("Error al eliminar el comentario: " + result.error);
@@ -200,12 +223,6 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <MessageSquare className="h-5 w-5 text-gray-600 dark:text-dark-300" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-          Comentarios ({comments.length})
-        </h3>
-      </div>
 
       {/* Formulario de nuevo comentario */}
       {isAuthenticated ? (
@@ -223,7 +240,7 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
               />
               <div className="flex justify-between items-center mt-2">
                 <div className="text-xs text-gray-500 dark:text-dark-400">
-                  💡 Tu feedback constructivo ayuda a la comunidad literaria
+                  🌱 Recuerda: todos estamos aprendiendo. Comparte lo positivo y sugiere con amabilidad
                 </div>
                 <button
                   type="submit"
@@ -328,8 +345,7 @@ const SimpleComments = ({ storyId, storyTitle, contestId }) => {
 
       {/* Footer informativo */}
       <div className="text-xs text-gray-500 dark:text-dark-400 text-center pt-4 border-t border-gray-200 dark:border-dark-600">
-        Los comentarios están moderados. Mantén un tono respetuoso y
-        constructivo.
+        💫 Comunidad de escritores en crecimiento: valora el esfuerzo, celebra las fortalezas, sugiere con amabilidad
       </div>
 
       {/* Modal de reportes */}
