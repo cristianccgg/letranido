@@ -71,6 +71,45 @@ Este archivo creará:
 ### Archivos Modificados:
 - `src/pages/UnifiedProfile.jsx` - Agregada sección de badges
 
+## 🔄 Flujo de Asignación de Badges (IMPORTANTE)
+
+### ✅ Badges Automáticos por Historias
+Cuando un usuario publica una historia:
+
+1. Se llama automáticamente `check_and_award_badges(user_id)`
+2. La función SQL cuenta las historias del usuario
+3. Compara con los criterios de badges (1, 5, 15 historias)
+4. Otorga automáticamente todos los badges que el usuario merece
+
+**Ubicación**: `useBadges.js:165` - función `checkAndAwardBadges()`
+
+### ✅ Badges de Concursos - AUTOMÁTICO TAMBIÉN
+Cuando se finaliza un concurso:
+
+1. **`useContestFinalization.js:135-145`** - Al finalizar concurso:
+   - Se llama `award_specific_badge()` para ganadores
+   - 1er lugar: obtiene "Campeón del Mes"
+   - 2do/3er lugar: obtienen "Finalista"
+
+2. **Detección automática de victorias múltiples**:
+   - `badges_migration.sql:74-76` cuenta `is_winner = true`
+   - Si `contest_wins >= 2`, otorga automáticamente "Ganador Veterano"
+   - **NO necesitas código adicional** - es 100% automático
+
+### 🏆 Ejemplo de Victorias Múltiples
+Si Juan gana el primer y segundo concurso:
+
+**Primer concurso** (Juan gana 1er lugar):
+- ✅ Obtiene: "Campeón del Mes"
+- Su conteo: `contest_wins = 1`
+
+**Segundo concurso** (Juan gana 1er lugar otra vez):
+- ✅ Obtiene: "Campeón del Mes" (badge separado por concurso)
+- Su conteo: `contest_wins = 2` 
+- ✅ **AUTOMÁTICAMENTE** obtiene: "Ganador Veterano"
+
+**No necesitas programar nada extra** - el sistema detecta y otorga automáticamente.
+
 ## 🎯 Próximos Pasos Recomendados
 
 ### Para Activar Notificaciones (Opcional)
@@ -85,15 +124,19 @@ if (newBadges.length > 0) {
 }
 ```
 
-### Para Badges de Concursos (Manual)
-Cuando determines ganadores de concursos, ejecuta:
+### Badges de Concursos - YA IMPLEMENTADO ✅
+**El sistema YA asigna badges automáticamente cuando finalizas concursos.**
+
+Ubicación del código: `src/hooks/useContestFinalization.js:135-145`
 
 ```javascript
-// Para 1er lugar
-await awardSpecificBadge('contest_winner', contestId);
-
-// Para 2do y 3er lugar  
-await awardSpecificBadge('contest_finalist', contestId);
+// Esto YA se ejecuta automáticamente al finalizar concurso:
+const badgeType = position === 1 ? 'contest_winner' : 'contest_finalist';
+await supabase.rpc('award_specific_badge', {
+  target_user_id: winner.user_id,
+  badge_type: badgeType,
+  contest_id: contestId
+});
 ```
 
 ### Para Personalizar Badges
@@ -111,11 +154,37 @@ VALUES ('new_badge_id', 'Nombre del Badge', 'Descripción', 'icon_name', '#color
 2. Reemplaza los iconos en `src/components/ui/Badge.jsx`
 3. Actualiza los colores según tu marca
 
-### Agregar Nuevos Tipos de Badges
+### Ideas para Futuros Badges de Concursos
+- **"Bicampeón"** - Ganar 2 concursos consecutivos
+- **"Tricampeón"** - Ganar 3 concursos consecutivos  
+- **"Maestro de Géneros"** - Ganar en diferentes categorías
+- **"Leyenda"** - Ganar 5+ concursos
+- **"Rey/Reina de la Literatura"** - Ganar 10+ concursos
+
+### Otros Tipos de Badges
 - Badges por popularidad (likes recibidos)
 - Badges por actividad (comentarios dados)
 - Badges por antigüedad (tiempo en la plataforma)
 - Badges especiales para eventos
+
+### 📝 Cómo Agregar Nuevos Badges
+
+1. **Agregar definición en la base de datos**:
+```sql
+INSERT INTO badge_definitions (id, name, description, icon, color, tier, criteria) 
+VALUES ('bicampeon', 'Bicampeón', 'Ha ganado 2 concursos consecutivos', 'crown', '#dc2626', 3, '{"type": "consecutive_wins", "threshold": 2}');
+```
+
+2. **Actualizar la función SQL** (si necesitas nueva lógica):
+```sql
+-- En badges_migration.sql, dentro de check_and_award_badges()
+-- Agregar nueva lógica para detectar victorias consecutivas
+```
+
+3. **Ubicaciones de archivos importantes**:
+   - **Migración SQL**: `badges_migration.sql:61-122`
+   - **Hook de badges**: `src/hooks/useBadges.js`
+   - **Finalización de concursos**: `src/hooks/useContestFinalization.js:135-145`
 
 ## 💰 Costo
 - **$0 adicionales** - Todo usa el plan gratuito de Supabase

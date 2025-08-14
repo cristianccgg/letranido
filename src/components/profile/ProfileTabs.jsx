@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import UserBadgesSection from '../ui/UserBadgesSection';
+import AllBadgesSection from '../ui/AllBadgesSection';
 import { FEATURES } from '../../lib/config';
 
 const ProfileTabs = ({ user, votingStats }) => {
@@ -302,8 +303,8 @@ const ProfileTabs = ({ user, votingStats }) => {
 
     return (
       <div className="space-y-6">
-        {/* Badges Section */}
-        <UserBadgesSection
+        {/* Todos los Badges Disponibles */}
+        <AllBadgesSection
           userId={user?.id}
           userName={user?.name || user?.display_name || "Usuario"}
         />

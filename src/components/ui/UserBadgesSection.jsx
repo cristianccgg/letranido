@@ -103,19 +103,6 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
             </div>
           </div>
 
-          {hasAnyBadges && (
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
-            >
-              {isExpanded ? "Ver menos" : "Ver todos"}
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-            </button>
-          )}
         </div>
       </div>
 
@@ -123,109 +110,20 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
       <div className="p-6">
         {!hasAnyBadges ? (
           /* Estado vacío */
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-6">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Trophy className="w-6 h-6 text-gray-400" />
             </div>
             <h4 className="font-medium text-gray-900 dark:text-dark-400 mb-2">
               Aún no tienes badges
             </h4>
-            <p className="text-sm text-gray-600 dark:text-dark-400 mb-4">
-              Los badges se otorgan automáticamente cuando cumples ciertos
-              logros.
+            <p className="text-sm text-gray-600 dark:text-dark-400">
+              ¡Escribe historias para conseguir tus primeros logros!
             </p>
-
-            {/* Mostrar progreso hacia primer badge */}
-            {nextStoryBadge && userStats && (
-              <BadgeProgress
-                currentCount={userStats.storyCount}
-                nextBadge={nextStoryBadge}
-                className="max-w-sm mx-auto"
-              />
-            )}
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Badges conseguidos */}
-            <div>
-              {!isExpanded ? (
-                /* Vista compacta - solo primeros 4 badges */
-                <BadgeGrid badges={userBadges} maxVisible={4} size="sm" className="justify-center sm:justify-start" />
-              ) : (
-                /* Vista expandida */
-                <div>
-                  {/* Filtros por categoría */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {categories.map((category) => {
-                      const Icon = category.icon;
-                      const categoryBadges =
-                        category.id === "all"
-                          ? userBadges
-                          : userBadges.filter((badge) => {
-                              const criteria = badge.criteria || {};
-                              return criteria.type === category.id;
-                            });
-
-                      return (
-                        <button
-                          key={category.id}
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`
-                            flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0
-                            ${
-                              selectedCategory === category.id
-                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 border border-purple-200"
-                                : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-dark-700 dark:text-dark-400 dark:hover:bg-dark-600"
-                            }
-                          `}
-                        >
-                          <Icon className="w-4 h-4" />
-                          <span className="hidden sm:inline">{category.name}</span>
-                          <span className="sm:hidden">{category.name.charAt(0)}</span>
-                          {categoryBadges.length > 0 && (
-                            <span className="bg-gray-200 text-gray-700 text-xs px-1.5 py-0.5 rounded-full">
-                              {categoryBadges.length}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Grid de badges filtrados */}
-                  {filteredBadges.length > 0 ? (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-                      {filteredBadges.map((badge, index) => (
-                        <div
-                          key={badge.id || index}
-                          className="flex flex-col items-center"
-                        >
-                          <Badge badge={badge} size="sm" />
-                          <span className="text-xs text-gray-600 mt-1 text-center line-clamp-2 break-words">
-                            {badge.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-gray-500 text-sm">
-                      No tienes badges en esta categoría aún
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Progreso hacia siguiente badge */}
-            {nextStoryBadge && userStats && (
-              <div className="border-t border-gray-100 dark:border-dark-700 pt-6">
-                <BadgeProgress
-                  currentCount={userStats.storyCount}
-                  nextBadge={nextStoryBadge}
-                />
-              </div>
-            )}
-          </div>
+          /* Solo mostrar badges conseguidos - vista compacta */
+          <BadgeGrid badges={userBadges} maxVisible={6} size="sm" className="justify-center sm:justify-start" />
         )}
       </div>
     </div>
