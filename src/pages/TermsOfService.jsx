@@ -23,7 +23,7 @@ const TermsOfService = () => {
             Letranido - Comunidad de Escritura Creativa
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Última actualización: {new Date().toLocaleDateString("es-ES")}
+            Última actualización: 14 de julio de 2025
           </p>
         </div>
 
@@ -430,7 +430,12 @@ const TermsOfService = () => {
             <li>No infringir marcas registradas o patentes</li>
             <li>Cumplir con las leyes aplicables de su jurisdicción</li>
             <li>Respaldar su propio contenido</li>
-            <li><strong>Cualquier disputa por plagio, robo de ideas o contenido entre usuarios</strong></li>
+            <li>
+              <strong>
+                Cualquier disputa por plagio, robo de ideas o contenido entre
+                usuarios
+              </strong>
+            </li>
           </ul>
 
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-4">
@@ -438,14 +443,30 @@ const TermsOfService = () => {
               ⚠️ Riesgo de Publicación Pública
             </h4>
             <p className="text-yellow-800 dark:text-yellow-200 text-sm mb-2">
-              <strong>Al publicar en Letranido, reconoces y aceptas que:</strong>
+              <strong>
+                Al publicar en Letranido, reconoces y aceptas que:
+              </strong>
             </p>
             <ul className="text-yellow-800 dark:text-yellow-200 text-sm space-y-1">
-              <li>• Tu contenido será visible públicamente para todos los usuarios</li>
-              <li>• <strong>Exists el riesgo</strong> de que otros usuarios puedan copiar, adaptar o usar tus ideas</li>
-              <li>• <strong>Letranido NO es responsable</strong> por disputas de originalidad entre usuarios</li>
-              <li>• <strong>Letranido NO puede prevenir</strong> el uso no autorizado de tu contenido por parte de otros usuarios</li>
-              <li>• Es tu responsabilidad proteger tu propiedad intelectual y tomar acciones legales si es necesario</li>
+              <li>
+                • Tu contenido será visible públicamente para todos los usuarios
+              </li>
+              <li>
+                • <strong>Exists el riesgo</strong> de que otros usuarios puedan
+                copiar, adaptar o usar tus ideas
+              </li>
+              <li>
+                • <strong>Letranido NO es responsable</strong> por disputas de
+                originalidad entre usuarios
+              </li>
+              <li>
+                • <strong>Letranido NO puede prevenir</strong> el uso no
+                autorizado de tu contenido por parte de otros usuarios
+              </li>
+              <li>
+                • Es tu responsabilidad proteger tu propiedad intelectual y
+                tomar acciones legales si es necesario
+              </li>
               <li>• Publicas bajo tu propio riesgo y responsabilidad</li>
             </ul>
           </div>
@@ -463,8 +484,17 @@ const TermsOfService = () => {
             <li>Infracción de derechos de terceros</li>
             <li>Contenido que publiques o compartas</li>
             <li>Tu uso o mal uso de la plataforma</li>
-            <li><strong>Disputas con otros usuarios por alegado plagio, robo de ideas o contenido</strong></li>
-            <li><strong>Uso no autorizado de tu contenido por parte de otros usuarios</strong></li>
+            <li>
+              <strong>
+                Disputas con otros usuarios por alegado plagio, robo de ideas o
+                contenido
+              </strong>
+            </li>
+            <li>
+              <strong>
+                Uso no autorizado de tu contenido por parte de otros usuarios
+              </strong>
+            </li>
           </ul>
 
           <p>
@@ -474,185 +504,109 @@ const TermsOfService = () => {
           </p>
         </section>
 
-        {/* 8. Resolución de Disputas y Arbitraje */}
+        {/* 8. Limitación de Responsabilidad de Letranido */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Shield className="h-6 w-6 mr-2 text-orange-600" />
-            8. Resolución de Disputas y Arbitraje
+            8. Limitación de Responsabilidad de Letranido
           </h2>
 
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-6 mb-6">
-            <h3 className="font-semibold text-orange-900 dark:text-orange-200 mb-3">
-              ⚖️ Acuerdo de Arbitraje Vinculante
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-6 mb-6">
+            <h3 className="font-semibold text-red-900 dark:text-red-200 mb-3">
+              🚫 Letranido NO es Responsable de Disputas Entre Usuarios
             </h3>
-            <p className="text-orange-800 dark:text-orange-200 text-sm mb-3">
+            <p className="text-red-800 dark:text-red-200 text-sm mb-3">
               <strong>
-                Al usar Letranido, aceptas que cualquier disputa legal será
-                resuelta mediante arbitraje, no en los tribunales ordinarios.
-              </strong>{" "}
-              Este acuerdo es vinculante y afecta tus derechos legales.
+                Letranido es únicamente una plataforma de publicación. NO
+                mediamos, resolvemos ni nos involucramos en disputas legales
+                entre usuarios.
+              </strong>
             </p>
           </div>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.1 Disputas Cubiertas
+            8.1 Alcance de Nuestro Servicio
           </h3>
-          <p className="mb-4">
-            Este acuerdo de arbitraje cubre <strong>todas las disputas</strong>{" "}
-            relacionadas con:
-          </p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>El uso de la plataforma Letranido</li>
-            <li>Violaciones de estos términos de servicio</li>
-            <li>Disputas de derechos de autor o propiedad intelectual</li>
-            <li>Reclamaciones por daños o pérdidas</li>
-            <li>Cuestiones de privacidad o protección de datos</li>
-            <li>Suspensión o eliminación de cuentas</li>
-            <li>Cualquier controversia contractual o extracontractual</li>
-          </ul>
-
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.2 Proceso de Arbitraje
-          </h3>
-          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-            <ul className="space-y-2 text-sm">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
+              <strong>Lo que SÍ hacemos:</strong>
+            </p>
+            <ul className="text-blue-800 dark:text-blue-200 text-sm space-y-1">
+              <li>✅ Proporcionar la plataforma para publicar historias</li>
               <li>
-                <strong>Sede:</strong> Bogotá, Colombia
+                ✅ Eliminar contenido reportado como plagio (cuando proceda)
               </li>
-              <li>
-                <strong>Reglas:</strong> Centro de Arbitraje y Conciliación de
-                la Cámara de Comercio de Bogotá
-              </li>
-              <li>
-                <strong>Idioma:</strong> Español
-              </li>
-              <li>
-                <strong>Ley aplicable:</strong> Legislación colombiana
-              </li>
-              <li>
-                <strong>Número de árbitros:</strong> 1 árbitro para disputas
-                menores a $10,000 USD; 3 árbitros para disputas mayores
-              </li>
-              <li>
-                <strong>Procedimiento:</strong> Escrito, con audiencia oral
-                opcional a solicitud de cualquier parte
-              </li>
+              <li>✅ Suspender cuentas que violen nuestros términos</li>
+              <li>✅ Mantener registros básicos requeridos por ley</li>
             </ul>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.3 Costos del Arbitraje
-          </h3>
-          <ul className="list-disc pl-6 mb-4">
-            <li>
-              <strong>Costos administrativos:</strong> Compartidos al 50% entre
-              las partes
-            </li>
-            <li>
-              <strong>Honorarios del árbitro:</strong> Compartidos al 50% entre
-              las partes
-            </li>
-            <li>
-              <strong>Costos legales:</strong> Cada parte paga sus propios
-              abogados
-            </li>
-            <li>
-              <strong>Excepción:</strong> Si el árbitro determina que una
-              reclamación fue frívola o de mala fe, la parte perdedora pagará
-              todos los costos
-            </li>
-          </ul>
-
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.4 Limitaciones Importantes
-          </h3>
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
-            <h4 className="font-semibold text-red-900 dark:text-red-200 mb-2">
-              🚫 Renuncia a Derechos
-            </h4>
+            <p className="text-red-800 dark:text-red-200 text-sm mb-2">
+              <strong>Lo que NO hacemos:</strong>
+            </p>
             <ul className="text-red-800 dark:text-red-200 text-sm space-y-1">
-              <li>
-                • <strong>No jurado:</strong> Renuncias al derecho a un juicio
-                por jurado
-              </li>
-              <li>
-                • <strong>No tribunal:</strong> Renuncias al derecho a litigar
-                en tribunales ordinarios
-              </li>
-              <li>
-                • <strong>No demandas colectivas:</strong> Renuncias al derecho
-                a participar en demandas colectivas o class actions
-              </li>
-              <li>
-                • <strong>No representación de grupo:</strong> Cada disputa debe
-                ser individual
-              </li>
-              <li>
-                • <strong>Confidencialidad:</strong> El proceso de arbitraje es
-                confidencial
-              </li>
+              <li>❌ Mediar disputas entre usuarios</li>
+              <li>❌ Investigar reclamos de plagio en profundidad</li>
+              <li>❌ Proporcionar servicios legales</li>
+              <li>❌ Garantizar que el contenido no será copiado</li>
+              <li>❌ Participar en procesos judiciales entre usuarios</li>
+              <li>❌ Compensar por pérdidas o daños</li>
             </ul>
           </div>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.5 Excepciones al Arbitraje
+            8.2 Disputas Entre Usuarios
           </h3>
           <p className="mb-4">
-            Las siguientes disputas <strong>NO</strong> están sujetas a
-            arbitraje y pueden resolverse en tribunales ordinarios:
+            Si tienes un conflicto con otro usuario (plagio, robo de ideas,
+            etc.):
           </p>
           <ul className="list-disc pl-6 mb-4">
             <li>
-              Reclamaciones en tribunales de menor cuantía (cuando sea
-              aplicable)
+              <strong>Resuélvelo directamente:</strong> Entre tú y el otro
+              usuario
             </li>
             <li>
-              Solicitudes de medidas cautelares urgentes para prevenir daño
-              irreparable
+              <strong>Busca asesoría legal propia:</strong> Si es necesario
             </li>
             <li>
-              Disputas sobre propiedad intelectual que requieran medidas
-              inmediatas
+              <strong>Usa los canales legales apropiados:</strong> Tribunales,
+              abogados, etc.
             </li>
             <li>
-              Investigaciones gubernamentales o procedimientos regulatorios
+              <strong>Letranido permanece neutral:</strong> No tomamos partido
             </li>
           </ul>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.6 Período de Limitación
+            8.3 Eliminación de Contenido
           </h3>
           <p className="mb-4">
-            <strong>
-              Cualquier disputa debe iniciarse dentro de UN (1) AÑO
-            </strong>{" "}
-            después de que surja la causa de acción. Después de ese período, la
-            reclamación estará permanentemente excluida.
+            Nuestro único rol en disputas es evaluar si eliminar contenido:
           </p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Evaluamos reportes caso por caso</li>
+            <li>Eliminamos contenido obviamente plagiado</li>
+            <li>En casos dudosos, podemos eliminar preventivamente</li>
+            <li>Nuestra decisión es administrativa, no legal</li>
+            <li>No constituye una determinación legal de derechos</li>
+          </ul>
 
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            8.7 Separabilidad
-          </h3>
-          <p className="mb-4">
-            Si cualquier parte de esta cláusula de arbitraje se considera
-            inválida o inaplicable, el resto permanecerá en vigor. Si la
-            renuncia a demandas colectivas se considera inválida, toda la
-            cláusula de arbitraje será nula.
-          </p>
-
-          <div className="bg-blue-50 dark:bg-blue-800/20 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800 dark:text-blue-200 text-sm">
-              <strong>💡 Consejo:</strong> Si no estás de acuerdo con esta
-              cláusula de arbitraje, no uses Letranido. Al continuar usando la
-              plataforma, confirmas tu aceptación de resolver disputas mediante
-              arbitraje.
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <p className="text-gray-800 dark:text-gray-200 text-sm">
+              <strong>💡 Recuerda:</strong> Al usar Letranido, aceptas que eres
+              completamente responsable de tus propios asuntos legales y
+              disputas. Publicas bajo tu propio riesgo.
             </p>
           </div>
         </section>
 
         {/* 9. Contacto */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Contacto</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            9. Contacto
+          </h2>
 
           <p>Para preguntas sobre estos términos, contacta:</p>
           <div className="bg-blue-50 dark:bg-blue-800/20 border border-blue-200 rounded-lg p-4 mt-4">
@@ -661,9 +615,8 @@ const TermsOfService = () => {
               <br />
               <strong>Respuesta:</strong> Dentro de 5 días hábiles
               <br />
-              <strong>Jurisdicción:</strong> Bogotá, Colombia
-              <br />
-              <strong>Ley aplicable:</strong> Legislación colombiana
+              <strong>Nota:</strong> Solo para consultas sobre términos de
+              servicio, no para disputas entre usuarios
             </p>
           </div>
         </section>
