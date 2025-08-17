@@ -13,6 +13,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
+import { FEATURES } from "../../lib/config";
 import AuthModal from "../forms/AuthModal";
 import GlobalFooter from "./GlobalFooter";
 import UserAvatar from "../ui/UserAvatar";
@@ -212,6 +213,15 @@ const Layout = ({ children, onFeedbackClick }) => {
       name: getGalleryText(),
       href: "/contest/current",
     },
+    // ✅ MOSTRAR HISTORIAS LIBRES SI EL FEATURE ESTÁ HABILITADO
+    ...(FEATURES.PORTFOLIO_STORIES
+      ? [
+          {
+            name: "Historias Libres",
+            href: "/stories",
+          },
+        ]
+      : []),
     // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
       ? [

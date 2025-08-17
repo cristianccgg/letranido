@@ -1,14 +1,21 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye } from 'lucide-react';
+import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye, Heart, Plus } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import { usePremiumFeatures } from '../../hooks/usePremiumFeatures';
 import UserBadgesSection from '../ui/UserBadgesSection';
 import AllBadgesSection from '../ui/AllBadgesSection';
 import { FEATURES } from '../../lib/config';
+import { STORY_CATEGORIES, getCategoryByValue, CATEGORY_COLORS } from '../../lib/portfolio-constants';
 
 const ProfileTabs = ({ user, votingStats }) => {
   const [activeTab, setActiveTab] = useState('resumen');
   const { userStories, userStoriesLoading, deleteUserStory, currentContest, getContestPhase } = useGlobalApp();
+  const { isPremium } = usePremiumFeatures();
+  
+  // Estados para historias del portafolio
+  const [portfolioStories, setPortfolioStories] = useState([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
 
   const tabs = [
     {
@@ -30,6 +37,17 @@ const ProfileTabs = ({ user, votingStats }) => {
       count: null
     }
   ];
+
+  // Agregar pestaña de portafolio si está habilitado y es premium
+  if (FEATURES.PORTFOLIO_STORIES && isPremium) {
+    tabs.splice(2, 0, {
+      id: 'portafolio',
+      name: 'Portafolio',
+      icon: FileText,
+      count: portfolioStories.length > 0 ? portfolioStories.length : null,
+      premium: true
+    });
+  }
 
   // Agregar pestaña de configuración si premium está habilitado
   if (FEATURES.PREMIUM_PLANS) {
@@ -394,6 +412,182 @@ const ProfileTabs = ({ user, votingStats }) => {
     );
   };
 
+  const PortafolioTab = () => {
+    // Filtrar historias del portafolio (contest_id === null)
+    const portfolioStoriesData = useMemo(() => {
+      return userStories.filter(story => !story.contest_id);
+    }, [userStories]);
+
+    // Estadísticas del portafolio
+    const portfolioStats = useMemo(() => {
+      const totalLikes = portfolioStoriesData.reduce((total, story) => total + (story.likes_count || 0), 0);
+      const totalViews = portfolioStoriesData.reduce((total, story) => total + (story.views_count || 0), 0);
+      const avgEngagement = totalViews > 0 ? ((totalLikes / totalViews) * 100) : 0;
+      
+      return { totalLikes, totalViews, avgEngagement };
+    }, [portfolioStoriesData]);
+
+    return (
+      <div className="space-y-6">
+        {/* Header con CTA */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <FileText className="w-5 h-5 mr-2 text-purple-600" />
+              Portafolio Personal
+              <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                Premium
+              </span>
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Historias libres sin restricciones de concursos
+            </p>
+          </div>
+          <Link
+            to="/write/portfolio"
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Historia
+          </Link>
+        </div>
+
+        {/* Estadísticas del portafolio */}
+        {portfolioStoriesData.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {portfolioStoriesData.length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Historias Libres</div>
+            </div>
+            
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                {portfolioStats.totalLikes}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Likes</div>
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {portfolioStats.totalViews}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+            </div>
+            
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {portfolioStats.avgEngagement.toFixed(1)}%
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Engagement</div>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de historias del portafolio */}
+        <div className="space-y-4">
+          {userStoriesLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Cargando portafolio...</p>
+            </div>
+          ) : portfolioStoriesData.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Tu portafolio está vacío
+              </h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                Crea historias libres sin restricciones de concursos. Explora cualquier tema, género o estilo que te inspire.
+              </p>
+              <Link
+                to="/write/portfolio"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Escribir Primera Historia Libre
+              </Link>
+            </div>
+          ) : (
+            portfolioStoriesData.map((story) => {
+              const category = getCategoryByValue(story.category);
+              const categoryColor = CATEGORY_COLORS[category.color];
+              
+              return (
+                <div
+                  key={story.id}
+                  className="bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/10 border border-purple-200 dark:border-purple-700 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {story.title}
+                            </h4>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${categoryColor}`}>
+                              {category.emoji} {category.label}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                            {story.excerpt}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Heart className="w-4 h-4 text-red-500" />
+                            {story.likes_count || 0}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-4 h-4 text-blue-500" />
+                            {story.views_count || 0}
+                          </span>
+                          <span>{story.word_count || 0} palabras</span>
+                          <span>
+                            {new Date(story.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={`/story/${story.id}`}
+                            className="inline-flex items-center px-3 py-1 text-sm text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver
+                          </Link>
+                          <Link
+                            to={`/edit/${story.id}`}
+                            className="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4 mr-1" />
+                            Editar
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteStory(story.id, story.title)}
+                            className="inline-flex items-center px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const ConfiguracionTab = () => (
     <div className="text-center py-8">
       <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -412,6 +606,8 @@ const ProfileTabs = ({ user, votingStats }) => {
         return <ResumenTab />;
       case 'historias':
         return <HistoriasTab />;
+      case 'portafolio':
+        return <PortafolioTab />;
       case 'logros':
         return <LogrosTab />;
       case 'configuracion':

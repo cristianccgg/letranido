@@ -47,6 +47,8 @@ const WritingResources = lazy(() => import("./pages/WritingResources"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const PremiumPlans = lazy(() => import("./pages/PremiumPlans"));
+const WritePortfolio = lazy(() => import("./pages/WritePortfolio"));
+const FreeStories = lazy(() => import("./pages/FreeStories"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -199,6 +201,15 @@ function AppContent() {
               element={<Navigate to="/profile" replace />}
             />
 
+            {/* Rutas para historias libres (específicas primero) */}
+            {FEATURES.PORTFOLIO_STORIES && (
+              <>
+                <Route path="/stories" element={<FreeStories />} />
+                <Route path="/write/portfolio" element={<WritePortfolio />} />
+              </>
+            )}
+            
+            {/* Ruta para escribir en concursos (genérica después) */}
             <Route path="/write/:promptId?" element={<WritePrompt />} />
 
             {/* Ruta principal para historial */}
