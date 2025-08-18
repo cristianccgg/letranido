@@ -100,7 +100,7 @@ Estos libros son la base, pero también considera:
 
     `,
     author: "Equipo Letranido",
-    publishedAt: "2025-07-30",
+    publishedAt: "2025-08-18",
     readTime: "8 min",
     category: "libros",
     tags: [

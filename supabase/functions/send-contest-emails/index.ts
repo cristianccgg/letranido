@@ -338,42 +338,67 @@ serve(async (req) => {
     console.log(`📧 From:`, Deno.env.get("FROM_EMAIL"));
     console.log(`📧 Subject:`, emailData.subject);
 
-    // Preparar email body con BCC para proteger privacidad
-    const emailBody: any = {
-      from: `Letranido <${Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"}>`,
-      subject: emailData.subject,
-      html: emailData.html,
-      text: emailData.text,
-      reply_to: "info@letranido.com",
-    };
-
-    // Para envío masivo (más de 1 destinatario), usar BCC para proteger privacidad
-    if (finalRecipients.length > 1) {
-      emailBody.to = [Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"]; // TO solo el remitente
-      emailBody.bcc = finalRecipients; // Todos los destinatarios en BCC (ocultos)
-      console.log(`🔒 USANDO BCC para proteger privacidad de ${finalRecipients.length} destinatarios`);
-    } else {
-      // Email individual, usar TO normal
-      emailBody.to = finalRecipients;
-      console.log(`📧 Email individual a: ${finalRecipients[0]}`);
+    // Dividir destinatarios en lotes de máximo 50 (límite de Resend BCC)
+    const BATCH_SIZE = 50;
+    const batches = [];
+    for (let i = 0; i < finalRecipients.length; i += BATCH_SIZE) {
+      batches.push(finalRecipients.slice(i, i + BATCH_SIZE));
     }
 
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(emailBody),
-    });
+    console.log(`📧 Enviando en ${batches.length} lotes (máximo ${BATCH_SIZE} por lote)`);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Resend API error: ${response.status} - ${errorText}`);
+    // Enviar cada lote
+    const results = [];
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      console.log(`📧 Enviando lote ${i + 1}/${batches.length} con ${batch.length} destinatarios`);
+
+      // Preparar email body para este lote
+      const emailBody: any = {
+        from: `Letranido <${Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"}>`,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text,
+        reply_to: "info@letranido.com",
+      };
+
+      // Para envío masivo, usar BCC para proteger privacidad
+      if (batch.length > 1) {
+        emailBody.to = [Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev"]; // TO solo el remitente
+        emailBody.bcc = batch; // Este lote en BCC (ocultos)
+        console.log(`🔒 Lote ${i + 1}: USANDO BCC para proteger privacidad de ${batch.length} destinatarios`);
+      } else {
+        // Email individual, usar TO normal
+        emailBody.to = batch;
+        console.log(`📧 Lote ${i + 1}: Email individual a: ${batch[0]}`);
+      }
+
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(emailBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Resend API error en lote ${i + 1}: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      results.push(result);
+      console.log(`✅ Lote ${i + 1} enviado:`, result);
+
+      // Pequeña pausa entre lotes para evitar rate limiting
+      if (i < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
 
-    const result = await response.json();
-    console.log("✅ Email enviado:", result);
+    const totalSent = results.reduce((sum, result) => sum + (result.id ? 1 : 0), 0);
+    console.log(`✅ Todos los lotes enviados. Total: ${totalSent} emails`);
 
     // Log email send to database
     try {
@@ -395,7 +420,7 @@ serve(async (req) => {
         success: true,
         sent: finalRecipients.length,
         mode: isTestMode ? "test" : "production",
-        data: result,
+        data: { batches: batches.length, results: results },
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -409,7 +434,7 @@ serve(async (req) => {
       JSON.stringify({
         success: false,
         error: error.message,
-        details: preview ? "Error en modo preview" : "Error en envío",
+        details: "Error en función de email",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -5,6 +5,7 @@ import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X, Shield } fro
 import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
 import { sendTestEmailLocal, showEmailPreview } from '../../lib/email/local-test-mailer.js';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import { supabase } from '../../lib/supabase.js';
 import { generateBlogEmailContent, generateWeeklyNewsletter, getAvailablePosts } from '../../lib/blog-email-generator.js';
 
 const EmailManager = () => {
@@ -120,18 +121,15 @@ const EmailManager = () => {
       // Debug: Mostrar exactamente qué se está enviando
       console.log("📤 Enviando request para preview:", requestData);
       
-      // Llamar a la función de Supabase con flag de preview
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contest-emails`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify(requestData)
+      // Usar el cliente de Supabase en lugar de fetch directo
+      const { data: result, error } = await supabase.functions.invoke('send-contest-emails', {
+        body: requestData
       });
       
-      const result = await response.json();
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       console.log("📥 Respuesta de Supabase:", result);
       
       if (result.success && result.preview) {
