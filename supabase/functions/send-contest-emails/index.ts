@@ -338,14 +338,14 @@ serve(async (req) => {
     console.log(`📧 From:`, Deno.env.get("FROM_EMAIL"));
     console.log(`📧 Subject:`, emailData.subject);
 
-    // Dividir destinatarios en lotes de máximo 50 (límite de Resend BCC)
-    const BATCH_SIZE = 50;
+    // Dividir destinatarios en lotes de máximo 49 (límite de Resend es 50 total: 1 TO + 49 BCC)
+    const BATCH_SIZE = 49;
     const batches = [];
     for (let i = 0; i < finalRecipients.length; i += BATCH_SIZE) {
       batches.push(finalRecipients.slice(i, i + BATCH_SIZE));
     }
 
-    console.log(`📧 Enviando en ${batches.length} lotes (máximo ${BATCH_SIZE} por lote)`);
+    console.log(`📧 Enviando en ${batches.length} lotes (máximo ${BATCH_SIZE} BCC + 1 TO = 50 total por lote)`);
 
     // Enviar cada lote
     const results = [];

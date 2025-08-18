@@ -2,6 +2,30 @@
 import { blogPosts, getPostBySlug } from '../data/blogPosts.js';
 
 /**
+ * Formatea una fecha de manera consistente para los emails
+ * @param {string} dateString - Fecha en formato ISO (YYYY-MM-DD)
+ * @param {boolean} includeYear - Si incluir el año o no
+ * @returns {string} - Fecha formateada
+ */
+const formatDate = (dateString, includeYear = true) => {
+  // Parsear la fecha como UTC para evitar problemas de zona horaria
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses
+  
+  const options = {
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC'
+  };
+  
+  if (includeYear) {
+    options.year = 'numeric';
+  }
+  
+  return date.toLocaleDateString('es-ES', options);
+};
+
+/**
  * Genera el contenido HTML para email de un blog post específico
  * @param {string} slug - El slug del blog post
  * @param {string} type - Tipo de email: 'individual', 'newsletter', 'digest'
@@ -64,7 +88,7 @@ const generateIndividualPostEmail = (post) => {
       <h2 class="title">${post.title}</h2>
       
       <div class="meta">
-        📅 ${new Date(post.publishedAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })} • 
+        📅 ${formatDate(post.publishedAt)} • 
         ⏱️ ${post.readTime} • 
         🏷️ ${post.category}
       </div>
@@ -176,7 +200,7 @@ export const generateWeeklyNewsletter = () => {
           <div class="post-header">
             <h3 class="post-title">${post.title}</h3>
             <div class="post-meta">
-              📅 ${new Date(post.publishedAt).toLocaleDateString('es-ES', { month: 'long', day: 'numeric' })} • 
+              📅 ${formatDate(post.publishedAt, false)} • 
               ⏱️ ${post.readTime} • 
               🏷️ ${post.category}
             </div>
