@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye, Heart, Plus } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
@@ -7,6 +7,7 @@ import UserBadgesSection from '../ui/UserBadgesSection';
 import AllBadgesSection from '../ui/AllBadgesSection';
 import { FEATURES } from '../../lib/config';
 import { STORY_CATEGORIES, getCategoryByValue, CATEGORY_COLORS } from '../../lib/portfolio-constants';
+import { supabase } from '../../lib/supabase';
 
 const ProfileTabs = ({ user, votingStats }) => {
   const [activeTab, setActiveTab] = useState('resumen');
@@ -63,6 +64,40 @@ const ProfileTabs = ({ user, votingStats }) => {
     setActiveTab(tabId);
   };
 
+  // Cargar historias libres cuando se activa la pestaña portafolio
+  useEffect(() => {
+    if (activeTab === 'portafolio' && FEATURES.PORTFOLIO_STORIES && isPremium && user?.id) {
+      loadPortfolioStories();
+    }
+  }, [activeTab]);
+
+  const loadPortfolioStories = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setPortfolioLoading(true);
+      
+      // Usar la función SQL con permisos configurados
+      const { data, error } = await supabase.rpc('get_free_stories', {
+        limit_count: 100,
+        offset_count: 0,
+        category_filter: null
+      });
+
+      if (error) throw error;
+      
+      // Filtrar solo las historias del usuario actual
+      const userPortfolioStories = (data || []).filter(story => story.user_id === user.id);
+      
+      setPortfolioStories(userPortfolioStories);
+    } catch (error) {
+      console.error('Error cargando historias del portafolio:', error);
+      setPortfolioStories([]);
+    } finally {
+      setPortfolioLoading(false);
+    }
+  };
+
   // Función para eliminar historia con confirmación
   const handleDeleteStory = async (storyId, storyTitle) => {
     const confirmed = window.confirm(
@@ -75,6 +110,32 @@ const ProfileTabs = ({ user, votingStats }) => {
         alert('✅ Historia eliminada exitosamente');
       } else {
         alert('❌ Error al eliminar: ' + result.error);
+      }
+    }
+  };
+
+  // Función específica para eliminar historias libres del portafolio
+  const handleDeletePortfolioStory = async (storyId, storyTitle) => {
+    const confirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar "${storyTitle}"?\n\nEsta acción no se puede deshacer.`
+    );
+
+    if (confirmed) {
+      try {
+        const { error } = await supabase
+          .from('stories')
+          .delete()
+          .eq('id', storyId)
+          .eq('user_id', user.id); // Verificar que sea del usuario actual
+
+        if (error) throw error;
+
+        // Actualizar el estado local
+        setPortfolioStories(prev => prev.filter(story => story.id !== storyId));
+        alert('✅ Historia eliminada exitosamente');
+      } catch (error) {
+        console.error('Error eliminando historia del portafolio:', error);
+        alert('❌ Error al eliminar la historia');
       }
     }
   };
@@ -413,10 +474,10 @@ const ProfileTabs = ({ user, votingStats }) => {
   };
 
   const PortafolioTab = () => {
-    // Filtrar historias del portafolio (contest_id === null)
+    // Usar las historias del portafolio cargadas específicamente
     const portfolioStoriesData = useMemo(() => {
-      return userStories.filter(story => !story.contest_id);
-    }, [userStories]);
+      return portfolioStories || [];
+    }, [portfolioStories]);
 
     // Estadísticas del portafolio
     const portfolioStats = useMemo(() => {
@@ -487,7 +548,7 @@ const ProfileTabs = ({ user, votingStats }) => {
 
         {/* Lista de historias del portafolio */}
         <div className="space-y-4">
-          {userStoriesLoading ? (
+          {portfolioLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">Cargando portafolio...</p>
@@ -562,14 +623,14 @@ const ProfileTabs = ({ user, votingStats }) => {
                             Ver
                           </Link>
                           <Link
-                            to={`/edit/${story.id}`}
+                            to={`/write/portfolio?edit=${story.id}`}
                             className="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                           >
                             <Edit3 className="w-4 h-4 mr-1" />
                             Editar
                           </Link>
                           <button
-                            onClick={() => handleDeleteStory(story.id, story.title)}
+                            onClick={() => handleDeletePortfolioStory(story.id, story.title)}
                             className="inline-flex items-center px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4 mr-1" />

@@ -621,6 +621,7 @@ const StoryPage = () => {
                           size="default"
                           showTooltip={true}
                           hideCount={true} // Prop para ocultar el número
+                          isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                         />
 
                         <div className="flex items-center text-green-600 dark:text-green-400 text-sm">
@@ -656,6 +657,7 @@ const StoryPage = () => {
                           onAuthRequired={() => openAuthModal("register")}
                           size="default"
                           showTooltip={true}
+                          isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                         />
 
                         <div className="flex items-center text-gray-600 dark:text-dark-300 text-xs">
@@ -767,6 +769,7 @@ const StoryPage = () => {
                       size="large"
                       showTooltip={false}
                       hideCount={isVotingPhase} // Prop para ocultar el número
+                      isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                     />
                   );
                 })()}

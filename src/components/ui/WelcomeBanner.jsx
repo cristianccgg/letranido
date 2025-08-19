@@ -33,7 +33,7 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <div>🚀</div> ¡Segundo concurso de Letranido! Gracias por
+                    <span>🚀</span> ¡Segundo concurso de Letranido! Gracias por
                     unirte a nuestra comunidad. ¿Encontraste algún error o
                     tienes sugerencias?
                   </span>

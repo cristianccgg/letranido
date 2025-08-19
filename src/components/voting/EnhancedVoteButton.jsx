@@ -14,6 +14,7 @@ const EnhancedVoteButton = ({
   showTooltip = true,
   disabled = false,
   hideCount = false, // Nueva prop para ocultar el conteo durante votación
+  isPortfolioStory = false, // Nueva prop para historias libres
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -97,11 +98,12 @@ const EnhancedVoteButton = ({
             }`}
           />
         ),
-        tooltip: "Inicia sesión para votar",
+        tooltip: isPortfolioStory ? "Inicia sesión para dar like" : "Inicia sesión para votar",
       };
     }
 
-    if (!canVote) {
+    // Para historias libres (portafolio), ignorar restricciones de canVote
+    if (!canVote && !isPortfolioStory) {
       if (votingInfo.reason?.includes("propia")) {
         return {
           className: `${baseClasses} bg-purple-50 text-purple-600 border-purple-200 cursor-not-allowed opacity-70`,
@@ -146,7 +148,7 @@ const EnhancedVoteButton = ({
             }`}
           />
         ),
-        tooltip: "Quitar voto",
+        tooltip: isPortfolioStory ? "Quitar like" : "Quitar voto",
       };
     }
 
@@ -161,7 +163,7 @@ const EnhancedVoteButton = ({
           } ${isHovered ? "animate-pulse" : ""}`}
         />
       ),
-      tooltip: "Votar por esta historia",
+      tooltip: isPortfolioStory ? "Me gusta esta historia" : "Votar por esta historia",
     };
   };
 
@@ -173,11 +175,11 @@ const EnhancedVoteButton = ({
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        disabled={disabled || (!isAuthenticated && !onAuthRequired) || !canVote}
+        disabled={disabled || (!isAuthenticated && !onAuthRequired) || (!canVote && !isPortfolioStory)}
         className={`${buttonState.className} ${isAnimating && isLiked ? 'animate-heart-burst' : ''} transition-all duration-300`}
         title={showTooltip ? buttonState.tooltip : undefined}
         style={{
-          transform: isHovered && canVote ? 'scale(1.05)' : 'scale(1)',
+          transform: isHovered && (canVote || isPortfolioStory) ? 'scale(1.05)' : 'scale(1)',
         }}
       >
         <span className={`${isAnimating && isLiked ? 'animate-heart-burst' : ''} transition-transform duration-200`}>
@@ -192,7 +194,12 @@ const EnhancedVoteButton = ({
           >
             {likesCount}
             {size !== "small" && (
-              <span className="ml-1">{likesCount === 1 ? "voto" : "votos"}</span>
+              <span className="ml-1">
+                {isPortfolioStory 
+                  ? (likesCount === 1 ? "like" : "likes")
+                  : (likesCount === 1 ? "voto" : "votos")
+                }
+              </span>
             )}
           </span>
         )}

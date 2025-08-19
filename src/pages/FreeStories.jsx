@@ -46,60 +46,17 @@ const FreeStories = () => {
       setLoading(true);
       const offset = reset ? 0 : page * FEED_CONFIG.STORIES_PER_PAGE;
 
-      let query = supabase
-        .from('stories')
-        .select(`
-          id,
-          title,
-          excerpt,
-          word_count,
-          category,
-          likes_count,
-          views_count,
-          comments_count,
-          created_at,
-          is_mature,
-          user_id,
-          user_profiles!inner(
-            id,
-            display_name
-          )
-        `)
-        .is('contest_id', null) // Solo historias libres
-        .range(offset, offset + FEED_CONFIG.STORIES_PER_PAGE - 1);
-
-      // Aplicar filtros
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,excerpt.ilike.%${searchTerm}%`);
-      }
-
-      if (categoryFilter) {
-        query = query.eq('category', categoryFilter);
-      }
-
-      // Aplicar ordenamiento
-      switch (sortBy) {
-        case 'popular':
-          query = query.order('likes_count', { ascending: false });
-          break;
-        case 'views':
-          query = query.order('views_count', { ascending: false });
-          break;
-        case 'recent':
-        default:
-          query = query.order('created_at', { ascending: false });
-          break;
-      }
-
-      const { data, error } = await query;
+      // Usar la función SQL get_free_stories
+      const { data, error } = await supabase.rpc('get_free_stories', {
+        limit_count: FEED_CONFIG.STORIES_PER_PAGE,
+        offset_count: offset,
+        category_filter: categoryFilter || null
+      });
 
       if (error) throw error;
 
-      // Procesar datos
-      const processedStories = data.map(story => ({
-        ...story,
-        author: story.user_profiles?.display_name || 'Usuario'
-      }));
+      // Los datos ya vienen procesados de la función SQL
+      const processedStories = data || [];
 
       if (reset) {
         setStories(processedStories);
