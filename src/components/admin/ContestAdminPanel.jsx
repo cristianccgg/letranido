@@ -957,15 +957,15 @@ const ContestAdminPanel = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 bg-white dark:bg-dark-900 min-h-screen transition-colors duration-300">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between p-6 bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <Settings className="h-8 w-8 mr-3 text-primary-600" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+            <Settings className="h-8 w-8 mr-3 text-primary-600 dark:text-primary-400" />
             Panel de Administración
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-dark-300 mt-2">
             Gestión completa de concursos con controles de prueba
           </p>
         </div>
@@ -975,7 +975,7 @@ const ContestAdminPanel = () => {
               resetForm();
               setShowCreateModal(true);
             }}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+            className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center transition-colors duration-200"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Concurso
@@ -983,7 +983,7 @@ const ContestAdminPanel = () => {
           <button
             onClick={handleRecalculateRankings}
             disabled={rankingLoading}
-            className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center disabled:opacity-50"
+            className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 flex items-center disabled:opacity-50 transition-colors duration-200"
           >
             {rankingLoading ? (
               <>
@@ -997,8 +997,8 @@ const ContestAdminPanel = () => {
               </>
             )}
           </button>
-          <div className="text-sm text-gray-500">
-            Conectado como: <span className="font-medium">{user?.name}</span>
+          <div className="text-sm text-gray-500 dark:text-dark-400">
+            Conectado como: <span className="font-medium text-gray-700 dark:text-dark-200">{user?.name}</span>
           </div>
         </div>
       </div>
@@ -1006,22 +1006,22 @@ const ContestAdminPanel = () => {
       {/* Resultado de finalización */}
       {finalizationResult && (
         <div
-          className={`rounded-lg p-6 border ${
+          className={`rounded-lg p-6 border transition-colors duration-300 ${
             finalizationResult.success
-              ? "bg-green-50 border-green-200"
-              : "bg-red-50 border-red-200"
+              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
           }`}
         >
           <div className="flex items-start">
             {finalizationResult.success ? (
-              <Check className="h-6 w-6 text-green-600 mt-1 mr-3 flex-shrink-0" />
+              <Check className="h-6 w-6 text-green-600 dark:text-green-400 mt-1 mr-3 flex-shrink-0" />
             ) : (
-              <X className="h-6 w-6 text-red-600 mt-1 mr-3 flex-shrink-0" />
+              <X className="h-6 w-6 text-red-600 dark:text-red-400 mt-1 mr-3 flex-shrink-0" />
             )}
             <div className="flex-1">
               <h3
                 className={`font-bold ${
-                  finalizationResult.success ? "text-green-800" : "text-red-800"
+                  finalizationResult.success ? "text-green-800 dark:text-green-200" : "text-red-800 dark:text-red-200"
                 }`}
               >
                 {finalizationResult.success
@@ -1030,7 +1030,7 @@ const ContestAdminPanel = () => {
               </h3>
               <p
                 className={`mt-1 ${
-                  finalizationResult.success ? "text-green-700" : "text-red-700"
+                  finalizationResult.success ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"
                 }`}
               >
                 {finalizationResult.message || finalizationResult.error}
@@ -1074,10 +1074,10 @@ const ContestAdminPanel = () => {
       )}
 
       {/* Lista de concursos */}
-      <div className="grid gap-6">
+      <div className="grid gap-6 bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-600">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100">
               Concursos ({contests.length})
             </h2>
             {(() => {
@@ -1109,7 +1109,7 @@ const ContestAdminPanel = () => {
           </div>
           <button
             onClick={() => refreshContests()}
-            className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 flex items-center text-sm"
+            className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 flex items-center text-sm transition-colors duration-200"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Actualizar
@@ -1117,7 +1117,7 @@ const ContestAdminPanel = () => {
         </div>
 
         {contests.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-500 dark:text-dark-400">
             <Trophy className="h-16 w-16 mx-auto mb-4 opacity-50" />
             <p className="mb-4">No hay concursos disponibles</p>
             <button
@@ -1125,7 +1125,7 @@ const ContestAdminPanel = () => {
                 resetForm();
                 setShowCreateModal(true);
               }}
-              className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700"
+              className="bg-primary-600 dark:bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
             >
               Crear primer concurso
             </button>
@@ -1137,11 +1137,11 @@ const ContestAdminPanel = () => {
               return (
               <div
                 key={contest.id}
-                className={`bg-white border-2 rounded-lg p-6 hover:shadow-md transition-shadow ${
-                  priorityInfo.priority === "ACTIVO" ? "border-green-400 shadow-lg" : 
-                  priorityInfo.priority && priorityInfo.priority.includes("#") ? "border-blue-400" :
-                  priorityInfo.priority === "PRUEBA" ? "border-yellow-400" :
-                  "border-gray-200"
+                className={`bg-white dark:bg-dark-700 border-2 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
+                  priorityInfo.priority === "ACTIVO" ? "border-green-400 dark:border-green-500 shadow-lg" : 
+                  priorityInfo.priority && priorityInfo.priority.includes("#") ? "border-blue-400 dark:border-blue-500" :
+                  priorityInfo.priority === "PRUEBA" ? "border-yellow-400 dark:border-yellow-500" :
+                  "border-gray-200 dark:border-dark-600"
                 } ${contest.status === "results" ? "opacity-75" : ""}`}
               >
                 <div className="flex items-center justify-between mb-4">
@@ -1178,7 +1178,7 @@ const ContestAdminPanel = () => {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleEditContest(contest)}
-                      className="text-gray-400 hover:text-blue-600 p-1"
+                      className="text-gray-400 dark:text-dark-500 hover:text-blue-600 dark:hover:text-blue-400 p-1 transition-colors duration-200"
                       title="Editar concurso"
                     >
                       <Edit className="h-4 w-4" />
@@ -1186,7 +1186,7 @@ const ContestAdminPanel = () => {
                     <button
                       onClick={() => deleteContest(contest)}
                       disabled={deleteLoading === contest.id}
-                      className="text-gray-400 hover:text-red-600 p-1 disabled:opacity-50"
+                      className="text-gray-400 dark:text-dark-500 hover:text-red-600 dark:hover:text-red-400 p-1 disabled:opacity-50 transition-colors duration-200"
                       title="Eliminar concurso"
                     >
                       {deleteLoading === contest.id ? (
@@ -1201,15 +1201,15 @@ const ContestAdminPanel = () => {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100 mb-2 line-clamp-2">
                   {contest.title}
                 </h3>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 line-clamp-2">
                   {contest.description}
                 </p>
 
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-dark-400 mb-4">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
                     {contest.participants_count || 0} participantes
@@ -1266,8 +1266,8 @@ const ContestAdminPanel = () => {
                 )}
 
                 {/* Fechas importantes y información de cola */}
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xs text-gray-500 space-y-1">
+                <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-600 rounded-lg border border-gray-200 dark:border-dark-500">
+                  <div className="text-xs text-gray-500 dark:text-dark-400 space-y-1">
                     <div>
                       <strong>Envíos hasta:</strong>{" "}
                       {contest.submission_deadline
@@ -1321,7 +1321,7 @@ const ContestAdminPanel = () => {
                     <button
                       onClick={() => handlePreviewWinners(contest)}
                       disabled={finalizingContestId === contest.id}
-                      className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
+                      className="w-full bg-red-600 dark:bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
                     >
                       <Shield className="h-4 w-4 mr-2" />
                       {finalizingContestId === contest.id
@@ -1334,7 +1334,7 @@ const ContestAdminPanel = () => {
                     href="/contest/current"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 flex items-center justify-center text-decoration-none"
+                    className="w-full bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-500 flex items-center justify-center text-decoration-none transition-colors duration-200"
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     Ver en sitio
@@ -1498,18 +1498,18 @@ const ContestAdminPanel = () => {
 
       {/* Modal crear concurso */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
             <form onSubmit={handleCreateContest} className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Plus className="h-6 w-6 mr-2 text-green-600" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+                  <Plus className="h-6 w-6 mr-2 text-green-600 dark:text-green-400" />
                   Crear Nuevo Concurso
                 </h2>
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -1698,14 +1698,14 @@ const ContestAdminPanel = () => {
                   type="button"
                   onClick={() => setShowCreateModal(false)}
                   disabled={createLoading}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                  className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={createLoading}
-                  className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center"
+                  className="bg-green-600 dark:bg-green-700 text-white py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 flex items-center transition-colors duration-200"
                 >
                   {createLoading ? (
                     <>
@@ -1727,18 +1727,18 @@ const ContestAdminPanel = () => {
 
       {/* Modal editar concurso */}
       {showEditModal && editingContest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
             <form onSubmit={handleSaveEdit} className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Edit className="h-6 w-6 mr-2 text-blue-600" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+                  <Edit className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
                   Editar Concurso
                 </h2>
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -1927,14 +1927,14 @@ const ContestAdminPanel = () => {
                   type="button"
                   onClick={() => setShowEditModal(false)}
                   disabled={updateLoading}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                  className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={updateLoading}
-                  className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                  className="bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 flex items-center transition-colors duration-200"
                 >
                   {updateLoading ? (
                     <>
@@ -2107,8 +2107,8 @@ const ContestAdminPanel = () => {
 
       {/* Debug en desarrollo */}
       {import.meta.env.DEV && (
-        <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <h4 className="text-red-800 font-bold mb-2">
+        <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <h4 className="text-red-800 dark:text-red-200 font-bold mb-2">
             🚨 DEBUG - Solo desarrollo
           </h4>
           <div className="flex gap-4">
@@ -2117,7 +2117,7 @@ const ContestAdminPanel = () => {
                 localStorage.clear();
                 alert("LocalStorage limpiado");
               }}
-              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
+              className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-200"
             >
               Limpiar LocalStorage
             </button>
@@ -2129,7 +2129,7 @@ const ContestAdminPanel = () => {
                   isAuthenticated,
                 });
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
             >
               Log Estado
             </button>
