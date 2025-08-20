@@ -40,6 +40,7 @@ import AnimatedCounter from "../components/ui/AnimatedCounter";
 import { useBadgesCache } from "../hooks/useBadgesCache";
 import Badge from "../components/ui/Badge";
 import WelcomeBanner from "../components/ui/WelcomeBanner";
+import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
 
 // Componente para mostrar el badge del ganador
@@ -345,6 +346,41 @@ const LandingPage = () => {
                 adaptalo o úsalo como inspiración
               </p>
             </div>
+
+            {/* 🆕 CTAs PRINCIPALES ESTILO WATTPAD - Solo visible en desarrollo */}
+            {FEATURES.PORTFOLIO_STORIES && (
+              <div className="mb-12">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-lg mx-auto">
+                  {/* Leer Historias */}
+                  <Link
+                    to="/stories"
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-2xl hover:bg-purple-700 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                  >
+                    <BookOpen className="h-6 w-6" />
+                    <span>Leer Historias</span>
+                  </Link>
+
+                  {/* Escribir Historia */}
+                  <Link
+                    to="/contest/current"
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-amber-500 text-white font-bold text-lg rounded-2xl hover:bg-amber-600 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                  >
+                    <PenTool className="h-6 w-6" />
+                    <span>Escribir Historia</span>
+                  </Link>
+                </div>
+
+                {/* Subtextos explicativos */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
+                  <div className="text-sm text-gray-600 dark:text-dark-400">
+                    <span className="font-medium text-purple-700 dark:text-purple-400">✨ Descubre</span> creatividad premium sin límites
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-dark-400">
+                    <span className="font-medium text-amber-700 dark:text-amber-400">🏆 Participa</span> en el concurso mensual
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Beneficios y ganador - diseño original */}

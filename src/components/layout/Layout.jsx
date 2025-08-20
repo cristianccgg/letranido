@@ -285,6 +285,15 @@ const Layout = ({ children, onFeedbackClick }) => {
       name: "Concurso Actual",
       href: "/contest/current",
     },
+    // ✅ MOSTRAR HISTORIAS LIBRES TAMBIÉN PARA USUARIOS NO AUTENTICADOS (pueden leer contenido premium)
+    ...(FEATURES.PORTFOLIO_STORIES
+      ? [
+          {
+            name: "Historias Libres",
+            href: "/stories",
+          },
+        ]
+      : []),
     // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS
     ...(hasFinishedContests
       ? [
