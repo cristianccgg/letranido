@@ -103,12 +103,12 @@ const NewsletterSignup = () => {
             <Bell className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-            ¿No quieres perderte el próximo concurso?
+            ¿No quieres perderte el próximo reto?
           </h2>
           <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
-            Recibe una notificación cuando inicie el siguiente concurso.{" "}
+            Recibe una notificación cuando inicie el siguiente reto.{" "}
             <span className="text-indigo-600 dark:text-indigo-400 font-medium transition-colors duration-300">
-              Sin spam, solo los concursos nuevos.
+              Sin spam, solo los retos nuevos.
             </span>
           </p>
         </div>
@@ -148,7 +148,7 @@ const NewsletterSignup = () => {
               ) : (
                 <>
                   <Bell className="h-5 w-5" />
-                  Notificarme del próximo concurso
+                  Notificarme del próximo reto
                 </>
               )}
             </button>
@@ -195,7 +195,7 @@ const NewsletterSignup = () => {
               Sin spam
             </h3>
             <p className="text-sm text-gray-600 dark:text-dark-300">
-              Solo concursos nuevos, nada más
+              Solo retos nuevos, nada más
             </p>
           </div>
 
@@ -214,7 +214,7 @@ const NewsletterSignup = () => {
 
         {/* Texto legal pequeño */}
         <p className="mt-6 text-xs text-gray-500 dark:text-dark-300 max-w-2xl mx-auto">
-          Al suscribirte, aceptas recibir emails sobre nuevos concursos de
+          Al suscribirte, aceptas recibir emails sobre nuevos retos de
           Letranido. Puedes cancelar en cualquier momento. No compartimos tu
           email con terceros.
         </p>

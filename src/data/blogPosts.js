@@ -82,7 +82,7 @@ Como escritores, nunca dejamos de aprender. Estos 5 libros han sido seleccionado
 ## ¿Por Qué Estos 5?
 
 Cada libro aborda la escritura desde un ángulo diferente:
-- **King**: La práctica diaria y la disciplina (perfecta para aplicar en [concursos de escritura](/blog/mejores-concursos-escritura-2025))
+- **King**: La práctica diaria y la disciplina (perfecta para aplicar en [retos de escritura](/blog/mejores-retos-escritura-2025))
 - **Lodge ("El Arte de la Ficción")**: El análisis técnico y académico  
 - **Bradbury**: La pasión y la creatividad
 - **Vargas Llosa**: La vocación y el compromiso artístico
@@ -95,7 +95,7 @@ Juntos forman una educación completa en escritura creativa.
 Estos libros son la base, pero también considera:
 - **Herramientas digitales**: Descubre las [mejores apps para escritores](/blog/herramientas-digitales-escritor-2025)
 - **Formación estructurada**: Explora [cursos de escritura creativa online](/blog/cursos-escritura-creativa-online-2025) 
-- **Práctica constante**: Únete a [concursos mensuales](/contest/current) para aplicar lo aprendido
+- **Práctica constante**: Únete a [retos mensuales](/contest/current) para aplicar lo aprendido
 
 
     `,
@@ -192,7 +192,7 @@ Personalmente, combino Notion para planificación, Scrivener para escribir, y un
 
 Si estás empezando con la escritura, no te pierdas:
 - [Cómo escribir cuentos paso a paso](/blog/como-escribir-cuentos-paso-a-paso) - Guía completa para principiantes
-- [Los mejores concursos de escritura 2025](/blog/mejores-concursos-escritura-2025) - Pon en práctica tus herramientas
+- [Los mejores retos de escritura 2025](/blog/mejores-retos-escritura-2025) - Pon en práctica tus herramientas
 - [Cursos de escritura creativa online](/blog/cursos-escritura-creativa-online-2025) - Formación profesional
     `,
     author: "Equipo Letranido",
@@ -758,8 +758,8 @@ Escribe la historia que explica por qué tu protagonista tiene cicatrices en las
 *Encuentra análisis detallados de todos estos libros en nuestra [guía completa de libros esenciales](/blog/libros-esenciales-escritores-2025)*
 
 ### Práctica Constante y Comunidad
-- Participa en [concursos de escritura](/contest/current) para poner en práctica estas técnicas
-- Únete a [nuestra comunidad de escritores](/) con concursos mensuales y ambiente acogedor
+- Participa en [retos de escritura](/contest/current) para poner en práctica estas técnicas
+- Únete a [nuestra comunidad de escritores](/) con retos mensuales y ambiente acogedor
 - Lee cuentos de autores que admires y analiza su técnica
 
 ## Tu Primer Cuento Empieza Ahora
@@ -772,7 +772,7 @@ Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfecci
 
 ---
 
-*¿Te ha resultado útil esta guía? Pon en práctica estos consejos participando en nuestro [concurso mensual de cuentos](/contest/current). ¡Cada mes, cientos de escritores como tú comparten sus historias y mejoran su técnica!*
+*¿Te ha resultado útil esta guía? Pon en práctica estos consejos participando en nuestro [reto mensual de cuentos](/contest/current). ¡Cada mes, cientos de escritores como tú comparten sus historias y mejoran su técnica!*
     `,
     author: "Equipo Letranido",
     publishedAt: "2025-08-02",
@@ -792,30 +792,30 @@ Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfecci
   },
 
   {
-    id: "mejores-concursos-escritura-2025",
+    id: "mejores-retos-escritura-2025",
     title:
       "Los Mejores Concursos de Escritura 2025: Guía Completa para Escritores",
-    slug: "mejores-concursos-escritura-2025",
+    slug: "mejores-retos-escritura-2025",
     excerpt:
-      "Descubre los mejores concursos literarios de 2025 en español. Premios, fechas, requisitos y consejos para ganar. Tu oportunidad de ser publicado está aquí.",
+      "Descubre los mejores retos literarios de 2025 en español. Premios, fechas, requisitos y consejos para ganar. Tu oportunidad de ser publicado está aquí.",
     content: `
 # Los Mejores Concursos de Escritura 2025: Guía Completa para Escritores
 
-Los concursos de escritura son una excelente oportunidad para ganar reconocimiento, premios en efectivo y conseguir publicación. En 2025, hay más opciones que nunca para escritores de habla hispana. Te presento los mejores concursos literarios del año.
+Los retos de escritura son una excelente oportunidad para ganar reconocimiento, premios en efectivo y conseguir publicación. En 2025, hay más opciones que nunca para escritores de habla hispana. Te presento los mejores retos literarios del año.
 
 ## ¿Por Qué Participar en Concursos de Escritura?
 
 ### Beneficios Inmediatos
 - **Motivación Externa:** Las fechas límite te obligan a terminar proyectos
-- **Feedback Profesional:** Muchos concursos incluyen comentarios de jurados
+- **Feedback Profesional:** Muchos retos incluyen comentarios de jurados
 - **Networking:** Conectas con otros escritores y profesionales del sector
 - **Credibilidad:** Los premios añaden prestigio a tu currículum
 
 ### Beneficios a Largo Plazo
-- **Publicación:** Muchos concursos publican las obras ganadoras
+- **Publicación:** Muchos retos publican las obras ganadoras
 - **Reconocimiento:** Aumenta tu visibilidad en el mundo literario
 - **Premios Económicos:** Algunos ofrecen cantidades significativas
-- **Oportunidades Editoriales:** Los editores buscan talento en concursos
+- **Oportunidades Editoriales:** Los editores buscan talento en retos
 
 ## Concursos Internacionales de Prestigio
 
@@ -871,7 +871,7 @@ Los concursos de escritura son una excelente oportunidad para ganar reconocimien
 - **Fecha límite:** Último día de cada mes
 - **Requisitos:** 100-1,000 palabras, temática mensual
 
-*Participa en [nuestro concurso actual](/contest/current) para practicar sin presión.*
+*Participa en [nuestro reto actual](/contest/current) para practicar sin presión.*
 
 ## Concursos de Poesía
 
@@ -939,21 +939,21 @@ Los concursos de escritura son una excelente oportunidad para ganar reconocimien
 ## Cómo Elegir el Concurso Adecuado
 
 ### Para Principiantes
-1. **Empieza por concursos de cuento** (menos intimidantes)
-2. **Busca concursos sin cuota** de inscripción
-3. **Participa en concursos mensuales** como Letranido
+1. **Empieza por retos de cuento** (menos intimidantes)
+2. **Busca retos sin cuota** de inscripción
+3. **Participa en retos mensuales** como Letranido
 4. **Lee las obras ganadoras** de años anteriores
 
 ### Para Escritores Intermedios
 1. **Apunta a premios regionales** primero
-2. **Considera concursos con feedback** incluido
+2. **Considera retos con feedback** incluido
 3. **Diversifica:** poesía, cuento, novela corta
 4. **Mantén un calendario** de fechas límite
 
 ### Para Escritores Avanzados
 1. **Enfócate en premios de prestigio**
 2. **Considera la **publicación** más que el dinero
-3. **Participa en concursos internacionales**
+3. **Participa en retos internacionales**
 4. **Mantén varias obras** en desarrollo
 
 ## Consejos para Aumentar tus Posibilidades
@@ -987,11 +987,11 @@ Los concursos de escritura son una excelente oportunidad para ganar reconocimien
 ### ❌ Errores de Contenido
 - Ignorar la temática específica
 - Enviar obra ya publicada (cuando piden inédita)
-- No adaptar el estilo al concurso
+- No adaptar el estilo al reto
 - Finales apresurados por deadline
 
 ### ❌ Errores de Estrategia
-- Participar solo en concursos millonarios
+- Participar solo en retos millonarios
 - No diversificar géneros
 - Desanimarse por rechazos
 - No llevar registro de envíos
@@ -1041,21 +1041,21 @@ Los concursos de escritura son una excelente oportunidad para ganar reconocimien
 - **Blog Letranido** - Consejos y oportunidades
 
 ### Redes Sociales
-- Sígueme en Twitter: **@concursos_escritura**
+- Sígueme en Twitter: **@retos_escritura**
 - Facebook: **Escritores en Español**
-- Instagram: **@letranido** (anuncios de concursos)
+- Instagram: **@letranido** (anuncios de retos)
 
 ## Tu Plan de Acción para 2025
 
 ### Mes 1-2: Preparación
-1. Selecciona 5-7 concursos objetivo
+1. Selecciona 5-7 retos objetivo
 2. Crea calendario personal de deadlines
 3. Comienza proyectos específicos
 4. Únete a comunidades de escritores
 
 ### Mes 3-6: Escritura Intensiva
-1. Dedica 2 horas diarias a proyectos de concurso
-2. Participa en concursos mensuales para práctica
+1. Dedica 2 horas diarias a proyectos de reto
+2. Participa en retos mensuales para práctica
 3. Busca grupos de crítica constructiva
 4. Mantén registro de progreso
 
@@ -1083,33 +1083,33 @@ Los concursos de escritura son una excelente oportunidad para ganar reconocimien
 
 ## Palabras Finales: Tu Momento es Ahora
 
-Los concursos de escritura no son solo sobre ganar - son sobre crecer como escritor, conectar con la comunidad literaria y desafiarte a ti mismo. En 2025, tienes más oportunidades que nunca.
+Los retos de escritura no son solo sobre ganar - son sobre crecer como escritor, conectar con la comunidad literaria y desafiarte a ti mismo. En 2025, tienes más oportunidades que nunca.
 
-**Empieza pequeño:** Participa en nuestro [concurso mensual de Letranido](/contest/current) este mes. Es gratuito, la comunidad es acogedora, y ganarás experiencia valiosa.
+**Empieza pequeño:** Participa en nuestro [reto mensual de Letranido](/contest/current) este mes. Es gratuito, la comunidad es acogedora, y ganarás experiencia valiosa.
 
-**Piensa grande:** Selecciona 2-3 concursos importantes para el año y dedica tiempo serio a preparar esas obras.
+**Piensa grande:** Selecciona 2-3 retos importantes para el año y dedica tiempo serio a preparar esas obras.
 
-**Mantente constante:** La clave no es ganar el primer concurso, sino desarrollar el hábito de escribir con deadline y propósito.
+**Mantente constante:** La clave no es ganar el primer reto, sino desarrollar el hábito de escribir con deadline y propósito.
 
-Tu historia está esperando el concurso perfecto. ¡2025 puede ser tu año!
+Tu historia está esperando el reto perfecto. ¡2025 puede ser tu año!
 
 ---
 
-*¿Listo para empezar? Únete a nuestra comunidad de escritores en el [concurso actual de Letranido](/contest/current) y comienza tu camino hacia el reconocimiento literario.*
+*¿Listo para empezar? Únete a nuestra comunidad de escritores en el [reto actual de Letranido](/contest/current) y comienza tu camino hacia el reconocimiento literario.*
     `,
     author: "Equipo Letranido",
     publishedAt: "2025-08-02",
     readTime: "15 min",
     category: "recursos",
     tags: [
-      "concursos de escritura",
+      "retos de escritura",
       "premios literarios 2025",
       "oportunidades para escritores",
-      "concursos España",
-      "concursos Latinoamérica",
-      "cómo ganar concursos literarios",
+      "retos España",
+      "retos Latinoamérica",
+      "cómo ganar retos literarios",
     ],
-    image: "/images/blog/concursos-escritura-2025.jpg",
+    image: "/images/blog/retos-escritura-2025.jpg",
     featured: true,
     published: false,
   },

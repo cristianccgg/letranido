@@ -23,7 +23,7 @@ const ContestActionButton = ({
   customText,
   disabled = false,
   forceWhiteStyle = false, // ✅ NUEVO: Para forzar estilo blanco en footer
-  contestId = null, // ✅ NUEVO: ID del concurso específico 
+  contestId = null, // ✅ NUEVO: ID del reto específico 
   forcedPhase = null, // ✅ NUEVO: Forzar una fase específica
 }) => {
   // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
@@ -41,7 +41,7 @@ const ContestActionButton = ({
   const [loadingParticipation, setLoadingParticipation] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // ✅ Determinar el concurso y fase a usar
+  // ✅ Determinar el reto y fase a usar
   const targetContestId = contestId || currentContest?.id;
   const targetPhase = forcedPhase || currentContestPhase;
   const targetContest = contestId 
@@ -50,7 +50,7 @@ const ContestActionButton = ({
 
   // ✅ Verificar participación usando los datos ya cargados del contexto (OPTIMIZADO)
   useEffect(() => {
-    // ✅ Si no hay usuario o concurso, no hay participación
+    // ✅ Si no hay usuario o reto, no hay participación
     if (!targetContestId || !user || !isAuthenticated) {
       setHasUserParticipated(false);
       setLoadingParticipation(false);
@@ -105,8 +105,8 @@ const ContestActionButton = ({
 
     if (!targetContest) {
       return {
-        text: "Ver concursos",
-        description: "Explora los concursos anteriores",
+        text: "Ver retos",
+        description: "Explora los retos anteriores",
         href: "/contest/current",
         onClick: null,
         icon: Eye,
@@ -127,7 +127,7 @@ const ContestActionButton = ({
       };
     }
 
-    // ✅ Lógica según la fase del concurso y participación
+    // ✅ Lógica según la fase del reto y participación
     switch (targetPhase) {
       case "submission":
         // ✅ SOLO para usuarios autenticados verificamos participación
@@ -147,7 +147,7 @@ const ContestActionButton = ({
         return {
           text: customText || "Escribir mi historia",
           description: isAuthenticated
-            ? `Participa en el concurso de ${targetContest.month}`
+            ? `Participa en el reto de ${targetContest.month}`
             : "Comienza a escribir (registro al enviar)",
           href: `/write/${targetContest.id}`,
           onClick: null,
@@ -205,7 +205,7 @@ const ContestActionButton = ({
 
       default:
         return {
-          text: customText || "Ver concurso",
+          text: customText || "Ver reto",
           description: "",
           href: "/contest/current",
           onClick: null,

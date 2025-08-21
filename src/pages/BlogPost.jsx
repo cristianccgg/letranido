@@ -484,7 +484,7 @@ const BlogPost = () => {
               ¿Te Gustó Este Artículo?
             </h3>
             <p className="text-gray-700 mb-6 max-w-2xl mx-auto dark:text-dark-300">
-              Únete a nuestra comunidad de escritores y participa en concursos
+              Únete a nuestra comunidad de escritores y participa en retos
               mensuales donde podrás poner en práctica estos consejos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

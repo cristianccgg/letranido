@@ -25,7 +25,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
   const [newsletterStatus, setNewsletterStatus] = useState("idle"); // idle, loading, success, error
   const [newsletterMessage, setNewsletterMessage] = useState("");
 
-  // Solo mostrar si hay un siguiente concurso y hay un concurso actual activo
+  // Solo mostrar si hay un siguiente reto y hay un reto actual activo
   useEffect(() => {
     setShouldShow(
       nextContest && currentContest && currentContest.status !== "results"
@@ -137,7 +137,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
             {/* Texto principal */}
             <div className="text-left">
               <span className="text-sm font-medium text-purple-600 block">
-                Próximo concurso
+                Próximo reto
               </span>
               <span className="text-lg font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">
                 {nextContest.title}
@@ -161,14 +161,14 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
               : "opacity-0 -translate-y-4"
           }`}
         >
-          {/* Descripción del concurso */}
+          {/* Descripción del reto */}
           <div className="mb-4">
             <p className="text-gray-700 leading-relaxed">
               {nextContest.description}
             </p>
           </div>
 
-          {/* Información del concurso */}
+          {/* Información del reto */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Fecha de inicio (basada en voting_deadline del actual + 1 día) */}
             <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -189,7 +189,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
               </span>
             </div>
 
-            {/* Mes del concurso (calculado dinámicamente) */}
+            {/* Mes del reto (calculado dinámicamente) */}
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Clock className="h-4 w-4 text-purple-500" />
               <span>
@@ -211,7 +211,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
 
           {/* Información de preparación */}
           <div className="mt-4 space-y-3">
-            {/* Requisitos del concurso */}
+            {/* Requisitos del reto */}
             {nextContest.word_limit && (
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -242,7 +242,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
               </ul>
             </div>*/}
 
-            {/* Botones de acción del concurso */}
+            {/* Botones de acción del reto */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
               <div className={`flex-1 ${!isEnabled ? 'opacity-50' : ''}`}>
                 <ContestActionButton
@@ -269,7 +269,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
               </Link>
             </div>
 
-            {/* Estado del concurso */}
+            {/* Estado del reto */}
             <div className={`rounded-lg p-3 mb-4 ${
               isEnabled 
                 ? "bg-green-50 border border-green-200"
@@ -288,7 +288,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
                 }`}>
                   {isEnabled 
                     ? `¡Ya puedes escribir tu historia para ${nextContest?.month}!`
-                    : `Se activará cuando termine la votación del concurso actual.`
+                    : `Se activará cuando termine la votación del reto actual.`
                   }
                 </span>
               </div>
@@ -306,7 +306,7 @@ const NextContestPreview = ({ nextContest, currentContest, isEnabled = false }) 
                   </span>
                 </div>
                 <p className="text-xs text-gray-600">
-                  Recibe una notificación cuando este concurso comience
+                  Recibe una notificación cuando este reto comience
                 </p>
               </div>
 

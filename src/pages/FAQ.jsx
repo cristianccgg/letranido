@@ -42,16 +42,16 @@ const FAQ = () => {
 
   const faqSections = [
     {
-      title: "Concursos y Participación",
+      title: "Retos y Participación",
       icon: Trophy,
       color: "indigo",
       items: [
         {
-          question: "¿Cómo funciona el sistema de concursos?",
+          question: "¿Cómo funciona el sistema de retos?",
           answer: (
             <div className="space-y-3">
               <p>
-                Cada mes lanzamos un nuevo concurso con un prompt único. El
+                Cada mes lanzamos un nuevo reto con un prompt único. El
                 proceso tiene tres fases:
               </p>
               <div className="grid gap-3">
@@ -121,8 +121,8 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Sí, cada concurso tiene un límite de palabras específico que
-                depende de la temática y el tipo de concurso.
+                Sí, cada reto tiene un límite de palabras específico que
+                depende de la temática y el tipo de reto.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <ul className="space-y-2">
@@ -131,7 +131,7 @@ const FAQ = () => {
                     palabras
                   </li>
                   <li>
-                    <strong>Puede variar:</strong> Algunos concursos pueden
+                    <strong>Puede variar:</strong> Algunos retos pueden
                     tener límites diferentes
                   </li>
                   <li>
@@ -141,7 +141,7 @@ const FAQ = () => {
                 </ul>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Revisa siempre los detalles del concurso actual para conocer el
+                Revisa siempre los detalles del reto actual para conocer el
                 límite específico de ese mes.
               </p>
             </div>
@@ -158,7 +158,7 @@ const FAQ = () => {
                     Sí, durante la fase de envío
                   </p>
                   <p className="text-sm text-green-600">
-                    Puedes editar tu historia libremente mientras el concurso
+                    Puedes editar tu historia libremente mientras el reto
                     esté en fase de envío.
                   </p>
                 </div>
@@ -166,7 +166,7 @@ const FAQ = () => {
               <p>
                 Una vez que termine la fase de envío y comience la votación, las
                 historias quedan bloqueadas para mantener la integridad del
-                concurso.
+                reto.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -182,7 +182,7 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Si no logras enviar tu historia antes del cierre del concurso,
+                Si no logras enviar tu historia antes del cierre del reto,
                 tendrás que esperar al siguiente mes.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
@@ -193,7 +193,7 @@ const FAQ = () => {
                 </p>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Recuerda que siempre puedes participar en el siguiente concurso
+                Recuerda que siempre puedes participar en el siguiente reto
                 mensual con un nuevo prompt.
               </p>
             </div>
@@ -301,7 +301,7 @@ const FAQ = () => {
                   <Crown className="h-5 w-5 text-yellow-600" />
                   <div>
                     <strong className="text-yellow-700 dark:text-yellow-300">
-                      Ganar concurso: +75 puntos
+                      Ganar reto: +75 puntos
                     </strong>
                     <p className="text-sm text-yellow-600 dark:text-yellow-300">
                       El máximo reconocimiento
@@ -430,10 +430,10 @@ const FAQ = () => {
                     </li>
                     <li>
                       • <strong>Escritor Constante:</strong> Participa en 3
-                      concursos
+                      retos
                     </li>
                     <li>
-                      • <strong>Veterano:</strong> Participa en 10 concursos
+                      • <strong>Veterano:</strong> Participa en 10 retos
                     </li>
                   </ul>
                 </div>
@@ -443,13 +443,13 @@ const FAQ = () => {
                   </h4>
                   <ul className="text-sm space-y-1">
                     <li>
-                      • <strong>Ganador:</strong> Gana un concurso mensual
+                      • <strong>Ganador:</strong> Gana un reto mensual
                     </li>
                     <li>
                       • <strong>Finalista:</strong> Queda en el top 3
                     </li>
                     <li>
-                      • <strong>Veterano Ganador:</strong> Gana 3 concursos
+                      • <strong>Veterano Ganador:</strong> Gana 3 retos
                     </li>
                   </ul>
                 </div>
@@ -559,7 +559,7 @@ const FAQ = () => {
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Solo te pedimos que menciones a Letranido si la historia ganó un
-                premio en nuestros concursos.
+                premio en nuestros retos.
               </p>
             </div>
           ),
@@ -575,7 +575,7 @@ const FAQ = () => {
               <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-700">
                 <p className="text-sm text-amber-700 dark:text-amber-300">
                   <strong>Nota importante:</strong> Aunque elimines tu historia,
-                  puede que permanezca visible en los listados de concursos
+                  puede que permanezca visible en los listados de retos
                   anteriores por su valor histórico en la competición.
                 </p>
               </div>
@@ -605,11 +605,11 @@ const FAQ = () => {
                 <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
                   <Heart className="h-4 w-4 text-red-500" />
                   <span className="text-sm font-medium">
-                    Tienes 3 votos por concurso
+                    Tienes 3 votos por reto
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300 ml-6">
-                  • Máximo 3 votos por usuario en cada concurso
+                  • Máximo 3 votos por usuario en cada reto
                   <br />
                   • No puedes votar por tu propia historia
                   <br />
@@ -678,7 +678,7 @@ const FAQ = () => {
                 </p>
               </div>
               <p>
-                Puedes participar en concursos, votar, comentar, y ganar badges
+                Puedes participar en retos, votar, comentar, y ganar badges
                 sin ningún costo. Nuestro objetivo es mantener la escritura
                 creativa accesible para todos.
               </p>
@@ -801,7 +801,7 @@ const FAQ = () => {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Síguenos para actualizaciones, consejos de escritura, y anuncios
-                de nuevos concursos.
+                de nuevos retos.
               </p>
             </div>
           ),
@@ -814,8 +814,8 @@ const FAQ = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <SEOHead
         title="Preguntas Frecuentes (FAQ)"
-        description="Encuentra respuestas a las preguntas más comunes sobre Letranido: concursos, badges, derechos de autor, votación y más."
-        keywords="FAQ, preguntas frecuentes, ayuda, soporte, letranido, concursos de escritura"
+        description="Encuentra respuestas a las preguntas más comunes sobre Letranido: retos, badges, derechos de autor, votación y más."
+        keywords="FAQ, preguntas frecuentes, ayuda, soporte, letranido, retos de escritura"
         url="/faq"
       />
 
@@ -830,7 +830,7 @@ const FAQ = () => {
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Todo lo que necesitas saber sobre Letranido, nuestra comunidad de
-            escritores y cómo participar en nuestros concursos mensuales.
+            escritores y cómo participar en nuestros retos mensuales.
           </p>
         </div>
 
@@ -941,7 +941,7 @@ const FAQ = () => {
               Concurso Actual
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Ver el concurso del mes en curso
+              Ver el reto del mes en curso
             </p>
           </Link>
 

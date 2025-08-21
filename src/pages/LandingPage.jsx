@@ -116,21 +116,21 @@ const LandingPage = () => {
     }
   }, [globalStats.lastUpdated, globalStatsLoading, initialized, loadGlobalStats]);
 
-  // 🆕 ESTADO PARA GANADORES DEL CONCURSO ANTERIOR
+  // 🆕 ESTADO PARA GANADORES DEL RETO ANTERIOR
   const [lastContestWinners, setLastContestWinners] = useState(null);
   const [loadingWinners, setLoadingWinners] = useState(false);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
 
-  // 🆕 CARGAR GANADORES DEL ÚLTIMO CONCURSO FINALIZADO
+  // 🆕 CARGAR GANADORES DEL ÚLTIMO RETO FINALIZADO
   useEffect(() => {
     const loadLastContestWinners = async () => {
       if (!initialized || contests.length === 0) return;
 
       setLoadingWinners(true);
       try {
-        // Encontrar el último concurso finalizado (excluyendo el actual)
+        // Encontrar el último reto finalizado (excluyendo el actual)
         const finishedContests = contests
           .filter(
             (contest) =>
@@ -164,7 +164,7 @@ const LandingPage = () => {
           setLastContestWinners(null);
         }
       } catch (error) {
-        console.error("Error cargando ganadores del último concurso:", error);
+        console.error("Error cargando ganadores del último reto:", error);
         setLastContestWinners(null);
       } finally {
         setLoadingWinners(false);
@@ -174,7 +174,7 @@ const LandingPage = () => {
     loadLastContestWinners();
   }, [initialized, contests, currentContest, getStoriesByContest]);
 
-  // Contador de tiempo restante (dinámico según la fase del concurso)
+  // Contador de tiempo restante (dinámico según la fase del reto)
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
     if (!currentContest) {
@@ -186,20 +186,20 @@ const LandingPage = () => {
       const now = new Date();
       let deadline;
 
-      // Usar la fecha correcta según la fase del concurso
+      // Usar la fecha correcta según la fase del reto)
       if (currentContestPhase === "submission") {
         deadline = new Date(currentContest.submission_deadline);
       } else if (currentContestPhase === "voting") {
         deadline = new Date(currentContest.voting_deadline);
       } else {
-        setTimeLeft("Concurso cerrado");
+        setTimeLeft("Reto cerrado");
         return;
       }
 
       const diff = deadline - now;
 
       if (diff <= 0) {
-        setTimeLeft("Concurso cerrado");
+        setTimeLeft("Reto cerrado");
         return;
       }
 
@@ -226,7 +226,7 @@ const LandingPage = () => {
   // Estado para el sidebar de rankings
   const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
 
-  // ✅ Contador para el siguiente concurso
+  // ✅ Contador para el siguiente reto
   const [nextTimeLeft, setNextTimeLeft] = useState("");
   useEffect(() => {
     if (!nextContest?.submission_deadline || currentContestPhase !== "voting") {
@@ -240,7 +240,7 @@ const LandingPage = () => {
       const diff = deadline - now;
 
       if (diff <= 0) {
-        setNextTimeLeft("Concurso cerrado");
+        setNextTimeLeft("Reto cerrado");
         return;
       }
 
@@ -284,8 +284,8 @@ const LandingPage = () => {
       {/* SEO Meta Tags */}
       <SEOHead
         title="Inicio"
-        description="Únete a Letranido, la comunidad de escritores creativos. Participa en concursos mensuales, comparte tus historias originales y conecta con otros escritores apasionados."
-        keywords="escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido, literatura"
+        description="Únete a Letranido, la comunidad de escritores creativos. Participa en retos mensuales, comparte tus historias originales y conecta con otros escritores apasionados."
+        keywords="escritura creativa, retos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido, literatura"
         url="/"
       />
 
@@ -376,7 +376,7 @@ const LandingPage = () => {
                     <span className="font-medium text-purple-700 dark:text-purple-400">✨ Descubre</span> creatividad premium sin límites
                   </div>
                   <div className="text-sm text-gray-600 dark:text-dark-400">
-                    <span className="font-medium text-amber-700 dark:text-amber-400">🏆 Participa</span> en el concurso mensual
+                    <span className="font-medium text-amber-700 dark:text-amber-400">🏆 Participa</span> en el reto mensual
                   </div>
                 </div>
               </div>
@@ -437,7 +437,7 @@ const LandingPage = () => {
 
           {currentContest && (
             <div className="space-y-6">
-              {/* Tarjeta del concurso actual */}
+              {/* Tarjeta del reto actual */}
               <ContestCard
                 contest={currentContest}
                 phase={currentContestPhase}
@@ -449,7 +449,7 @@ const LandingPage = () => {
                 }}
               />
 
-              {/* Tarjeta del siguiente concurso - igual diseño que actual */}
+              {/* Tarjeta del siguiente reto - igual diseño que actual */}
               {nextContest && (
                 <ContestCard
                   contest={nextContest}
@@ -598,12 +598,12 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ¿CÓMO FUNCIONA EL CONCURSO? - Sección principal */}
+      {/* ¿CÓMO FUNCIONA EL RETO? - Sección principal */}
       <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-              ¿Cómo funciona el concurso?
+              ¿Cómo funciona el reto?
             </h2>
             <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 transition-colors duration-300">
               Un proceso simple y divertido para participar en nuestra comunidad
@@ -641,7 +641,7 @@ const LandingPage = () => {
                 las historias.
               </p>
               <p className="text-sm text-purple-600 dark:text-purple-400 font-medium transition-colors duration-300">
-                ✨ Tienes 3 votos por concurso para elegir tus favoritas
+                ✨ Tienes 3 votos por reto para elegir tus favoritas
               </p>
             </div>
 
@@ -687,7 +687,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 🆕 GANADORES DEL CONCURSO ANTERIOR */}
+      {/* 🆕 GANADORES DEL RETO ANTERIOR */}
       {lastContestWinners && !loadingWinners && (
         <section
           id="winners-section"
@@ -924,7 +924,7 @@ const LandingPage = () => {
                       ¡Podrías ser el próximo ganador!
                     </h3>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      Únete al concurso actual y demuestra tu talento. Tu
+                      Únete al reto actual y demuestra tu talento. Tu
                       historia podría ser la próxima en brillar.
                     </p>
                     <Link
@@ -946,7 +946,7 @@ const LandingPage = () => {
                 className="inline-flex items-center px-6 py-3 rounded-xl bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm border-2 border-indigo-200 dark:border-dark-600 text-indigo-700 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-dark-700 hover:border-purple-300 dark:hover:border-indigo-500 hover:shadow-lg transition-all duration-300 shadow-sm"
               >
                 <Trophy className="h-5 w-5 mr-2" />
-                Ver historial completo de concursos
+                Ver historial completo de retos
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
@@ -974,7 +974,7 @@ const LandingPage = () => {
                 <PenTool className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-                Concursos Mensuales
+                Retos Mensuales
               </h3>
               <p className="text-gray-600 dark:text-dark-300 md:text-lg lg:text-xl mb-3 transition-colors duration-300">
                 Participa en desafíos creativos cada mes. Nuevos escenarios,
@@ -1085,7 +1085,7 @@ const LandingPage = () => {
           <div className="mt-8 text-center">
             <p className="text-sm dark:text-dark-300  text-gray-500 max-w-3xl mx-auto">
               Al participar en Letranido, solo nos das permiso para mostrar tu
-              historia en la plataforma durante los concursos o publicarla en
+              historia en la plataforma durante los retos o publicarla en
               redes sociales si eres ganador o finalista. Puedes retirar tu obra
               cuando quieras y usarla libremente en cualquier otro lugar.
             </p>

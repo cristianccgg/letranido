@@ -1,4 +1,4 @@
-// pages/ContestHistory.jsx - NUEVO: Lista de concursos pasados
+// pages/ContestHistory.jsx - NUEVO: Lista de retos pasados
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -127,7 +127,7 @@ const ContestHistory = () => {
       <div className="max-w-6xl mx-auto">
         <div className="text-center py-12">
           <Loader className="h-12 w-12 animate-spin mx-auto text-primary-600 mb-4" />
-          <p className="text-gray-600 dark:text-dark-300">Cargando historial de concursos...</p>
+          <p className="text-gray-600 dark:text-dark-300">Cargando historial de retos...</p>
         </div>
       </div>
     );
@@ -137,8 +137,8 @@ const ContestHistory = () => {
     <>
       <SEOHead
         title="Historial de Concursos"
-        description="Explora todos los concursos de escritura pasados de Letranido. Descubre las historias ganadoras, participantes destacados y la evolución de nuestra comunidad creativa."
-        keywords="historial concursos escritura, concursos pasados letranido, historias ganadoras, escritores destacados"
+        description="Explora todos los retos de escritura pasados de Letranido. Descubre las historias ganadoras, participantes destacados y la evolución de nuestra comunidad creativa."
+        keywords="historial retos escritura, retos pasados letranido, historias ganadoras, escritores destacados"
         url="/contest-history"
         canonicalUrl="https://letranido.com/contest-history"
       />
@@ -149,18 +149,18 @@ const ContestHistory = () => {
             Historial de Concursos
           </h1>
           <p className="text-gray-600 dark:text-dark-300 mb-6">
-            Explora concursos pasados y descubre a los ganadores
+            Explora retos pasados y descubre a los ganadores
           </p>
 
-          {/* Link al concurso actual */}
+          {/* Link al reto actual */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 sm:p-6 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
                 <h3 className="font-semibold text-blue-900 dark:text-blue-300 text-lg mb-2">
-                  ¿Buscas el concurso actual?
+                  ¿Buscas el reto actual?
                 </h3>
                 <p className="text-blue-700 dark:text-blue-300 text-sm">
-                  Participa o vota en el concurso activo de este mes
+                  Participa o vota en el reto activo de este mes
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -168,7 +168,7 @@ const ContestHistory = () => {
                   to="/contest/current"
                   className="inline-flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-center"
                 >
-                  Ver concurso actual
+                  Ver reto actual
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </div>
@@ -186,7 +186,7 @@ const ContestHistory = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar concursos por título o mes..."
+                placeholder="Buscar retos por título o mes..."
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 placeholder-gray-500 dark:placeholder-dark-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
               />
             </div>
@@ -200,7 +200,7 @@ const ContestHistory = () => {
                     clearFinishedStoriesCache();
                   }}
                   className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 rounded-lg transition-colors border border-gray-300 dark:border-dark-600"
-                  title="[DEV] Limpiar caché de concursos e historias finalizadas para forzar recarga"
+                  title="[DEV] Limpiar caché de retos e historias finalizadas para forzar recarga"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   🔧 Dev: Actualizar caché
@@ -213,7 +213,7 @@ const ContestHistory = () => {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600 dark:text-dark-300">
-            {filteredContests.length} concurso
+            {filteredContests.length} reto
             {filteredContests.length !== 1 ? "s" : ""} encontrado
             {filteredContests.length !== 1 ? "s" : ""}
           </p>
@@ -226,12 +226,12 @@ const ContestHistory = () => {
               <Trophy className="h-16 w-16 mx-auto" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-dark-100 mb-2">
-              No se encontraron concursos
+              No se encontraron retos
             </h3>
             <p className="text-gray-600 dark:text-dark-300">
               {searchTerm.trim() || selectedCategory !== "all"
                 ? "Intenta con otros términos de búsqueda o filtros diferentes"
-                : "Aún no hay concursos finalizados en el historial"}
+                : "Aún no hay retos finalizados en el historial"}
             </p>
           </div>
         ) : (
@@ -337,14 +337,14 @@ const ContestHistory = () => {
             ¿Te inspiraste con estas historias?
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Únete al concurso actual y demuestra tu talento literario
+            Únete al reto actual y demuestra tu talento literario
           </p>
           <Link
             to="/contest/current"
             className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600"
           >
             <BookOpen className="h-5 w-5 mr-3" />
-            Participar en el concurso actual
+            Participar en el reto actual
             <ArrowRight className="h-5 w-5 ml-3" />
           </Link>
         </div>

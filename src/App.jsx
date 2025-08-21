@@ -209,7 +209,7 @@ function AppContent() {
               </>
             )}
             
-            {/* Ruta para escribir en concursos (genérica después) */}
+            {/* Ruta para escribir en retos (genérica después) */}
             <Route path="/write/:promptId?" element={<WritePrompt />} />
 
             {/* Ruta principal para historial */}
@@ -331,14 +331,14 @@ function NotFoundPage() {
             href="/contest/current" 
             className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors inline-block text-center"
           >
-            Ver concurso actual
+            Ver reto actual
           </a>
         )}
         <a 
           href="/contest-history" 
           className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-colors inline-block text-center"
         >
-          Ver historial de concursos
+          Ver historial de retos
         </a>
       </div>
     </div>

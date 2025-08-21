@@ -15,7 +15,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
       title: contest?.word_limit 
         ? `Máximo ${contest.word_limit.toLocaleString()} palabras`
         : "100-1,000 palabras",
-      description: "Respeta el límite exacto del concurso",
+      description: "Respeta el límite exacto del reto",
       type: "info",
     },
     {
@@ -85,7 +85,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
               <div>
                 <h2 className="text-lg font-bold flex items-center dark:text-purple-300">
                   <Trophy className="h-5 w-5 mr-2" />
-                  Reglas del Concurso
+                  Reglas del Reto
                 </h2>
                 <p className="text-white/90 dark:text-purple-300 text-xs mt-1">
                   {contest.month} - "{contest.title}"
@@ -134,7 +134,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
                 Reglas adicionales:
               </h4>
               <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                <li>• Una historia por concurso</li>
+                <li>• Una historia por reto</li>
                 <li>• Sin contenido sexual explícito o violencia extrema</li>
                 <li>• Top 3 gana badges automáticamente</li>
                 <li>• No puedes votar por tu propia historia</li>

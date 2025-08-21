@@ -70,11 +70,11 @@ const initialState = {
     lastGalleryUpdate: null,
   },
   
-  // Cache de concursos finalizados
+  // Cache de retos finalizados
   finishedContestsCache: {},
   finishedContestsCacheTimestamp: null,
   
-  // Cache de historias individuales de concursos cerrados
+  // Cache de historias individuales de retos cerrados
   finishedStoriesCache: {},
   finishedStoriesCacheTimestamp: null,
   
@@ -128,7 +128,7 @@ const actions = {
   SET_COOKIE_CONSENT: "SET_COOKIE_CONSENT",
   SET_SHOW_COOKIE_BANNER: "SET_SHOW_COOKIE_BANNER",
 
-  // Cache de concursos finalizados
+  // Cache de retos finalizados
   SET_FINISHED_CONTESTS_CACHE: "SET_FINISHED_CONTESTS_CACHE",
   CLEAR_FINISHED_CONTESTS_CACHE: "CLEAR_FINISHED_CONTESTS_CACHE",
   
@@ -171,13 +171,13 @@ function globalAppReducer(state, action) {
       };
 
     case actions.SET_CURRENT_CONTEST:
-      // Recalcular currentContestVotes cuando cambia el concurso actual
+      // Recalcular currentContestVotes cuando cambia el reto actual
       let newCurrentContestVotes = 0;
       if (action.payload && state.votingStats.userVotedStories.length > 0) {
-        // Contar votos que pertenecen al nuevo concurso actual
+        // Contar votos que pertenecen al nuevo reto actual
         newCurrentContestVotes = state.votingStats.userVotedStories.filter(
           vote => {
-            // Buscar si este voto pertenece al nuevo concurso actual
+            // Buscar si este voto pertenece al nuevo reto actual
             // Necesitamos verificar via contestId si está disponible
             return vote.contestId === action.payload.id;
           }
@@ -838,10 +838,10 @@ export function GlobalAppProvider({ children }) {
         })
       );
 
-      // Encontrar concurso actual con lógica híbrida
+      // Encontrar reto actual con lógica híbrida
       const current = findCurrentContest(processedContests);
       
-      // Encontrar el siguiente concurso
+      // Encontrar el siguiente reto
       const next = findNextContest(processedContests, current);
 
       if (isMounted.current) {
@@ -892,7 +892,7 @@ export function GlobalAppProvider({ children }) {
           ? story.content.substring(0, 200) + "..."
           : "Sin contenido disponible",
         readTime: Math.ceil((story.word_count || 0) / 200) + " min",
-        // Incluir información del concurso para poder verificar su estado
+        // Incluir información del reto para poder verificar su estado
         contest: story.contests ? {
           id: story.contests.id,
           title: story.contests.title,
@@ -961,7 +961,7 @@ export function GlobalAppProvider({ children }) {
             votedAt: vote.created_at,
           })) || [];
 
-        // Contar votos en concurso actual - mejorado para debug
+        // Contar votos en reto actual - mejorado para debug
         let currentContestVotes = 0;
         if (state.currentContest && allVotes) {
           currentContestVotes = allVotes.filter(
@@ -980,7 +980,7 @@ export function GlobalAppProvider({ children }) {
             }))
           });
         } else {
-          console.log("⚠️ No se puede contar votos del concurso actual:", {
+          console.log("⚠️ No se puede contar votos del reto actual:", {
             hasCurrentContest: !!state.currentContest,
             hasVotes: !!allVotes,
             votesLength: allVotes?.length || 0
@@ -1001,7 +1001,7 @@ export function GlobalAppProvider({ children }) {
             {
               totalVotos: votingStats.userVotesCount,
               votosEnConcursoActual: votingStats.currentContestVotes,
-              concursoActual: state.currentContest?.title || 'No definido'
+              retoActual: state.currentContest?.title || 'No definido'
             }
           );
         }
@@ -1023,7 +1023,7 @@ export function GlobalAppProvider({ children }) {
 
   const getStoriesByContest = useCallback(async (contestId, forceRefresh = false) => {
     if (!contestId) {
-      return { success: false, error: "ID de concurso requerido" };
+      return { success: false, error: "ID de reto requerido" };
     }
 
     // ✅ VERIFICAR CACHÉ PARA CONCURSOS CERRADOS
@@ -1032,7 +1032,7 @@ export function GlobalAppProvider({ children }) {
     }
 
     try {
-      console.log("🔍 Buscando historias para concurso:", contestId);
+      console.log("🔍 Buscando historias para reto:", contestId);
 
       // Primero obtener las historias básicas
       const { data: stories, error: storiesError } = await supabase
@@ -1047,7 +1047,7 @@ export function GlobalAppProvider({ children }) {
       }
 
       if (!stories || stories.length === 0) {
-        console.log("ℹ️ No se encontraron historias para este concurso");
+        console.log("ℹ️ No se encontraron historias para este reto");
         return { success: true, stories: [] };
       }
 
@@ -1064,7 +1064,7 @@ export function GlobalAppProvider({ children }) {
         console.warn("⚠️ Error fetching user profiles:", usersError);
       }
 
-      // Obtener información del concurso
+      // Obtener información del reto
       const { data: contest, error: contestError } = await supabase
         .from("contests")
         .select("*")
@@ -1102,7 +1102,7 @@ export function GlobalAppProvider({ children }) {
                 wins_count: 0,
                 total_likes: 0,
               },
-          // Datos del concurso
+          // Datos del reto
           contests: contest
             ? {
                 id: contest.id,
@@ -1139,7 +1139,7 @@ export function GlobalAppProvider({ children }) {
 
       // ✅ GUARDAR EN CACHÉ SI EL CONCURSO ESTÁ CERRADO
       if (contest && contest.status === "results") {
-        console.log("💾 Guardando concurso cerrado en caché:", contestId);
+        console.log("💾 Guardando reto cerrado en caché:", contestId);
         dispatch({
           type: actions.SET_FINISHED_CONTESTS_CACHE,
           payload: {
@@ -1195,7 +1195,7 @@ export function GlobalAppProvider({ children }) {
         .eq("id", story.user_id)
         .single();
 
-      // Obtener información del concurso
+      // Obtener información del reto
       const { data: contest } = await supabase
         .from("contests")
         .select("*")
@@ -1220,7 +1220,7 @@ export function GlobalAppProvider({ children }) {
           totalLikes: userProfile?.total_likes || 0,
           joinedAt: userProfile?.created_at || new Date().toISOString(),
         },
-        // Formatear datos del concurso
+        // Formatear datos del reto
         contest: {
           id: story.contest_id,
           title: contest?.title || "Concurso",
@@ -1236,7 +1236,7 @@ export function GlobalAppProvider({ children }) {
 
       // ✅ GUARDAR EN CACHÉ SI ES DE UN CONCURSO CERRADO
       if (contest && contest.status === "results") {
-        console.log("💾 Guardando historia de concurso cerrado en caché:", storyId);
+        console.log("💾 Guardando historia de reto cerrado en caché:", storyId);
         dispatch({
           type: actions.SET_FINISHED_STORIES_CACHE,
           payload: {
@@ -1445,7 +1445,7 @@ export function GlobalAppProvider({ children }) {
     [state.user?.id]
   );
 
-  // ✅ NUEVA FUNCIÓN: Obtener conteo de votos del usuario en un concurso
+  // ✅ NUEVA FUNCIÓN: Obtener conteo de votos del usuario en un reto
   const getUserVoteCount = useCallback(
     async (contestId) => {
       if (!state.user?.id || !contestId) {
@@ -1453,7 +1453,7 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        // Primero obtenemos las IDs de las historias del concurso
+        // Primero obtenemos las IDs de las historias del reto
         const { data: stories, error: storiesError } = await supabase
           .from("stories")
           .select("id")
@@ -1498,7 +1498,7 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        // Obtener la historia para saber el concurso
+        // Obtener la historia para saber el reto
         const { data: story, error: storyError } = await supabase
           .from("stories")
           .select("contest_id, user_id")
@@ -1517,7 +1517,7 @@ export function GlobalAppProvider({ children }) {
           };
         }
 
-        // Obtener información del concurso
+        // Obtener información del reto
         const { data: contest, error: contestError } = await supabase
           .from("contests")
           .select("*")
@@ -1545,9 +1545,9 @@ export function GlobalAppProvider({ children }) {
             phase: "results",
           };
         } else {
-          // Fase de votación - verificar límite de 3 votos SOLO para concurso actual
+          // Fase de votación - verificar límite de 3 votos SOLO para reto actual
           if (state.user?.id) {
-            // ✅ SEGURIDAD: Solo aplicar límite de 3 votos si es el concurso actual
+            // ✅ SEGURIDAD: Solo aplicar límite de 3 votos si es el reto actual
             const isCurrentContest = story.contest_id === state.currentContest?.id;
             // Verificar si ya votó por esta historia
             const { data: existingVote, error: voteError } = await supabase
@@ -1572,7 +1572,7 @@ export function GlobalAppProvider({ children }) {
               };
             }
 
-            // Si no ha votado por esta historia, verificar límite de 3 votos SOLO para concurso actual
+            // Si no ha votado por esta historia, verificar límite de 3 votos SOLO para reto actual
             if (isCurrentContest) {
               const voteCountResult = await getUserVoteCount(contest.id);
               const currentVotes = voteCountResult.count || 0;
@@ -1691,7 +1691,7 @@ export function GlobalAppProvider({ children }) {
           .select("*")
           .in("id", userIds);
 
-        // Obtener información de los concursos
+        // Obtener información de los retos
         const contestIds = [
           ...new Set(stories.map((story) => story.contest_id)),
         ];
@@ -1824,7 +1824,7 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        // Verificar concurso existe
+        // Verificar reto existe
         const { data: contest, error: contestError } = await supabase
           .from("contests")
           .select("*")
@@ -1842,7 +1842,7 @@ export function GlobalAppProvider({ children }) {
 
         if (checkError) throw checkError;
         if (existingStories && existingStories.length > 0)
-          throw new Error("Ya has enviado una historia para este concurso");
+          throw new Error("Ya has enviado una historia para este reto");
 
         // Insertar historia
         const storyToInsert = {
@@ -1883,7 +1883,7 @@ export function GlobalAppProvider({ children }) {
 
         dispatch({ type: actions.ADD_USER_STORY, payload: processedStory });
 
-        // Actualizar contador de participantes en concurso actual
+        // Actualizar contador de participantes en reto actual
         if (state.currentContest?.id === storyData.contestId) {
           const updatedContest = {
             ...state.currentContest,
@@ -1915,7 +1915,7 @@ export function GlobalAppProvider({ children }) {
           success: true,
           story: processedStory,
           storyId: newStory.id, // Agregar el ID de la historia creada
-          message: "¡Tu historia ha sido enviada exitosamente al concurso!",
+          message: "¡Tu historia ha sido enviada exitosamente al reto!",
         };
       } catch (err) {
         console.error("Error submitting story:", err);
@@ -1948,13 +1948,13 @@ export function GlobalAppProvider({ children }) {
         let liked;
         let isCurrentContest = false;
 
-        // Verificar si es del concurso actual - PRIMERO buscar en galleryStories,
+        // Verificar si es del reto actual - PRIMERO buscar en galleryStories,
         // luego hacer consulta directa si galleryStories está vacía
         if (state.galleryStories.length > 0) {
           const story = state.galleryStories.find((s) => s.id === storyId);
           isCurrentContest = story?.contest_id === state.currentContest?.id;
         } else if (state.currentContest?.id) {
-          // GalleryStories está vacía, consultar directamente la historia para verificar concurso
+          // GalleryStories está vacía, consultar directamente la historia para verificar reto
           try {
             const { data: story, error } = await supabase
               .from("stories")
@@ -1966,7 +1966,7 @@ export function GlobalAppProvider({ children }) {
               isCurrentContest = story.contest_id === state.currentContest.id;
             }
           } catch (err) {
-            console.warn("Error verificando concurso de la historia:", err);
+            console.warn("Error verificando reto de la historia:", err);
           }
         }
 
@@ -2031,12 +2031,12 @@ export function GlobalAppProvider({ children }) {
           }));
         }
 
-        // SIEMPRE actualizar galleryStories si es concurso actual para máxima sincronización
+        // SIEMPRE actualizar galleryStories si es reto actual para máxima sincronización
         const likesChange = liked ? 1 : -1;
 
         if (isCurrentContest) {
           console.log(
-            "🔄 Sincronizando voto en concurso actual - galleryStories:",
+            "🔄 Sincronizando voto en reto actual - galleryStories:",
             state.galleryStories.length > 0 ? "cargada" : "vacía"
           );
 
@@ -2068,7 +2068,7 @@ export function GlobalAppProvider({ children }) {
             );
           }, 200);
         } else if (state.galleryStories.length > 0) {
-          // No es concurso actual pero gallery está cargada (concursos históricos)
+          // No es reto actual pero gallery está cargada (retos históricos)
           dispatch({
             type: actions.UPDATE_STORY_IN_GALLERY,
             payload: {
@@ -3133,13 +3133,13 @@ export function GlobalAppProvider({ children }) {
     // ✅ CORREGIDO: Usar hora de Colombia (UTC-5) para comparaciones
     const now = new Date();
     
-    // Convertir las fechas del concurso a hora de Colombia si no tienen zona horaria
+    // Convertir las fechas del reto a hora de Colombia si no tienen zona horaria
     const submissionDeadline = new Date(contest.submission_deadline);  
     const votingDeadline = new Date(contest.voting_deadline);
     
     // Validar que las fechas sean válidas
     if (isNaN(submissionDeadline.getTime()) || isNaN(votingDeadline.getTime())) {
-      console.error("❌ Fechas inválidas en concurso:", {
+      console.error("❌ Fechas inválidas en reto:", {
         submission_deadline: contest.submission_deadline,
         voting_deadline: contest.voting_deadline,
         contest: contest
@@ -3153,7 +3153,7 @@ export function GlobalAppProvider({ children }) {
     } else if (now <= votingDeadline) {
       return "voting";
     } else {
-      // Si la votación terminó, verificar si el concurso se cerró manualmente
+      // Si la votación terminó, verificar si el reto se cerró manualmente
       // Si votingDeadline pasó Y (status === "results" O finalized_at existe) → "results"
       // Si votingDeadline pasó Y status !== "results" Y !finalized_at → "counting"
       if (contest.status === "results" || contest.finalized_at) {
@@ -3198,7 +3198,7 @@ export function GlobalAppProvider({ children }) {
           };
         }
 
-        // Verificar que el concurso esté en período de envío (o que sea admin)
+        // Verificar que el reto esté en período de envío (o que sea admin)
         const contestPhase = getContestPhase(story.contests);
         const isAdmin = state.user?.is_admin;
 
@@ -3589,9 +3589,9 @@ export function GlobalAppProvider({ children }) {
       dispatch({ type: actions.INVALIDATE_GLOBAL_STATS });
     }, [dispatch]),
 
-    // Cache de concursos finalizados
+    // Cache de retos finalizados
     clearFinishedContestsCache: useCallback(() => {
-      console.log("🧹 Limpiando caché de concursos finalizados");
+      console.log("🧹 Limpiando caché de retos finalizados");
       dispatch({ type: actions.CLEAR_FINISHED_CONTESTS_CACHE });
     }, [dispatch]),
     
@@ -3612,20 +3612,20 @@ export function GlobalAppProvider({ children }) {
   );
 }
 
-// Función para determinar si un concurso es de prueba
+// Función para determinar si un reto es de prueba
 const isTestContest = (contest) => {
   if (!contest?.title) return false;
   const title = contest.title.toLowerCase();
   return title.includes('test') || title.includes('prueba') || title.includes('demo');
 };
 
-// Función para encontrar el concurso actual con lógica híbrida
+// Función para encontrar el reto actual con lógica híbrida
 const findCurrentContest = (contests) => {
   if (!contests || contests.length === 0) return null;
   
   const now = new Date();
   
-  // Separar concursos de prueba y producción
+  // Separar retos de prueba y producción
   const testContests = contests.filter(contest => 
     isTestContest(contest) && contest.finalized_at === null
   );
@@ -3640,18 +3640,18 @@ const findCurrentContest = (contests) => {
   if (testContests.length > 0) {
     const current = testContests
       .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
-    console.log(`🎭 Usando concurso de prueba: "${current.title}"`);
+    console.log(`🎭 Usando reto de prueba: "${current.title}"`);
     return current;
   }
   
   // PRIORIDAD 2: Concursos de producción (por fechas)
   if (productionContests.length > 0) {
-    // Buscar concursos que deberían estar activos ahora
+    // Buscar retos que deberían estar activos ahora
     const activeNow = productionContests.filter(contest => {
       const submissionDeadline = new Date(contest.submission_deadline);
       const votingDeadline = new Date(contest.voting_deadline);
       
-      // El concurso está activo si aún no ha terminado la votación
+      // El reto está activo si aún no ha terminado la votación
       return now <= votingDeadline;
     });
     
@@ -3659,18 +3659,18 @@ const findCurrentContest = (contests) => {
       // Ordenar por fecha de submission (el que debería empezar primero)
       const current = activeNow
         .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
-      console.log(`🏗️ Usando concurso de producción: "${current.title}"`);
+      console.log(`🏗️ Usando reto de producción: "${current.title}"`);
       return current;
     }
     
-    // Si no hay concursos activos por fecha, usar el más reciente cronológicamente
+    // Si no hay retos activos por fecha, usar el más reciente cronológicamente
     const current = productionContests
       .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
-    console.log(`🏗️ Usando concurso de producción (fallback): "${current.title}"`);
+    console.log(`🏗️ Usando reto de producción (fallback): "${current.title}"`);
     return current;
   }
   
-  // FALLBACK: Cualquier concurso disponible
+  // FALLBACK: Cualquier reto disponible
   const fallback = contests.find(contest => 
     contest.status === "active" || 
     contest.status === "submission" || 
@@ -3678,19 +3678,19 @@ const findCurrentContest = (contests) => {
   ) || contests[0] || null;
   
   if (fallback) {
-    console.log(`🔄 Usando concurso fallback: "${fallback.title}"`);
+    console.log(`🔄 Usando reto fallback: "${fallback.title}"`);
   }
   
   return fallback;
 };
 
-// Función para encontrar el siguiente concurso en la cola
+// Función para encontrar el siguiente reto en la cola
 const findNextContest = (contests, currentContest) => {
   if (!contests || contests.length === 0) return null;
   
   const now = new Date();
   
-  // Filtrar concursos que no sean el actual y que no estén finalizados
+  // Filtrar retos que no sean el actual y que no estén finalizados
   const availableContests = contests.filter(contest => 
     contest.id !== currentContest?.id && 
     !contest.finalized_at &&
@@ -3699,38 +3699,38 @@ const findNextContest = (contests, currentContest) => {
   
   if (availableContests.length === 0) return null;
   
-  // Separar concursos de prueba y producción
+  // Separar retos de prueba y producción
   const testContests = availableContests.filter(contest => isTestContest(contest));
   const productionContests = availableContests.filter(contest => !isTestContest(contest));
   
-  // Si el concurso actual es de prueba, buscar el siguiente de prueba o el siguiente de producción
+  // Si el reto actual es de prueba, buscar el siguiente de prueba o el siguiente de producción
   if (currentContest && isTestContest(currentContest)) {
-    // Priorizar siguiente concurso de prueba
+    // Priorizar siguiente reto de prueba
     if (testContests.length > 0) {
       const next = testContests
         .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
-      console.log(`🎭 Siguiente concurso de prueba: "${next.title}"`);
+      console.log(`🎭 Siguiente reto de prueba: "${next.title}"`);
       return next;
     }
     
-    // Fallback a concurso de producción
+    // Fallback a reto de producción
     if (productionContests.length > 0) {
       const next = productionContests
         .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))[0];
-      console.log(`🏗️ Siguiente concurso de producción (desde prueba): "${next.title}"`);
+      console.log(`🏗️ Siguiente reto de producción (desde prueba): "${next.title}"`);
       return next;
     }
   }
   
-  // Para concursos de producción, buscar el siguiente concurso de producción
+  // Para retos de producción, buscar el siguiente reto de producción
   if (productionContests.length > 0) {
-    // Buscar el siguiente concurso por orden cronológico (submission_deadline)
+    // Buscar el siguiente reto por orden cronológico (submission_deadline)
     const next = productionContests
       .sort((a, b) => new Date(a.submission_deadline) - new Date(b.submission_deadline))
       .find(contest => new Date(contest.submission_deadline) > new Date(currentContest?.submission_deadline || 0));
     
     if (next) {
-      console.log(`📅 Siguiente concurso por orden cronológico: "${next.title}"`);
+      console.log(`📅 Siguiente reto por orden cronológico: "${next.title}"`);
       return next;
     }
     
@@ -3739,12 +3739,12 @@ const findNextContest = (contests, currentContest) => {
       .sort((a, b) => new Date(b.submission_deadline) - new Date(a.submission_deadline))[0];
     
     if (fallbackNext) {
-      console.log(`🔄 Siguiente concurso (fallback): "${fallbackNext.title}"`);
+      console.log(`🔄 Siguiente reto (fallback): "${fallbackNext.title}"`);
       return fallbackNext;
     }
   }
   
-  console.log("🔍 No se encontró siguiente concurso");
+  console.log("🔍 No se encontró siguiente reto");
   return null;
 };
 

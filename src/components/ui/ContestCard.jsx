@@ -13,13 +13,13 @@ const ContestCard = ({
 }) => {
   if (!contest) return null;
 
-  // Estado para expansión (solo para siguiente concurso)
+  // Estado para expansión (solo para siguiente reto)
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Determinar el tipo de botones según la fase
   const getButtons = () => {
     if (isNext) {
-      // Concurso siguiente (siempre en fase submission)
+      // Reto siguiente (siempre en fase submission)
       const buttonClass = isEnabled
         ? "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-dark-700 transition-all duration-300"
         : "inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-400 dark:text-dark-500 font-medium cursor-not-allowed";
@@ -36,7 +36,7 @@ const ContestCard = ({
             showDescription={false}
             className={`${isEnabled ? "" : "opacity-50 cursor-not-allowed"} flex-1 min-w-0`}
             contestId={contest.id}
-            forcedPhase="submission" // ✅ Forzar fase submission para el próximo concurso
+            forcedPhase="submission" // ✅ Forzar fase submission para el próximo reto
             disabled={!isEnabled}
           />
 
@@ -58,7 +58,7 @@ const ContestCard = ({
         </div>
       );
     } else {
-      // Concurso actual
+      // Reto actual
       if (phase === "submission") {
         return (
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -144,7 +144,7 @@ const ContestCard = ({
     }
   };
 
-  // Determinar el color del badge según si es el siguiente concurso
+  // Determinar el color del badge según si es el siguiente reto
   const badgeClass = isNext
     ? "bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"
     : "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500";
@@ -152,9 +152,9 @@ const ContestCard = ({
   // Determinar el texto del badge
   const badgeText = isNext
     ? `${contest.month}`
-    : `Concurso de ${contest.month}`;
+    : `Reto de ${contest.month}`;
 
-  // Si es siguiente concurso, renderizar versión expandible
+  // Si es siguiente reto, renderizar versión expandible
   if (isNext) {
     return (
       <div className="bg-white/95 ring-1 ring-accent-500 dark:bg-dark-800/95 backdrop-blur-md border-2 border-indigo-200 dark:border-dark-600 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500 overflow-hidden">
@@ -213,14 +213,14 @@ const ContestCard = ({
           }`}
         >
           <div className="px-6 pb-6 space-y-6">
-            {/* Descripción del concurso (solo visible cuando está expandida) */}
+            {/* Descripción del reto (solo visible cuando está expandida) */}
             <div className="bg-gradient-to-r from-purple-50 via-white to-indigo-50 dark:from-purple-900/20 dark:via-dark-800 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-xl p-4 transition-colors duration-300">
               <p className="text-gray-700 dark:text-dark-300 md:text-lg leading-relaxed transition-colors duration-300">
                 {contest.description}
               </p>
             </div>
 
-            {/* Contador para siguiente concurso cuando esté habilitado */}
+            {/* Contador para siguiente reto cuando esté habilitado */}
             {timeLeft && isEnabled && (
               <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 dark:from-indigo-900/20 dark:via-dark-800 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
@@ -243,7 +243,7 @@ const ContestCard = ({
               </div>
             )}
 
-            {/* Mensaje para concurso siguiente */}
+            {/* Mensaje para reto siguiente */}
             <div
               className={`rounded-xl p-4 ${
                 isEnabled
@@ -266,7 +266,7 @@ const ContestCard = ({
                 >
                   {isEnabled
                     ? `¡Ya puedes escribir tu historia para ${contest.month}!`
-                    : `Próximo concurso: ${contest.month}. Se activará cuando empiece la votación actual.`}
+                    : `Próximo reto: ${contest.month}. Se activará cuando empiece la votación actual.`}
                 </span>
               </div>
             </div>
@@ -279,7 +279,7 @@ const ContestCard = ({
     );
   }
 
-  // Renderizado normal para concurso actual
+  // Renderizado normal para reto actual
   return (
     <div className="bg-white/95 dark:bg-dark-800/95 ring-1 ring-accent-500 backdrop-blur-md border-2 border-indigo-200 dark:border-dark-600 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500">
       <div className="mb-4">
@@ -299,7 +299,7 @@ const ContestCard = ({
         {contest.description}
       </p>
 
-      {/* Contador solo para concurso actual */}
+      {/* Contador solo para reto actual */}
       {timeLeft && (
         <div className="bg-gradient-to-r from-indigo-50 via-white to-purple-50 dark:from-indigo-900/20 dark:via-dark-800 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 inline-flex items-center gap-4 shadow-lg hover:shadow-xl transition-all duration-300 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">

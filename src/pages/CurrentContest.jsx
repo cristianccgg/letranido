@@ -90,7 +90,7 @@ const CurrentContest = () => {
       return id;
     }
 
-    // Solo si no hay ID, usar el concurso actual por defecto
+    // Solo si no hay ID, usar el reto actual por defecto
     if (currentContest?.id) {
       return currentContest.id;
     }
@@ -131,13 +131,13 @@ const CurrentContest = () => {
       try {
         let contestData;
 
-        // 1. Obtener datos del concurso
+        // 1. Obtener datos del reto
         if (contestToLoad) {
           try {
             contestData = await getContestById(contestToLoad);
           } catch (err) {
-            console.error("❌ Error obteniendo concurso:", err);
-            setError("Concurso no encontrado");
+            console.error("❌ Error obteniendo reto:", err);
+            setError("Reto no encontrado");
             setContest(null);
             return;
           }
@@ -145,7 +145,7 @@ const CurrentContest = () => {
           if (contests.length > 0) {
             contestData = contests[0];
           } else {
-            setError("No hay concursos disponibles");
+            setError("No hay retos disponibles");
             setContest(null);
             return;
           }
@@ -163,7 +163,7 @@ const CurrentContest = () => {
           blindVoting: isBlindVoting,
         });
       } catch (err) {
-        console.error("💥 Error general cargando concurso:", err);
+        console.error("💥 Error general cargando reto:", err);
         setError("Error inesperado: " + err.message);
         setContest(null);
       }
@@ -312,7 +312,7 @@ const CurrentContest = () => {
   const reshuffleStories = useCallback(() => {
     if (!contest?.id) return;
 
-    // Eliminar órdenes guardados para este concurso
+    // Eliminar órdenes guardados para este reto
     const keys = Object.keys(localStorage);
     keys.forEach((key) => {
       if (key.startsWith(`contest_${contest.id}_random_order_`)) {
@@ -382,24 +382,24 @@ const CurrentContest = () => {
   const getShareData = () => {
     if (!contest) return null;
 
-    // Verificar si el usuario participó en este concurso
+    // Verificar si el usuario participó en este reto
     const userParticipated = userStories.some(
       (userStory) => userStory.contest_id === contest.id
     );
 
-    // URL del concurso (no de la historia específica)
+    // URL del reto (no de la historia específica)
     const contestUrl = `${window.location.origin}/contest/${contest.id}`;
 
     // Generar texto según si el usuario participó o no
     return userParticipated
       ? {
           title: `Letranido - ${contest.title}`,
-          text: `¡Participé con mi historia en el concurso "${contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
+          text: `¡Participé con mi historia en el reto "${contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
           url: contestUrl,
         }
       : {
           title: `Letranido - ${contest.title}`,
-          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Concurso activo: "${contest.title}"\n✍️ Únete como escritor:`,
+          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Reto activo: "${contest.title}"\n✍️ Únete como escritor:`,
           url: contestUrl,
         };
   };
@@ -411,7 +411,7 @@ const CurrentContest = () => {
     const phase = getContestPhase(contest);
     const now = new Date();
 
-    // 🔧 CORREGIDO: Lógica mejorada para determinar tipo de concurso
+    // 🔧 CORREGIDO: Lógica mejorada para determinar tipo de reto
     const isCurrentContest = contest.id === currentContest?.id;
     const isNextContest = contest.id === nextContest?.id;
     const isHistoricalContest = !isCurrentContest && !isNextContest;
@@ -422,8 +422,8 @@ const CurrentContest = () => {
         if (isHistoricalContest) {
           return {
             phase: "historical",
-            title: "📚 Concurso Histórico",
-            description: `Concurso de ${contest.month} - Solo lectura`,
+            title: "📚 Reto Histórico",
+            description: `Reto de ${contest.month} - Solo lectura`,
             bgColor: "bg-indigo-50",
             borderColor: "border-indigo-200",
             textColor: "text-indigo-800",
@@ -434,7 +434,7 @@ const CurrentContest = () => {
           };
         }
 
-        // 🔧 CORREGIDO: Para concursos actuales o siguientes en fase de envío, NO mostrar historias
+        // 🔧 CORREGIDO: Para retos actuales o siguientes en fase de envío, NO mostrar historias
         const submissionEnd = new Date(contest.submission_deadline);
         const daysLeft = Math.ceil(
           (submissionEnd - now) / (1000 * 60 * 60 * 24)
@@ -443,7 +443,7 @@ const CurrentContest = () => {
         return {
           phase: "submission",
           title: isNextContest
-            ? "📝 Próximo Concurso - Período de Envío"
+            ? "📝 Próximo Reto - Período de Envío"
             : "📝 Período de Envío",
           description: `Quedan ${Math.max(0, daysLeft)} días para participar`,
           bgColor: "bg-blue-50",
@@ -453,7 +453,7 @@ const CurrentContest = () => {
           buttonLink: `/write/${contest.id}`,
           showStories: false, // 🔧 IMPORTANTE: Siempre false durante envíos
           message: isNextContest
-            ? "Este concurso estará disponible para leer cuando termine el período de envío"
+            ? "Este reto estará disponible para leer cuando termine el período de envío"
             : "Las historias se mostrarán cuando inicie la votación",
         };
       }
@@ -462,8 +462,8 @@ const CurrentContest = () => {
         if (isHistoricalContest) {
           return {
             phase: "historical",
-            title: "📚 Concurso Histórico",
-            description: `Concurso de ${contest.month} - Solo lectura`,
+            title: "📚 Reto Histórico",
+            description: `Reto de ${contest.month} - Solo lectura`,
             bgColor: "bg-indigo-50",
             borderColor: "border-indigo-200",
             textColor: "text-indigo-800",
@@ -507,11 +507,11 @@ const CurrentContest = () => {
         return {
           phase: "results",
           title: isHistoricalContest
-            ? "📚 Concurso Histórico"
+            ? "📚 Reto Histórico"
             : "🏆 Resultados Finales",
           description: isHistoricalContest
-            ? `Concurso de ${contest.month} - Solo lectura`
-            : "¡Concurso finalizado! Conoce a los ganadores",
+            ? `Reto de ${contest.month} - Solo lectura`
+            : "¡Reto finalizado! Conoce a los ganadores",
           bgColor: isHistoricalContest ? "bg-indigo-50" : "bg-yellow-50",
           borderColor: isHistoricalContest
             ? "border-indigo-200"
@@ -528,8 +528,8 @@ const CurrentContest = () => {
       default:
         return {
           phase: "unknown",
-          title: "🏆 Concurso",
-          description: "Estado del concurso",
+          title: "🏆 Reto",
+          description: "Estado del reto",
           bgColor: "bg-gray-50",
           borderColor: "border-gray-200",
           textColor: "text-gray-800",
@@ -587,7 +587,7 @@ const CurrentContest = () => {
       } else if (phase === "voting") {
         deadline = new Date(contest.voting_deadline);
       } else {
-        setTimeLeft("Concurso cerrado");
+        setTimeLeft("Reto cerrado");
         return;
       }
 
@@ -621,7 +621,7 @@ const CurrentContest = () => {
       <div className="max-w-4xl mx-auto py-12">
         <div className="text-center">
           <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary-600" />
-          <p className="text-gray-600">Cargando concurso...</p>
+          <p className="text-gray-600">Cargando reto...</p>
         </div>
       </div>
     );
@@ -660,10 +660,10 @@ const CurrentContest = () => {
         <div className="text-center">
           <Trophy className="h-16 w-16 mx-auto mb-4 text-gray-400" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            No hay concursos disponibles
+            No hay retos disponibles
           </h2>
           <p className="text-gray-600 mb-6">
-            Pronto habrá nuevos concursos. ¡Mantente atento!
+            Pronto habrá nuevos retos. ¡Mantente atento!
           </p>
           <button onClick={() => navigate("/")} className="btn-primary">
             Volver al inicio
@@ -678,19 +678,19 @@ const CurrentContest = () => {
     <div className="max-w-6xl mx-auto space-y-6 overflow-hidden">
       {/* SEO Meta Tags */}
       <SEOHead
-        title={`${currentContest?.title || "Concurso Actual"} - Concurso de Escritura`}
+        title={`${currentContest?.title || "Reto Actual"} - Reto de Escritura`}
         description={
           currentContest
-            ? `Participa en "${currentContest.title}" - ${currentContest.description} | Concurso de escritura creativa en Letranido.`
-            : "Participa en el concurso actual de escritura creativa. Lee historias originales, vota por tus favoritas y únete a nuestra comunidad."
+            ? `Participa en "${currentContest.title}" - ${currentContest.description} | Reto de escritura creativa en Letranido.`
+            : "Participa en el reto actual de escritura creativa. Lee historias originales, vota por tus favoritas y únete a nuestra comunidad."
         }
-        keywords={`concurso escritura, ${currentContest?.category || "ficción"}, historias originales, votación, literatura, ${currentContest?.title || "concurso actual"}`}
+        keywords={`reto escritura, ${currentContest?.category || "ficción"}, historias originales, votación, literatura, ${currentContest?.title || "reto actual"}`}
         url="/contest/current"
         type="article"
         publishedTime={currentContest?.created_at}
       />
 
-      {/* Header del concurso - Más compacto */}
+      {/* Header del reto - Más compacto */}
       <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 dark:from-primary-900/20 dark:via-dark-800 dark:to-accent-900/20 rounded-xl p-4 md:p-6 text-center relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos sutiles - Ocultos en mobile */}
         <div className="absolute top-4 right-4 w-16 h-16 bg-primary-200 dark:bg-primary-700/30 rounded-full opacity-10 hidden md:block"></div>
@@ -700,7 +700,7 @@ const CurrentContest = () => {
           <div className="mb-3">
             <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm">
               <Calendar className="h-4 w-4 mr-2" />
-              Concurso de {contest.month}
+              Reto de {contest.month}
             </span>
           </div>
 
@@ -712,7 +712,7 @@ const CurrentContest = () => {
             {contest.description}
           </p>
 
-          {/* Stats del concurso - Dinámicas */}
+          {/* Stats del reto - Dinámicas */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm">
             {/* Historias enviadas */}
             <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
@@ -935,7 +935,7 @@ const CurrentContest = () => {
                         Aún no hay participantes
                       </h4>
                       <p className="text-gray-600 dark:text-dark-300 mb-4">
-                        ¡Sé el primero en participar en este concurso!
+                        ¡Sé el primero en participar en este reto!
                       </p>
                       {phaseInfo.buttonLink && (
                         <a href={phaseInfo.buttonLink} className="btn-primary">

@@ -64,7 +64,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       ? userStories.some((story) => story.contest_id === nextContest.id)
       : false;
 
-  // ✅ LÓGICA INTELIGENTE: ¿Puede escribir en algún concurso?
+  // ✅ LÓGICA INTELIGENTE: ¿Puede escribir en algún reto?
   const canWriteInAnyContest = () => {
     if (!isAuthenticated) return true; // Siempre puede empezar a escribir (se registrará)
 
@@ -77,7 +77,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       return true;
     }
 
-    // Si el actual está en votación y hay próximo concurso disponible, puede escribir ahí
+    // Si el actual está en votación y hay próximo reto disponible, puede escribir ahí
     if (
       currentContestPhase === "voting" &&
       nextContest &&
@@ -109,13 +109,13 @@ const Layout = ({ children, onFeedbackClick }) => {
     if (!isAuthenticated) return "Escribir";
 
     if (canWriteInAnyContest()) {
-      // Mostrar para qué concurso puede escribir
+      // Mostrar para qué reto puede escribir
       if (
         currentContest &&
         !hasUserParticipatedInCurrent &&
         currentContestPhase === "submission"
       ) {
-        return "Escribir"; // Para el concurso actual
+        return "Escribir"; // Para el reto actual
       } else if (
         currentContestPhase === "voting" &&
         nextContest &&
@@ -142,7 +142,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       if (currentContest && currentContestPhase === "submission") {
         return { disabled: false, href: `/write/${currentContest.id}` };
       }
-      // Si el actual está en votación y hay próximo concurso disponible, dirigir ahí
+      // Si el actual está en votación y hay próximo reto disponible, dirigir ahí
       else if (currentContestPhase === "voting" && nextContest) {
         return { disabled: false, href: `/write/${nextContest.id}` };
       }
@@ -151,7 +151,7 @@ const Layout = ({ children, onFeedbackClick }) => {
     }
 
     if (canWriteInAnyContest()) {
-      // Determinar a qué concurso debe ir
+      // Determinar a qué reto debe ir
       if (
         currentContest &&
         !hasUserParticipatedInCurrent &&
@@ -180,17 +180,17 @@ const Layout = ({ children, onFeedbackClick }) => {
     if (!currentContestPhase) return "Galería";
     switch (currentContestPhase) {
       case "submission":
-        return isCompactNav ? "Actual (Envío)" : "Concurso Actual (Envío)";
+        return isCompactNav ? "Actual (Envío)" : "Reto Actual (Envío)";
       case "voting":
         return isCompactNav
           ? "Actual (Votación)"
-          : "Concurso Actual (Votación)";
+          : "Reto Actual (Votación)";
       case "results":
         return isCompactNav
           ? "Actual (Resultados)"
-          : "Concurso Actual (Resultados)";
+          : "Reto Actual (Resultados)";
       default:
-        return isCompactNav ? "Actual" : "Concurso Actual";
+        return isCompactNav ? "Actual" : "Reto Actual";
     }
   };
 
@@ -244,7 +244,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           href: "/como-funciona",
           icon: BookOpen,
           description:
-            "Aprende paso a paso cómo participar en nuestros concursos",
+            "Aprende paso a paso cómo participar en nuestros retos",
         },
         {
           name: "Preguntas Frecuentes",
@@ -282,7 +282,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       href: writeButtonState.href,
     },
     {
-      name: "Concurso Actual",
+      name: "Reto Actual",
       href: "/contest/current",
     },
     // ✅ MOSTRAR HISTORIAS LIBRES TAMBIÉN PARA USUARIOS NO AUTENTICADOS (pueden leer contenido premium)
@@ -316,7 +316,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           href: "/como-funciona",
           icon: BookOpen,
           description:
-            "Aprende paso a paso cómo participar en nuestros concursos",
+            "Aprende paso a paso cómo participar en nuestros retos",
         },
         {
           name: "Preguntas Frecuentes",
@@ -541,7 +541,7 @@ const Layout = ({ children, onFeedbackClick }) => {
                       }`}
                       title={
                         !canWriteInAnyContest() && isAuthenticated
-                          ? "Ya participaste en todos los concursos disponibles"
+                          ? "Ya participaste en todos los retos disponibles"
                           : ""
                       }
                     >
@@ -888,7 +888,7 @@ const Layout = ({ children, onFeedbackClick }) => {
                       </div>
                       {!canWriteInAnyContest() && isAuthenticated && (
                         <div className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
-                          ✓ Ya participaste en todos los concursos disponibles
+                          ✓ Ya participaste en todos los retos disponibles
                         </div>
                       )}
                     </div>
@@ -1000,7 +1000,7 @@ const Layout = ({ children, onFeedbackClick }) => {
                         </span>
                         <br />
                         <span className="text-xs">
-                          Participa en concursos, gana badges y conecta con
+                          Participa en retos, gana badges y conecta con
                           otros escritores.
                         </span>
                       </div>

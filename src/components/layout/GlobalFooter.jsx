@@ -24,7 +24,7 @@ const GlobalFooter = () => {
       return {
         title: "¡Únete a Letranido!",
         subtitle: "Descubre una comunidad apasionada por la escritura creativa",
-        description: "Pronto habrá nuevos concursos. ¡Mantente atento!",
+        description: "Pronto habrá nuevos retos. ¡Mantente atento!",
         showButton: false,
       };
     }
@@ -47,7 +47,7 @@ const GlobalFooter = () => {
         };
       case "voting":
         return {
-          title: `¡Votación activa en el concurso de ${currentContest.month}!`,
+          title: `¡Votación activa en el reto de ${currentContest.month}!`,
           subtitle: isAuthenticated
             ? "Lee las historias y vota por tus favoritas"
             : "Regístrate para votar por las mejores historias",
@@ -59,14 +59,14 @@ const GlobalFooter = () => {
       case "results":
         return {
           title: `¡Felicitaciones a todos los participantes de ${currentContest.month}!`,
-          subtitle: "Gracias por hacer de este concurso un éxito",
+          subtitle: "Gracias por hacer de este reto un éxito",
           description:
             "¡Nos vemos en el próximo mes para una nueva aventura literaria!",
           showButton: false,
         };
       default:
         return {
-          title: "¡Nuevo concurso disponible!",
+          title: "¡Nuevo reto disponible!",
           subtitle: "Descubre el desafío de este mes",
           description: "Únete a nuestra comunidad de escritores creativos",
           showButton: true,

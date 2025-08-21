@@ -1,4 +1,4 @@
-// components/ui/WelcomeBanner.jsx - Banner de bienvenida para el segundo concurso
+// components/ui/WelcomeBanner.jsx - Banner de bienvenida para el segundo reto
 import { useState } from "react";
 import { X, MessageCircle, Sparkles } from "lucide-react";
 import FeedbackModal from "../modals/FeedbackModal";
@@ -33,12 +33,12 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🚀</span> ¡Segundo concurso de Letranido! Gracias por
+                    <span>🚀</span> ¡Segundo reto de Letranido! Gracias por
                     unirte a nuestra comunidad. ¿Encontraste algún error o
                     tienes sugerencias?
                   </span>
                   <span className="sm:hidden ">
-                    ¡Segundo concurso de Letranido! Repórtanos errores o
+                    ¡Segundo reto de Letranido! Repórtanos errores o
                     sugerencias
                   </span>
                 </p>

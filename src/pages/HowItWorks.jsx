@@ -29,9 +29,9 @@ const HowItWorks = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 transition-colors duration-300">
       <SEOHead
-        title="Cómo Funciona el Concurso"
-        description="Descubre paso a paso cómo participar en los concursos de Letranido: fases, cronología, reglas y sistema de votación."
-        keywords="cómo funciona, concurso escritura, fases concurso, letranido, guía participación"
+        title="Cómo Funciona el Reto"
+        description="Descubre paso a paso cómo participar en los retos de Letranido: fases, cronología, reglas y sistema de votación."
+        keywords="cómo funciona, reto escritura, fases reto, letranido, guía participación"
         url="/como-funciona"
       />
 
@@ -50,10 +50,10 @@ const HowItWorks = () => {
               <BookOpen className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight">
-              ¿Cómo Funciona el Concurso?
+              ¿Cómo Funciona el Reto?
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-dark-300 max-w-3xl mx-auto">
-              Un proceso simple, transparente y emocionante para compartir tu creatividad con nuestra comunidad en cualquier formato de concurso
+              Un proceso simple, transparente y emocionante para compartir tu creatividad con nuestra comunidad en cualquier formato de reto
             </p>
           </div>
         </div>
@@ -64,10 +64,10 @@ const HowItWorks = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-4">
-              Cronología de los Concursos
+              Cronología de los Retos
             </h2>
             <p className="text-lg text-gray-600 dark:text-dark-300 max-w-2xl mx-auto">
-              Cada concurso sigue una estructura clara que garantiza tiempo suficiente para crear, leer y votar
+              Cada reto sigue una estructura clara que garantiza tiempo suficiente para crear, leer y votar
             </p>
           </div>
 
@@ -91,11 +91,11 @@ const HowItWorks = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100">Fase de Envío</h3>
-                        <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Mayoría del período del concurso</p>
+                        <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">Mayoría del período del reto</p>
                       </div>
                     </div>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      Los escritores tienen la mayor parte del tiempo del concurso para crear y enviar sus historias basadas en el prompt. El envío cierra 3-4 días antes del final del concurso.
+                      Los escritores tienen la mayor parte del tiempo del reto para crear y enviar sus historias basadas en el prompt. El envío cierra 3-4 días antes del final del reto.
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
@@ -124,11 +124,11 @@ const HowItWorks = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100">Fase de Votación</h3>
-                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Últimos 3-4 días del concurso</p>
+                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Últimos 3-4 días del reto</p>
                       </div>
                     </div>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      La comunidad lee todas las historias enviadas y elige sus 3 favoritas durante los últimos días del concurso. También pueden dejar comentarios constructivos.
+                      La comunidad lee todas las historias enviadas y elige sus 3 favoritas durante los últimos días del reto. También pueden dejar comentarios constructivos.
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
@@ -157,7 +157,7 @@ const HowItWorks = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100">Resultados</h3>
-                        <p className="text-sm text-pink-600 dark:text-pink-400 font-medium">Al finalizar el concurso</p>
+                        <p className="text-sm text-pink-600 dark:text-pink-400 font-medium">Al finalizar el reto</p>
                       </div>
                     </div>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
@@ -186,21 +186,21 @@ const HowItWorks = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-100 mb-4">
-              Tipos de Concursos
+              Tipos de Retos
             </h2>
             <p className="text-lg text-gray-600 dark:text-dark-300 max-w-2xl mx-auto">
-              Ofrecemos diferentes formatos de concursos para adaptarnos a tu ritmo de escritura
+              Ofrecemos diferentes formatos de retos para adaptarnos a tu ritmo de escritura
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Concursos Mensuales */}
+            {/* Retos Mensuales */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-indigo-100 dark:border-dark-700 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="text-2xl">📅</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4 text-center">
-                Concursos Mensuales
+                Retos Mensuales
               </h3>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2 text-sm">
@@ -221,13 +221,13 @@ const HowItWorks = () => {
               </p>
             </div>
 
-            {/* Concursos Quincenales */}
+            {/* Retos Quincenales */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-purple-100 dark:border-dark-700 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="text-2xl">⚡</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4 text-center">
-                Concursos Quincenales
+                Retos Quincenales
               </h3>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2 text-sm">
@@ -253,13 +253,13 @@ const HowItWorks = () => {
               </div>
             </div>
 
-            {/* Concursos Semanales */}
+            {/* Retos Semanales */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-100 dark:border-dark-700 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-orange-200 dark:from-pink-800 dark:to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="text-2xl">🚀</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4 text-center">
-                Concursos Semanales
+                Retos Semanales
               </h3>
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2 text-sm">
@@ -289,7 +289,7 @@ const HowItWorks = () => {
           <div className="mt-12 text-center">
             <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6 border border-indigo-200 dark:border-dark-600">
               <p className="text-gray-700 dark:text-dark-300 mb-4">
-                <strong>Actualmente disponibles:</strong> Concursos Mensuales
+                <strong>Actualmente disponibles:</strong> Retos Mensuales
               </p>
               <p className="text-sm text-gray-600 dark:text-dark-400">
                 Estamos trabajando en nuevos formatos para ofrecerte más opciones de participación. 
@@ -320,7 +320,7 @@ const HowItWorks = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-3">1. Regístrate</h3>
               <p className="text-gray-600 dark:text-dark-300 mb-4">
-                Crea tu cuenta gratuita en Letranido para poder participar en los concursos.
+                Crea tu cuenta gratuita en Letranido para poder participar en los retos.
               </p>
               <div className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
                 ✨ ¡Es completamente gratis!
@@ -348,7 +348,7 @@ const HowItWorks = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-3">3. Escribe tu Historia</h3>
               <p className="text-gray-600 dark:text-dark-300 mb-4">
-                Crea tu historia respetando el límite de palabras. Tienes la mayor parte del tiempo del concurso para escribir y perfeccionar.
+                Crea tu historia respetando el límite de palabras. Tienes la mayor parte del tiempo del reto para escribir y perfeccionar.
               </p>
               <div className="text-sm text-pink-600 dark:text-pink-400 font-medium">
                 ⏰ Hasta 3-4 días antes del cierre
@@ -424,7 +424,7 @@ const HowItWorks = () => {
                     <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">1</span>
                     </div>
-                    <p className="text-gray-600 dark:text-dark-300">Lee todas las historias del concurso</p>
+                    <p className="text-gray-600 dark:text-dark-300">Lee todas las historias del reto</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -483,22 +483,22 @@ const HowItWorks = () => {
               {
                 id: "word-limit",
                 question: "¿Cuál es el límite de palabras?",
-                answer: "Cada concurso especifica su propio límite de palabras, típicamente entre 100 y 1,000 palabras. El límite exacto se muestra en el prompt del mes."
+                answer: "Cada reto especifica su propio límite de palabras, típicamente entre 100 y 1,000 palabras. El límite exacto se muestra en el prompt del mes."
               },
               {
                 id: "edit-story",
                 question: "¿Puedo editar mi historia después de enviarla?",
-                answer: "Sí, puedes editar tu historia libremente durante toda la fase de envío. Una vez que comience la votación (últimos 3-4 días del concurso), las historias quedan bloqueadas."
+                answer: "Sí, puedes editar tu historia libremente durante toda la fase de envío. Una vez que comience la votación (últimos 3-4 días del reto), las historias quedan bloqueadas."
               },
               {
                 id: "multiple-stories",
                 question: "¿Puedo enviar múltiples historias?",
-                answer: "Solo puedes enviar una historia por concurso. Esto garantiza que todos los participantes tengan las mismas oportunidades."
+                answer: "Solo puedes enviar una historia por reto. Esto garantiza que todos los participantes tengan las mismas oportunidades."
               },
               {
                 id: "late-submission",
                 question: "¿Qué pasa si envío mi historia tarde?",
-                answer: "Las historias enviadas después del cierre de la fase de envío no podrán participar en ese concurso. Tendrás que esperar al siguiente concurso para participar."
+                answer: "Las historias enviadas después del cierre de la fase de envío no podrán participar en ese reto. Tendrás que esperar al siguiente reto para participar."
               },
               {
                 id: "voting-criteria",
@@ -541,7 +541,7 @@ const HowItWorks = () => {
                 ¿Listo para Participar?
               </h2>
               <p className="text-xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto">
-                Únete a nuestra comunidad de escritores y participa en nuestros concursos. ¡Tu historia podría ser la próxima ganadora!
+                Únete a nuestra comunidad de escritores y participa en nuestros retos. ¡Tu historia podría ser la próxima ganadora!
               </p>
             </div>
 
