@@ -75,7 +75,7 @@ const FAQ = () => {
                     </strong>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       La comunidad lee todas las historias y elige sus 3
-                      favoritas.
+                      favoritas. El período puede extenderse según el número de participaciones.
                     </p>
                   </div>
                 </div>
@@ -166,7 +166,7 @@ const FAQ = () => {
               <p>
                 Una vez que termine la fase de envío y comience la votación, las
                 historias quedan bloqueadas para mantener la integridad del
-                reto.
+                reto. La duración de la votación se adapta al número de historias recibidas.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -599,7 +599,9 @@ const FAQ = () => {
             <div className="space-y-3">
               <p>
                 Durante la fase de votación, los miembros de la comunidad pueden
-                leer todas las historias enviadas y elegir sus favoritas.
+                leer todas las historias enviadas y elegir sus favoritas. La duración
+                de esta fase se ajusta según el número de participaciones para dar
+                tiempo suficiente a la lectura.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
@@ -652,9 +654,10 @@ const FAQ = () => {
           answer: (
             <p>
               Los resultados se anuncian automáticamente al final del período de
-              votación, típicamente el último día del mes. Los ganadores reciben
-              notificaciones especiales y sus badges se actualizan
-              inmediatamente.
+              votación. Dependiendo del número de participaciones, esto puede ser
+              al final del mes o extenderse algunos días para garantizar tiempo
+              suficiente de lectura. Los ganadores reciben notificaciones especiales
+              y sus badges se actualizan inmediatamente.
             </p>
           ),
         },

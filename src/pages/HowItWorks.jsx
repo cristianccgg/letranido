@@ -95,7 +95,7 @@ const HowItWorks = () => {
                       </div>
                     </div>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      Los escritores tienen la mayor parte del tiempo del reto para crear y enviar sus historias basadas en el prompt. El envío cierra 3-4 días antes del final del reto.
+                      Los escritores tienen la mayor parte del tiempo del reto para crear y enviar sus historias basadas en el prompt. El envío típicamente cierra días antes del final del mes.
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
@@ -124,11 +124,11 @@ const HowItWorks = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100">Fase de Votación</h3>
-                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Últimos 3-4 días del reto</p>
+                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Período de votación extendido</p>
                       </div>
                     </div>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      La comunidad lee todas las historias enviadas y elige sus 3 favoritas durante los últimos días del reto. También pueden dejar comentarios constructivos.
+                      La comunidad lee todas las historias enviadas y elige sus 3 favoritas durante un período dedicado a la votación. Dependiendo del número de participaciones, puede extenderse más allá del mes para dar tiempo suficiente para leer todas las historias.
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
@@ -213,7 +213,7 @@ const HowItWorks = () => {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  <span className="text-gray-600 dark:text-dark-300">Votación: 4-6 días</span>
+                  <span className="text-gray-600 dark:text-dark-300">Votación: Variable según participación</span>
                 </div>
               </div>
               <p className="text-gray-600 dark:text-dark-300 text-sm text-center">
@@ -351,7 +351,7 @@ const HowItWorks = () => {
                 Crea tu historia respetando el límite de palabras. Tienes la mayor parte del tiempo del reto para escribir y perfeccionar.
               </p>
               <div className="text-sm text-pink-600 dark:text-pink-400 font-medium">
-                ⏰ Hasta 3-4 días antes del cierre
+                ⏰ Hasta que inicie la fase de votación
               </div>
             </div>
 
@@ -488,7 +488,7 @@ const HowItWorks = () => {
               {
                 id: "edit-story",
                 question: "¿Puedo editar mi historia después de enviarla?",
-                answer: "Sí, puedes editar tu historia libremente durante toda la fase de envío. Una vez que comience la votación (últimos 3-4 días del reto), las historias quedan bloqueadas."
+                answer: "Sí, puedes editar tu historia libremente durante toda la fase de envío. Una vez que comience la fase de votación, las historias quedan bloqueadas para garantizar equidad en el proceso."
               },
               {
                 id: "multiple-stories",
