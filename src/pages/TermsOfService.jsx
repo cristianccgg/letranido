@@ -8,8 +8,8 @@ const TermsOfService = () => {
       {/* SEO Meta Tags */}
       <SEOHead
         title="Términos de Servicio"
-        description="Lee los términos de servicio de Letranido. Conoce las reglas sobre originalidad, derechos de autor, concursos y el comportamiento esperado en nuestra comunidad de escritores."
-        keywords="términos de servicio, reglas, derechos de autor, originalidad, concursos escritura, comunidad escritores, letranido"
+        description="Lee los términos de servicio de Letranido. Conoce las reglas sobre originalidad, derechos de autor, retos y el comportamiento esperado en nuestra comunidad de escritores."
+        keywords="términos de servicio, reglas, derechos de autor, originalidad, retos escritura, comunidad escritores, letranido"
         url="/terms"
       />
 
@@ -42,8 +42,8 @@ const TermsOfService = () => {
           <p>
             Estos términos constituyen un acuerdo legal entre tú ("Usuario") y
             Letranido ("Nosotros", "Plataforma"). Nos reservamos el derecho de
-            modificar estos términos en cualquier momento. Tu uso continuado
-            de la plataforma constituye aceptación de los términos actualizados.
+            modificar estos términos en cualquier momento. Tu uso continuado de
+            la plataforma constituye aceptación de los términos actualizados.
           </p>
         </section>
 
@@ -93,14 +93,16 @@ const TermsOfService = () => {
             Puedes usar herramientas de apoyo que no generen contenido por ti:
           </p>
           <ul className="list-disc pl-6 mb-4">
-            <li>✅ Correctores ortográficos y gramaticales (Grammarly, etc.)</li>
+            <li>
+              ✅ Correctores ortográficos y gramaticales (Grammarly, etc.)
+            </li>
             <li>✅ Diccionarios y sinónimos</li>
             <li>✅ Herramientas de investigación y referencia</li>
             <li>✅ Editores de texto y procesadores de palabras</li>
           </ul>
           <p>
             <em>
-              Enfoque: Que las palabras y la creatividad sean tuyas, 
+              Enfoque: Que las palabras y la creatividad sean tuyas,
               independientemente de las herramientas de apoyo que uses.
             </em>
           </p>
@@ -113,7 +115,7 @@ const TermsOfService = () => {
             contenido. Las violaciones pueden resultar en:
           </p>
           <ul className="list-disc pl-6">
-            <li>Descalificación inmediata del concurso</li>
+            <li>Descalificación inmediata del reto</li>
             <li>Suspensión temporal o permanente de la cuenta</li>
             <li>Reporte a autoridades competentes en casos graves</li>
           </ul>
@@ -173,11 +175,11 @@ const TermsOfService = () => {
           </ul>
         </section>
 
-        {/* 4. Concursos y Votación */}
+        {/* 4. retos y Votación */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Trophy className="h-6 w-6 mr-2 text-yellow-600" />
-            4. Reglas de Concursos
+            4. Reglas de retos
           </h2>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -188,7 +190,7 @@ const TermsOfService = () => {
               Usuarios mayores de 13 años (menores requieren supervisión
               parental)
             </li>
-            <li>Una participación por persona por concurso</li>
+            <li>Una participación por persona por reto</li>
             <li>Cumplimiento de límites de palabras establecidos</li>
           </ul>
 
@@ -217,9 +219,7 @@ const TermsOfService = () => {
           </h3>
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
             <p className="text-blue-800 dark:text-blue-200 mb-3">
-              <strong>
-                Al ganar un concurso y autorizar el uso promocional:
-              </strong>
+              <strong>Al ganar un reto y autorizar el uso promocional:</strong>
             </p>
             <ul className="text-blue-800 dark:text-blue-200 space-y-2 text-sm">
               <li>
@@ -241,7 +241,7 @@ const TermsOfService = () => {
               </li>
               <li>
                 • <strong>Uso limitado:</strong> Solo para promoción de
-                Letranido y reconocimiento del concurso, no para uso comercial
+                Letranido y reconocimiento del reto, no para uso comercial
                 independiente
               </li>
             </ul>
@@ -303,7 +303,7 @@ const TermsOfService = () => {
             <li>Mantener la plataforma gratuita para todos los usuarios</li>
             <li>Mejorar la funcionalidad y experiencia de usuario</li>
             <li>Crear contenido educativo de calidad</li>
-            <li>Organizar concursos y eventos de la comunidad</li>
+            <li>Organizar retos y eventos de la comunidad</li>
           </ul>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -496,15 +496,31 @@ const TermsOfService = () => {
               <strong>⚠️ Responsabilidad del Usuario:</strong>
             </p>
             <ul className="text-orange-800 dark:text-orange-200 text-sm space-y-1">
-              <li>• <strong>NO garantizamos</strong> la preservación permanente del contenido</li>
-              <li>• <strong>Podemos eliminar contenido</strong> sin previo aviso por violaciones o mantenimiento</li>
-              <li>• <strong>Es tu responsabilidad</strong> mantener copias de respaldo de tus historias</li>
-              <li>• <strong>Problemas técnicos</strong> pueden resultar en pérdida de datos</li>
-              <li>• <strong>No somos responsables</strong> por contenido perdido o eliminado</li>
+              <li>
+                • <strong>NO garantizamos</strong> la preservación permanente
+                del contenido
+              </li>
+              <li>
+                • <strong>Podemos eliminar contenido</strong> sin previo aviso
+                por violaciones o mantenimiento
+              </li>
+              <li>
+                • <strong>Es tu responsabilidad</strong> mantener copias de
+                respaldo de tus historias
+              </li>
+              <li>
+                • <strong>Problemas técnicos</strong> pueden resultar en pérdida
+                de datos
+              </li>
+              <li>
+                • <strong>No somos responsables</strong> por contenido perdido o
+                eliminado
+              </li>
             </ul>
           </div>
           <p>
-            <strong>Recomendación:</strong> Guarda copias locales de todas tus historias antes de publicar.
+            <strong>Recomendación:</strong> Guarda copias locales de todas tus
+            historias antes de publicar.
           </p>
         </section>
 

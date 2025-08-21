@@ -51,8 +51,8 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Cada mes lanzamos un nuevo reto con un prompt único. El
-                proceso tiene tres fases:
+                Cada mes lanzamos un nuevo reto con un prompt único. El proceso
+                tiene tres fases:
               </p>
               <div className="grid gap-3">
                 <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
@@ -121,8 +121,8 @@ const FAQ = () => {
           answer: (
             <div className="space-y-3">
               <p>
-                Sí, cada reto tiene un límite de palabras específico que
-                depende de la temática y el tipo de reto.
+                Sí, cada reto tiene un límite de palabras específico que depende
+                de la temática y el tipo de reto.
               </p>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <ul className="space-y-2">
@@ -131,8 +131,8 @@ const FAQ = () => {
                     palabras
                   </li>
                   <li>
-                    <strong>Puede variar:</strong> Algunos retos pueden
-                    tener límites diferentes
+                    <strong>Puede variar:</strong> Algunos retos pueden tener
+                    límites diferentes
                   </li>
                   <li>
                     <strong>Siempre especificado:</strong> El límite exacto se
@@ -158,8 +158,8 @@ const FAQ = () => {
                     Sí, durante la fase de envío
                   </p>
                   <p className="text-sm text-green-600">
-                    Puedes editar tu historia libremente mientras el reto
-                    esté en fase de envío.
+                    Puedes editar tu historia libremente mientras el reto esté
+                    en fase de envío.
                   </p>
                 </div>
               </div>
@@ -678,9 +678,9 @@ const FAQ = () => {
                 </p>
               </div>
               <p>
-                Puedes participar en retos, votar, comentar, y ganar badges
-                sin ningún costo. Nuestro objetivo es mantener la escritura
-                creativa accesible para todos.
+                Puedes participar en retos, votar, comentar, y ganar badges sin
+                ningún costo. Nuestro objetivo es mantener la escritura creativa
+                accesible para todos.
               </p>
             </div>
           ),
@@ -938,7 +938,7 @@ const FAQ = () => {
           >
             <Trophy className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Concurso Actual
+              Reto Actual
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Ver el reto del mes en curso

@@ -173,7 +173,7 @@ const PrivacyPolicy = () => {
           <ul className="list-disc pl-6 mb-4">
             <li>Permitir login y acceso a tu cuenta</li>
             <li>Mostrar tu contenido en la plataforma</li>
-            <li>Facilitar votación y participación en concursos</li>
+            <li>Facilitar votación y participación en retos</li>
             <li>Prevenir spam, fraude y comportamiento abusivo</li>
             <li>Generar estadísticas agregadas y anónimas</li>
             <li>
@@ -191,7 +191,7 @@ const PrivacyPolicy = () => {
               términos
             </li>
             <li>
-              <strong>Opcionales:</strong> Notificaciones de concursos (puedes
+              <strong>Opcionales:</strong> Notificaciones de retos (puedes
               desactivar)
             </li>
             <li>
@@ -346,7 +346,7 @@ const PrivacyPolicy = () => {
             </li>
             <li>
               <strong>Se anonimiza:</strong> Historias publicadas (para
-              preservar concursos)
+              preservar retos)
             </li>
             <li>
               <strong>Se elimina completamente:</strong> Borradores, votos,
@@ -463,7 +463,8 @@ const PrivacyPolicy = () => {
                 consultas no legales)
               </p>
               <p>
-                <strong>Tiempo de respuesta:</strong> Dentro de un plazo razonable
+                <strong>Tiempo de respuesta:</strong> Dentro de un plazo
+                razonable
               </p>
               <p>
                 <strong>Idiomas:</strong> Español, Inglés

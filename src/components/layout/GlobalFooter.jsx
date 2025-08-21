@@ -225,7 +225,7 @@ const GlobalFooter = () => {
                     to="/contest/current"
                     className="hover:text-white transition-colors"
                   >
-                    Concurso actual
+                    Reto actual
                   </Link>
                 </li>
                 <li>
@@ -233,15 +233,7 @@ const GlobalFooter = () => {
                     to="/history"
                     className="hover:text-white transition-colors"
                   >
-                    Concursos pasados
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/profile/:userId"
-                    className="hover:text-white transition-colors"
-                  >
-                    Mi perfil
+                    Retos pasados
                   </Link>
                 </li>
               </ul>

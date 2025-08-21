@@ -151,7 +151,7 @@ const CommunityGuidelines = () => {
             <ul className="text-blue-800 dark:text-blue-200 text-sm space-y-1">
               <li>• Mostrar tu historia en la plataforma</li>
               <li>• Permitir que otros usuarios la lean y voten</li>
-              <li>• Incluirla en rankings y concursos</li>
+              <li>• Incluirla en rankings y retos</li>
               <li>
                 • Mencionar historias ganadoras en redes sociales (con tu
                 crédito)
