@@ -32,6 +32,7 @@ import DataCleanupPanel from "./DataCleanupPanel";
 import ReportsPanel from "./ReportsPanel";
 import EmailManager from "./EmailManager";
 import MaintenanceControl from "./MaintenanceControl";
+import ModerationDashboard from "./ModerationDashboard";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1378,6 +1379,9 @@ const ContestAdminPanel = () => {
 
       {/* Panel de test de emails */}
       <EmailManager />
+
+      {/* Panel de moderación automática */}
+      <ModerationDashboard />
 
       {/* Modal de simulación de ganadores */}
       {showPreviewModal && selectedContest && simulatedWinners && (

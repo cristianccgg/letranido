@@ -16,6 +16,7 @@ import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
 import SEOHead from "../components/SEO/SEOHead";
+import { useGlobalToast } from "../contexts/ToastContext";
 
 const WritePrompt = () => {
   const navigate = useNavigate();
@@ -47,6 +48,9 @@ const WritePrompt = () => {
 
   // ✅ GOOGLE ANALYTICS
   const { trackEvent } = useGoogleAnalytics();
+
+  // ✅ TOAST NOTIFICATIONS
+  const { showSuccessToast } = useGlobalToast();
 
   // ✅ PREMIUM FEATURES
   const { getWordLimit, checkWordLimit, isPremium, checkMonthlyContestLimit, getUpgradeMessage } = usePremiumFeatures();
@@ -418,9 +422,13 @@ const WritePrompt = () => {
           // Finalizar sesión de escritura con éxito
           endWritingSession("completed", wordCount, title);
 
-          // Redirigir al concurso específico con mensaje
+          // Redirigir inmediatamente al concurso con información para mostrar toast
           navigate(`/contest/${contestToUse.id}`, {
-            state: { message: result.message },
+            state: { 
+              message: result.message,
+              showSuccessToast: true,
+              storyTitle: title.trim()
+            },
           });
         } else {
           alert(result.error);

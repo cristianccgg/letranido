@@ -9,12 +9,14 @@ import {
 import { lazy, Suspense, useState } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { useGoogleAnalytics } from "./hooks/useGoogleAnalytics";
 import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
-import { useToast, ToastContainer } from "./components/ui/Toast";
+import { ToastContainer } from "./components/ui/Toast";
+import { useGlobalToast } from "./contexts/ToastContext";
 import SocialContainer from "./components/ui/SocialContainer";
 import FeedbackModal from "./components/modals/FeedbackModal";
 import { Analytics } from "@vercel/analytics/react";
@@ -61,7 +63,7 @@ function AppContent() {
     activatedAt,
     loading: maintenanceLoading,
   } = useMaintenanceMode();
-  const { toasts, removeToast } = useToast();
+  const { toasts, removeToast } = useGlobalToast();
 
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
@@ -351,7 +353,9 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <GlobalAppProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </GlobalAppProvider>
       </ThemeProvider>
     </ErrorBoundary>

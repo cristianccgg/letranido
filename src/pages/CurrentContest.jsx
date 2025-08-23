@@ -1,6 +1,6 @@
 // pages/CurrentContest.jsx - VERSIÓN CORREGIDA Y LIMPIA
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Trophy,
   PenTool,
@@ -21,6 +21,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
+import { useGlobalToast } from "../contexts/ToastContext";
 import SEOHead from "../components/SEO/SEOHead";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -35,6 +36,7 @@ import { preloadUsersBadges } from "../hooks/useBadgesCache";
 const CurrentContest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // ✅ TODO DESDE EL CONTEXTO GLOBAL
   const {
@@ -58,6 +60,10 @@ const CurrentContest = () => {
     loadGalleryStories,
     openAuthModal,
   } = useGlobalApp();
+
+  // ✅ TOAST NOTIFICATIONS
+  const { showSuccessToast } = useGlobalToast();
+  const [toastShown, setToastShown] = useState(false);
 
   // ✅ LOCAL STATE PARA CURRENTCONTEST - USA GALLERYSTORIES DEL CONTEXTO
   const [contest, setContest] = useState(null);
@@ -96,6 +102,29 @@ const CurrentContest = () => {
     }
     return null;
   }, [id, currentContest?.id]);
+
+  // ✅ DETECTAR TOAST DE ÉXITO DESDE WRITEPROPT
+  useEffect(() => {
+    if (location.state?.showSuccessToast && location.state?.storyTitle && !toastShown) {
+      // Delay pequeño para que la página se cargue
+      const timer = setTimeout(() => {
+        showSuccessToast(
+          "¡Historia Enviada!",
+          "Guardada exitosamente en el concurso",
+          location.state.storyTitle,
+          { duration: 9000 }
+        );
+        
+        // Marcar como mostrado para evitar loops
+        setToastShown(true);
+        
+        // Limpiar el state para evitar que se muestre de nuevo
+        window.history.replaceState({}, document.title, location.pathname);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location.state?.showSuccessToast, location.state?.storyTitle, toastShown, showSuccessToast, location.pathname]);
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
