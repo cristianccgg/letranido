@@ -574,9 +574,9 @@ function generateReminderHTML(contest: any, daysLeft: number): string {
         
         <!-- Contador de urgencia -->
         <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #8b5cf6; border-radius: 16px; padding: 28px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);">
-          <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <div style="background: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
             <h3 style="margin: 0; font-size: 32px; font-weight: bold;">${daysLeft}</h3>
-            <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">${daysLeft === 1 ? "DÍA RESTANTE" : "DÍAS RESTANTES"}</p>
+            <p style="margin: 5px 0 0 0; font-size: 14px; color: rgba(255,255,255,0.9);">${daysLeft === 1 ? "DÍA RESTANTE" : "DÍAS RESTANTES"}</p>
           </div>
           <h3 style="color: #1e293b; margin: 0 0 10px 0; font-size: 20px; font-weight: bold;">"${contest.title}"</h3>
           <p style="color: #6366f1; margin: 0; font-size: 16px; font-weight: 600;">Cierre: ${deadline}</p>
