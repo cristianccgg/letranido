@@ -482,8 +482,8 @@ function calculateDaysLeft(deadlineString: string): number {
   // Calcular diferencia en milisegundos
   const diffMs = deadlineUTC.getTime() - nowInColombia.getTime();
   
-  // Convertir a días y redondear hacia arriba
-  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  // Convertir a días y redondear hacia abajo (días completos)
+  const daysLeft = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   
   return Math.max(0, daysLeft); // No devolver números negativos
 }
