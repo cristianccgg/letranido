@@ -40,6 +40,27 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   // Reset form only when mode actually changes, track previous mode
   const [prevMode, setPrevMode] = useState(mode);
   
+  // Prevenir scroll del body cuando modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      // Prevenir scroll en iOS
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    }
+    
+    return () => {
+      // Restaurar scroll cuando se cierre
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+    };
+  }, [isOpen]);
+  
   useEffect(() => {
     // Solo limpiar si realmente cambió el modo
     if (mode !== prevMode) {
@@ -181,8 +202,10 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   // console.log("✅ AuthModal renderizando - isLoading:", isLoading, "validationErrors:", validationErrors, "serverErrors:", serverErrors);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md mx-auto my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex">
+      <div className="flex-1 overflow-y-auto py-4 px-4 flex items-start justify-center min-h-full">
+        <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md mx-auto my-4 max-h-[calc(100vh-2rem)] overflow-y-auto"
+             style={{ minHeight: 'fit-content' }}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-dark-600 flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100">
@@ -501,6 +524,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
             </div>
           )}
         </form>
+        </div>
       </div>
     </div>
   );
