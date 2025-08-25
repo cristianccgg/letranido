@@ -181,23 +181,25 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
   // console.log("✅ AuthModal renderizando - isLoading:", isLoading, "validationErrors:", validationErrors, "serverErrors:", serverErrors);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md mx-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md mx-auto my-8 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-dark-600">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-dark-600 flex-shrink-0">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100">
             {mode === "login" ? "Iniciar Sesión" : mode === "register" ? "Crear Cuenta" : "Recuperar Contraseña"}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors touch-manipulation"
+            disabled={isLoading}
+            aria-label="Cerrar modal"
           >
             <X className="h-5 w-5 text-gray-500 dark:text-dark-400" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           {/* Success Message for Reset Password */}
           {mode === "reset-password" && resetPasswordSuccess && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
@@ -357,7 +359,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
           {/* Email notifications consent (only for register) */}
           {mode === "register" && (
-            <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
+            <div className="flex items-start space-x-3 p-3 sm:p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
               <input
                 type="checkbox"
                 id="emailNotifications"
@@ -379,7 +381,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
 
           {/* Terms and Privacy consent (only for register) - REQUIRED */}
           {mode === "register" && (
-            <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
+            <div className="flex items-start space-x-3 p-3 sm:p-4 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg">
               <input
                 type="checkbox"
                 id="termsAccepted"
