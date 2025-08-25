@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Send, AlertCircle, Shield, FileText, BookOpen } from "lucide-react";
 
 const SubmissionConfirmationModal = ({
@@ -16,6 +16,27 @@ const SubmissionConfirmationModal = ({
   const [confirmOriginal, setConfirmOriginal] = useState(false);
   const [shareWinnerContent, setShareWinnerContent] = useState(false);
   const [acknowledgePublicRisk, setAcknowledgePublicRisk] = useState(false);
+
+  // Prevenir scroll del body cuando modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      // Prevenir scroll en iOS
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    }
+    
+    return () => {
+      // Restaurar scroll cuando se cierre
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -35,9 +56,12 @@ const SubmissionConfirmationModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[95vh] sm:max-h-[85vh] overflow-hidden ring-1 ring-slate-200 dark:ring-gray-600" onClick={(e) => e.stopPropagation()}>
-        <div className="overflow-y-auto max-h-[calc(95vh-100px)] sm:max-h-[calc(85vh-120px)]">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex" onClick={onClose}>
+      <div className="flex-1 overflow-y-auto py-4 px-2 sm:px-4 flex items-start justify-center min-h-full">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full my-4 max-h-[calc(100vh-2rem)] overflow-hidden ring-1 ring-slate-200 dark:ring-gray-600"
+             onClick={(e) => e.stopPropagation()}
+             style={{ minHeight: 'fit-content' }}>
+        <div className="overflow-y-auto max-h-[calc(100vh-8rem)]">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white p-4 rounded-t-2xl">
             <div className="flex items-center justify-between">
@@ -47,8 +71,9 @@ const SubmissionConfirmationModal = ({
               </h2>
               <button
                 onClick={onClose}
-                className="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20"
+                className="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20 touch-manipulation"
                 disabled={isSubmitting}
+                aria-label="Cerrar modal"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -188,7 +213,7 @@ const SubmissionConfirmationModal = ({
 
 
         {/* Footer */}
-        <div className="border-t border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 p-3 sm:p-4 rounded-b-2xl">
+        <div className="border-t border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-700 p-3 sm:p-4 rounded-b-2xl flex-shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
@@ -221,6 +246,7 @@ const SubmissionConfirmationModal = ({
               Acepta las confirmaciones legales
             </p>
           )}
+        </div>
         </div>
       </div>
     </div>
