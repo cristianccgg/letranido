@@ -4,7 +4,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const DMCA = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900 min-h-screen">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Política DMCA - Reporte de Infracciones de Derechos de Autor"
@@ -13,13 +13,13 @@ const DMCA = () => {
         url="/dmca"
       />
       
-      <div className="prose prose-gray max-w-none">
+      <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Política DMCA
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
             Protección de Derechos de Autor en Letranido
           </p>
           <p className="text-sm text-gray-500 mt-2">
@@ -29,12 +29,12 @@ const DMCA = () => {
 
         {/* Aviso Importante */}
         <section className="mb-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-red-900 mb-4 flex items-center">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-red-900 dark:text-red-200 mb-4 flex items-center">
               <AlertTriangle className="h-6 w-6 mr-2" />
               ⚠️ AVISO IMPORTANTE
             </h2>
-            <ul className="text-red-800 space-y-2">
+            <ul className="text-red-800 dark:text-red-200 space-y-2">
               <li>
                 🚨 <strong>Solo contenido original:</strong> Letranido es una plataforma exclusivamente para contenido original
               </li>
@@ -53,7 +53,7 @@ const DMCA = () => {
 
         {/* 1. Compromiso con la Originalidad */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
             <Shield className="h-6 w-6 mr-2 text-blue-600" />
             1. Nuestro Compromiso con la Originalidad
           </h2>
@@ -63,7 +63,7 @@ const DMCA = () => {
             Cumplimos con la Digital Millennium Copyright Act (DMCA) y las leyes colombianas de derechos de autor.
           </p>
 
-          <h3 className="text-lg font-semibold mb-2">1.1 Lo que Protegemos</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">1.1 Lo que Protegemos</h3>
           <ul className="list-disc pl-6 mb-4">
             <li><strong>Contenido textual:</strong> Historias, poemas, relatos</li>
             <li><strong>Ideas expresadas:</strong> Tramas, personajes, diálogos originales</li>
@@ -71,7 +71,7 @@ const DMCA = () => {
             <li><strong>Títulos creativos:</strong> Cuando demuestran originalidad</li>
           </ul>
 
-          <h3 className="text-lg font-semibold mb-2">1.2 Lo que NO Toleramos</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">1.2 Lo que NO Toleramos</h3>
           <ul className="list-disc pl-6 mb-4">
             <li>❌ Copia directa de textos existentes</li>
             <li>❌ Parafraseo de obras protegidas</li>
@@ -94,7 +94,7 @@ const DMCA = () => {
               📧 Información de Contacto DMCA
             </h3>
             <div className="text-blue-800 space-y-2">
-              <p><strong>Email:</strong> legal@letranido.com</p>
+              <p><strong>Email:</strong> <span className="break-all">legal@letranido.com</span></p>
               <p><strong>Asunto requerido:</strong> "DMCA Takedown Notice - [Título de la obra]"</p>
               <p><strong>Respuesta garantizada en:</strong> 24-48 horas</p>
               <p><strong>Idiomas aceptados:</strong> Español, Inglés</p>
@@ -132,7 +132,7 @@ const DMCA = () => {
             3. Nuestro Proceso de Respuesta
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <h4 className="font-semibold text-red-900 mb-2">🚨 Paso 1: Evaluación Inmediata</h4>
               <p className="text-red-800 text-sm">
@@ -261,14 +261,14 @@ const DMCA = () => {
             </h3>
             <div className="text-blue-800 space-y-2">
               <p><strong>Nombre:</strong> Agente Legal Letranido</p>
-              <p><strong>Email:</strong> legal@letranido.com</p>
+              <p><strong>Email:</strong> <span className="break-all">legal@letranido.com</span></p>
               <p><strong>Ubicación:</strong> Colombia</p>
               <p><strong>Horario de atención:</strong> 24/7 para reportes urgentes</p>
               
               <div className="mt-4 pt-4 border-t border-blue-300">
                 <p className="text-blue-700 text-sm">
-                  <strong>Para consultas generales:</strong> info@letranido.com<br/>
-                  <strong>Para asuntos legales únicamente:</strong> legal@letranido.com
+                  <strong>Para consultas generales:</strong> <span className="break-all">info@letranido.com</span><br/>
+                  <strong>Para asuntos legales únicamente:</strong> <span className="break-all">legal@letranido.com</span>
                 </p>
               </div>
             </div>

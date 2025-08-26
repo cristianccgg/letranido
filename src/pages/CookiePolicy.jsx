@@ -10,15 +10,15 @@ import {
 
 const CookiePolicy = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12 dark:bg-gray-900 min-h-screen">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900 min-h-screen">
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-center gap-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-center gap-3">
             <Cookie className="h-10 w-10 text-primary-600" />
             Política de Cookies
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
             Información detallada sobre el uso de cookies en Letranido
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -33,7 +33,7 @@ const CookiePolicy = () => {
               <Shield className="h-6 w-6 mr-2" />
               Resumen: Uso Responsable de Cookies
             </h2>
-            <div className="grid md:grid-cols-2 gap-4 text-blue-800 dark:text-blue-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-800 dark:text-blue-200">
               <div>
                 <h3 className="font-semibold mb-2">✅ Lo que SÍ hacemos:</h3>
                 <ul className="text-sm space-y-1">
@@ -104,34 +104,34 @@ const CookiePolicy = () => {
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Cookie</th>
-                    <th className="text-left py-2">Propósito</th>
-                    <th className="text-left py-2">Duración</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-2 px-2">Cookie</th>
+                    <th className="text-left py-2 px-2">Propósito</th>
+                    <th className="text-left py-2 px-2">Duración</th>
                   </tr>
                 </thead>
                 <tbody className="text-gray-600 dark:text-gray-300">
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">sb-access-token</td>
-                    <td className="py-2">Autenticación de usuario</td>
-                    <td className="py-2">1 hora</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">sb-access-token</td>
+                    <td className="py-2 px-2">Autenticación de usuario</td>
+                    <td className="py-2 px-2">1 hora</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">sb-refresh-token</td>
-                    <td className="py-2">Renovación de sesión</td>
-                    <td className="py-2">30 días</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">sb-refresh-token</td>
+                    <td className="py-2 px-2">Renovación de sesión</td>
+                    <td className="py-2 px-2">30 días</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">csrf-token</td>
-                    <td className="py-2">Seguridad contra ataques</td>
-                    <td className="py-2">Sesión</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">csrf-token</td>
+                    <td className="py-2 px-2">Seguridad contra ataques</td>
+                    <td className="py-2 px-2">Sesión</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-mono text-xs">cookie-consent</td>
-                    <td className="py-2">Preferencias de cookies</td>
-                    <td className="py-2">1 año</td>
+                    <td className="py-2 px-2 font-mono text-xs break-all">cookie-consent</td>
+                    <td className="py-2 px-2">Preferencias de cookies</td>
+                    <td className="py-2 px-2">1 año</td>
                   </tr>
                 </tbody>
               </table>
@@ -155,29 +155,29 @@ const CookiePolicy = () => {
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Cookie</th>
-                    <th className="text-left py-2">Propósito</th>
-                    <th className="text-left py-2">Duración</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-2 px-2">Cookie</th>
+                    <th className="text-left py-2 px-2">Propósito</th>
+                    <th className="text-left py-2 px-2">Duración</th>
                   </tr>
                 </thead>
                 <tbody className="text-gray-600 dark:text-gray-300">
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">story-views</td>
-                    <td className="py-2">Conteo de lecturas</td>
-                    <td className="py-2">30 días</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">story-views</td>
+                    <td className="py-2 px-2">Conteo de lecturas</td>
+                    <td className="py-2 px-2">30 días</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">user-preferences</td>
-                    <td className="py-2">Filtros y ordenamiento</td>
-                    <td className="py-2">90 días</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">user-preferences</td>
+                    <td className="py-2 px-2">Filtros y ordenamiento</td>
+                    <td className="py-2 px-2">90 días</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-mono text-xs">usage-stats</td>
-                    <td className="py-2">Estadísticas agregadas</td>
-                    <td className="py-2">1 año</td>
+                    <td className="py-2 px-2 font-mono text-xs break-all">usage-stats</td>
+                    <td className="py-2 px-2">Estadísticas agregadas</td>
+                    <td className="py-2 px-2">1 año</td>
                   </tr>
                 </tbody>
               </table>
@@ -201,29 +201,29 @@ const CookiePolicy = () => {
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Cookie</th>
-                    <th className="text-left py-2">Propósito</th>
-                    <th className="text-left py-2">Duración</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-2 px-2">Cookie</th>
+                    <th className="text-left py-2 px-2">Propósito</th>
+                    <th className="text-left py-2 px-2">Duración</th>
                   </tr>
                 </thead>
                 <tbody className="text-gray-600 dark:text-gray-300">
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">theme-preference</td>
-                    <td className="py-2">Tema claro/oscuro</td>
-                    <td className="py-2">1 año</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">theme-preference</td>
+                    <td className="py-2 px-2">Tema claro/oscuro</td>
+                    <td className="py-2 px-2">1 año</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="py-2 font-mono text-xs">editor-settings</td>
-                    <td className="py-2">Configuración del editor</td>
-                    <td className="py-2">6 meses</td>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-2 px-2 font-mono text-xs break-all">editor-settings</td>
+                    <td className="py-2 px-2">Configuración del editor</td>
+                    <td className="py-2 px-2">6 meses</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-mono text-xs">layout-prefs</td>
-                    <td className="py-2">Preferencias de diseño</td>
-                    <td className="py-2">6 meses</td>
+                    <td className="py-2 px-2 font-mono text-xs break-all">layout-prefs</td>
+                    <td className="py-2 px-2">Preferencias de diseño</td>
+                    <td className="py-2 px-2">6 meses</td>
                   </tr>
                 </tbody>
               </table>
@@ -268,7 +268,7 @@ const CookiePolicy = () => {
             3. Cómo Gestionar tus Cookies
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
               <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-3">
                 🎛️ En Letranido
@@ -389,7 +389,7 @@ const CookiePolicy = () => {
             5. Cumplimiento Legal Internacional
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
               <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
                 🇪🇺 GDPR (Europa)
@@ -467,7 +467,7 @@ const CookiePolicy = () => {
             </h3>
             <div className="text-blue-800 dark:text-blue-200 space-y-2">
               <p>
-                <strong>Email:</strong> info@letranido.com
+                <strong>Email:</strong> <span className="break-all">info@letranido.com</span>
               </p>
               <p>
                 <strong>Asunto sugerido:</strong> "Consulta sobre Cookies - [Tu

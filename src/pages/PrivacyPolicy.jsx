@@ -4,7 +4,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12 dark:bg-gray-900 min-h-screen">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900 min-h-screen">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Política de Privacidad"
@@ -16,10 +16,10 @@ const PrivacyPolicy = () => {
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Política de Privacidad
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
             Cómo protegemos y manejamos tu información en Letranido
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -306,7 +306,7 @@ const PrivacyPolicy = () => {
             5. Tus Derechos sobre tus Datos
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                 ✅ Derechos que tienes:
@@ -327,7 +327,7 @@ const PrivacyPolicy = () => {
               </h4>
               <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                 <li>• Configuración de cuenta</li>
-                <li>• Email: privacy@letranido.com</li>
+                <li>• Email: <span className="break-all">privacy@letranido.com</span></li>
                 <li>• Respuesta: Dentro de un plazo razonable</li>
                 <li>• Sin costo para ti</li>
                 <li>• Proceso simple y rápido</li>
@@ -452,14 +452,14 @@ const PrivacyPolicy = () => {
             </h3>
             <div className="text-blue-800 dark:text-blue-200 space-y-2">
               <p>
-                <strong>Email legal:</strong> legal@letranido.com
+                <strong>Email legal:</strong> <span className="break-all">legal@letranido.com</span>
               </p>
               <p>
                 <strong>Asunto sugerido:</strong> "Consulta de Privacidad - [Tu
                 consulta]"
               </p>
               <p>
-                <strong>Email general:</strong> info@letranido.com (solo
+                <strong>Email general:</strong> <span className="break-all">info@letranido.com</span> (solo
                 consultas no legales)
               </p>
               <p>

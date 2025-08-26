@@ -12,7 +12,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const CommunityGuidelines = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12 dark:bg-gray-900 min-h-screen">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900 min-h-screen">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Guías de la Comunidad"
@@ -24,10 +24,10 @@ const CommunityGuidelines = () => {
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Guías de la Comunidad
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
             Construyendo una comunidad respetuosa y creativa en Letranido
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -48,7 +48,7 @@ const CommunityGuidelines = () => {
               creatividad auténtica, el respeto mutuo y la protección de la
               propiedad intelectual.
             </p>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               <div className="text-center">
                 <div className="text-2xl mb-2">✍️</div>
                 <strong>Creatividad Auténtica</strong>
@@ -82,7 +82,7 @@ const CommunityGuidelines = () => {
               nuestros usuarios como de creadores externos.
             </p>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="font-semibold text-red-900 dark:text-red-200 mb-2">
                   ✅ PERMITIDO:
@@ -229,7 +229,7 @@ const CommunityGuidelines = () => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             2.2 Comentarios y Críticas
           </h3>
-          <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
               <h4 className="font-semibold text-green-900 dark:text-green-200 mb-2">
                 ✅ Crítica Constructiva:
@@ -312,7 +312,7 @@ const CommunityGuidelines = () => {
             3.3 Contenido Estrictamente Prohibido
           </h3>
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-6">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="font-semibold text-red-900 dark:text-red-200 mb-2">
                   🚫 Contenido Sexual/Adulto:
@@ -459,7 +459,7 @@ const CommunityGuidelines = () => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             5.2 Proceso de Moderación
           </h3>
-          <div className="grid md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
               <div className="text-2xl mb-2">👀</div>
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -541,7 +541,7 @@ const CommunityGuidelines = () => {
             </p>
             <ol className="text-green-800 dark:text-green-200 space-y-2 text-sm">
               <li>
-                <strong>1.</strong> Envía un email a legal@letranido.com
+                <strong>1.</strong> Envía un email a <span className="break-all">legal@letranido.com</span>
               </li>
               <li>
                 <strong>2.</strong> Incluye el ID de tu historia y una
@@ -574,7 +574,7 @@ const CommunityGuidelines = () => {
             7. Nuestras Responsabilidades
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
               <h3 className="font-semibold text-purple-900 dark:text-purple-200 mb-3">
                 ✅ Nos comprometemos a:
@@ -624,7 +624,7 @@ const CommunityGuidelines = () => {
           <div className="bg-blue-50 border dark:bg-blue-800/20 border-blue-200 rounded-lg p-4">
             <p className="text-blue-800 dark:text-blue-200 text-sm">
               <strong>Tu voz importa:</strong> Envía sugerencias para mejorar
-              estas guías a info@letranido.com. Las mejores ideas serán
+              estas guías a <span className="break-all">info@letranido.com</span>. Las mejores ideas serán
               implementadas.
             </p>
           </div>

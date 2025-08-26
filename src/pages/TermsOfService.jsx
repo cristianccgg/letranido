@@ -4,7 +4,7 @@ import SEOHead from "../components/SEO/SEOHead";
 
 const TermsOfService = () => {
   return (
-    <div className="max-w-4xl mx-auto py-12 dark:bg-gray-900 min-h-screen">
+    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900 min-h-screen">
       {/* SEO Meta Tags */}
       <SEOHead
         title="Términos de Servicio"
@@ -16,10 +16,10 @@ const TermsOfService = () => {
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Términos de Servicio
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
             Letranido - Comunidad de Escritura Creativa
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -367,7 +367,7 @@ const TermsOfService = () => {
           </h3>
           <p>
             Si crees que tu contenido fue removido incorrectamente, puedes
-            apelar contactándonos en <strong>legal@letranido.com</strong> dentro
+            apelar contactándonos en <strong><span className="break-all">legal@letranido.com</span></strong> dentro
             de 30 días.
           </p>
         </section>
@@ -395,7 +395,7 @@ const TermsOfService = () => {
               <strong>IMPORTANTE:</strong> Si crees que tu contenido protegido
               por derechos de autor ha sido utilizado sin autorización, puedes
               enviar una notificación DMCA a
-              <strong> legal@letranido.com</strong> con la siguiente
+              <strong><span className="break-all">legal@letranido.com</span></strong> con la siguiente
               información:
             </p>
             <ul className="text-red-700 dark:text-red-200 text-sm mt-2 space-y-1 list-disc pl-4">
@@ -631,7 +631,7 @@ const TermsOfService = () => {
           <p>Para preguntas sobre estos términos, contacta:</p>
           <div className="bg-blue-50 dark:bg-blue-800/20 border border-blue-200 rounded-lg p-4 mt-4">
             <p className="text-blue-800 dark:text-blue-200">
-              <strong>Email:</strong> legal@letranido.com
+              <strong>Email:</strong> <span className="break-all">legal@letranido.com</span>
               <br />
               <strong>Respuesta:</strong> Dentro de 5 días hábiles
               <br />
