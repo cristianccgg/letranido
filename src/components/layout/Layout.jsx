@@ -759,7 +759,11 @@ const Layout = ({ children, onFeedbackClick }) => {
                       <div key={item.name} className="space-y-1">
                         <button
                           onClick={() => setDropdownOpen(!isDropdownOpen)}
-                          className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 touch-manipulation ${
                             isDropdownActive
                               ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
                               : "text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm"
@@ -792,7 +796,11 @@ const Layout = ({ children, onFeedbackClick }) => {
                                       }
                                       setIsMobileMenuOpen(false);
                                     }}
-                                    className="w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    onTouchEnd={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
+                                    className="w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-manipulation"
                                   >
                                     <IconComponent className="h-4 w-4 mr-3 text-gray-400 dark:text-gray-500" />
                                     <span>{subItem.name}</span>
@@ -808,7 +816,11 @@ const Layout = ({ children, onFeedbackClick }) => {
                                     navigate(subItem.href);
                                     setIsMobileMenuOpen(false);
                                   }}
-                                  className={`w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                  onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                  className={`w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-manipulation ${
                                     isActive
                                       ? "text-primary-600 bg-primary-50 dark:bg-primary-900 dark:text-primary-200"
                                       : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -848,6 +860,7 @@ const Layout = ({ children, onFeedbackClick }) => {
                       key={item.name}
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         if (item.name.includes("Escribir")) {
                           if (isAuthenticated) {
                             handleWriteClick(e);
@@ -860,7 +873,11 @@ const Layout = ({ children, onFeedbackClick }) => {
                         }
                         setIsMobileMenuOpen(false);
                       }}
-                      className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 touch-manipulation ${
                         isActive
                           ? "text-primary-600 bg-primary-100 dark:bg-primary-800 dark:text-primary-200 shadow-sm"
                           : `text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm ${
