@@ -849,10 +849,11 @@ const Layout = ({ children, onFeedbackClick }) => {
                       onClick={(e) => {
                         e.preventDefault();
                         if (item.name.includes("Escribir")) {
-                          if (isAuthenticated) {
-                            handleWriteClick(e);
+                          if (isAuthenticated && writeButtonState.disabled) {
+                            // Si está deshabilitado, no navegar
+                            return;
                           } else {
-                            // Para usuarios NO autenticados, ir directo a escribir
+                            // Para todos los demás casos (autenticado habilitado y no autenticado), navegar
                             navigate(item.href);
                           }
                         } else {
