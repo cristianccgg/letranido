@@ -68,7 +68,7 @@ const SuccessToast = ({
           bg-white dark:bg-dark-800 
           border border-green-200 dark:border-green-700
           rounded-xl shadow-2xl
-          p-8 max-w-md w-full mx-4
+          p-6 sm:p-8 max-w-lg sm:max-w-md w-full mx-3 sm:mx-4
           relative overflow-hidden
         ">
           {/* Gradiente de fondo sutil */}

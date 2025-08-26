@@ -848,8 +848,13 @@ const Layout = ({ children, onFeedbackClick }) => {
                       key={item.name}
                       onClick={(e) => {
                         e.preventDefault();
-                        if (item.name.includes("Escribir") && isAuthenticated) {
-                          handleWriteClick(e);
+                        if (item.name.includes("Escribir")) {
+                          if (isAuthenticated) {
+                            handleWriteClick(e);
+                          } else {
+                            // Para usuarios NO autenticados, ir directo a escribir
+                            navigate(item.href);
+                          }
                         } else {
                           navigate(item.href);
                         }
