@@ -26,9 +26,9 @@ const VotingGuidance = ({
             </div>
 
             <div className="text-sm text-gray-700 mb-3">
-              <strong>¿Cómo votar?</strong> Puedes votar por todas las historias
-              que te gusten. No hay límite - ¡reconoce a todos los talentos que
-              te inspiraron!
+              <strong>¿Cómo votar?</strong> Puedes votar por hasta 3 historias
+              diferentes. ¡Usa tus votos sabiamente para apoyar a tus autores
+              favoritos!
             </div>
 
             {/* Stats rápidas */}
@@ -83,7 +83,7 @@ const VotingGuidance = ({
                 </h4>
                 <ul className="text-sm text-gray-700 space-y-1">
                   <li className="hover:text-green-600 transition-colors">
-                    • Votar por múltiples historias
+                    • Votar por hasta 3 historias diferentes
                   </li>
                   <li className="hover:text-green-600 transition-colors">
                     • Cambiar tu voto (quitar/poner voto)
