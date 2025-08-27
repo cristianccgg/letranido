@@ -798,8 +798,8 @@ const CurrentContest = () => {
                   🗳️ ¡Votación Activa!
                 </h3>
                 <p className="text-green-100 text-sm mb-3">
-                  Puedes votar por todas las historias que te gusten. ¡No hay
-                  límite - reconoce a todos los talentos que te inspiraron!
+                  Tienes 3 votos para elegir tus historias favoritas. 
+                  <strong className="text-white"> 💡 Consejo:</strong> Lee varias historias antes de votar para encontrar las que realmente te impacten.
                 </p>
                 <div className="bg-white/15 rounded-lg p-3 mb-3 border border-white/20">
                   <div className="flex items-start gap-2">
@@ -821,9 +821,9 @@ const CurrentContest = () => {
                   <div className="flex items-center gap-1">
                     <Heart className="h-4 w-4" />
                     <span className="font-medium">
-                      Has votado por{" "}
-                      <strong>{votingStats.currentContestVotes}</strong>{" "}
-                      historia{votingStats.currentContestVotes !== 1 ? "s" : ""}
+                      Has usado{" "}
+                      <strong>{votingStats.currentContestVotes}/3</strong>{" "}
+                      votos disponibles
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -1058,7 +1058,7 @@ const CurrentContest = () => {
                   {/* Indicador de orden aleatorio durante votación */}
                   {phaseInfo?.phase === "voting" && (
                     <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                      🎲 Orden aleatorio para votación justa
+                      🎲 Cada usuario ve las historias en orden diferente para que todas tengan oportunidad de ser leídas y votadas
                     </p>
                   )}
                 </div>
