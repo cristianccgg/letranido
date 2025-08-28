@@ -842,39 +842,43 @@ const CurrentContest = () => {
       {/* Banner consolidado de votación */}
       {phaseInfo?.phase === "voting" && (
         <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2">
-                  🗳️ ¡Votación Activa!
-                </h3>
-                <p className="text-green-100 text-sm mb-3">
-                  Tienes 3 votos para elegir tus historias favoritas. 
-                  <strong className="text-white"> 💡 Consejo:</strong> Lee varias historias antes de votar para encontrar las que realmente te impacten.
-                </p>
-                <div className="bg-white/15 rounded-lg p-3 mb-3 border border-white/20">
-                  <div className="flex items-start gap-2">
-                    <span className="text-sm">💬</span>
-                    <div className="text-sm">
-                      <span className="font-medium text-white">
-                        ¡Deja comentarios constructivos!
-                      </span>
-                      <p className="text-green-100 mt-1">
-                        Tu feedback ayuda a los escritores a crecer. Comparte
-                        qué te gustó, qué te emocionó o qué te hizo reflexionar.
-                      </p>
-                    </div>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-3 text-white">
+                ¡Votación Activa! - Cómo participar
+              </h3>
+              
+              {/* Instrucciones en bullets */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">Tienes 3 votos:</span>
+                    <span className="text-white/90 ml-1">Úsalos para elegir tus historias favoritas</span>
                   </div>
                 </div>
-
-                {/* Stats integradas */}
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>
-                      <strong>{contestStats.totalStories}</strong> historias
-                      disponibles
-                    </span>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">Votación privada:</span>
+                    <span className="text-white/90 ml-1">Solo tú puedes ver tus votos, nadie más</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">Lee antes de votar:</span>
+                    <span className="text-white/90 ml-1">Explora varias historias para encontrar las que te impacten</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">Comentarios constructivos:</span>
+                    <span className="text-white/90 ml-1">Somos una comunidad de escritores aprendiendo. Sé amable y específico</span>
                   </div>
                 </div>
               </div>
@@ -1544,7 +1548,7 @@ const CurrentContest = () => {
                                 {phaseInfo?.phase === "voting" && (
                                   <div className="flex items-center gap-1 text-sm text-green-600">
                                     <span className="text-xs">
-                                      🗳️ Votación ciega - vota por la historia
+                                      🗳️ Votos privados - vota sin presión
                                     </span>
                                   </div>
                                 )}
