@@ -33,6 +33,7 @@ import ReportsPanel from "./ReportsPanel";
 import EmailManager from "./EmailManager";
 import MaintenanceControl from "./MaintenanceControl";
 import ModerationDashboard from "./ModerationDashboard";
+import AnalyticsDashboard from "./AnalyticsDashboard";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1367,6 +1368,9 @@ const ContestAdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Panel de Analytics */}
+      <AnalyticsDashboard />
 
       {/* Panel de control de mantenimiento */}
       <MaintenanceControl />
