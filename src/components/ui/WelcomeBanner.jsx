@@ -1,4 +1,4 @@
-// components/ui/WelcomeBanner.jsx - Banner de bienvenida para el segundo reto
+// components/ui/WelcomeBanner.jsx - Banner informativo de votación activa
 import { useState } from "react";
 import { X, MessageCircle, Sparkles } from "lucide-react";
 import FeedbackModal from "../modals/FeedbackModal";
@@ -25,7 +25,7 @@ const WelcomeBanner = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -33,13 +33,10 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🚀</span> ¡Segundo reto de Letranido! Gracias por
-                    unirte a nuestra comunidad. ¿Encontraste algún error o
-                    tienes sugerencias?
+                    <span>🗳️</span> ¡Votación activa en Letranido! Lee las 36 historias y vota por tus 3 favoritas. ¿Encontraste algún error o tienes sugerencias?
                   </span>
                   <span className="sm:hidden ">
-                    ¡Segundo reto de Letranido! Repórtanos errores o
-                    sugerencias
+                    🗳️ ¡Votación activa! Vota por tus 3 favoritas
                   </span>
                 </p>
               </div>
