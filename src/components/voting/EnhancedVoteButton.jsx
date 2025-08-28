@@ -14,6 +14,7 @@ const EnhancedVoteButton = ({
   disabled = false,
   hideCount = false, // Nueva prop para ocultar el conteo durante votación
   isPortfolioStory = false, // Nueva prop para historias libres
+  fullWidth = false, // Nueva prop para ocupar todo el ancho
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -77,7 +78,7 @@ const EnhancedVoteButton = ({
   };
 
   const getButtonState = () => {
-    const baseClasses = `${sizeClasses.button} flex items-center gap-2 rounded-lg font-medium border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1`;
+    const baseClasses = `${sizeClasses.button} flex items-center gap-2 rounded-lg font-medium border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${fullWidth ? 'w-full justify-center' : ''}`;
 
     if (disabled) {
       return {
@@ -152,14 +153,14 @@ const EnhancedVoteButton = ({
     }
 
     return {
-      className: `${baseClasses} bg-gray-50 text-gray-600 border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 cursor-pointer ${
-        isHovered ? "scale-105 shadow-md" : ""
+      className: `${baseClasses} bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 cursor-pointer shadow-sm hover:shadow-md ${
+        isHovered ? "scale-105" : ""
       } ${isAnimating ? "animate-pulse" : ""}`,
       icon: (
         <Heart
           className={`${sizeClasses.icon} ${
             isAnimating ? "animate-bounce" : ""
-          } ${isHovered ? "animate-pulse" : ""}`}
+          } ${isHovered ? "animate-pulse text-blue-600" : ""}`}
         />
       ),
       tooltip: isPortfolioStory ? "Me gusta esta historia" : "Votar por esta historia",
@@ -169,7 +170,7 @@ const EnhancedVoteButton = ({
   const buttonState = getButtonState();
 
   return (
-    <div className="relative inline-block">
+    <div className={`relative ${fullWidth ? 'block' : 'inline-block'}`}>
       <button
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}

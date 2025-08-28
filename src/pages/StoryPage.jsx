@@ -597,7 +597,7 @@ const StoryPage = () => {
 
             {/* Voting Section */}
             <div className="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="space-y-3">
                 {/* Determinar si estamos en fase de votación */}
                 {(() => {
                   // Usar currentContest en lugar de story.contest para tener las fechas correctas
@@ -610,28 +610,28 @@ const StoryPage = () => {
                     // Durante votación: ocultar votos y vistas
                     return (
                       <>
-                        {/* Primera fila en mobile: botón de voto y texto explicativo */}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          <EnhancedVoteButton
-                            isLiked={isLiked}
-                            likesCount={0} // Ocultar conteo durante votación
-                            canVote={votingInfo.canVote}
-                            votingInfo={votingInfo}
-                            isAuthenticated={isAuthenticated}
-                            onVote={handleVote}
-                            onAuthRequired={() => openAuthModal("register")}
-                            size="default"
-                            hideCount={true} // Prop para ocultar el número
-                            isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
-                          />
+                        {/* Botón de voto - full width */}
+                        <EnhancedVoteButton
+                          isLiked={isLiked}
+                          likesCount={0} // Ocultar conteo durante votación
+                          canVote={votingInfo.canVote}
+                          votingInfo={votingInfo}
+                          isAuthenticated={isAuthenticated}
+                          onVote={handleVote}
+                          onAuthRequired={() => openAuthModal("register")}
+                          size="default"
+                          hideCount={true} // Prop para ocultar el número
+                          isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
+                          fullWidth={true} // Full width para más prominencia
+                        />
 
-                          <div className="flex items-center text-green-600 dark:text-green-400 text-sm">
-                            <span>🗳️ Votación ciega - vota por la historia</span>
-                          </div>
+                        {/* Texto explicativo */}
+                        <div className="text-center sm:text-left text-green-600 dark:text-green-400 text-sm">
+                          <span>🗳️ Tu voto es privado - solo tú puedes verlo</span>
                         </div>
 
-                        {/* Segunda fila en mobile: contador de votos y compartir */}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:mt-0 mt-2">
+                        {/* Contador de votos y compartir */}
+                        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
                           {/* Contador de votos restantes */}
                           <VoteCounter
                             contestId={story.contest_id}
@@ -652,28 +652,28 @@ const StoryPage = () => {
                     // Fuera de votación: mostrar votos y vistas normalmente
                     return (
                       <>
-                        {/* Primera fila: botón de voto y vistas */}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          <EnhancedVoteButton
-                            isLiked={isLiked}
-                            likesCount={likesCount}
-                            canVote={votingInfo.canVote}
-                            votingInfo={votingInfo}
-                            isAuthenticated={isAuthenticated}
-                            onVote={handleVote}
-                            onAuthRequired={() => openAuthModal("register")}
-                            size="default"
-                            isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
-                          />
+                        {/* Botón de voto - full width */}
+                        <EnhancedVoteButton
+                          isLiked={isLiked}
+                          likesCount={likesCount}
+                          canVote={votingInfo.canVote}
+                          votingInfo={votingInfo}
+                          isAuthenticated={isAuthenticated}
+                          onVote={handleVote}
+                          onAuthRequired={() => openAuthModal("register")}
+                          size="default"
+                          isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
+                          fullWidth={true} // Full width para más prominencia
+                        />
 
-                          <div className="flex items-center text-gray-600 dark:text-dark-300 text-xs">
-                            <Eye className="h-5 w-5 mr-2" />
-                            <span>{story.views_count || 0} vistas</span>
-                          </div>
+                        {/* Información de vistas */}
+                        <div className="text-center sm:text-left text-gray-600 dark:text-dark-300 text-xs">
+                          <Eye className="h-5 w-5 mr-2" />
+                          <span>{story.views_count || 0} vistas</span>
                         </div>
 
-                        {/* Segunda fila: contador de votos y compartir */}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:mt-0 mt-2">
+                        {/* Contador de votos y compartir */}
+                        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
                           {/* Contador de votos restantes */}
                           <VoteCounter
                             contestId={story.contest_id}
