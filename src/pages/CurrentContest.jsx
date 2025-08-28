@@ -932,6 +932,18 @@ const CurrentContest = () => {
                     </span>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">
+                      Comenta sin compromiso:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Puedes dejar feedback útil en cualquier historia, aunque no votes por ella
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
