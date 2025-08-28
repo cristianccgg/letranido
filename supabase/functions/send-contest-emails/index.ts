@@ -651,22 +651,23 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
           <div style="text-align: left;">
             <div style="display: flex; align-items: center; margin: 12px 0;">
               <span style="background: #6366f1; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold;">1</span>
-              <span style="color: #475569;">📖 Lee las historias que más te llamen la atención</span>
+              <span style="color: #475569;">📖 Lee la mayor cantidad posible de historias</span>
             </div>
             <div style="display: flex; align-items: center; margin: 12px 0;">
               <span style="background: #6366f1; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold;">2</span>
-              <span style="color: #475569;">❤️ Da "like" a las que más te gusten</span>
+              <span style="color: #475569;">❤️ Tienes <strong>3 votos</strong>: dáselos a tus historias favoritas</span>
             </div>
             <div style="display: flex; align-items: center; margin: 12px 0;">
               <span style="background: #6366f1; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold;">3</span>
-              <span style="color: #475569;">💬 Deja comentarios constructivos (opcional)</span>
+              <span style="color: #475569;">💬 Deja comentarios constructivos</span>
             </div>
             <div style="display: flex; align-items: center; margin: 12px 0;">
               <span style="background: #6366f1; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold;">4</span>
-              <span style="color: #475569;">🏆 Ayuda a elegir a los ganadores</span>
+              <span style="color: #475569;">🏆 Tus votos ayudarán a elegir a los ganadores</span>
             </div>
           </div>
         </div>
+
         
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">Tu voto es importante y ayuda a reconocer el talento de nuestra comunidad. ¡Cada historia merece ser leída!</p>
