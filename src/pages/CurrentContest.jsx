@@ -870,14 +870,6 @@ const CurrentContest = () => {
                 {/* Stats integradas */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
-                    <Heart className="h-4 w-4" />
-                    <span className="font-medium">
-                      Has usado{" "}
-                      <strong>{votingStats.currentContestVotes}/3</strong>{" "}
-                      votos disponibles
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
                     <span>
                       <strong>{contestStats.totalStories}</strong> historias
@@ -931,6 +923,87 @@ const CurrentContest = () => {
                     </div>
                   </div>
                 )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contador de votos prominente - Solo durante votación */}
+      {phaseInfo?.phase === "voting" && isAuthenticated && (
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-blue-200 dark:border-blue-600 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          {/* Elementos decorativos */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-200/20 to-blue-200/20 rounded-full translate-y-12 -translate-x-12"></div>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+              {/* Indicadores visuales de votos */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        index < votingStats.currentContestVotes
+                          ? "bg-gradient-to-br from-red-500 to-pink-600 shadow-lg scale-110"
+                          : "bg-gray-200 dark:bg-gray-600 opacity-50"
+                      }`}
+                    >
+                      <Heart
+                        className={`h-6 w-6 transition-all duration-300 ${
+                          index < votingStats.currentContestVotes
+                            ? "text-white fill-current animate-pulse"
+                            : "text-gray-400 dark:text-gray-500"
+                        }`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Texto principal */}
+              <div className="text-center sm:text-left">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg font-bold text-gray-900 dark:text-dark-100">
+                    Has usado{" "}
+                    <span className={`text-2xl font-extrabold ${
+                      votingStats.currentContestVotes >= 3 
+                        ? "text-red-600 dark:text-red-400" 
+                        : votingStats.currentContestVotes >= 2 
+                        ? "text-yellow-600 dark:text-yellow-400" 
+                        : "text-blue-600 dark:text-blue-400"
+                    }`}>
+                      {votingStats.currentContestVotes}/3
+                    </span>{" "}
+                    votos
+                  </span>
+                </div>
+                
+                <div className={`font-medium transition-all duration-300 ${
+                  votingStats.currentContestVotes >= 3 
+                    ? "text-green-600 dark:text-green-400" 
+                    : votingStats.currentContestVotes === 2 
+                    ? "text-orange-600 dark:text-orange-400 animate-pulse" 
+                    : "text-blue-600 dark:text-blue-400"
+                }`}>
+                  {votingStats.currentContestVotes >= 3 ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎉</span>
+                      <span>¡Todos los votos usados!</span>
+                    </div>
+                  ) : votingStats.currentContestVotes === 2 ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg animate-bounce">⚠️</span>
+                      <span>¡Te queda 1 voto! Úsalo sabiamente</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">👀</span>
+                      <span>Te quedan {3 - votingStats.currentContestVotes} votos • ¡Sigue leyendo!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
