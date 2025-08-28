@@ -82,6 +82,9 @@ const CurrentContest = () => {
 
   // Contador de tiempo real
   const [timeLeft, setTimeLeft] = useState("");
+  
+  // Estado para forzar re-render cuando cambian los votos
+  const [voteTimestamp, setVoteTimestamp] = useState(Date.now());
 
   // Refs para scroll
   const storiesSectionRef = useRef(null);
@@ -436,8 +439,8 @@ const CurrentContest = () => {
     searchTerm,
     sortBy,
     contest?.id,
-    storiesLoading,
     getRandomizedStories,
+    voteTimestamp, // Forzar re-cálculo cuando cambian los votos
   ]);
 
   // ✅ FUNCIONES DE COMPARTIR
@@ -631,6 +634,20 @@ const CurrentContest = () => {
       setSortBy("popular"); // Cambiar a ordenamiento por votos cuando hay resultados
     }
   }, [contest, phaseInfo?.phase, sortBy]);
+
+  // ✅ ESCUCHAR CAMBIOS DE VOTOS PARA FORZAR RE-RENDER
+  useEffect(() => {
+    const handleVoteChange = () => {
+      console.log("🔄 CurrentContest: Detectado cambio de voto, forzando re-render");
+      setVoteTimestamp(Date.now());
+    };
+
+    window.addEventListener('voteChanged', handleVoteChange);
+    
+    return () => {
+      window.removeEventListener('voteChanged', handleVoteChange);
+    };
+  }, []);
 
   // ✅ CONTADOR DE TIEMPO REAL (similar a landing page)
   useEffect(() => {

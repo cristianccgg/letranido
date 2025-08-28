@@ -2066,7 +2066,7 @@ export function GlobalAppProvider({ children }) {
             console.log(
               "✅ GalleryStories recargada - sincronización completa"
             );
-          }, 200);
+          }, 200); // Tiempo suficiente para que la BD se actualice
         } else if (state.galleryStories.length > 0) {
           // No es reto actual pero gallery está cargada (retos históricos)
           dispatch({
@@ -3492,6 +3492,18 @@ export function GlobalAppProvider({ children }) {
       });
     }
   }, [state.initialized, state.globalStats.lastUpdated, state.globalStatsLoading, loadGlobalStats]);
+
+  // ✅ RECARGAR ESTADÍSTICAS DE VOTACIÓN CUANDO CURRENTCONTEST ESTÉ DISPONIBLE
+  useEffect(() => {
+    if (state.user?.id && state.currentContest?.id && state.initialized) {
+      console.log("🔄 Recargando estadísticas de votación con currentContest disponible:", {
+        userId: state.user.id,
+        currentContestId: state.currentContest.id,
+        currentContestTitle: state.currentContest.title
+      });
+      loadVotingStats(state.user.id);
+    }
+  }, [state.user?.id, state.currentContest?.id, state.initialized, loadVotingStats]);
 
   // ✅ FUNCIÓN DE DEBUG
   const debugAuth = useCallback(async () => {
