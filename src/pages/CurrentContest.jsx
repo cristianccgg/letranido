@@ -298,15 +298,16 @@ const CurrentContest = () => {
     }
   };
 
-  // ✅ FUNCIÓN PARA RANDOMIZAR CON ORDEN CONSISTENTE
+  // ✅ FUNCIÓN PARA RANDOMIZAR CON ORDEN CONSISTENTE POR SESIÓN
   const getRandomizedStories = useCallback((stories, contestId, searchTerm) => {
     if (!stories || !contestId) return [];
 
-    // Crear clave única que incluya término de búsqueda para mantener consistencia
-    const storageKey = `contest_${contestId}_random_order_${searchTerm || "all"}`;
+    // Crear clave única basada en sesión del usuario para mantener consistencia durante la navegación
+    const sessionKey = `contest_${contestId}_session_${user?.id || 'anonymous'}_${new Date().toDateString()}`;
+    const storageKey = `contest_${contestId}_random_order_${searchTerm || "all"}_${sessionKey}`;
 
     try {
-      // Intentar obtener orden guardado
+      // Intentar obtener orden guardado para esta sesión
       const savedOrder = localStorage.getItem(storageKey);
 
       if (savedOrder) {
@@ -320,10 +321,42 @@ const CurrentContest = () => {
         if (orderedStories.length === stories.length) {
           return orderedStories;
         }
+        
+        // Si faltan historias (nuevas agregadas), agregarlas al final manteniendo el orden existente
+        const existingIds = new Set(orderIds);
+        const newStories = stories.filter(story => !existingIds.has(story.id));
+        if (newStories.length > 0) {
+          const updatedOrder = [...orderedStories, ...newStories];
+          const updatedOrderIds = updatedOrder.map(story => story.id);
+          localStorage.setItem(storageKey, JSON.stringify(updatedOrderIds));
+          return updatedOrder;
+        }
       }
 
-      // Si no hay orden guardado o está desactualizado, crear nuevo orden
-      const shuffled = [...stories].sort(() => Math.random() - 0.5);
+      // Si no hay orden guardado, crear nuevo orden usando seed basado en usuario y día
+      const seed = user?.id ? user.id.slice(-8) : Math.random().toString();
+      const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      const randomSeed = parseInt(seed.slice(-4), 16) + dayOfYear;
+      
+      // Función de shuffle determinística basada en el seed
+      const deterministicShuffle = (array, seed) => {
+        const shuffled = [...array];
+        let currentIndex = shuffled.length;
+        let random = seed;
+        
+        while (currentIndex !== 0) {
+          // Generar número pseudo-aleatorio simple
+          random = (random * 9301 + 49297) % 233280;
+          const randomIndex = random % currentIndex;
+          currentIndex--;
+          
+          [shuffled[currentIndex], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[currentIndex]];
+        }
+        
+        return shuffled;
+      };
+
+      const shuffled = deterministicShuffle(stories, randomSeed);
       const orderIds = shuffled.map((story) => story.id);
 
       // Guardar el nuevo orden
@@ -335,16 +368,17 @@ const CurrentContest = () => {
       // Fallback a orden aleatorio simple sin persistencia
       return [...stories].sort(() => Math.random() - 0.5);
     }
-  }, []);
+  }, [user?.id]);
 
   // ✅ FUNCIÓN PARA RESETEAR EL ORDEN ALEATORIO
   const reshuffleStories = useCallback(() => {
     if (!contest?.id) return;
 
-    // Eliminar órdenes guardados para este reto
+    // Eliminar órdenes guardados para este reto y sesión actual
+    const sessionKey = `contest_${contest.id}_session_${user?.id || 'anonymous'}_${new Date().toDateString()}`;
     const keys = Object.keys(localStorage);
     keys.forEach((key) => {
-      if (key.startsWith(`contest_${contest.id}_random_order_`)) {
+      if (key.startsWith(`contest_${contest.id}_random_order_`) && key.includes(sessionKey)) {
         localStorage.removeItem(key);
       }
     });
@@ -354,7 +388,7 @@ const CurrentContest = () => {
       // Trigger a re-render by updating a dependency
       setSortBy("random");
     }
-  }, [contest?.id, sortBy]);
+  }, [contest?.id, sortBy, user?.id]);
 
   // ✅ FILTROS Y ORDENAMIENTO - Con random consistente
   const filteredAndSortedStories = useMemo(() => {
