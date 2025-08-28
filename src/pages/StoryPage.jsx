@@ -619,7 +619,6 @@ const StoryPage = () => {
                           onVote={handleVote}
                           onAuthRequired={() => openAuthModal("register")}
                           size="default"
-                          showTooltip={true}
                           hideCount={true} // Prop para ocultar el número
                           isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                         />
@@ -656,7 +655,6 @@ const StoryPage = () => {
                           onVote={handleVote}
                           onAuthRequired={() => openAuthModal("register")}
                           size="default"
-                          showTooltip={true}
                           isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                         />
 

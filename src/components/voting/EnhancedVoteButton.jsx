@@ -11,7 +11,6 @@ const EnhancedVoteButton = ({
   onVote,
   onAuthRequired,
   size = "default", // "small", "default", "large"
-  showTooltip = true,
   disabled = false,
   hideCount = false, // Nueva prop para ocultar el conteo durante votación
   isPortfolioStory = false, // Nueva prop para historias libres
@@ -177,7 +176,7 @@ const EnhancedVoteButton = ({
         onMouseLeave={() => setIsHovered(false)}
         disabled={disabled || (!isAuthenticated && !onAuthRequired) || (!canVote && !isPortfolioStory)}
         className={`${buttonState.className} ${isAnimating && isLiked ? 'animate-heart-burst' : ''} transition-all duration-300`}
-        title={showTooltip ? buttonState.tooltip : undefined}
+        title={undefined}
         style={{
           transform: isHovered && (canVote || isPortfolioStory) ? 'scale(1.05)' : 'scale(1)',
         }}
@@ -186,7 +185,22 @@ const EnhancedVoteButton = ({
           {buttonState.icon}
         </span>
 
-        {!hideCount && (
+        {/* Texto claro para votar - SIEMPRE mostrar en concursos para claridad */}
+        {canVote && !isLiked && !isPortfolioStory && (
+          <span className={`${sizeClasses.text} font-semibold transition-all duration-300`}>
+            VOTAR
+          </span>
+        )}
+
+        {/* Texto cuando ya votaste - SIEMPRE mostrar en concursos para claridad */}
+        {isLiked && !isPortfolioStory && (
+          <span className={`${sizeClasses.text} font-semibold transition-all duration-300 text-current`}>
+            VOTADO
+          </span>
+        )}
+
+        {/* Para historias de portafolio (likes) o cuando se muestra el conteo */}
+        {!hideCount && (isPortfolioStory || (!canVote && !isLiked)) && (
           <span
             className={`${sizeClasses.text} ${
               likesCount > previousCount ? "animate-count-bounce" : ""
@@ -210,41 +224,6 @@ const EnhancedVoteButton = ({
         )}
       </button>
 
-      {/* Tooltip personalizado para casos especiales */}
-      {showTooltip && isHovered && votingInfo.votingStartsAt && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10 animate-fade-in">
-          <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
-            Votación inicia el{" "}
-            {votingInfo.votingStartsAt.toLocaleDateString("es-ES")}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
-          </div>
-        </div>
-      )}
-
-      {showTooltip && isHovered && votingInfo.votingEndsAt && canVote && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10 animate-fade-in">
-          <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
-            Puedes votar hasta el{" "}
-            {votingInfo.votingEndsAt.toLocaleDateString("es-ES")}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
-          </div>
-        </div>
-      )}
-
-      {/* Tooltip de votos restantes - Solo si hay info de votos */}
-      {showTooltip && isHovered && canVote && (votingInfo.votesRemaining !== undefined || votingInfo.votesUsed !== undefined) && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-20 animate-fade-in">
-          <div className="bg-blue-600 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
-            {votingInfo.votesRemaining !== undefined 
-              ? `Te quedan ${votingInfo.votesRemaining} de ${votingInfo.maxVotes || 3} votos`
-              : votingInfo.votesUsed !== undefined
-              ? `${votingInfo.votesUsed}/${votingInfo.maxVotes || 3} votos usados`
-              : 'Información de votos no disponible'
-            }
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
-          </div>
-        </div>
-      )}
 
       {/* Sparkles de celebración */}
       {showSparkles && (
