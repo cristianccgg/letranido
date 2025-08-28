@@ -82,7 +82,7 @@ const CurrentContest = () => {
 
   // Contador de tiempo real
   const [timeLeft, setTimeLeft] = useState("");
-  
+
   // Estado para forzar re-render cuando cambian los votos
   const [voteTimestamp, setVoteTimestamp] = useState(Date.now());
 
@@ -108,7 +108,11 @@ const CurrentContest = () => {
 
   // ✅ DETECTAR TOAST DE ÉXITO DESDE WRITEPROPT
   useEffect(() => {
-    if (location.state?.showSuccessToast && location.state?.storyTitle && !toastShown) {
+    if (
+      location.state?.showSuccessToast &&
+      location.state?.storyTitle &&
+      !toastShown
+    ) {
       // Delay pequeño para que la página se cargue
       const timer = setTimeout(() => {
         showSuccessToast(
@@ -117,17 +121,23 @@ const CurrentContest = () => {
           location.state.storyTitle,
           { duration: 9000 }
         );
-        
+
         // Marcar como mostrado para evitar loops
         setToastShown(true);
-        
+
         // Limpiar el state para evitar que se muestre de nuevo
         window.history.replaceState({}, document.title, location.pathname);
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [location.state?.showSuccessToast, location.state?.storyTitle, toastShown, showSuccessToast, location.pathname]);
+  }, [
+    location.state?.showSuccessToast,
+    location.state?.storyTitle,
+    toastShown,
+    showSuccessToast,
+    location.pathname,
+  ]);
 
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
@@ -302,86 +312,99 @@ const CurrentContest = () => {
   };
 
   // ✅ FUNCIÓN PARA RANDOMIZAR CON ORDEN CONSISTENTE POR SESIÓN
-  const getRandomizedStories = useCallback((stories, contestId, searchTerm) => {
-    if (!stories || !contestId) return [];
+  const getRandomizedStories = useCallback(
+    (stories, contestId, searchTerm) => {
+      if (!stories || !contestId) return [];
 
-    // Crear clave única basada en sesión del usuario para mantener consistencia durante la navegación
-    const sessionKey = `contest_${contestId}_session_${user?.id || 'anonymous'}_${new Date().toDateString()}`;
-    const storageKey = `contest_${contestId}_random_order_${searchTerm || "all"}_${sessionKey}`;
+      // Crear clave única basada en sesión del usuario para mantener consistencia durante la navegación
+      const sessionKey = `contest_${contestId}_session_${user?.id || "anonymous"}_${new Date().toDateString()}`;
+      const storageKey = `contest_${contestId}_random_order_${searchTerm || "all"}_${sessionKey}`;
 
-    try {
-      // Intentar obtener orden guardado para esta sesión
-      const savedOrder = localStorage.getItem(storageKey);
+      try {
+        // Intentar obtener orden guardado para esta sesión
+        const savedOrder = localStorage.getItem(storageKey);
 
-      if (savedOrder) {
-        const orderIds = JSON.parse(savedOrder);
-        // Recrear el orden basado en los IDs guardados
-        const orderedStories = orderIds
-          .map((id) => stories.find((s) => s.id === id))
-          .filter(Boolean); // Remover historias que ya no existen
+        if (savedOrder) {
+          const orderIds = JSON.parse(savedOrder);
+          // Recrear el orden basado en los IDs guardados
+          const orderedStories = orderIds
+            .map((id) => stories.find((s) => s.id === id))
+            .filter(Boolean); // Remover historias que ya no existen
 
-        // Si tenemos todas las historias en el orden guardado, usarlo
-        if (orderedStories.length === stories.length) {
-          return orderedStories;
+          // Si tenemos todas las historias en el orden guardado, usarlo
+          if (orderedStories.length === stories.length) {
+            return orderedStories;
+          }
+
+          // Si faltan historias (nuevas agregadas), agregarlas al final manteniendo el orden existente
+          const existingIds = new Set(orderIds);
+          const newStories = stories.filter(
+            (story) => !existingIds.has(story.id)
+          );
+          if (newStories.length > 0) {
+            const updatedOrder = [...orderedStories, ...newStories];
+            const updatedOrderIds = updatedOrder.map((story) => story.id);
+            localStorage.setItem(storageKey, JSON.stringify(updatedOrderIds));
+            return updatedOrder;
+          }
         }
-        
-        // Si faltan historias (nuevas agregadas), agregarlas al final manteniendo el orden existente
-        const existingIds = new Set(orderIds);
-        const newStories = stories.filter(story => !existingIds.has(story.id));
-        if (newStories.length > 0) {
-          const updatedOrder = [...orderedStories, ...newStories];
-          const updatedOrderIds = updatedOrder.map(story => story.id);
-          localStorage.setItem(storageKey, JSON.stringify(updatedOrderIds));
-          return updatedOrder;
-        }
-      }
 
-      // Si no hay orden guardado, crear nuevo orden usando seed basado en usuario y día
-      const seed = user?.id ? user.id.slice(-8) : Math.random().toString();
-      const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-      const randomSeed = parseInt(seed.slice(-4), 16) + dayOfYear;
-      
-      // Función de shuffle determinística basada en el seed
-      const deterministicShuffle = (array, seed) => {
-        const shuffled = [...array];
-        let currentIndex = shuffled.length;
-        let random = seed;
-        
-        while (currentIndex !== 0) {
-          // Generar número pseudo-aleatorio simple
-          random = (random * 9301 + 49297) % 233280;
-          const randomIndex = random % currentIndex;
-          currentIndex--;
-          
-          [shuffled[currentIndex], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[currentIndex]];
-        }
-        
+        // Si no hay orden guardado, crear nuevo orden usando seed basado en usuario y día
+        const seed = user?.id ? user.id.slice(-8) : Math.random().toString();
+        const dayOfYear = Math.floor(
+          (new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
+        );
+        const randomSeed = parseInt(seed.slice(-4), 16) + dayOfYear;
+
+        // Función de shuffle determinística basada en el seed
+        const deterministicShuffle = (array, seed) => {
+          const shuffled = [...array];
+          let currentIndex = shuffled.length;
+          let random = seed;
+
+          while (currentIndex !== 0) {
+            // Generar número pseudo-aleatorio simple
+            random = (random * 9301 + 49297) % 233280;
+            const randomIndex = random % currentIndex;
+            currentIndex--;
+
+            [shuffled[currentIndex], shuffled[randomIndex]] = [
+              shuffled[randomIndex],
+              shuffled[currentIndex],
+            ];
+          }
+
+          return shuffled;
+        };
+
+        const shuffled = deterministicShuffle(stories, randomSeed);
+        const orderIds = shuffled.map((story) => story.id);
+
+        // Guardar el nuevo orden
+        localStorage.setItem(storageKey, JSON.stringify(orderIds));
+
         return shuffled;
-      };
-
-      const shuffled = deterministicShuffle(stories, randomSeed);
-      const orderIds = shuffled.map((story) => story.id);
-
-      // Guardar el nuevo orden
-      localStorage.setItem(storageKey, JSON.stringify(orderIds));
-
-      return shuffled;
-    } catch (error) {
-      console.error("Error handling random order:", error);
-      // Fallback a orden aleatorio simple sin persistencia
-      return [...stories].sort(() => Math.random() - 0.5);
-    }
-  }, [user?.id]);
+      } catch (error) {
+        console.error("Error handling random order:", error);
+        // Fallback a orden aleatorio simple sin persistencia
+        return [...stories].sort(() => Math.random() - 0.5);
+      }
+    },
+    [user?.id]
+  );
 
   // ✅ FUNCIÓN PARA RESETEAR EL ORDEN ALEATORIO
   const reshuffleStories = useCallback(() => {
     if (!contest?.id) return;
 
     // Eliminar órdenes guardados para este reto y sesión actual
-    const sessionKey = `contest_${contest.id}_session_${user?.id || 'anonymous'}_${new Date().toDateString()}`;
+    const sessionKey = `contest_${contest.id}_session_${user?.id || "anonymous"}_${new Date().toDateString()}`;
     const keys = Object.keys(localStorage);
     keys.forEach((key) => {
-      if (key.startsWith(`contest_${contest.id}_random_order_`) && key.includes(sessionKey)) {
+      if (
+        key.startsWith(`contest_${contest.id}_random_order_`) &&
+        key.includes(sessionKey)
+      ) {
         localStorage.removeItem(key);
       }
     });
@@ -638,14 +661,16 @@ const CurrentContest = () => {
   // ✅ ESCUCHAR CAMBIOS DE VOTOS PARA FORZAR RE-RENDER
   useEffect(() => {
     const handleVoteChange = () => {
-      console.log("🔄 CurrentContest: Detectado cambio de voto, forzando re-render");
+      console.log(
+        "🔄 CurrentContest: Detectado cambio de voto, forzando re-render"
+      );
       setVoteTimestamp(Date.now());
     };
 
-    window.addEventListener('voteChanged', handleVoteChange);
-    
+    window.addEventListener("voteChanged", handleVoteChange);
+
     return () => {
-      window.removeEventListener('voteChanged', handleVoteChange);
+      window.removeEventListener("voteChanged", handleVoteChange);
     };
   }, []);
 
@@ -792,48 +817,56 @@ const CurrentContest = () => {
             {contest.description}
           </p>
 
-          {/* Stats del reto - Dinámicas */}
-          <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-sm">
+          {/* Stats del reto - Responsive y compactas */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-4 text-sm">
             {/* Historias enviadas */}
-            <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <BookOpen className="h-4 w-4 text-white" />
+            <div className="flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-indigo-700 dark:text-indigo-300 transition-colors duration-300">
-                {storiesLoading ? "..." : contestStats.totalStories} historia
-                {contestStats.totalStories !== 1 ? "s" : ""}
-              </span>
+              <div className="flex flex-col sm:block text-center sm:text-left">
+                <span className="font-bold text-indigo-700 dark:text-indigo-300 text-base sm:text-sm">
+                  {storiesLoading ? "..." : contestStats.totalStories}
+                </span>
+                <span className="text-xs text-indigo-600 dark:text-indigo-400 sm:ml-1">
+                  historia{contestStats.totalStories !== 1 ? "s" : ""}
+                </span>
+              </div>
             </div>
 
             {/* Contador en tiempo real */}
-            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <Clock className="h-4 w-4 text-white" />
+            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="truncate font-semibold text-purple-700 dark:text-purple-300 tabular-nums transition-colors duration-300">
-                  {timeLeft || "Cargando..."}
+                <span className="font-bold text-purple-700 dark:text-purple-300 tabular-nums text-sm sm:text-base">
+                  {timeLeft || "..."}
                 </span>
-                <span className="text-xs text-purple-500 dark:text-purple-400 transition-colors duration-300">
+                <span className="text-xs text-purple-500 dark:text-purple-400">
                   {(() => {
                     const phase = getContestPhase(contest);
-                    if (phase === "submission") return "para enviar";
-                    if (phase === "voting") return "para cerrar votación";
+                    if (phase === "submission") return "fin envíos";
+                    if (phase === "voting") return "Restantes";
                     return "restante";
                   })()}
                 </span>
               </div>
             </div>
 
-            {/* Palabras escritas */}
-            <div className="flex items-center bg-gradient-to-r from-pink-50 to-indigo-50 dark:from-pink-900/20 dark:to-indigo-900/20 border border-pink-200 dark:border-pink-700 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-0 flex-shrink-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <PenTool className="h-4 w-4 text-white" />
+            {/* Palabras escritas - Simplificado */}
+            <div className="col-span-2 sm:col-span-1 flex items-center justify-center bg-gradient-to-r from-pink-50 to-indigo-50 dark:from-pink-900/20 dark:to-indigo-900/20 border border-pink-200 dark:border-pink-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                <PenTool className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
-              <span className="truncate font-semibold text-pink-700 dark:text-pink-300 text-xs transition-colors duration-300">
-                {storiesLoading ? "..." : contestStats.formattedWords} palabras{" "}
-                <br /> escritas
-              </span>
+              <div className="text-center sm:text-left">
+                <span className="font-bold text-pink-700 dark:text-pink-300 text-base sm:text-sm">
+                  {storiesLoading ? "..." : contestStats.formattedWords}
+                </span>
+                <span className="text-xs text-pink-600 dark:text-pink-400 ml-1">
+                  palabras
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -847,38 +880,56 @@ const CurrentContest = () => {
               <h3 className="text-lg font-semibold mb-3 text-white">
                 ¡Votación Activa! - Cómo participar
               </h3>
-              
+
               {/* Instrucciones en bullets */}
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-3">
                   <span className="text-white font-bold flex-shrink-0">•</span>
                   <div className="text-sm">
-                    <span className="font-semibold text-white">Tienes 3 votos:</span>
-                    <span className="text-white/90 ml-1">Úsalos para elegir tus historias favoritas</span>
+                    <span className="font-semibold text-white">
+                      Tienes 3 votos:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Úsalos para elegir tus historias favoritas
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <span className="text-white font-bold flex-shrink-0">•</span>
                   <div className="text-sm">
-                    <span className="font-semibold text-white">Votación privada:</span>
-                    <span className="text-white/90 ml-1">Solo tú puedes ver tus votos, nadie más</span>
+                    <span className="font-semibold text-white">
+                      Votación privada:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Solo tú puedes ver tus votos, nadie más
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <span className="text-white font-bold flex-shrink-0">•</span>
                   <div className="text-sm">
-                    <span className="font-semibold text-white">Lee antes de votar:</span>
-                    <span className="text-white/90 ml-1">Explora varias historias para encontrar las que te impacten</span>
+                    <span className="font-semibold text-white">
+                      Lee antes de votar:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Explora varias historias para encontrar las que te
+                      impacten
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <span className="text-white font-bold flex-shrink-0">•</span>
                   <div className="text-sm">
-                    <span className="font-semibold text-white">Comentarios constructivos:</span>
-                    <span className="text-white/90 ml-1">Somos una comunidad de escritores aprendiendo. Sé amable y específico</span>
+                    <span className="font-semibold text-white">
+                      Comentarios constructivos:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Somos una comunidad de escritores aprendiendo. Sé amable y
+                      específico
+                    </span>
                   </div>
                 </div>
               </div>
@@ -938,7 +989,7 @@ const CurrentContest = () => {
           {/* Elementos decorativos */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-200/20 to-blue-200/20 rounded-full translate-y-12 -translate-x-12"></div>
-          
+
           <div className="relative z-10">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               {/* Indicadores visuales de votos */}
@@ -970,26 +1021,30 @@ const CurrentContest = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg font-bold text-gray-900 dark:text-dark-100">
                     Has usado{" "}
-                    <span className={`text-2xl font-extrabold ${
-                      votingStats.currentContestVotes >= 3 
-                        ? "text-red-600 dark:text-red-400" 
-                        : votingStats.currentContestVotes >= 2 
-                        ? "text-yellow-600 dark:text-yellow-400" 
-                        : "text-blue-600 dark:text-blue-400"
-                    }`}>
+                    <span
+                      className={`text-2xl font-extrabold ${
+                        votingStats.currentContestVotes >= 3
+                          ? "text-red-600 dark:text-red-400"
+                          : votingStats.currentContestVotes >= 2
+                            ? "text-yellow-600 dark:text-yellow-400"
+                            : "text-blue-600 dark:text-blue-400"
+                      }`}
+                    >
                       {votingStats.currentContestVotes}/3
                     </span>{" "}
                     votos
                   </span>
                 </div>
-                
-                <div className={`font-medium transition-all duration-300 ${
-                  votingStats.currentContestVotes >= 3 
-                    ? "text-green-600 dark:text-green-400" 
-                    : votingStats.currentContestVotes === 2 
-                    ? "text-orange-600 dark:text-orange-400 animate-pulse" 
-                    : "text-blue-600 dark:text-blue-400"
-                }`}>
+
+                <div
+                  className={`font-medium transition-all duration-300 ${
+                    votingStats.currentContestVotes >= 3
+                      ? "text-green-600 dark:text-green-400"
+                      : votingStats.currentContestVotes === 2
+                        ? "text-orange-600 dark:text-orange-400 animate-pulse"
+                        : "text-blue-600 dark:text-blue-400"
+                  }`}
+                >
                   {votingStats.currentContestVotes >= 3 ? (
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🎉</span>
@@ -1003,7 +1058,10 @@ const CurrentContest = () => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <span className="text-lg">👀</span>
-                      <span>Te quedan {3 - votingStats.currentContestVotes} votos • ¡Sigue leyendo!</span>
+                      <span>
+                        Te quedan {3 - votingStats.currentContestVotes} votos •
+                        ¡Sigue leyendo!
+                      </span>
                     </div>
                   )}
                 </div>
@@ -1186,7 +1244,8 @@ const CurrentContest = () => {
                   {/* Indicador de orden aleatorio durante votación */}
                   {phaseInfo?.phase === "voting" && (
                     <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                      🎲 Cada usuario ve las historias en orden diferente para que todas tengan oportunidad de ser leídas y votadas
+                      🎲 Cada usuario ve las historias en orden diferente para
+                      que todas tengan oportunidad de ser leídas y votadas
                     </p>
                   )}
                 </div>
