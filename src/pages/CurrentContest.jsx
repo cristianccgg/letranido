@@ -1018,7 +1018,7 @@ const CurrentContest = () => {
 
               {/* Texto principal */}
               <div className="text-center sm:text-left">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                   <span className="text-lg font-bold text-gray-900 dark:text-dark-100">
                     Has usado{" "}
                     <span
