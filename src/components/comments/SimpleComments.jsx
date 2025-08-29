@@ -245,7 +245,7 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
                 <button
                   type="submit"
                   disabled={!newComment.trim() || submitting}
-                  className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   <Send className="h-4 w-4 mr-1" />
                   {submitting ? "Enviando..." : "Comentar"}
