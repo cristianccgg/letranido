@@ -17,7 +17,7 @@ import { supabase } from "../../lib/supabase";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
 const AnalyticsDashboard = () => {
-  const { currentContest } = useGlobalApp();
+  const { currentContest, votingStats } = useGlobalApp();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState("30"); // días
@@ -54,6 +54,7 @@ const AnalyticsDashboard = () => {
       setLoading(false);
     }
   }, [timeRange, currentContest]);
+
 
   // Cargar stats del concurso actual específicamente
   const loadCurrentContestStats = async () => {
@@ -709,6 +710,7 @@ const AnalyticsDashboard = () => {
           </div>
         </div>
       )}
+
 
       {/* Gráficos y tablas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
