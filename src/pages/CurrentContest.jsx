@@ -940,7 +940,8 @@ const CurrentContest = () => {
                       Comenta sin compromiso:
                     </span>
                     <span className="text-white/90 ml-1">
-                      Puedes dejar feedback útil en cualquier historia, aunque no votes por ella
+                      Puedes dejar feedback útil en cualquier historia, aunque
+                      no votes por ella
                     </span>
                   </div>
                 </div>
