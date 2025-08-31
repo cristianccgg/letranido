@@ -207,13 +207,21 @@ const ProfileTabs = ({ user, votingStats }) => {
                   {recentStory.title}
                 </h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  recentStory.contest?.status === 'submission' 
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                    : recentStory.contest?.status === 'voting'
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                  (() => {
+                    const phase = recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown';
+                    switch(phase) {
+                      case 'submission':
+                        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+                      case 'voting':
+                        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+                      case 'results':
+                        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                      default:
+                        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+                    }
+                  })()
                 }`}>
-                  {recentStory.contest?.status}
+                  {recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown'}
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -302,13 +310,21 @@ const ProfileTabs = ({ user, votingStats }) => {
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        story.contest?.status === 'submission' 
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                          : story.contest?.status === 'voting'
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                        (() => {
+                          const phase = story.contest ? getContestPhase(story.contest) : 'unknown';
+                          switch(phase) {
+                            case 'submission':
+                              return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+                            case 'voting':
+                              return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+                            case 'results':
+                              return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                            default:
+                              return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+                          }
+                        })()
                       }`}>
-                        {story.contest?.status}
+                        {story.contest ? getContestPhase(story.contest) : 'unknown'}
                       </span>
                     </div>
                   </div>

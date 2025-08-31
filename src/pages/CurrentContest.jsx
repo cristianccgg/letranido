@@ -28,7 +28,7 @@ import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
-import ShareDropdown from "../components/ui/ShareDropdown";
+import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";
 import { preloadUsersBadges } from "../hooks/useBadgesCache";
@@ -49,7 +49,6 @@ const CurrentContest = () => {
     galleryStories,
     galleryLoading,
     votingStats,
-    userStories,
     initialized,
     globalLoading,
     getContestById,
@@ -466,31 +465,19 @@ const CurrentContest = () => {
     voteTimestamp, // Forzar re-cálculo cuando cambian los votos
   ]);
 
-  // ✅ FUNCIONES DE COMPARTIR
-  // Generar datos para compartir
-  const getShareData = () => {
-    if (!contest) return null;
+  // ✅ GENERAR DATOS PARA COMPARTIR HISTORIA ESPECÍFICA
+  const getStoryShareData = (story) => {
+    if (!story) return null;
 
-    // Verificar si el usuario participó en este reto
-    const userParticipated = userStories.some(
-      (userStory) => userStory.contest_id === contest.id
-    );
+    // URL de la historia específica
+    const storyUrl = `${window.location.origin}/story/${story.id}`;
 
-    // URL del reto (no de la historia específica)
-    const contestUrl = `${window.location.origin}/contest/${contest.id}`;
-
-    // Generar texto según si el usuario participó o no
-    return userParticipated
-      ? {
-          title: `Letranido - ${contest.title}`,
-          text: `¡Participé con mi historia en el reto "${contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
-          url: contestUrl,
-        }
-      : {
-          title: `Letranido - ${contest.title}`,
-          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Reto activo: "${contest.title}"\n✍️ Únete como escritor:`,
-          url: contestUrl,
-        };
+    // Mensaje genérico y limpio
+    return {
+      title: `"${story.title}" - Letranido`,
+      text: `📖 "${story.title}" por ${story.author}\n\n✨ Lee esta historia en Letranido:`,
+      url: storyUrl,
+    };
   };
 
   // ✅ FUNCIONES DE UTILIDAD
@@ -1557,11 +1544,13 @@ const CurrentContest = () => {
                                   <BookOpen className="h-3 w-3 mr-1" />
                                   Leer
                                 </a>
-                                {getShareData() && (
+                                {getStoryShareData(story) && (
                                   <div onClick={(e) => e.stopPropagation()}>
-                                    <ShareDropdown
-                                      shareData={getShareData()}
+                                    <SocialShareDropdown
+                                      shareData={getStoryShareData(story)}
                                       size="small"
+                                      variant="story"
+                                      direction="left"
                                     />
                                   </div>
                                 )}

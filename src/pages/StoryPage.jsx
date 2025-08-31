@@ -22,7 +22,10 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
-import { useGoogleAnalytics, AnalyticsEvents } from "../hooks/useGoogleAnalytics";
+import {
+  useGoogleAnalytics,
+  AnalyticsEvents,
+} from "../hooks/useGoogleAnalytics";
 // ✅ REMOVED: AuthModal ahora se maneja globalmente
 import SimpleComments from "../components/comments/SimpleComments";
 import CommentGuideModal from "../components/modals/CommentGuideModal";
@@ -30,7 +33,7 @@ import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
-import ShareDropdown from "../components/ui/ShareDropdown";
+import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import SEOHead from "../components/SEO/SEOHead";
 
 const StoryPage = () => {
@@ -79,7 +82,7 @@ const StoryPage = () => {
   // Refs para control
   const loadingRef = useRef(false);
   const storyContentRef = useRef(null);
-  
+
   // ✅ READING ANALYTICS
   const readingAnalytics = useReadingAnalytics(
     story?.id,
@@ -249,7 +252,7 @@ const StoryPage = () => {
           liked: result.liked,
           total_likes: likesCount + (result.liked ? 1 : -1),
         });
-        
+
         console.log(
           `${result.liked ? "❤️" : "💔"} Like ${
             result.liked ? "agregado" : "removido"
@@ -266,30 +269,29 @@ const StoryPage = () => {
   };
 
   // ✅ SHARE FUNCTIONALITY
-  // Generar datos para compartir
+  // Generar datos para compartir la historia específica
   const getShareData = () => {
-    if (!story?.contest) return null;
+    if (!story) return null;
 
-    // Verificar si el usuario participó en este concurso
-    const userParticipated = userStories.some(
-      (userStory) => userStory.contest_id === story.contest.id
-    );
+    // No permitir compartir historias en fase de submission (aún ocultas)
+    if (story.contest_id) {
+      const contestPhase = currentContest
+        ? getContestPhase(currentContest)
+        : null;
+      if (contestPhase === "submission") {
+        return null; // Historia aún no es pública
+      }
+    }
 
-    // URL del concurso (no de la historia específica)
-    const contestUrl = `${window.location.origin}/contest/${story.contest.id}`;
+    // URL de la historia específica
+    const storyUrl = `${window.location.origin}/story/${story.id}`;
 
-    // Generar texto según si el usuario participó o no
-    return userParticipated
-      ? {
-          title: `Letranido - ${story.contest.title}`,
-          text: `¡Participé con mi historia en el concurso "${story.contest.title}" en Letranido! ✍️\n📚 Únete como escritor y comparte tu historia\n🚀 Participa en:`,
-          url: contestUrl,
-        }
-      : {
-          title: `Letranido - ${story.contest.title}`,
-          text: `📝 ¡Descubre historias increíbles en Letranido!\n🎯 Concurso activo: "${story.contest.title}"\n✍️ Únete como escritor:`,
-          url: contestUrl,
-        };
+    // Mensaje genérico y limpio
+    return {
+      title: `"${story.title}" - Letranido`,
+      text: `📖 "${story.title}" por ${story.author?.display_name || story.author?.name}\n\n✨ Lee esta historia en Letranido:`,
+      url: storyUrl,
+    };
   };
 
   // ✅ UTILITY FUNCTIONS
@@ -536,10 +538,10 @@ const StoryPage = () => {
                   </h3>
                   {/* Ocultar estadísticas del autor durante votación para evitar sesgo */}
                   {(() => {
-                    // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                    const contestPhase = currentContest
-                      ? getContestPhase(currentContest)
-                      : null;
+                    // Usar currentContest si es el concurso actual, sino usar story.contest
+                    const isCurrentContest = story.contest_id === currentContest?.id;
+                    const contestToCheck = isCurrentContest ? currentContest : story.contest;
+                    const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
                     const isVotingPhase = contestPhase === "voting";
 
                     if (isVotingPhase) {
@@ -600,10 +602,10 @@ const StoryPage = () => {
               <div className="space-y-3">
                 {/* Determinar si estamos en fase de votación */}
                 {(() => {
-                  // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                  const contestPhase = currentContest
-                    ? getContestPhase(currentContest)
-                    : null;
+                  // Usar currentContest si es el concurso actual, sino usar story.contest
+                  const isCurrentContest = story.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest ? currentContest : story.contest;
+                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
                   const isVotingPhase = contestPhase === "voting";
 
                   if (isVotingPhase) {
@@ -627,23 +629,28 @@ const StoryPage = () => {
 
                         {/* Texto explicativo */}
                         <div className="text-center sm:text-left text-green-600 dark:text-green-400 text-sm">
-                          <span>🗳️ Tu voto es privado - solo tú puedes verlo</span>
+                          <span>
+                            🗳️ Tu voto es privado - solo tú puedes verlo
+                          </span>
                         </div>
 
                         {/* Contador de votos y compartir */}
-                        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
                           {/* Contador de votos restantes */}
                           <VoteCounter
                             contestId={story.contest_id}
                             className=""
                           />
 
-                          {/* Compartir */}
+                          {/* Compartir - Forzado a la derecha */}
                           {getShareData() && (
-                            <ShareDropdown
-                              shareData={getShareData()}
-                              size="default"
-                            />
+                            <div className="sm:ml-auto">
+                              <SocialShareDropdown
+                                shareData={getShareData()}
+                                size="default"
+                                variant="story"
+                              />
+                            </div>
                           )}
                         </div>
                       </>
@@ -666,28 +673,30 @@ const StoryPage = () => {
                           fullWidth={true} // Full width para más prominencia
                         />
 
-                        {/* Información de vistas */}
-                        <div className="text-center sm:text-left text-gray-600 dark:text-dark-300 text-xs">
-                          <Eye className="h-5 w-5 mr-2" />
-                          <span>{story.views_count || 0} vistas</span>
-                        </div>
-
-                        {/* Contador de votos y compartir */}
+                        {/* Información de vistas y compartir */}
                         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
-                          {/* Contador de votos restantes */}
-                          <VoteCounter
-                            contestId={story.contest_id}
-                            className=""
-                          />
+                          <div className="text-center sm:text-left text-gray-600 dark:text-dark-300 text-xs flex items-center">
+                            <Eye className="h-5 w-5 mr-2" />
+                            <span>{story.views_count || 0} vistas</span>
+                          </div>
 
-                          {/* Compartir */}
+                          {/* Compartir - Forzado a la derecha en desktop */}
                           {getShareData() && (
-                            <ShareDropdown
-                              shareData={getShareData()}
-                              size="default"
-                            />
+                            <div className="sm:ml-auto">
+                              <SocialShareDropdown
+                                shareData={getShareData()}
+                                size="default"
+                                variant="story"
+                              />
+                            </div>
                           )}
                         </div>
+
+                        {/* Contador de votos - Solo si aplica */}
+                        <VoteCounter
+                          contestId={story.contest_id}
+                          className=""
+                        />
                       </>
                     );
                   }
@@ -717,7 +726,7 @@ const StoryPage = () => {
               __html: `
             .story-content p {
               margin: 0;
-              color: ${isDark ? '#d1d5db' : '#374151'};
+              color: ${isDark ? "#d1d5db" : "#374151"};
               text-align: justify;
               line-height: 1.7;
             }
@@ -728,12 +737,12 @@ const StoryPage = () => {
 
             .story-content em {
               font-style: italic;
-              color: ${isDark ? '#9ca3af' : '#4b5563'};
+              color: ${isDark ? "#9ca3af" : "#4b5563"};
             }
 
             .story-content strong {
               font-weight: 600;
-              color: ${isDark ? '#f9fafb' : '#1f2937'};
+              color: ${isDark ? "#f9fafb" : "#1f2937"};
             }
           `,
             }}
@@ -761,10 +770,10 @@ const StoryPage = () => {
               <div className="flex items-center gap-2">
                 {/* Botón de voto en el footer - también ocultar conteo durante votación */}
                 {(() => {
-                  // Usar currentContest en lugar de story.contest para tener las fechas correctas
-                  const contestPhase = currentContest
-                    ? getContestPhase(currentContest)
-                    : null;
+                  // Usar currentContest si es el concurso actual, sino usar story.contest
+                  const isCurrentContest = story.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest ? currentContest : story.contest;
+                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
                   const isVotingPhase = contestPhase === "voting";
 
                   return (
@@ -797,7 +806,7 @@ const StoryPage = () => {
                 Comentarios ({commentsCount})
               </h3>
             </div>
-            
+
             <button
               onClick={() => setShowCommentGuide(true)}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 border border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm"
@@ -807,10 +816,10 @@ const StoryPage = () => {
               Guía de comentarios
             </button>
           </div>
-          
-          <SimpleComments 
-            storyId={story.id} 
-            storyTitle={story.title} 
+
+          <SimpleComments
+            storyId={story.id}
+            storyTitle={story.title}
             contestId={story.contest_id}
             onCommentsCountChange={setCommentsCount}
           />
@@ -893,7 +902,7 @@ const StoryPage = () => {
         </div>
 
         {/* Comment Guide Modal */}
-        <CommentGuideModal 
+        <CommentGuideModal
           isOpen={showCommentGuide}
           onClose={() => setShowCommentGuide(false)}
         />
