@@ -14,6 +14,7 @@ interface EmailRequest {
     | "new_contest"
     | "submission_reminder"
     | "voting_started"
+    | "voting_reminder"
     | "results"
     | "manual_regular"
     | "manual_essential"
@@ -68,7 +69,7 @@ serve(async (req) => {
 
     // Get contest data (solo para emails de concurso)
     let contest;
-    const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+    const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "voting_reminder", "results"].includes(emailType);
     
     if (isContestEmail) {
       if (contestId) {
@@ -254,6 +255,21 @@ serve(async (req) => {
           subject: `🗳️ ¡Votación iniciada! Lee y vota por las mejores historias`,
           html: generateVotingHTML(contest, storiesCount || 0),
           text: `La votación para "${contest.title}" ha comenzado. ${storiesCount || 0} historias esperan tu voto. Visita https://letranido.com/contest/current`,
+        };
+        break;
+
+      case "voting_reminder":
+        // Get stories count for voting reminder
+        const { count: reminderStoriesCount } = await supabaseClient
+          .from("stories")
+          .select("*", { count: "exact", head: true })
+          .eq("contest_id", contest.id);
+
+        const votingDaysLeft = calculateDaysLeft(contest.voting_deadline);
+        emailData = {
+          subject: `⏰ ¡Últimos ${votingDaysLeft} días para votar en "${contest.title}"!`,
+          html: generateVotingReminderHTML(contest, reminderStoriesCount || 0, votingDaysLeft),
+          text: `Quedan ${votingDaysLeft} días para votar en "${contest.title}". ${reminderStoriesCount || 0} historias esperan tu voto. Visita https://letranido.com/contest/current`,
         };
         break;
 
@@ -673,6 +689,82 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">Tu voto es importante y ayuda a reconocer el talento de nuestra comunidad. ¡Cada historia merece ser leída!</p>
           <a href="https://letranido.com/contest/current" style="background: #6366f1; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);">
             📚 Leer y votar
+          </a>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px; border: 1px solid #e0e7ff; border-top: none;">
+        <p style="color: #6b7280; margin: 0; font-size: 14px;">
+          <strong>Letranido</strong> • Comunidad de escritura creativa<br>
+          <a href="https://letranido.com" style="color: #6366f1; text-decoration: none;">letranido.com</a>
+        </p>
+        <p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 12px;">
+          <a href="https://letranido.com/preferences" style="color: #6b7280; text-decoration: underline;">
+            Gestionar preferencias de email
+          </a>
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function generateVotingReminderHTML(contest: any, storiesCount: number, daysLeft: number): string {
+  const urgencyEmoji = daysLeft <= 1 ? "🚨" : "⏰";
+  const votingDeadline = formatColombiaDateTime(contest.voting_deadline, true);
+  const urgencyMessage = daysLeft <= 1 ? "¡Último día!" : `¡Últimos ${daysLeft} días!`;
+  const urgencyColor = daysLeft <= 1 ? "#dc2626" : "#f59e0b";
+
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: white;">
+      <!-- Header con color sólido para compatibilidad -->
+      <div style="background: ${urgencyColor}; padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">🪶 Letranido</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 16px;">${urgencyMessage}</p>
+      </div>
+      
+      <!-- Contenido principal -->
+      <div style="padding: 40px 30px; background: white; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h2 style="color: ${urgencyColor}; margin: 0 0 12px 0; font-size: 24px;">${urgencyEmoji} ${urgencyMessage} para votar</h2>
+          <div style="width: 60px; height: 3px; background: linear-gradient(90deg, ${urgencyColor}, #8b5cf6); margin: 0 auto;"></div>
+        </div>
+        
+        <!-- Contador de urgencia -->
+        <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid ${urgencyColor}; border-radius: 16px; padding: 28px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(245, 158, 11, 0.15);">
+          <div style="background: ${urgencyColor}; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-size: 32px; font-weight: bold;">${daysLeft}</h3>
+            <p style="margin: 5px 0 0 0; font-size: 14px; color: rgba(255,255,255,0.9);">${daysLeft === 1 ? "DÍA PARA VOTAR" : "DÍAS PARA VOTAR"}</p>
+          </div>
+          <h3 style="color: #1e293b; margin: 0 0 10px 0; font-size: 20px; font-weight: bold;">"${contest.title}"</h3>
+          <p style="color: ${urgencyColor}; margin: 0; font-size: 16px; font-weight: 600;">Votación cierra: ${votingDeadline}</p>
+        </div>
+        
+        <!-- Estadísticas destacadas -->
+        <div style="background: #f1f5f9; border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+          <div style="background: #6366f1; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="margin: 0; font-size: 36px; font-weight: bold;">${storiesCount}</h4>
+            <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">historias esperando tu voto</p>
+          </div>
+          
+          <h4 style="color: #1e293b; margin: 0 0 15px 0; font-size: 18px;">🗳️ ¿Ya votaste?</h4>
+          <p style="color: #475569; margin: 0; font-size: 16px; line-height: 1.6;">
+            ${daysLeft <= 1 
+              ? "¡Es tu última oportunidad! Tu voto es importante para elegir a los ganadores." 
+              : "Lee las historias y dale tus 3 votos a las que más te gusten."
+            }
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin: 35px 0;">
+          <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">
+            ${daysLeft <= 1 
+              ? "No dejes que el tiempo se agote. ¡Cada voto cuenta!" 
+              : "Tu participación hace crecer nuestra comunidad. 💜"
+            }
+          </p>
+          <a href="https://letranido.com/contest/current" style="background: ${urgencyColor}; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);">
+            📚 ${daysLeft <= 1 ? "¡Votar AHORA!" : "Leer y votar"}
           </a>
         </div>
       </div>

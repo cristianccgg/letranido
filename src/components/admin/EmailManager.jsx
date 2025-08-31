@@ -353,6 +353,7 @@ const EmailManager = () => {
     { type: 'new_contest', label: '🎯 Nuevo Concurso', desc: 'Email de concurso disponible (usa concurso actual)' },
     { type: 'submission_reminder', label: '⏰ Recordatorio', desc: 'Recordatorio de últimos días para enviar (usa concurso actual)' },
     { type: 'voting_started', label: '🗳️ Votación Iniciada', desc: 'Notificar que inició la votación (usa concurso actual)' },
+    { type: 'voting_reminder', label: '⏰ Recordatorio Votación', desc: 'Recordar últimos días para votar (usa concurso actual)' },
     { type: 'results', label: '🏆 Resultados', desc: 'Anunciar ganadores del concurso (usa último concurso FINALIZADO)' }
   ];
 
