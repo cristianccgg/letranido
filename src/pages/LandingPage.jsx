@@ -110,11 +110,16 @@ const LandingPage = () => {
     // Si no tenemos stats y no estamos cargando, intentar cargar
     if (!globalStats.lastUpdated && !globalStatsLoading && initialized) {
       console.log("📊 Stats no disponibles, cargando desde contexto...");
-      loadGlobalStats().catch(error => {
+      loadGlobalStats().catch((error) => {
         console.error("❌ Error cargando stats desde contexto:", error);
       });
     }
-  }, [globalStats.lastUpdated, globalStatsLoading, initialized, loadGlobalStats]);
+  }, [
+    globalStats.lastUpdated,
+    globalStatsLoading,
+    initialized,
+    loadGlobalStats,
+  ]);
 
   // 🆕 ESTADO PARA GANADORES DEL RETO ANTERIOR
   const [lastContestWinners, setLastContestWinners] = useState(null);
@@ -345,10 +350,10 @@ const LandingPage = () => {
                 que puedes interpretar como quieras: síguelo exactamente,
                 adaptalo o úsalo como inspiración
               </p>
-              
+
               <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
-                ✨ Recuerda: escribimos para crecer y disfrutar, no solo para ganar. 
-                Cada historia es un paso en tu viaje literario.
+                ✨ Recuerda: escribimos para crecer, mejorar y disfrutar, no
+                solo para ganar. Cada historia es un paso en tu viaje literario.
               </p>
             </div>
 
@@ -378,10 +383,16 @@ const LandingPage = () => {
                 {/* Subtextos explicativos */}
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
                   <div className="text-sm text-gray-600 dark:text-dark-400">
-                    <span className="font-medium text-purple-700 dark:text-purple-400">✨ Descubre</span> creatividad premium sin límites
+                    <span className="font-medium text-purple-700 dark:text-purple-400">
+                      ✨ Descubre
+                    </span>{" "}
+                    creatividad premium sin límites
                   </div>
                   <div className="text-sm text-gray-600 dark:text-dark-400">
-                    <span className="font-medium text-amber-700 dark:text-amber-400">🏆 Participa</span> en el reto mensual
+                    <span className="font-medium text-amber-700 dark:text-amber-400">
+                      🏆 Participa
+                    </span>{" "}
+                    en el reto mensual
                   </div>
                 </div>
               </div>
@@ -929,8 +940,8 @@ const LandingPage = () => {
                       ¡Podrías ser el próximo ganador!
                     </h3>
                     <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      Únete al reto actual y demuestra tu talento. Tu
-                      historia podría ser la próxima en brillar.
+                      Únete al reto actual y demuestra tu talento. Tu historia
+                      podría ser la próxima en brillar.
                     </p>
                     <Link
                       to="/contest/current"
@@ -1090,8 +1101,8 @@ const LandingPage = () => {
           <div className="mt-8 text-center">
             <p className="text-sm dark:text-dark-300  text-gray-500 max-w-3xl mx-auto">
               Al participar en Letranido, solo nos das permiso para mostrar tu
-              historia en la plataforma durante los retos o publicarla en
-              redes sociales si eres ganador o finalista. Puedes retirar tu obra
+              historia en la plataforma durante los retos o publicarla en redes
+              sociales si eres ganador o finalista. Puedes retirar tu obra
               cuando quieras y usarla libremente en cualquier otro lugar.
             </p>
           </div>
