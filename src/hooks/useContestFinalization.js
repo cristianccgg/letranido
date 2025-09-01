@@ -35,7 +35,8 @@ export const useContestFinalization = () => {
         `
         )
         .eq("contest_id", contestId)
-        .order("likes_count", { ascending: false });
+        .order("likes_count", { ascending: false })
+        .order("created_at", { ascending: true });
 
       if (storiesError) {
         throw new Error("Error obteniendo historias: " + storiesError.message);
@@ -358,7 +359,8 @@ export const useContestFinalization = () => {
         `
         )
         .eq("contest_id", contestId)
-        .order("likes_count", { ascending: false });
+        .order("likes_count", { ascending: false })
+        .order("created_at", { ascending: true });
 
       if (storiesError) {
         throw new Error("Error obteniendo historias: " + storiesError.message);

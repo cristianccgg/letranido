@@ -138,6 +138,7 @@ const ContestRulesModal = ({ isOpen, onClose, contest }) => {
                 <li>• Sin contenido sexual explícito o violencia extrema</li>
                 <li>• Top 3 gana badges automáticamente</li>
                 <li>• No puedes votar por tu propia historia</li>
+                <li>• En caso de empate, gana quien envió primero</li>
               </ul>
             </div>
 

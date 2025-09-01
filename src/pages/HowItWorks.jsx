@@ -170,6 +170,10 @@ const HowItWorks = () => {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
                         <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>En caso de empate, gana quien envió primero</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
                         <span>Badges automáticos para ganadores</span>
                       </div>
                     </div>

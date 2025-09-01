@@ -661,6 +661,29 @@ const FAQ = () => {
             </p>
           ),
         },
+        {
+          question: "¿Qué pasa si hay empate en votos?",
+          answer: (
+            <div className="space-y-3">
+              <p>
+                En caso de que dos o más historias tengan el mismo número de votos, 
+                aplicamos un criterio de desempate claro y objetivo.
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                <p className="font-medium text-blue-700 dark:text-blue-300">
+                  📅 Gana quien envió su historia primero
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                  El orden se determina por la fecha y hora de envío original de la historia.
+                </p>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Este criterio incentiva la participación temprana y es completamente 
+                objetivo, evitando cualquier tipo de subjetividad en la decisión.
+              </p>
+            </div>
+          ),
+        },
       ],
     },
     {
