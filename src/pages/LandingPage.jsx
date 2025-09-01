@@ -337,13 +337,18 @@ const LandingPage = () => {
               </p>
 
               {/* Explicación clara del concepto */}
-              <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-6 max-w-3xl leading-relaxed transition-colors duration-300">
+              <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-4 max-w-3xl leading-relaxed transition-colors duration-300">
                 Cada mes un{" "}
                 <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
                   prompt diferente
                 </span>{" "}
                 que puedes interpretar como quieras: síguelo exactamente,
                 adaptalo o úsalo como inspiración
+              </p>
+              
+              <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
+                ✨ Recuerda: escribimos para crecer y disfrutar, no solo para ganar. 
+                Cada historia es un paso en tu viaje literario.
               </p>
             </div>
 
