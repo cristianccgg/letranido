@@ -229,7 +229,19 @@ const ProfileTabs = ({ user, votingStats }) => {
               </p>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>{recentStory.word_count || 0} palabras</span>
-                <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>
+                {(() => {
+                  // Ocultar estadísticas durante votación para mantener consistencia
+                  const isCurrentContest = recentStory.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest ? currentContest : recentStory.contest;
+                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
+                  const isVotingPhase = contestPhase === "voting";
+
+                  if (isVotingPhase) {
+                    return <span className="text-yellow-600 dark:text-yellow-400">En votación</span>;
+                  } else {
+                    return <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>;
+                  }
+                })()}
               </div>
             </div>
           ) : (
@@ -332,10 +344,31 @@ const ProfileTabs = ({ user, votingStats }) => {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
                     <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-2">
                       <span>{story.word_count || 0} palabras</span>
-                      <span>•</span>
-                      <span>{story.likes_count || 0} ❤️</span>
-                      <span>•</span>
-                      <span>{story.views_count || 0} 👁️</span>
+                      {(() => {
+                        // Ocultar estadísticas durante votación para mantener consistencia
+                        const isCurrentContest = story.contest_id === currentContest?.id;
+                        const contestToCheck = isCurrentContest ? currentContest : story.contest;
+                        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
+                        const isVotingPhase = contestPhase === "voting";
+
+                        if (isVotingPhase) {
+                          return (
+                            <>
+                              <span>•</span>
+                              <span className="text-yellow-600 dark:text-yellow-400">En votación</span>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <span>•</span>
+                              <span>{story.likes_count || 0} ❤️</span>
+                              <span>•</span>
+                              <span>{story.views_count || 0} 👁️</span>
+                            </>
+                          );
+                        }
+                      })()}
                     </div>
                     
                     <div className="flex gap-2 flex-wrap sm:flex-nowrap">
