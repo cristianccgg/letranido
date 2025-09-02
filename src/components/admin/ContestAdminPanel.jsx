@@ -50,6 +50,7 @@ const ContestAdminPanel = () => {
   const [deleteLoading, setDeleteLoading] = useState(null); // ID del concurso que se está eliminando
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
   const [rankingLoading, setRankingLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("concursos");
 
   // Función para determinar si un concurso es de prueba
   const isTestContest = (contest) => {
@@ -61,8 +62,6 @@ const ContestAdminPanel = () => {
   // Función para ordenar concursos según prioridad de cola
   const sortContestsByPriority = (contests) => {
     if (!contests || contests.length === 0) return [];
-    
-    const now = new Date();
     
     // Separar concursos finalizados y activos
     const finalized = contests.filter(c => c.finalized_at !== null);
@@ -257,14 +256,14 @@ const ContestAdminPanel = () => {
         
         if (rpcVotesError) {
           console.warn('RPC votes function not available, using direct query');
-          const { data: directVotes, error: directError } = await supabase
+          const { data: directVotes } = await supabase
             .from('votes')
             .select('user_id, created_at');
           votes = directVotes || [];
         } else {
           votes = rpcVotes || [];
         }
-      } catch (error) {
+      } catch {
         console.warn('Error getting votes, continuing without votes data');
         votes = [];
       }
@@ -958,6 +957,14 @@ const ContestAdminPanel = () => {
     );
   }
 
+  const tabs = [
+    { id: "concursos", label: "Concursos", icon: Trophy },
+    { id: "analytics", label: "Analytics", icon: Award },
+    { id: "moderacion", label: "Moderación", icon: Shield },
+    { id: "mantenimiento", label: "Mantenimiento", icon: Settings },
+    { id: "comunicaciones", label: "Comunicaciones", icon: Users },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 bg-white dark:bg-dark-900 min-h-screen transition-colors duration-300">
       {/* Header */}
@@ -968,45 +975,74 @@ const ContestAdminPanel = () => {
             Panel de Administración
           </h1>
           <p className="text-gray-600 dark:text-dark-300 mt-2">
-            Gestión completa de concursos con controles de prueba
+            Gestión completa de concursos y herramientas administrativas
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => {
-              resetForm();
-              setShowCreateModal(true);
-            }}
-            className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center transition-colors duration-200"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Concurso
-          </button>
-          <button
-            onClick={handleRecalculateRankings}
-            disabled={rankingLoading}
-            className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 flex items-center disabled:opacity-50 transition-colors duration-200"
-          >
-            {rankingLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Actualizando...
-              </>
-            ) : (
-              <>
-                <Zap className="h-4 w-4 mr-2" />
-                Actualizar Rankings
-              </>
-            )}
-          </button>
+          {activeTab === "concursos" && (
+            <button
+              onClick={() => {
+                resetForm();
+                setShowCreateModal(true);
+              }}
+              className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center transition-colors duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Concurso
+            </button>
+          )}
+          {activeTab === "analytics" && (
+            <button
+              onClick={handleRecalculateRankings}
+              disabled={rankingLoading}
+              className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 flex items-center disabled:opacity-50 transition-colors duration-200"
+            >
+              {rankingLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Actualizando...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4 mr-2" />
+                  Actualizar Rankings
+                </>
+              )}
+            </button>
+          )}
           <div className="text-sm text-gray-500 dark:text-dark-400">
             Conectado como: <span className="font-medium text-gray-700 dark:text-dark-200">{user?.name}</span>
           </div>
         </div>
       </div>
 
-      {/* Resultado de finalización */}
-      {finalizationResult && (
+      {/* Tabs Navigation */}
+      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+        <div className="border-b border-gray-200 dark:border-dark-600">
+          <nav className="flex space-x-1 p-1">
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                      : "text-gray-500 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-700"
+                  }`}
+                >
+                  <IconComponent className="h-4 w-4 mr-2" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+      {/* Resultado de finalización - Solo visible en tab concursos */}
+      {finalizationResult && activeTab === "concursos" && (
         <div
           className={`rounded-lg p-6 border transition-colors duration-300 ${
             finalizationResult.success
@@ -1075,8 +1111,12 @@ const ContestAdminPanel = () => {
         </div>
       )}
 
-      {/* Lista de concursos */}
-      <div className="grid gap-6 bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-600">
+      {/* Tab Content */}
+      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+        {activeTab === "concursos" && (
+          <div className="p-6">
+            {/* Lista de concursos */}
+            <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100">
@@ -1367,25 +1407,36 @@ const ContestAdminPanel = () => {
             })}
           </div>
         )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "analytics" && (
+          <div className="p-6">
+            <AnalyticsDashboard />
+          </div>
+        )}
+
+        {activeTab === "moderacion" && (
+          <div className="p-6 space-y-6">
+            <ModerationDashboard />
+            <ReportsPanel />
+          </div>
+        )}
+
+        {activeTab === "mantenimiento" && (
+          <div className="p-6 space-y-6">
+            <MaintenanceControl />
+            <DataCleanupPanel />
+          </div>
+        )}
+
+        {activeTab === "comunicaciones" && (
+          <div className="p-6">
+            <EmailManager />
+          </div>
+        )}
       </div>
-
-      {/* Panel de Analytics */}
-      <AnalyticsDashboard />
-
-      {/* Panel de control de mantenimiento */}
-      <MaintenanceControl />
-
-      {/* Panel de limpieza de datos */}
-      <DataCleanupPanel />
-
-      {/* Panel de reportes */}
-      <ReportsPanel />
-
-      {/* Panel de test de emails */}
-      <EmailManager />
-
-      {/* Panel de moderación automática */}
-      <ModerationDashboard />
 
       {/* Modal de simulación de ganadores */}
       {showPreviewModal && selectedContest && simulatedWinners && (

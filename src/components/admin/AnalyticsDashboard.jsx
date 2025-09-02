@@ -18,7 +18,7 @@ import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
 const AnalyticsDashboard = () => {
   const { currentContest, votingStats } = useGlobalApp();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Cambiar a false por defecto
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState("30"); // días
 
@@ -35,8 +35,8 @@ const AnalyticsDashboard = () => {
     { value: "365", label: "1 año" },
   ];
 
-  // Cargar analytics principales
-  const loadAnalytics = React.useCallback(async () => {
+  // Cargar analytics principales - solo manual
+  const loadAnalytics = async () => {
     setLoading(true);
     try {
       // Cargar contest analytics primero (otros lo necesitan)
@@ -53,7 +53,7 @@ const AnalyticsDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [timeRange, currentContest]);
+  };
 
 
   // Cargar stats del concurso actual específicamente
@@ -552,18 +552,52 @@ const AnalyticsDashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Solo cargar stats del concurso actual (rápido) al cambiar de concurso
   useEffect(() => {
-    // Solo cargar analytics si currentContest está disponible
     if (currentContest) {
-      loadAnalytics();
+      loadCurrentContestStats();
     }
-  }, [loadAnalytics, currentContest]);
+  }, [currentContest]);
 
-  if (loading) {
+  // Mostrar loading solo cuando está activamente cargando
+  const hasData = Object.keys(userEngagement).length > 0;
+
+  if (loading && !hasData) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Cargando analytics...</span>
+        <span className="ml-3 text-gray-600 dark:text-dark-300">Cargando analytics...</span>
+      </div>
+    );
+  }
+
+  // Mostrar mensaje inicial si no hay datos cargados
+  if (!hasData) {
+    return (
+      <div className="space-y-6 bg-white dark:bg-dark-800 rounded-lg p-6 border border-gray-200 dark:border-dark-600">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+              <BarChart3 className="h-7 w-7 mr-3 text-blue-600 dark:text-blue-400" />
+              Analytics Dashboard
+            </h2>
+            <p className="text-gray-600 dark:text-dark-300 mt-1">
+              Métricas de engagement y readiness para premium
+            </p>
+          </div>
+          <button
+            onClick={loadAnalytics}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 text-sm transition-colors duration-200"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Cargar Analytics
+          </button>
+        </div>
+        <div className="text-center py-12 text-gray-500 dark:text-dark-400">
+          <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+          <p className="mb-4">Analytics no cargados</p>
+          <p className="text-sm">Haz click en "Cargar Analytics" para ver las métricas</p>
+        </div>
       </div>
     );
   }
@@ -602,11 +636,11 @@ const AnalyticsDashboard = () => {
           </button>
           <button
             onClick={handleRefresh}
-            disabled={refreshing}
+            disabled={refreshing || loading}
             className="flex items-center gap-2 px-3 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 text-sm transition-colors duration-200"
           >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            Actualizar
+            <RefreshCw className={`h-4 w-4 ${refreshing || loading ? 'animate-spin' : ''}`} />
+            {refreshing || loading ? 'Actualizando...' : 'Actualizar'}
           </button>
         </div>
       </div>
