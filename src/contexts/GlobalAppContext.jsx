@@ -3663,8 +3663,8 @@ const findCurrentContest = (contests) => {
       const submissionDeadline = new Date(contest.submission_deadline);
       const votingDeadline = new Date(contest.voting_deadline);
       
-      // El reto está activo si aún no ha terminado la votación
-      return now <= votingDeadline;
+      // El reto está activo hasta que se finalice manualmente (para mostrar fase "counting")
+      return !contest.finalized_at;
     });
     
     if (activeNow.length > 0) {
