@@ -569,9 +569,9 @@ const CurrentContest = () => {
       case "counting":
         return {
           phase: "counting",
-          title: "🔢 Contando Votos",
+          title: "⏱️ Votación Cerrada",
           description:
-            "La votación ha cerrado. Estamos contando los votos y los resultados estarán listos pronto.",
+            "La votación ha cerrado automáticamente. Los resultados se publicarán muy pronto.",
           bgColor: "bg-orange-50",
           borderColor: "border-orange-200",
           textColor: "text-orange-800",

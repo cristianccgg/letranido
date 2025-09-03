@@ -1547,7 +1547,7 @@ export function GlobalAppProvider({ children }) {
         } else if (currentPhase === "counting") {
           return {
             canVote: false,
-            reason: "La votación ha cerrado, estamos contando los votos",
+            reason: "La votación ha cerrado automáticamente",
             phase: "counting",
           };
         } else {
