@@ -3660,9 +3660,6 @@ const findCurrentContest = (contests) => {
   if (productionContests.length > 0) {
     // Buscar retos que deberían estar activos ahora
     const activeNow = productionContests.filter(contest => {
-      const submissionDeadline = new Date(contest.submission_deadline);
-      const votingDeadline = new Date(contest.voting_deadline);
-      
       // El reto está activo hasta que se finalice manualmente (para mostrar fase "counting")
       return !contest.finalized_at;
     });
