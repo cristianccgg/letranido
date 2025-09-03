@@ -1544,6 +1544,12 @@ export function GlobalAppProvider({ children }) {
             reason: "La votación ha terminado",
             phase: "results",
           };
+        } else if (currentPhase === "counting") {
+          return {
+            canVote: false,
+            reason: "La votación ha cerrado, estamos contando los votos",
+            phase: "counting",
+          };
         } else {
           // Fase de votación - verificar límite de 3 votos SOLO para reto actual
           if (state.user?.id) {
