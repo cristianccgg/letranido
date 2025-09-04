@@ -56,36 +56,40 @@ const ContestAdminPanel = () => {
   const isTestContest = (contest) => {
     if (!contest?.title) return false;
     const title = contest.title.toLowerCase();
-    return title.includes('test') || title.includes('prueba') || title.includes('demo');
+    return (
+      title.includes("test") ||
+      title.includes("prueba") ||
+      title.includes("demo")
+    );
   };
 
   // Función para ordenar concursos según prioridad de cola
   const sortContestsByPriority = (contests) => {
     if (!contests || contests.length === 0) return [];
-    
+
     // Separar concursos finalizados y activos
-    const finalized = contests.filter(c => c.finalized_at !== null);
-    const active = contests.filter(c => c.finalized_at === null);
-    
+    const finalized = contests.filter((c) => c.finalized_at !== null);
+    const active = contests.filter((c) => c.finalized_at === null);
+
     // Separar concursos activos en prueba y producción
-    const testContests = active.filter(c => isTestContest(c));
-    const productionContests = active.filter(c => !isTestContest(c));
-    
+    const testContests = active.filter((c) => isTestContest(c));
+    const productionContests = active.filter((c) => !isTestContest(c));
+
     // Ordenar cada grupo
-    const sortedTest = testContests.sort((a, b) => 
-      new Date(b.created_at) - new Date(a.created_at)
+    const sortedTest = testContests.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
-    
+
     const sortedProduction = productionContests.sort((a, b) => {
       const aSubmission = new Date(a.submission_deadline);
       const bSubmission = new Date(b.submission_deadline);
       return aSubmission - bSubmission; // Más cercano a empezar primero
     });
-    
-    const sortedFinalized = finalized.sort((a, b) => 
-      new Date(b.finalized_at) - new Date(a.finalized_at)
+
+    const sortedFinalized = finalized.sort(
+      (a, b) => new Date(b.finalized_at) - new Date(a.finalized_at)
     );
-    
+
     // Combinar en orden de prioridad
     return [...sortedTest, ...sortedProduction, ...sortedFinalized];
   };
@@ -94,37 +98,42 @@ const ContestAdminPanel = () => {
   const getContestPriorityInfo = (contest, index, sortedContests) => {
     const isFinalized = contest.finalized_at !== null;
     const isTest = isTestContest(contest);
-    const activeContests = sortedContests.filter(c => c.finalized_at === null);
-    const activeIndex = activeContests.findIndex(c => c.id === contest.id);
-    
+    const activeContests = sortedContests.filter(
+      (c) => c.finalized_at === null
+    );
+    const activeIndex = activeContests.findIndex((c) => c.id === contest.id);
+
     if (isFinalized) {
       return {
         priority: null,
         className: "bg-gray-100 text-gray-600",
-        label: "Finalizado"
+        label: "Finalizado",
       };
     }
-    
+
     if (isTest) {
       return {
         priority: activeIndex === 0 ? "ACTIVO" : "PRUEBA",
-        className: activeIndex === 0 ? "bg-purple-100 text-purple-700" : "bg-yellow-100 text-yellow-700",
-        label: activeIndex === 0 ? "🎭 ACTIVO (Prueba)" : "🎭 En Cola (Prueba)"
+        className:
+          activeIndex === 0
+            ? "bg-purple-100 text-purple-700"
+            : "bg-yellow-100 text-yellow-700",
+        label: activeIndex === 0 ? "🎭 ACTIVO (Prueba)" : "🎭 En Cola (Prueba)",
       };
     }
-    
+
     if (activeIndex === 0) {
       return {
         priority: "ACTIVO",
         className: "bg-green-100 text-green-700",
-        label: "🏗️ ACTIVO (Producción)"
+        label: "🏗️ ACTIVO (Producción)",
       };
     }
-    
+
     return {
       priority: `#${activeIndex + 1}`,
       className: "bg-blue-100 text-blue-700",
-      label: `🏗️ En Cola #${activeIndex + 1}`
+      label: `🏗️ En Cola #${activeIndex + 1}`,
     };
   };
 
@@ -190,11 +199,11 @@ const ContestAdminPanel = () => {
       // Para datetime-local necesitamos formato YYYY-MM-DDTHH:mm
       // pero interpretado como hora local de Colombia
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
@@ -212,86 +221,96 @@ const ContestAdminPanel = () => {
     });
   };
 
-  // Recalcular rankings manualmente 
+  // Recalcular rankings manualmente
   const handleRecalculateRankings = async () => {
-    if (!confirm('¿Recalcular los rankings de karma? Esta acción actualizará los datos cached de ranking para todos los usuarios.')) {
+    if (
+      !confirm(
+        "¿Recalcular los rankings de karma? Esta acción actualizará los datos cached de ranking para todos los usuarios."
+      )
+    ) {
       return;
     }
 
     setRankingLoading(true);
 
     try {
-      console.log('🔄 Iniciando recalculo de rankings...');
-      
+      console.log("🔄 Iniciando recalculo de rankings...");
+
       // 1. Llamar a la función RPC para limpiar tablas
-      const { data: rpcResult, error: rpcError } = await supabase
-        .rpc('recalculate_rankings');
+      const { data: rpcResult, error: rpcError } = await supabase.rpc(
+        "recalculate_rankings"
+      );
 
       if (rpcError) {
-        throw new Error('Error en RPC function: ' + rpcError.message);
+        throw new Error("Error en RPC function: " + rpcError.message);
       }
 
-      console.log('📊 RPC completado:', rpcResult);
+      console.log("📊 RPC completado:", rpcResult);
 
       // 2. Ahora calcular los rankings usando la lógica del sidebar
       // Obtener historias
       const { data: stories, error: storiesError } = await supabase
-        .from('stories')
-        .select(`
+        .from("stories")
+        .select(
+          `
           id,
           user_id,
           likes_count,
           contest_id,
           published_at
-        `)
-        .not('published_at', 'is', null);
+        `
+        )
+        .not("published_at", "is", null);
 
       if (storiesError) throw storiesError;
 
       // Obtener votos usando función RPC si está disponible
       let votes = [];
       try {
-        const { data: rpcVotes, error: rpcVotesError } = await supabase
-          .rpc('get_all_votes_for_rankings');
-        
+        const { data: rpcVotes, error: rpcVotesError } = await supabase.rpc(
+          "get_all_votes_for_rankings"
+        );
+
         if (rpcVotesError) {
-          console.warn('RPC votes function not available, using direct query');
+          console.warn("RPC votes function not available, using direct query");
           const { data: directVotes } = await supabase
-            .from('votes')
-            .select('user_id, created_at');
+            .from("votes")
+            .select("user_id, created_at");
           votes = directVotes || [];
         } else {
           votes = rpcVotes || [];
         }
       } catch {
-        console.warn('Error getting votes, continuing without votes data');
+        console.warn("Error getting votes, continuing without votes data");
         votes = [];
       }
 
       // Obtener comentarios
       const { data: comments, error: commentsError } = await supabase
-        .from('comments')
-        .select('user_id, story_id, created_at')
-        .not('user_id', 'is', null)
-        .not('story_id', 'is', null);
+        .from("comments")
+        .select("user_id, story_id, created_at")
+        .not("user_id", "is", null)
+        .not("story_id", "is", null);
 
-      if (commentsError) console.warn('Error loading comments:', commentsError);
+      if (commentsError) console.warn("Error loading comments:", commentsError);
 
       // Obtener perfiles de usuario
-      const storyUserIds = stories ? stories.map(s => s.user_id) : [];
-      const voteUserIds = votes ? votes.map(v => v.user_id) : [];
-      const commentUserIds = comments ? comments.map(c => c.user_id) : [];
-      const uniqueUserIds = [...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds])];
-      
+      const storyUserIds = stories ? stories.map((s) => s.user_id) : [];
+      const voteUserIds = votes ? votes.map((v) => v.user_id) : [];
+      const commentUserIds = comments ? comments.map((c) => c.user_id) : [];
+      const uniqueUserIds = [
+        ...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds]),
+      ];
+
       let users = [];
       if (uniqueUserIds.length > 0) {
         const { data: usersData, error: usersError } = await supabase
-          .from('user_profiles')
-          .select('id, display_name')
-          .in('id', uniqueUserIds);
-          
+          .from("user_profiles")
+          .select("id, display_name")
+          .in("id", uniqueUserIds);
+
         if (usersError) {
-          console.warn('Error loading users:', usersError);
+          console.warn("Error loading users:", usersError);
         } else {
           users = usersData || [];
         }
@@ -299,17 +318,23 @@ const ContestAdminPanel = () => {
 
       // Obtener concursos
       const { data: contestsData, error: contestsError } = await supabase
-        .from('contests')
-        .select('id, title, month, status, finalized_at, voting_deadline');
-      
-      if (contestsError) console.warn('Error loading contests:', contestsError);
+        .from("contests")
+        .select("id, title, month, status, finalized_at, voting_deadline");
+
+      if (contestsError) console.warn("Error loading contests:", contestsError);
 
       // Calcular karma usando la misma lógica que el sidebar
-      const userKarma = calculateUserKarmaForCache(stories || [], votes, comments || [], contestsData || [], users);
-      
+      const userKarma = calculateUserKarmaForCache(
+        stories || [],
+        votes,
+        comments || [],
+        contestsData || [],
+        users
+      );
+
       // Convertir a array y ordenar
       const rankingArray = Object.values(userKarma)
-        .filter(user => user.totalKarma > 0)
+        .filter((user) => user.totalKarma > 0)
         .sort((a, b) => b.totalKarma - a.totalKarma)
         .map((user, index) => ({
           user_id: user.userId,
@@ -320,15 +345,15 @@ const ContestAdminPanel = () => {
           comments_given: user.commentsGiven,
           comments_received: user.commentsReceived,
           contest_wins: user.contestWins,
-          position: index + 1
+          position: index + 1,
         }));
 
-      console.log('📊 Rankings calculados:', rankingArray.length, 'usuarios');
+      console.log("📊 Rankings calculados:", rankingArray.length, "usuarios");
 
       // 3. Insertar los rankings calculados
       if (rankingArray.length > 0) {
         const { error: insertError } = await supabase
-          .from('cached_rankings')
+          .from("cached_rankings")
           .insert(rankingArray);
 
         if (insertError) throw insertError;
@@ -336,28 +361,39 @@ const ContestAdminPanel = () => {
 
       // 4. Actualizar metadata
       const { error: metadataError } = await supabase
-        .from('ranking_metadata')
+        .from("ranking_metadata")
         .update({
           total_users: rankingArray.length,
-          contest_period: new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+          contest_period: new Date().toLocaleDateString("es-ES", {
+            month: "long",
+            year: "numeric",
+          }),
         })
-        .eq('updated_by_admin', true);
+        .eq("updated_by_admin", true);
 
-      if (metadataError) console.warn('Error updating metadata:', metadataError);
+      if (metadataError)
+        console.warn("Error updating metadata:", metadataError);
 
-      console.log('✅ Rankings recalculados exitosamente');
-      alert(`✅ Rankings actualizados exitosamente!\n${rankingArray.length} usuarios procesados.`);
-
+      console.log("✅ Rankings recalculados exitosamente");
+      alert(
+        `✅ Rankings actualizados exitosamente!\n${rankingArray.length} usuarios procesados.`
+      );
     } catch (error) {
-      console.error('❌ Error recalculando rankings:', error);
-      alert('❌ Error recalculando rankings: ' + error.message);
+      console.error("❌ Error recalculando rankings:", error);
+      alert("❌ Error recalculando rankings: " + error.message);
     } finally {
       setRankingLoading(false);
     }
   };
 
   // Función helper para calcular karma (adaptada del sidebar)
-  const calculateUserKarmaForCache = (stories, votes, comments, contests, users) => {
+  const calculateUserKarmaForCache = (
+    stories,
+    votes,
+    comments,
+    contests,
+    users
+  ) => {
     const KARMA_POINTS = {
       STORY_PUBLISHED: 15,
       LIKE_RECEIVED: 2,
@@ -372,9 +408,9 @@ const ContestAdminPanel = () => {
 
     const initializeUser = (userId) => {
       if (!userKarma[userId]) {
-        const userProfile = users.find(u => u.id === userId);
-        const author = userProfile?.display_name || 'Usuario Anónimo';
-        
+        const userProfile = users.find((u) => u.id === userId);
+        const author = userProfile?.display_name || "Usuario Anónimo";
+
         userKarma[userId] = {
           userId,
           author,
@@ -383,30 +419,32 @@ const ContestAdminPanel = () => {
           contestWins: 0,
           votesGiven: 0,
           commentsGiven: 0,
-          commentsReceived: 0
+          commentsReceived: 0,
         };
       }
     };
 
     // Procesar votos
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       initializeUser(vote.user_id);
       userKarma[vote.user_id].votesGiven++;
       userKarma[vote.user_id].totalKarma += KARMA_POINTS.VOTE_GIVEN;
     });
 
     // Procesar comentarios
-    comments.forEach(comment => {
+    comments.forEach((comment) => {
       const commentAuthorId = comment.user_id;
-      const storyAuthorId = stories.find(s => s.id === comment.story_id)?.user_id;
-      
+      const storyAuthorId = stories.find(
+        (s) => s.id === comment.story_id
+      )?.user_id;
+
       // Karma para quien da el comentario
       if (commentAuthorId) {
         initializeUser(commentAuthorId);
         userKarma[commentAuthorId].commentsGiven++;
         userKarma[commentAuthorId].totalKarma += KARMA_POINTS.COMMENT_GIVEN;
       }
-      
+
       // Karma para quien recibe el comentario
       if (storyAuthorId && storyAuthorId !== commentAuthorId) {
         initializeUser(storyAuthorId);
@@ -416,30 +454,36 @@ const ContestAdminPanel = () => {
     });
 
     // Procesar historias
-    stories.forEach(story => {
+    stories.forEach((story) => {
       const userId = story.user_id;
       initializeUser(userId);
 
       const userStats = userKarma[userId];
-      
+
       // Karma básico por historia
       userStats.totalKarma += KARMA_POINTS.STORY_PUBLISHED;
       userStats.totalStories++;
 
       // Buscar información del concurso
-      const contest = contests.find(c => c.id === story.contest_id);
-      const canShowVotes = contest && (contest.status === 'results' || contest.status === 'voting');
+      const contest = contests.find((c) => c.id === story.contest_id);
+      const canShowVotes =
+        contest &&
+        (contest.status === "results" || contest.status === "voting");
 
       if (canShowVotes && story.likes_count) {
         userStats.totalKarma += story.likes_count * KARMA_POINTS.LIKE_RECEIVED;
       }
 
       // Detectar ganadores
-      if (contest?.status === 'results') {
-        const allContestStories = stories.filter(s => s.contest_id === story.contest_id);
-        const sortedByVotes = allContestStories.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
-        const position = sortedByVotes.findIndex(s => s.id === story.id) + 1;
-        
+      if (contest?.status === "results") {
+        const allContestStories = stories.filter(
+          (s) => s.contest_id === story.contest_id
+        );
+        const sortedByVotes = allContestStories.sort(
+          (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
+        );
+        const position = sortedByVotes.findIndex((s) => s.id === story.id) + 1;
+
         if (position === 1) {
           userStats.contestWins++;
           userStats.totalKarma += KARMA_POINTS.CONTEST_WIN;
@@ -636,7 +680,7 @@ const ContestAdminPanel = () => {
       const submissionEnd = new Date(now);
       submissionEnd.setDate(now.getDate() + 7);
       submissionEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
-      
+
       const votingEnd = new Date(submissionEnd);
       votingEnd.setDate(votingEnd.getDate() + 5);
       votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
@@ -646,11 +690,11 @@ const ContestAdminPanel = () => {
     } else if (newStatus === "voting") {
       // ✅ CORREGIDO: Para test de votación, establecer fechas apropiadas
       // submission_deadline debe estar en el pasado inmediato
-      const submissionPast = new Date(now.getTime() - (5 * 60 * 1000)); // 5 minutos atrás
-      
+      const submissionPast = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutos atrás
+
       // voting_deadline debe estar en el futuro cercano para pruebas
-      const votingEnd = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 horas adelante
-      
+      const votingEnd = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 horas adelante
+
       updates.submission_deadline = toColombiaUTC(submissionPast);
       updates.voting_deadline = toColombiaUTC(votingEnd);
     }
@@ -674,7 +718,8 @@ const ContestAdminPanel = () => {
         .from("stories")
         .select("*")
         .eq("contest_id", contest.id)
-        .order("likes_count", { ascending: false });
+        .order("likes_count", { ascending: false })
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
 
@@ -684,7 +729,7 @@ const ContestAdminPanel = () => {
       }
 
       // Obtener información de los usuarios
-      const userIds = stories.map(story => story.user_id).filter(Boolean);
+      const userIds = stories.map((story) => story.user_id).filter(Boolean);
       const { data: userProfiles, error: usersError } = await supabase
         .from("user_profiles")
         .select("id, display_name, email")
@@ -693,10 +738,23 @@ const ContestAdminPanel = () => {
       if (usersError) throw usersError;
 
       // Combinar historias con perfiles de usuario
-      const storiesWithUsers = stories.map(story => ({
+      const storiesWithUsers = stories.map((story) => ({
         ...story,
-        user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
+        user_profiles:
+          userProfiles?.find((profile) => profile.id === story.user_id) || null,
       }));
+
+      // DEBUG: Mostrar votos exactos
+      const topStories = storiesWithUsers.slice(0, 5).map((s, i) => ({
+        pos: i + 1,
+        title: s.title?.substring(0, 20) + "...",
+        likes: s.likes_count,
+        created: s.created_at?.substring(0, 19)
+      }));
+      console.log("🔍 DEBUG - Top 5 historias con votos:");
+      topStories.forEach(story => {
+        console.log(`  ${story.pos}. "${story.title}" - ${story.likes} votos - ${story.created}`);
+      });
 
       const mockWinners = storiesWithUsers.slice(0, 3).map((story, index) => ({
         ...story,
@@ -704,7 +762,19 @@ const ContestAdminPanel = () => {
         simulatedPoints: index === 0 ? 100 : index === 1 ? 50 : 25,
       }));
 
-      setSimulatedWinners(mockWinners);
+      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
+      let honoraryMention = null;
+      if (storiesWithUsers.length >= 4) {
+        const thirdPlace = mockWinners[2];
+        const fourthPlace = storiesWithUsers[3];
+        
+        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
+          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
+          console.log("🎖️ Mención de Honor detectada (simulación):", honoraryMention.title);
+        }
+      }
+
+      setSimulatedWinners({ winners: mockWinners, honoraryMention });
       setSelectedContest(contest);
       setShowPreviewModal(true);
 
@@ -723,7 +793,7 @@ const ContestAdminPanel = () => {
     setFinalizingContestId(contest.id);
     const result = await previewWinners(contest.id);
     if (result.success) {
-      setWinners(result.winners);
+      setWinners(result); // Guardar todo el resultado incluyendo honoraryMention
       setSelectedContest(contest);
       setShowFinalizationModal(true);
     } else {
@@ -763,15 +833,15 @@ const ContestAdminPanel = () => {
       // ⚠️ IMPORTANTE: Convertir fechas a ISO con zona horaria de Colombia
       const toColombiaISO = (dateTimeLocal) => {
         if (!dateTimeLocal) return null;
-        
+
         // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
         // Necesitamos interpretarlo explícitamente como hora de Colombia y convertir a UTC para la BD
-        
+
         // Crear la fecha especificando que es hora de Colombia (UTC-5)
         // Agregamos la zona horaria de Colombia para que se interprete correctamente
-        const colombiaDateTime = dateTimeLocal + '-05:00'; // Formato ISO con zona horaria de Colombia
+        const colombiaDateTime = dateTimeLocal + "-05:00"; // Formato ISO con zona horaria de Colombia
         const colombiaDate = new Date(colombiaDateTime);
-        
+
         return colombiaDate.toISOString();
       };
 
@@ -813,19 +883,21 @@ const ContestAdminPanel = () => {
     // ✅ CORREGIDO: Convertir fechas UTC de BD a formato datetime-local de Colombia
     const utcToColombiaLocal = (utcISOString) => {
       if (!utcISOString) return "";
-      
+
       const utcDate = new Date(utcISOString);
       // Restar 5 horas para convertir de UTC a Colombia (UTC-5)
       const colombiaOffset = 5 * 60; // 5 horas en minutos
-      const colombiaDate = new Date(utcDate.getTime() - (colombiaOffset * 60 * 1000));
-      
+      const colombiaDate = new Date(
+        utcDate.getTime() - colombiaOffset * 60 * 1000
+      );
+
       // Formatear para datetime-local
       const year = colombiaDate.getFullYear();
-      const month = String(colombiaDate.getMonth() + 1).padStart(2, '0');
-      const day = String(colombiaDate.getDate()).padStart(2, '0');
-      const hours = String(colombiaDate.getHours()).padStart(2, '0');
-      const minutes = String(colombiaDate.getMinutes()).padStart(2, '0');
-      
+      const month = String(colombiaDate.getMonth() + 1).padStart(2, "0");
+      const day = String(colombiaDate.getDate()).padStart(2, "0");
+      const hours = String(colombiaDate.getHours()).padStart(2, "0");
+      const minutes = String(colombiaDate.getMinutes()).padStart(2, "0");
+
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
@@ -856,15 +928,15 @@ const ContestAdminPanel = () => {
       // ⚠️ IMPORTANTE: Convertir fechas a ISO con zona horaria de Colombia
       const toColombiaISO = (dateTimeLocal) => {
         if (!dateTimeLocal) return null;
-        
+
         // datetime-local da formato "2025-07-28T19:00" (sin zona horaria)
         // Necesitamos interpretarlo explícitamente como hora de Colombia y convertir a UTC para la BD
-        
+
         // Crear la fecha especificando que es hora de Colombia (UTC-5)
         // Agregamos la zona horaria de Colombia para que se interprete correctamente
-        const colombiaDateTime = dateTimeLocal + '-05:00'; // Formato ISO con zona horaria de Colombia
+        const colombiaDateTime = dateTimeLocal + "-05:00"; // Formato ISO con zona horaria de Colombia
         const colombiaDate = new Date(colombiaDateTime);
-        
+
         return colombiaDate.toISOString();
       };
 
@@ -966,1103 +1038,576 @@ const ContestAdminPanel = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 bg-white dark:bg-dark-900 min-h-screen transition-colors duration-300">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
-            <Settings className="h-8 w-8 mr-3 text-primary-600 dark:text-primary-400" />
-            Panel de Administración
-          </h1>
-          <p className="text-gray-600 dark:text-dark-300 mt-2">
-            Gestión completa de concursos y herramientas administrativas
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {activeTab === "concursos" && (
-            <button
-              onClick={() => {
-                resetForm();
-                setShowCreateModal(true);
-              }}
-              className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center transition-colors duration-200"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Concurso
-            </button>
-          )}
-          {activeTab === "analytics" && (
-            <button
-              onClick={handleRecalculateRankings}
-              disabled={rankingLoading}
-              className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 flex items-center disabled:opacity-50 transition-colors duration-200"
-            >
-              {rankingLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Actualizando...
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4 mr-2" />
-                  Actualizar Rankings
-                </>
-              )}
-            </button>
-          )}
-          <div className="text-sm text-gray-500 dark:text-dark-400">
-            Conectado como: <span className="font-medium text-gray-700 dark:text-dark-200">{user?.name}</span>
+    <>
+      <div className="max-w-6xl mx-auto space-y-8 bg-white dark:bg-dark-900 min-h-screen transition-colors duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+              <Settings className="h-8 w-8 mr-3 text-primary-600 dark:text-primary-400" />
+              Panel de Administración
+            </h1>
+            <p className="text-gray-600 dark:text-dark-300 mt-2">
+              Gestión completa de concursos y herramientas administrativas
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            {activeTab === "concursos" && (
+              <button
+                onClick={() => {
+                  resetForm();
+                  setShowCreateModal(true);
+                }}
+                className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center transition-colors duration-200"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuevo Concurso
+              </button>
+            )}
+            {activeTab === "analytics" && (
+              <button
+                onClick={handleRecalculateRankings}
+                disabled={rankingLoading}
+                className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 flex items-center disabled:opacity-50 transition-colors duration-200"
+              >
+                {rankingLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Actualizando...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Actualizar Rankings
+                  </>
+                )}
+              </button>
+            )}
+            <div className="text-sm text-gray-500 dark:text-dark-400">
+              Conectado como:{" "}
+              <span className="font-medium text-gray-700 dark:text-dark-200">
+                {user?.name}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Tabs Navigation */}
-      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
-        <div className="border-b border-gray-200 dark:border-dark-600">
-          <nav className="flex space-x-1 p-1">
-            {tabs.map((tab) => {
-              const IconComponent = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
-                      : "text-gray-500 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-700"
+        {/* Tabs Navigation */}
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+          <div className="border-b border-gray-200 dark:border-dark-600">
+            <nav className="flex space-x-1 p-1">
+              {tabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                      activeTab === tab.id
+                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                        : "text-gray-500 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-700"
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4 mr-2" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Resultado de finalización - Solo visible en tab concursos */}
+        {finalizationResult && activeTab === "concursos" && (
+          <div
+            className={`rounded-lg p-6 border transition-colors duration-300 ${
+              finalizationResult.success
+                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+            }`}
+          >
+            <div className="flex items-start">
+              {finalizationResult.success ? (
+                <Check className="h-6 w-6 text-green-600 dark:text-green-400 mt-1 mr-3 flex-shrink-0" />
+              ) : (
+                <X className="h-6 w-6 text-red-600 dark:text-red-400 mt-1 mr-3 flex-shrink-0" />
+              )}
+              <div className="flex-1">
+                <h3
+                  className={`font-bold ${
+                    finalizationResult.success
+                      ? "text-green-800 dark:text-green-200"
+                      : "text-red-800 dark:text-red-200"
                   }`}
                 >
-                  <IconComponent className="h-4 w-4 mr-2" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
-
-      {/* Resultado de finalización - Solo visible en tab concursos */}
-      {finalizationResult && activeTab === "concursos" && (
-        <div
-          className={`rounded-lg p-6 border transition-colors duration-300 ${
-            finalizationResult.success
-              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-          }`}
-        >
-          <div className="flex items-start">
-            {finalizationResult.success ? (
-              <Check className="h-6 w-6 text-green-600 dark:text-green-400 mt-1 mr-3 flex-shrink-0" />
-            ) : (
-              <X className="h-6 w-6 text-red-600 dark:text-red-400 mt-1 mr-3 flex-shrink-0" />
-            )}
-            <div className="flex-1">
-              <h3
-                className={`font-bold ${
-                  finalizationResult.success ? "text-green-800 dark:text-green-200" : "text-red-800 dark:text-red-200"
-                }`}
-              >
-                {finalizationResult.success
-                  ? "¡Concurso finalizado exitosamente!"
-                  : "Error al finalizar"}
-              </h3>
-              <p
-                className={`mt-1 ${
-                  finalizationResult.success ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"
-                }`}
-              >
-                {finalizationResult.message || finalizationResult.error}
-              </p>
-
-              {finalizationResult.success &&
-                finalizationResult.badgesAwarded && (
-                  <div className="mt-4">
-                    <h4 className="font-medium text-green-800 mb-2">
-                      Badges otorgados:
-                    </h4>
-                    <div className="space-y-2">
-                      {finalizationResult.badgesAwarded.map((award, index) => (
-                        <div key={index} className="flex items-center text-sm">
-                          <span className="mr-2">
-                            {award.position === 1
-                              ? "🥇"
-                              : award.position === 2
-                              ? "🥈"
-                              : "🥉"}
-                          </span>
-                          <span className="font-medium">{award.userName}</span>
-                          <span className="mx-2">→</span>
-                          <span className="text-green-700">
-                            {award.badge.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-            <button
-              onClick={() => setFinalizationResult(null)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Tab Content */}
-      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
-        {activeTab === "concursos" && (
-          <div className="p-6">
-            {/* Lista de concursos */}
-            <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100">
-              Concursos ({contests.length})
-            </h2>
-            {(() => {
-              const sortedContests = sortContestsByPriority(contests);
-              const activeContests = sortedContests.filter(c => c.finalized_at === null);
-              const testActive = activeContests.filter(c => isTestContest(c));
-              const prodActive = activeContests.filter(c => !isTestContest(c));
-              
-              return (
-                <div className="flex items-center gap-2 mt-1">
-                  {testActive.length > 0 && (
-                    <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-                      🎭 {testActive.length} prueba{testActive.length > 1 ? 's' : ''}
-                    </span>
-                  )}
-                  {prodActive.length > 0 && (
-                    <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                      🏗️ {prodActive.length} producción
-                    </span>
-                  )}
-                  {activeContests.length === 0 && (
-                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                      Sin concursos activos
-                    </span>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-          <button
-            onClick={() => refreshContests()}
-            className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 flex items-center text-sm transition-colors duration-200"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualizar
-          </button>
-        </div>
-
-        {contests.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 dark:text-dark-400">
-            <Trophy className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p className="mb-4">No hay concursos disponibles</p>
-            <button
-              onClick={() => {
-                resetForm();
-                setShowCreateModal(true);
-              }}
-              className="bg-primary-600 dark:bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
-            >
-              Crear primer concurso
-            </button>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortContestsByPriority(contests).map((contest, index, sortedContests) => {
-              const priorityInfo = getContestPriorityInfo(contest, index, sortedContests);
-              return (
-              <div
-                key={contest.id}
-                className={`bg-white dark:bg-dark-700 border-2 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
-                  priorityInfo.priority === "ACTIVO" ? "border-green-400 dark:border-green-500 shadow-lg" : 
-                  priorityInfo.priority && priorityInfo.priority.includes("#") ? "border-blue-400 dark:border-blue-500" :
-                  priorityInfo.priority === "PRUEBA" ? "border-yellow-400 dark:border-yellow-500" :
-                  "border-gray-200 dark:border-dark-600"
-                } ${contest.status === "results" ? "opacity-75" : ""}`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    {/* Indicador de prioridad */}
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${priorityInfo.className}`}
-                    >
-                      {priorityInfo.label}
-                    </span>
-                    
-                    {/* Estado del concurso */}
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        contest.status === "submission"
-                          ? "bg-blue-100 text-blue-700"
-                          : contest.status === "voting"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {contest.status === "submission"
-                        ? "Envíos"
-                        : contest.status === "voting"
-                        ? "Votación"
-                        : "Finalizado"}
-                    </span>
-                    
-                    {/* Mes */}
-                    <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-xs">
-                      {contest.month}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleEditContest(contest)}
-                      className="text-gray-400 dark:text-dark-500 hover:text-blue-600 dark:hover:text-blue-400 p-1 transition-colors duration-200"
-                      title="Editar concurso"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteContest(contest)}
-                      disabled={deleteLoading === contest.id}
-                      className="text-gray-400 dark:text-dark-500 hover:text-red-600 dark:hover:text-red-400 p-1 disabled:opacity-50 transition-colors duration-200"
-                      title="Eliminar concurso"
-                    >
-                      {deleteLoading === contest.id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
-                    {contest.status === "results" && (
-                      <Trophy className="h-5 w-5 text-yellow-500" />
-                    )}
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100 mb-2 line-clamp-2">
-                  {contest.title}
+                  {finalizationResult.success
+                    ? "¡Concurso finalizado exitosamente!"
+                    : "Error al finalizar"}
                 </h3>
-
-                <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 line-clamp-2">
-                  {contest.description}
+                <p
+                  className={`mt-1 ${
+                    finalizationResult.success
+                      ? "text-green-700 dark:text-green-300"
+                      : "text-red-700 dark:text-red-300"
+                  }`}
+                >
+                  {finalizationResult.message || finalizationResult.error}
                 </p>
 
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-dark-400 mb-4">
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-1" />
-                    {contest.participants_count || 0} participantes
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    {contest.voting_deadline
-                      ? new Date(contest.voting_deadline).toLocaleDateString(
-                          "es-ES"
-                        )
-                      : "Sin fecha"}
-                  </div>
-                </div>
-
-                {/* 🆕 CONTROLES DE PRUEBA */}
-                {contest.status !== "results" && (
-                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <TestTube className="h-4 w-4 text-yellow-600 mr-2" />
-                      <span className="text-sm font-medium text-yellow-800">
-                        Controles de Prueba
-                      </span>
-                    </div>
-                    <div className="flex gap-2 text-xs">
-                      {contest.status === "submission" && (
-                        <button
-                          onClick={() => changeContestStatus(contest, "voting")}
-                          className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
-                        >
-                          <Play className="h-3 w-3 inline mr-1" />
-                          Test Votación
-                        </button>
-                      )}
-                      {contest.status === "voting" && (
-                        <button
-                          onClick={() =>
-                            changeContestStatus(contest, "submission")
-                          }
-                          className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                        >
-                          <RotateCcw className="h-3 w-3 inline mr-1" />
-                          Volver Envíos
-                        </button>
-                      )}
-                      <button
-                        onClick={() => simulateWinners(contest)}
-                        className="px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
-                      >
-                        <Eye className="h-3 w-3 inline mr-1" />
-                        Simular Ganadores
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Fechas importantes y información de cola */}
-                <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-600 rounded-lg border border-gray-200 dark:border-dark-500">
-                  <div className="text-xs text-gray-500 dark:text-dark-400 space-y-1">
-                    <div>
-                      <strong>Envíos hasta:</strong>{" "}
-                      {contest.submission_deadline
-                        ? new Date(contest.submission_deadline).toLocaleString(
-                            "es-ES"
+                {finalizationResult.success &&
+                  finalizationResult.badgesAwarded && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-green-800 mb-2">
+                        Badges otorgados:
+                      </h4>
+                      <div className="space-y-2">
+                        {finalizationResult.badgesAwarded.map(
+                          (award, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center text-sm"
+                            >
+                              <span className="mr-2">
+                                {award.position === 1
+                                  ? "🥇"
+                                  : award.position === 2
+                                    ? "🥈"
+                                    : "🥉"}
+                              </span>
+                              <span className="font-medium">
+                                {award.userName}
+                              </span>
+                              <span className="mx-2">→</span>
+                              <span className="text-green-700">
+                                {award.badge.name}
+                              </span>
+                            </div>
                           )
-                        : "No definido"}
-                    </div>
-                    <div>
-                      <strong>Votación hasta:</strong>{" "}
-                      {contest.voting_deadline
-                        ? new Date(contest.voting_deadline).toLocaleString(
-                            "es-ES"
-                          )
-                        : "No definido"}
-                    </div>
-                    
-                    {/* Información adicional de cola */}
-                    {priorityInfo.priority === "ACTIVO" && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <div className="flex items-center text-green-600">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                          <strong>🎯 Concurso activo en la aplicación</strong>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {priorityInfo.priority && priorityInfo.priority.includes("#") && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <div className="flex items-center text-blue-600">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                          <strong>⏳ Posición en cola: {priorityInfo.priority}</strong>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {priorityInfo.priority === "PRUEBA" && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <div className="flex items-center text-yellow-600">
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                          <strong>🎭 Concurso de prueba en espera</strong>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {/* 🆕 FINALIZACIÓN REAL CON BADGES */}
-                  {contest.status !== "results" && (
-                    <button
-                      onClick={() => handlePreviewWinners(contest)}
-                      disabled={finalizingContestId === contest.id}
-                      className="w-full bg-red-600 dark:bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
-                    >
-                      <Shield className="h-4 w-4 mr-2" />
-                      {finalizingContestId === contest.id
-                        ? "Cargando..."
-                        : "🏆 FINALIZAR REAL (Con Badges)"}
-                    </button>
-                  )}
-
-                  <a
-                    href="/contest/current"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-500 flex items-center justify-center text-decoration-none transition-colors duration-200"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver en sitio
-                  </a>
-                </div>
-
-                {contest.status === "results" && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-green-600">
-                        <Check className="h-4 w-4 mr-1" />
-                        <span>Concurso finalizado</span>
-                      </div>
-                      <button
-                        onClick={() => handleRevertFinalization(contest)}
-                        disabled={finalizingContestId === contest.id}
-                        className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 disabled:opacity-50"
-                        title="Revertir finalización"
-                      >
-                        <RotateCcw className="h-3 w-3 inline mr-1" />
-                        Revertir
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-            })}
-          </div>
-        )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "analytics" && (
-          <div className="p-6">
-            <AnalyticsDashboard />
-          </div>
-        )}
-
-        {activeTab === "moderacion" && (
-          <div className="p-6 space-y-6">
-            <ModerationDashboard />
-            <ReportsPanel />
-          </div>
-        )}
-
-        {activeTab === "mantenimiento" && (
-          <div className="p-6 space-y-6">
-            <MaintenanceControl />
-            <DataCleanupPanel />
-          </div>
-        )}
-
-        {activeTab === "comunicaciones" && (
-          <div className="p-6">
-            <EmailManager />
-          </div>
-        )}
-      </div>
-
-      {/* Modal de simulación de ganadores */}
-      {showPreviewModal && selectedContest && simulatedWinners && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <TestTube className="h-6 w-6 mr-2 text-purple-600" />
-                  Simulación - "{selectedContest.title}"
-                </h2>
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-                <div className="flex items-start">
-                  <TestTube className="h-5 w-5 text-purple-600 mt-0.5 mr-3 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-medium text-purple-800 mb-1">
-                      Solo Simulación - Sin Badges
-                    </h3>
-                    <p className="text-purple-700 text-sm">
-                      Esta es una vista previa para pruebas. Los ganadores
-                      mostrados no recibirán badges ni se registrarán puntos
-                      reales.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vista previa de ganadores simulados */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Ganadores simulados:
-                </h3>
-                <div className="space-y-3">
-                  {simulatedWinners.map((story, index) => (
-                    <div
-                      key={story.id}
-                      className={`flex items-center p-4 rounded-lg border-2 ${
-                        index === 0
-                          ? "border-yellow-300 bg-yellow-50"
-                          : index === 1
-                          ? "border-gray-300 bg-gray-50"
-                          : "border-orange-300 bg-orange-50"
-                      }`}
-                    >
-                      <div className="mr-4">
-                        {index === 0 ? (
-                          <Crown className="h-8 w-8 text-yellow-600" />
-                        ) : index === 1 ? (
-                          <Medal className="h-8 w-8 text-gray-600" />
-                        ) : (
-                          <Star className="h-8 w-8 text-orange-600" />
                         )}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-bold text-lg">
-                            {index === 0 ? "1º" : index === 1 ? "2º" : "3º"}{" "}
-                            Lugar
-                          </span>
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              index === 0
-                                ? "bg-yellow-200 text-yellow-800"
-                                : index === 1
-                                ? "bg-gray-200 text-gray-800"
-                                : "bg-orange-200 text-orange-800"
-                            }`}
-                          >
-                            {story.likes_count || 0} likes
-                          </span>
-                        </div>
-                        <h4 className="font-medium text-gray-900 mb-1">
-                          {story.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          por {story.user_profiles?.display_name || "Usuario"}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Simularía:</div>
-                        <div
-                          className={`font-medium ${
-                            index === 0
-                              ? "text-yellow-700"
-                              : index === 1
-                              ? "text-gray-700"
-                              : "text-orange-700"
-                          }`}
-                        >
-                          +{story.simulatedPoints} puntos
-                        </div>
-                      </div>
                     </div>
-                  ))}
-                </div>
+                  )}
               </div>
-
-              <div className="flex gap-4 justify-end">
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
-                >
-                  Cerrar
-                </button>
-              </div>
+              <button
+                onClick={() => setFinalizationResult(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Modal crear concurso */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
-            <form onSubmit={handleCreateContest} className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
-                  <Plus className="h-6 w-6 mr-2 text-green-600 dark:text-green-400" />
-                  Crear Nuevo Concurso
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Título del concurso *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={contestForm.title}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, title: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Descripción *
-                  </label>
-                  <textarea
-                    required
-                    value={contestForm.description}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        description: e.target.value,
-                      })
-                    }
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Categoría
-                  </label>
-                  <select
-                    value={contestForm.category}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        category: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Mes
-                  </label>
-                  <input
-                    type="text"
-                    value={contestForm.month}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, month: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Palabras mínimas
-                  </label>
-                  <input
-                    type="number"
-                    min="50"
-                    max="1000"
-                    value={contestForm.min_words}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        min_words: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Palabras máximas
-                  </label>
-                  <input
-                    type="number"
-                    min="100"
-                    max="5000"
-                    value={contestForm.max_words}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        max_words: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Fin de envíos
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={contestForm.submission_deadline}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        submission_deadline: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Fin de votación
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={contestForm.voting_deadline}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        voting_deadline: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Premio
-                  </label>
-                  <input
-                    type="text"
-                    value={contestForm.prize}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, prize: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Status inicial
-                  </label>
-                  <select
-                    value={contestForm.status}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  >
-                    {statusOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-4 justify-end mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  disabled={createLoading}
-                  className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={createLoading}
-                  className="bg-green-600 dark:bg-green-700 text-white py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 flex items-center transition-colors duration-200"
-                >
-                  {createLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Crear Concurso
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal editar concurso */}
-      {showEditModal && editingContest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
-            <form onSubmit={handleSaveEdit} className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
-                  <Edit className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
-                  Editar Concurso
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Título del concurso *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={contestForm.title}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, title: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Descripción *
-                  </label>
-                  <textarea
-                    required
-                    value={contestForm.description}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        description: e.target.value,
-                      })
-                    }
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Categoría
-                  </label>
-                  <select
-                    value={contestForm.category}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        category: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Mes
-                  </label>
-                  <input
-                    type="text"
-                    value={contestForm.month}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, month: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Palabras mínimas
-                  </label>
-                  <input
-                    type="number"
-                    min="50"
-                    max="1000"
-                    value={contestForm.min_words}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        min_words: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Palabras máximas
-                  </label>
-                  <input
-                    type="number"
-                    min="100"
-                    max="5000"
-                    value={contestForm.max_words}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        max_words: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Fin de envíos
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={contestForm.submission_deadline}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        submission_deadline: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Fin de votación
-                  </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={contestForm.voting_deadline}
-                    onChange={(e) =>
-                      setContestForm({
-                        ...contestForm,
-                        voting_deadline: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Premio
-                  </label>
-                  <input
-                    type="text"
-                    value={contestForm.prize}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, prize: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Status actual
-                  </label>
-                  <select
-                    value={contestForm.status}
-                    onChange={(e) =>
-                      setContestForm({ ...contestForm, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
-                  >
-                    {statusOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-4 justify-end mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  disabled={updateLoading}
-                  className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={updateLoading}
-                  className="bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 flex items-center transition-colors duration-200"
-                >
-                  {updateLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Guardar Cambios
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de confirmación de finalización REAL */}
-      {showFinalizationModal && selectedContest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Tab Content */}
+        <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+          {activeTab === "concursos" && (
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Shield className="h-6 w-6 mr-2 text-red-600" />
-                  FINALIZACIÓN REAL - "{selectedContest.title}"
-                </h2>
-                <button
-                  onClick={() => setShowFinalizationModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <div className="flex items-start">
-                  <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+              {/* Lista de concursos */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-red-800 mb-1">
-                      ⚠️ ATENCIÓN: Finalización Real
-                    </h3>
-                    <p className="text-red-700 text-sm">
-                      Esta acción finalizará el concurso DEFINITIVAMENTE,
-                      marcará a los ganadores, actualizará estadísticas de victorias
-                      y NO se puede deshacer fácilmente.
-                    </p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100">
+                      Concursos ({contests.length})
+                    </h2>
+                    {(() => {
+                      const sortedContests = sortContestsByPriority(contests);
+                      const activeContests = sortedContests.filter(
+                        (c) => c.finalized_at === null
+                      );
+                      const testActive = activeContests.filter((c) =>
+                        isTestContest(c)
+                      );
+                      const prodActive = activeContests.filter(
+                        (c) => !isTestContest(c)
+                      );
+
+                      return (
+                        <div className="flex items-center gap-2 mt-1">
+                          {testActive.length > 0 && (
+                            <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                              🎭 {testActive.length} prueba
+                              {testActive.length > 1 ? "s" : ""}
+                            </span>
+                          )}
+                          {prodActive.length > 0 && (
+                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                              🏗️ {prodActive.length} producción
+                            </span>
+                          )}
+                          {activeContests.length === 0 && (
+                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                              Sin concursos activos
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  <button
+                    onClick={() => refreshContests()}
+                    className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 flex items-center text-sm transition-colors duration-200"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Actualizar
+                  </button>
+                </div>
+
+                {contests.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500 dark:text-dark-400">
+                    <Trophy className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="mb-4">No hay concursos disponibles</p>
+                    <button
+                      onClick={() => {
+                        resetForm();
+                        setShowCreateModal(true);
+                      }}
+                      className="bg-primary-600 dark:bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
+                    >
+                      Crear primer concurso
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {sortContestsByPriority(contests).map(
+                      (contest, index, sortedContests) => {
+                        const priorityInfo = getContestPriorityInfo(
+                          contest,
+                          index,
+                          sortedContests
+                        );
+                        return (
+                          <div
+                            key={contest.id}
+                            className={`bg-white dark:bg-dark-700 border-2 rounded-lg p-6 hover:shadow-md transition-all duration-300 ${
+                              priorityInfo.priority === "ACTIVO"
+                                ? "border-green-400 dark:border-green-500 shadow-lg"
+                                : priorityInfo.priority &&
+                                    priorityInfo.priority.includes("#")
+                                  ? "border-blue-400 dark:border-blue-500"
+                                  : priorityInfo.priority === "PRUEBA"
+                                    ? "border-yellow-400 dark:border-yellow-500"
+                                    : "border-gray-200 dark:border-dark-600"
+                            } ${contest.status === "results" ? "opacity-75" : ""}`}
+                          >
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                {/* Indicador de prioridad */}
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-bold ${priorityInfo.className}`}
+                                >
+                                  {priorityInfo.label}
+                                </span>
+
+                                {/* Estado del concurso */}
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${
+                                    contest.status === "submission"
+                                      ? "bg-blue-100 text-blue-700"
+                                      : contest.status === "voting"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {contest.status === "submission"
+                                    ? "Envíos"
+                                    : contest.status === "voting"
+                                      ? "Votación"
+                                      : "Finalizado"}
+                                </span>
+
+                                {/* Mes */}
+                                <span className="bg-accent-100 text-accent-700 px-2 py-1 rounded text-xs">
+                                  {contest.month}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditContest(contest)}
+                                  className="text-gray-400 dark:text-dark-500 hover:text-blue-600 dark:hover:text-blue-400 p-1 transition-colors duration-200"
+                                  title="Editar concurso"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteContest(contest)}
+                                  disabled={deleteLoading === contest.id}
+                                  className="text-gray-400 dark:text-dark-500 hover:text-red-600 dark:hover:text-red-400 p-1 disabled:opacity-50 transition-colors duration-200"
+                                  title="Eliminar concurso"
+                                >
+                                  {deleteLoading === contest.id ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                  ) : (
+                                    <Trash2 className="h-4 w-4" />
+                                  )}
+                                </button>
+                                {contest.status === "results" && (
+                                  <Trophy className="h-5 w-5 text-yellow-500" />
+                                )}
+                              </div>
+                            </div>
+
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100 mb-2 line-clamp-2">
+                              {contest.title}
+                            </h3>
+
+                            <p className="text-gray-600 dark:text-dark-300 text-sm mb-4 line-clamp-2">
+                              {contest.description}
+                            </p>
+
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-dark-400 mb-4">
+                              <div className="flex items-center">
+                                <Users className="h-4 w-4 mr-1" />
+                                {contest.participants_count || 0} participantes
+                              </div>
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1" />
+                                {contest.voting_deadline
+                                  ? new Date(
+                                      contest.voting_deadline
+                                    ).toLocaleDateString("es-ES")
+                                  : "Sin fecha"}
+                              </div>
+                            </div>
+
+                            {/* 🆕 CONTROLES DE PRUEBA */}
+                            {contest.status !== "results" && (
+                              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div className="flex items-center mb-2">
+                                  <TestTube className="h-4 w-4 text-yellow-600 mr-2" />
+                                  <span className="text-sm font-medium text-yellow-800">
+                                    Controles de Prueba
+                                  </span>
+                                </div>
+                                <div className="flex gap-2 text-xs">
+                                  {contest.status === "submission" && (
+                                    <button
+                                      onClick={() =>
+                                        changeContestStatus(contest, "voting")
+                                      }
+                                      className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                                    >
+                                      <Play className="h-3 w-3 inline mr-1" />
+                                      Test Votación
+                                    </button>
+                                  )}
+                                  {contest.status === "voting" && (
+                                    <button
+                                      onClick={() =>
+                                        changeContestStatus(
+                                          contest,
+                                          "submission"
+                                        )
+                                      }
+                                      className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                    >
+                                      <RotateCcw className="h-3 w-3 inline mr-1" />
+                                      Volver Envíos
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => simulateWinners(contest)}
+                                    className="px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                                  >
+                                    <Eye className="h-3 w-3 inline mr-1" />
+                                    Simular Ganadores
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Fechas importantes y información de cola */}
+                            <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-600 rounded-lg border border-gray-200 dark:border-dark-500">
+                              <div className="text-xs text-gray-500 dark:text-dark-400 space-y-1">
+                                <div>
+                                  <strong>Envíos hasta:</strong>{" "}
+                                  {contest.submission_deadline
+                                    ? new Date(
+                                        contest.submission_deadline
+                                      ).toLocaleString("es-ES")
+                                    : "No definido"}
+                                </div>
+                                <div>
+                                  <strong>Votación hasta:</strong>{" "}
+                                  {contest.voting_deadline
+                                    ? new Date(
+                                        contest.voting_deadline
+                                      ).toLocaleString("es-ES")
+                                    : "No definido"}
+                                </div>
+
+                                {/* Información adicional de cola */}
+                                {priorityInfo.priority === "ACTIVO" && (
+                                  <div className="mt-2 pt-2 border-t border-gray-200">
+                                    <div className="flex items-center text-green-600">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                      <strong>
+                                        🎯 Concurso activo en la aplicación
+                                      </strong>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {priorityInfo.priority &&
+                                  priorityInfo.priority.includes("#") && (
+                                    <div className="mt-2 pt-2 border-t border-gray-200">
+                                      <div className="flex items-center text-blue-600">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                                        <strong>
+                                          ⏳ Posición en cola:{" "}
+                                          {priorityInfo.priority}
+                                        </strong>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                {priorityInfo.priority === "PRUEBA" && (
+                                  <div className="mt-2 pt-2 border-t border-gray-200">
+                                    <div className="flex items-center text-yellow-600">
+                                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                                      <strong>
+                                        🎭 Concurso de prueba en espera
+                                      </strong>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              {/* 🆕 FINALIZACIÓN REAL CON BADGES */}
+                              {contest.status !== "results" && (
+                                <button
+                                  onClick={() => handlePreviewWinners(contest)}
+                                  disabled={finalizingContestId === contest.id}
+                                  className="w-full bg-red-600 dark:bg-red-700 text-white py-2 px-4 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 flex items-center justify-center transition-colors duration-200"
+                                >
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  {finalizingContestId === contest.id
+                                    ? "Cargando..."
+                                    : "🏆 FINALIZAR REAL (Con Badges)"}
+                                </button>
+                              )}
+
+                              <a
+                                href="/contest/current"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full bg-gray-100 dark:bg-dark-600 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-500 flex items-center justify-center text-decoration-none transition-colors duration-200"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver en sitio
+                              </a>
+                            </div>
+
+                            {contest.status === "results" && (
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center text-sm text-green-600">
+                                    <Check className="h-4 w-4 mr-1" />
+                                    <span>Concurso finalizado</span>
+                                  </div>
+                                  <button
+                                    onClick={() =>
+                                      handleRevertFinalization(contest)
+                                    }
+                                    disabled={
+                                      finalizingContestId === contest.id
+                                    }
+                                    className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 disabled:opacity-50"
+                                    title="Revertir finalización"
+                                  >
+                                    <RotateCcw className="h-3 w-3 inline mr-1" />
+                                    Revertir
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "analytics" && (
+            <div className="p-6">
+              <AnalyticsDashboard />
+            </div>
+          )}
+
+          {activeTab === "moderacion" && (
+            <div className="p-6 space-y-6">
+              <ModerationDashboard />
+              <ReportsPanel />
+            </div>
+          )}
+
+          {activeTab === "mantenimiento" && (
+            <div className="p-6 space-y-6">
+              <MaintenanceControl />
+              <DataCleanupPanel />
+            </div>
+          )}
+
+          {activeTab === "comunicaciones" && (
+            <div className="p-6">
+              <EmailManager />
+            </div>
+          )}
+        </div>
+
+        {/* Modal de simulación de ganadores */}
+        {showPreviewModal && selectedContest && simulatedWinners?.winners && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <TestTube className="h-6 w-6 mr-2 text-purple-600" />
+                    Simulación - "{selectedContest.title}"
+                  </h2>
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start">
+                    <TestTube className="h-5 w-5 text-purple-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-medium text-purple-800 mb-1">
+                        Solo Simulación - Sin Badges
+                      </h3>
+                      <p className="text-purple-700 text-sm">
+                        Esta es una vista previa para pruebas. Los ganadores
+                        mostrados no recibirán badges ni se registrarán puntos
+                        reales.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Vista previa de ganadores */}
-              {winners && winners.length > 0 && (
+                {/* Vista previa de ganadores simulados */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Ganadores que recibirán badges:
+                    Ganadores simulados:
                   </h3>
                   <div className="space-y-3">
-                    {winners.slice(0, 3).map((story, index) => (
+                    {simulatedWinners.winners.map((story, index) => (
                       <div
                         key={story.id}
                         className={`flex items-center p-4 rounded-lg border-2 ${
                           index === 0
                             ? "border-yellow-300 bg-yellow-50"
                             : index === 1
-                            ? "border-gray-300 bg-gray-50"
-                            : "border-orange-300 bg-orange-50"
+                              ? "border-gray-300 bg-gray-50"
+                              : "border-orange-300 bg-orange-50"
                         }`}
                       >
                         <div className="mr-4">
@@ -2085,8 +1630,8 @@ const ContestAdminPanel = () => {
                                 index === 0
                                   ? "bg-yellow-200 text-yellow-800"
                                   : index === 1
-                                  ? "bg-gray-200 text-gray-800"
-                                  : "bg-orange-200 text-orange-800"
+                                    ? "bg-gray-200 text-gray-800"
+                                    : "bg-orange-200 text-orange-800"
                               }`}
                             >
                               {story.likes_count || 0} likes
@@ -2100,102 +1645,786 @@ const ContestAdminPanel = () => {
                           </p>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-gray-500">Recibirá:</div>
+                          <div className="text-sm text-gray-500">
+                            Simularía:
+                          </div>
                           <div
                             className={`font-medium ${
                               index === 0
                                 ? "text-yellow-700"
                                 : index === 1
-                                ? "text-gray-700"
-                                : "text-orange-700"
+                                  ? "text-gray-700"
+                                  : "text-orange-700"
                             }`}
                           >
-                            {index === 0
-                              ? "🏆 Primer lugar (+1 victoria)"
-                              : index === 1
-                              ? "🥈 Segundo lugar (+1 victoria)"
-                              : "🥉 Tercer lugar (+1 victoria)"}
+                            +{story.simulatedPoints} puntos
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
 
-              {winners && winners.length === 0 && (
-                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <p className="text-gray-600 text-center">
-                    No hay participaciones en este concurso para finalizar.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex gap-4 justify-end">
-                <button
-                  onClick={() => setShowFinalizationModal(false)}
-                  disabled={finalizationLoading}
-                  className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleFinalizeContest}
-                  disabled={
-                    finalizationLoading || !winners || winners.length === 0
-                  }
-                  className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center"
-                >
-                  {finalizationLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Finalizando...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4 mr-2" />
-                      SÍ, FINALIZAR CONCURSO
-                    </>
+                  {/* Mención de Honor en simulación */}
+                  {simulatedWinners?.honoraryMention && (
+                    <div className="mt-4 p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
+                      <div className="flex items-center">
+                        <div className="mr-4">
+                          <Award className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-lg text-blue-700">
+                              🎖️ Mención de Honor (Simulación)
+                            </span>
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-blue-200 text-blue-800">
+                              {simulatedWinners.honoraryMention.likes_count || 0} likes
+                            </span>
+                          </div>
+                          <h4 className="font-medium text-gray-900 mb-1">
+                            {simulatedWinners.honoraryMention.title}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            por {simulatedWinners.honoraryMention.user_profiles?.display_name || "Usuario"}
+                          </p>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Mismos votos que 3º lugar - Criterio de desempate: fecha de envío
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-500">Reconocimiento:</div>
+                          <div className="font-medium text-blue-700">
+                            🎖️ Mención especial
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
-                </button>
+                </div>
+
+                <div className="flex gap-4 justify-end">
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  >
+                    Cerrar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Debug en desarrollo */}
-      {import.meta.env.DEV && (
-        <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <h4 className="text-red-800 dark:text-red-200 font-bold mb-2">
-            🚨 DEBUG - Solo desarrollo
-          </h4>
-          <div className="flex gap-4">
-            <button
-              onClick={() => {
-                localStorage.clear();
-                alert("LocalStorage limpiado");
-              }}
-              className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-200"
-            >
-              Limpiar LocalStorage
-            </button>
-            <button
-              onClick={() => {
-                console.log("🔍 Estado actual del contexto:", {
-                  contests,
-                  user,
-                  isAuthenticated,
-                });
-              }}
-              className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
-            >
-              Log Estado
-            </button>
+        {/* Modal crear concurso */}
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
+              <form onSubmit={handleCreateContest} className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+                    <Plus className="h-6 w-6 mr-2 text-green-600 dark:text-green-400" />
+                    Crear Nuevo Concurso
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Título del concurso *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={contestForm.title}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          title: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Descripción *
+                    </label>
+                    <textarea
+                      required
+                      value={contestForm.description}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          description: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Categoría
+                    </label>
+                    <select
+                      value={contestForm.category}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          category: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Mes
+                    </label>
+                    <input
+                      type="text"
+                      value={contestForm.month}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          month: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Palabras mínimas
+                    </label>
+                    <input
+                      type="number"
+                      min="50"
+                      max="1000"
+                      value={contestForm.min_words}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          min_words: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Palabras máximas
+                    </label>
+                    <input
+                      type="number"
+                      min="100"
+                      max="5000"
+                      value={contestForm.max_words}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          max_words: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Fin de envíos
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={contestForm.submission_deadline}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          submission_deadline: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Fin de votación
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={contestForm.voting_deadline}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          voting_deadline: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Premio
+                    </label>
+                    <input
+                      type="text"
+                      value={contestForm.prize}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          prize: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Status inicial
+                    </label>
+                    <select
+                      value={contestForm.status}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          status: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 justify-end mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    disabled={createLoading}
+                    className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createLoading}
+                    className="bg-green-600 dark:bg-green-700 text-white py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 flex items-center transition-colors duration-200"
+                  >
+                    {createLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Crear Concurso
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* Modal editar concurso */}
+        {showEditModal && editingContest && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-dark-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-600">
+              <form onSubmit={handleSaveEdit} className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 flex items-center">
+                    <Edit className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
+                    Editar Concurso
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="text-gray-400 dark:text-dark-500 hover:text-gray-600 dark:hover:text-dark-300 transition-colors duration-200"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Título del concurso *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={contestForm.title}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          title: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Descripción *
+                    </label>
+                    <textarea
+                      required
+                      value={contestForm.description}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          description: e.target.value,
+                        })
+                      }
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Categoría
+                    </label>
+                    <select
+                      value={contestForm.category}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          category: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Mes
+                    </label>
+                    <input
+                      type="text"
+                      value={contestForm.month}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          month: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Palabras mínimas
+                    </label>
+                    <input
+                      type="number"
+                      min="50"
+                      max="1000"
+                      value={contestForm.min_words}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          min_words: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Palabras máximas
+                    </label>
+                    <input
+                      type="number"
+                      min="100"
+                      max="5000"
+                      value={contestForm.max_words}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          max_words: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Fin de envíos
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={contestForm.submission_deadline}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          submission_deadline: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Fin de votación
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={contestForm.voting_deadline}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          voting_deadline: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Premio
+                    </label>
+                    <input
+                      type="text"
+                      value={contestForm.prize}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          prize: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Status actual
+                    </label>
+                    <select
+                      value={contestForm.status}
+                      onChange={(e) =>
+                        setContestForm({
+                          ...contestForm,
+                          status: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 justify-end mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    disabled={updateLoading}
+                    className="bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-dark-200 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 transition-colors duration-200"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateLoading}
+                    className="bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 flex items-center transition-colors duration-200"
+                  >
+                    {updateLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Guardar Cambios
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de confirmación de finalización REAL */}
+        {showFinalizationModal && selectedContest && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <Shield className="h-6 w-6 mr-2 text-red-600" />
+                    FINALIZACIÓN REAL - "{selectedContest.title}"
+                  </h2>
+                  <button
+                    onClick={() => setShowFinalizationModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start">
+                    <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-medium text-red-800 mb-1">
+                        ⚠️ ATENCIÓN: Finalización Real
+                      </h3>
+                      <p className="text-red-700 text-sm">
+                        Esta acción finalizará el concurso DEFINITIVAMENTE,
+                        marcará a los ganadores, actualizará estadísticas de
+                        victorias y NO se puede deshacer fácilmente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vista previa de ganadores */}
+                {winners?.winners && winners.winners.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Ganadores que recibirán badges:
+                    </h3>
+                    <div className="space-y-3">
+                      {winners.winners.slice(0, 3).map((story, index) => (
+                        <div
+                          key={story.id}
+                          className={`flex items-center p-4 rounded-lg border-2 ${
+                            index === 0
+                              ? "border-yellow-300 bg-yellow-50"
+                              : index === 1
+                                ? "border-gray-300 bg-gray-50"
+                                : "border-orange-300 bg-orange-50"
+                          }`}
+                        >
+                          <div className="mr-4">
+                            {index === 0 ? (
+                              <Crown className="h-8 w-8 text-yellow-600" />
+                            ) : index === 1 ? (
+                              <Medal className="h-8 w-8 text-gray-600" />
+                            ) : (
+                              <Star className="h-8 w-8 text-orange-600" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-bold text-lg">
+                                {index === 0 ? "1º" : index === 1 ? "2º" : "3º"}{" "}
+                                Lugar
+                              </span>
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  index === 0
+                                    ? "bg-yellow-200 text-yellow-800"
+                                    : index === 1
+                                      ? "bg-gray-200 text-gray-800"
+                                      : "bg-orange-200 text-orange-800"
+                                }`}
+                              >
+                                {story.likes_count || 0} likes
+                              </span>
+                            </div>
+                            <h4 className="font-medium text-gray-900 mb-1">
+                              {story.title}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              por{" "}
+                              {story.user_profiles?.display_name || "Usuario"}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-gray-500">
+                              Recibirá:
+                            </div>
+                            <div
+                              className={`font-medium ${
+                                index === 0
+                                  ? "text-yellow-700"
+                                  : index === 1
+                                    ? "text-gray-700"
+                                    : "text-orange-700"
+                              }`}
+                            >
+                              {index === 0
+                                ? "🏆 Primer lugar (+1 victoria)"
+                                : index === 1
+                                  ? "🥈 Segundo lugar (+1 victoria)"
+                                  : "🥉 Tercer lugar (+1 victoria)"}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mención de Honor */}
+                {winners?.honoraryMention && (
+                  <div className="mt-4 p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
+                    <div className="flex items-center">
+                      <div className="mr-4">
+                        <Award className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-lg text-blue-700">
+                            🎖️ Mención de Honor
+                          </span>
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-blue-200 text-blue-800">
+                            {winners.honoraryMention.likes_count || 0}{" "}
+                            likes
+                          </span>
+                        </div>
+                        <h4 className="font-medium text-gray-900 mb-1">
+                          {winners.honoraryMention.title}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          por{" "}
+                          {winners.honoraryMention.user_profiles
+                            ?.display_name || "Usuario"}
+                        </p>
+                        <p className="text-xs text-blue-600 mt-1">
+                          Mismos votos que 3º lugar - Criterio de desempate:
+                          fecha de envío
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">
+                          Reconocimiento:
+                        </div>
+                        <div className="font-medium text-blue-700">
+                          🎖️ Mención especial
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {winners?.winners && winners.winners.length === 0 && (
+                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-gray-600 text-center">
+                      No hay participaciones en este concurso para finalizar.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-4 justify-end">
+                  <button
+                    onClick={() => setShowFinalizationModal(false)}
+                    disabled={finalizationLoading}
+                    className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleFinalizeContest}
+                    disabled={
+                      finalizationLoading || !winners?.winners || winners.winners.length === 0
+                    }
+                    className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center"
+                  >
+                    {finalizationLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Finalizando...
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="h-4 w-4 mr-2" />
+                        SÍ, FINALIZAR CONCURSO
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Debug en desarrollo */}
+        {import.meta.env.DEV && (
+          <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <h4 className="text-red-800 dark:text-red-200 font-bold mb-2">
+              🚨 DEBUG - Solo desarrollo
+            </h4>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  alert("LocalStorage limpiado");
+                }}
+                className="bg-orange-600 dark:bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-200"
+              >
+                Limpiar LocalStorage
+              </button>
+              <button
+                onClick={() => {
+                  console.log("🔍 Estado actual del contexto:", {
+                    contests,
+                    user,
+                    isAuthenticated,
+                  });
+                }}
+                className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+              >
+                Log Estado
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

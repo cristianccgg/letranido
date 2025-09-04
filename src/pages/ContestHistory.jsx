@@ -52,9 +52,19 @@ const ContestHistory = () => {
 
               if (result.success && result.stories.length > 0) {
                 // Ordenar por likes para obtener ganadores
-                const sortedStories = result.stories.sort(
-                  (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
-                );
+                const sortedStories = result.stories.sort((a, b) => {
+                  // Primero por likes_count (descendente)
+                  const likesA = a.likes_count || 0;
+                  const likesB = b.likes_count || 0;
+                  if (likesB !== likesA) {
+                    return likesB - likesA;
+                  }
+                  
+                  // En caso de empate, por created_at (ascendente - más antigua primero)
+                  const dateA = new Date(a.created_at);
+                  const dateB = new Date(b.created_at);
+                  return dateA - dateB;
+                });
 
                 return {
                   ...contest,

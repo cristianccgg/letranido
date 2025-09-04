@@ -3,62 +3,6 @@ import { useState } from "react";
 import { useGlobalApp } from "../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import { supabase } from "../lib/supabase";
 
-// Función para calcular ganadores con manejo de empates
-const calculateWinnersWithTies = (stories) => {
-  if (!stories || stories.length === 0) return [];
-
-  // Agrupar por likes_count
-  const groupsByLikes = {};
-  stories.forEach(story => {
-    const likes = story.likes_count || 0;
-    if (!groupsByLikes[likes]) {
-      groupsByLikes[likes] = [];
-    }
-    groupsByLikes[likes].push(story);
-  });
-
-  // Ordenar grupos por likes descendente
-  const likesCountsSorted = Object.keys(groupsByLikes)
-    .map(Number)
-    .sort((a, b) => b - a);
-
-  const winners = [];
-  let currentPosition = 1;
-
-  // Procesar cada grupo de likes
-  for (const likesCount of likesCountsSorted) {
-    const group = groupsByLikes[likesCount];
-    
-    // Si hay más de una historia con los mismos likes, es empate
-    const isTied = group.length > 1;
-    
-    // Ordenar dentro del grupo por created_at (criterio de desempate original)
-    group.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-    
-    // Asignar la posición actual a todos los del grupo
-    group.forEach(story => {
-      winners.push({
-        ...story,
-        position: currentPosition,
-        is_tied: isTied
-      });
-    });
-
-    // Incluir este grupo si afecta el podio (posiciones 1, 2 o 3)
-    if (currentPosition <= 3) {
-      // La siguiente posición salta según la cantidad de empatados
-      currentPosition += group.length;
-    } else {
-      // Si la posición actual ya es > 3, no incluir más grupos
-      break;
-    }
-  }
-
-  // Retornar todos los ganadores que están en posiciones 1, 2 o 3
-  // Esto incluye empates que pueden hacer que tengamos más de 3 historias ganadoras
-  return winners;
-};
-
 export const useContestFinalization = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -87,7 +31,8 @@ export const useContestFinalization = () => {
           title,
           user_id,
           likes_count,
-          views_count
+          views_count,
+          created_at
         `
         )
         .eq("contest_id", contestId)
@@ -121,40 +66,57 @@ export const useContestFinalization = () => {
         user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
       }));
 
-      // 2. Determinar ganadores con manejo de empates
-      const winnersWithTies = calculateWinnersWithTies(storiesWithUsers);
+      // 2. Determinar ganadores (top 3) y mención de honor
+      const winners = storiesWithUsers.slice(0, 3);
+      
+      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
+      let honoraryMention = null;
+      if (storiesWithUsers.length >= 4) {
+        const thirdPlace = winners[2];
+        const fourthPlace = storiesWithUsers[3];
+        
+        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
+          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
+          console.log("🎖️ Mención de Honor detectada:", honoraryMention.title);
+        }
+      }
+      
       console.log(
-        "🏆 Ganadores determinados (con empates):",
-        winnersWithTies.map((w) => `${w.title} - Pos: ${w.position}${w.is_tied ? ' (empate)' : ''}`)
+        "🏆 Ganadores determinados:",
+        winners.map((w) => w.title)
       );
+      
+      if (honoraryMention) {
+        console.log("🎖️ Mención de Honor:", honoraryMention.title);
+      }
 
       // 3. Marcar historias ganadoras
-      const winnerUpdates = winnersWithTies.map(async (winner) => {
+      const winnerUpdates = winners.map(async (winner, index) => {
+        const position = index + 1;
         const { error: updateError } = await supabase
           .from("stories")
           .update({
             is_winner: true,
-            winner_position: winner.position,
-            is_tied: winner.is_tied || false,
+            winner_position: position,
           })
           .eq("id", winner.id);
 
         if (updateError) {
-          console.error(`Error marcando ganador ${winner.position}:`, updateError);
+          console.error(`Error marcando ganador ${position}:`, updateError);
           throw updateError;
         }
 
         console.log(
-          `✅ Historia "${winner.title}" marcada como ganador #${winner.position}${winner.is_tied ? ' (empate)' : ''}`
+          `✅ Historia "${winner.title}" marcada como ganador #${position}`
         );
-        return winner;
+        return { ...winner, position };
       });
 
       await Promise.all(winnerUpdates);
 
       // 4. Actualizar estadísticas de usuarios ganadores y asignar badges
-      const userUpdates = winnersWithTies.map(async (winner) => {
-        const position = winner.position;
+      const userUpdates = winners.map(async (winner, index) => {
+        const position = index + 1;
 
         // Primero obtener valores actuales
         const { data: currentUser, error: getUserError } = await supabase
@@ -263,7 +225,11 @@ export const useContestFinalization = () => {
       return {
         success: true,
         message: "Concurso finalizado exitosamente. Ganadores marcados y estadísticas actualizadas.",
-        winners: winnersWithTies,
+        winners: winners.map((winner, index) => ({
+          ...winner,
+          position: index + 1,
+        })),
+        honoraryMention: honoraryMention,
         totalStories: stories.length,
       };
     } catch (err) {
@@ -352,9 +318,29 @@ export const useContestFinalization = () => {
         });
 
         await Promise.all(userReverts);
+
+        // 4. Eliminar badges de ganadores del concurso
+        try {
+          console.log("🏅 Eliminando badges de ganadores del concurso...");
+          const { error: badgesError } = await supabase
+            .from("user_badges")
+            .delete()
+            .eq("metadata->contest_id", contestId)
+            .in("badge_id", ["contest_winner", "contest_finalist", "contest_winner_veteran"]);
+
+          if (badgesError) {
+            console.error("Error eliminando badges:", badgesError);
+            // No lanzar error para no fallar todo el proceso
+          } else {
+            console.log("✅ Badges de ganadores eliminados correctamente");
+          }
+        } catch (badgeErr) {
+          console.error("Error en eliminación de badges:", badgeErr);
+          // Continuar sin fallar el proceso
+        }
       }
 
-      // 4. Revertir estado del concurso
+      // 5. Revertir estado del concurso
       const { error: contestRevertError } = await supabase
         .from("contests")
         .update({
@@ -369,7 +355,7 @@ export const useContestFinalization = () => {
         );
       }
 
-      // 5. Refrescar datos del contexto
+      // 6. Refrescar datos del contexto
       await refreshContests();
 
       console.log("✅ Finalización revertida exitosamente");
@@ -408,7 +394,8 @@ export const useContestFinalization = () => {
           title,
           user_id,
           likes_count,
-          views_count
+          views_count,
+          created_at
         `
         )
         .eq("contest_id", contestId)
@@ -444,17 +431,55 @@ export const useContestFinalization = () => {
         user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
       }));
 
-      // Determinar ganadores con manejo de empates (vista previa)
-      const winnersWithTies = calculateWinnersWithTies(storiesWithUsers);
-      console.log(
-        "🏆 Vista previa de ganadores (con empates):",
-        winnersWithTies.map((w) => `${w.title} - Pos: ${w.position}${w.is_tied ? ' (empate)' : ''}`)
+      // DEBUG: Log del ordenamiento
+      console.log("🔍 DEBUG Preview - Historias ordenadas:", 
+        storiesWithUsers.slice(0, 5).map((s, i) => ({
+          pos: i + 1,
+          title: s.title?.substring(0, 20) + "...",
+          likes: s.likes_count,
+          created: s.created_at
+        }))
       );
+
+      // Determinar ganadores (top 3) y mención de honor (vista previa)
+      const winners = storiesWithUsers.slice(0, 3);
+      
+      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
+      let honoraryMention = null;
+      if (storiesWithUsers.length >= 4) {
+        const thirdPlace = winners[2];
+        const fourthPlace = storiesWithUsers[3];
+        
+        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
+          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
+          console.log("🎖️ Mención de Honor detectada (preview):", honoraryMention.title);
+        }
+      }
+      
+      console.log(
+        "🏆 Vista previa de ganadores:",
+        winners.map((w) => w.title)
+      );
+      
+      if (honoraryMention) {
+        console.log("🎖️ Vista previa Mención de Honor:", honoraryMention.title);
+        console.log("🔍 Datos completos de mención de honor:", honoraryMention);
+      } else {
+        console.log("❌ No se detectó mención de honor");
+        if (storiesWithUsers.length >= 4) {
+          console.log("🔍 Debug empate - 3º lugar:", storiesWithUsers[2]);
+          console.log("🔍 Debug empate - 4º lugar:", storiesWithUsers[3]);
+        }
+      }
 
       setLoading(false);
       return {
         success: true,
-        winners: winnersWithTies,
+        winners: winners.map((winner, index) => ({
+          ...winner,
+          position: index + 1,
+        })),
+        honoraryMention: honoraryMention,
         totalStories: stories.length,
       };
     } catch (err) {

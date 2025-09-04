@@ -81,6 +81,7 @@ const CurrentContest = () => {
 
   // Contador de tiempo real
   const [timeLeft, setTimeLeft] = useState("");
+  const [honoraryMention, setHonoraryMention] = useState(null);
 
   // Estado para forzar re-render cuando cambian los votos
   const [voteTimestamp, setVoteTimestamp] = useState(Date.now());
@@ -615,6 +616,37 @@ const CurrentContest = () => {
   }, [contest, currentContest?.id, nextContest?.id, getContestPhase]);
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
+
+  // ✅ DETECCIÓN DE MENCIÓN DE HONOR - Solo en fase "results"
+  useEffect(() => {
+    if (phaseInfo?.phase === "results" && sortBy === "popular" && galleryStories.length >= 4) {
+      const sortedStories = [...galleryStories].sort((a, b) => {
+        // Primero por likes_count (descendente)
+        const likesA = a.likes_count || 0;
+        const likesB = b.likes_count || 0;
+        if (likesB !== likesA) {
+          return likesB - likesA;
+        }
+        
+        // En caso de empate, por created_at (ascendente - más antigua primero)
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateA - dateB;
+      });
+      
+      const thirdPlace = sortedStories[2];
+      const fourthPlace = sortedStories[3];
+      
+      if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
+        setHonoraryMention({ ...fourthPlace, position: 4, isHonoraryMention: true });
+        console.log("🎖️ Mención de Honor detectada en CurrentContest:", fourthPlace.title);
+      } else {
+        setHonoraryMention(null);
+      }
+    } else {
+      setHonoraryMention(null);
+    }
+  }, [phaseInfo?.phase, sortBy, galleryStories]);
 
   // ✅ ESTADÍSTICAS DEL CONCURSO MEMOIZADAS - Evita recálculos innecesarios
   const contestStats = useMemo(() => {
@@ -1293,6 +1325,24 @@ const CurrentContest = () => {
           {/* FASES DE VOTACIÓN Y RESULTADOS - Mostrar historias completas */}
           {phaseInfo.showStories && (
             <div className="space-y-6">
+              {/* Banner informativo para Mención de Honor */}
+              {honoraryMention && sortBy === "popular" && phaseInfo?.phase === "results" && (
+                <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
+                  <div className="flex items-start gap-3">
+                    <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                        🎖️ Mención de Honor Otorgada
+                      </h3>
+                      <p className="text-sm text-blue-700 dark:text-blue-400">
+                        Una historia adicional ha recibido una <strong>Mención de Honor</strong> por empatar en votos con el 3º lugar. 
+                        El criterio de desempate utilizado fue la fecha de envío, reconociendo el mérito de ambas historias.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Header de historias */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -1481,7 +1531,7 @@ const CurrentContest = () => {
                     </div>
                   ) : (
                     <div className="grid gap-3">
-                      {filteredAndSortedStories.map((story) => {
+                      {filteredAndSortedStories.map((story, index) => {
                         // Verificar si el usuario ya votó por esta historia
                         const hasVoted =
                           story.isLiked ||
@@ -1503,32 +1553,35 @@ const CurrentContest = () => {
                             {/* Header responsive */}
                             <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
                               <div className="flex-1 min-w-0">
-                                {/* Posición si es resultados - con soporte para empates */}
+                                {/* Posición si es resultados - incluye mención de honor */}
                                 {sortBy === "popular" &&
-                                  phaseInfo?.phase === "results" &&
-                                  story.is_winner && (
+                                  phaseInfo?.phase === "results" && (
                                     <div className="flex items-center mb-2">
-                                      {story.winner_position === 1 && (
+                                      {index === 0 && (
                                         <div className="flex items-center text-yellow-600 text-sm">
                                           <Crown className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">
-                                            1º{story.is_tied ? " (empate)" : ""}
-                                          </span>
+                                          <span className="font-bold">1º</span>
                                         </div>
                                       )}
-                                      {story.winner_position === 2 && (
+                                      {index === 1 && (
                                         <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Medal className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">
-                                            2º{story.is_tied ? " (empate)" : ""}
-                                          </span>
+                                          <span className="font-bold">2º</span>
                                         </div>
                                       )}
-                                      {story.winner_position === 3 && (
+                                      {index === 2 && (
                                         <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Award className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">
-                                            3º{story.is_tied ? " (empate)" : ""}
+                                          <span className="font-bold">3º</span>
+                                        </div>
+                                      )}
+                                      {/* Mención de Honor - 4º lugar con empate */}
+                                      {honoraryMention && story.id === honoraryMention.id && (
+                                        <div className="flex items-center text-blue-600 dark:text-blue-400 text-sm">
+                                          <Award className="h-4 w-4 mr-1" />
+                                          <span className="font-bold">🎖️ Mención de Honor</span>
+                                          <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                                            (= 3º lugar)
                                           </span>
                                         </div>
                                       )}

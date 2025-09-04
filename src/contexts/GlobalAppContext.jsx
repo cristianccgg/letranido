@@ -1039,7 +1039,8 @@ export function GlobalAppProvider({ children }) {
         .from("stories")
         .select("*")
         .eq("contest_id", contestId)
-        .order("created_at", { ascending: false });
+        .order("likes_count", { ascending: false })
+        .order("created_at", { ascending: true });
 
       if (storiesError) {
         console.error("❌ Error fetching stories:", storiesError);
@@ -1661,10 +1662,12 @@ export function GlobalAppProvider({ children }) {
         // Ordenamiento
         switch (filters.sortBy) {
           case "popular":
-            query = query.order("views_count", { ascending: false });
+            query = query.order("likes_count", { ascending: false })
+                        .order("created_at", { ascending: true });
             break;
           case "liked":
-            query = query.order("likes_count", { ascending: false });
+            query = query.order("likes_count", { ascending: false })
+                        .order("created_at", { ascending: true });
             break;
           case "viewed":
             query = query.order("views_count", { ascending: false });
@@ -1689,6 +1692,14 @@ export function GlobalAppProvider({ children }) {
         }
 
         console.log("✅ Historias de galería encontradas:", stories.length);
+
+        // DEBUG: Log del ordenamiento desde contexto global
+        if (filters.sortBy === "popular") {
+          console.log("🔍 DEBUG Contexto - Historias ordenadas por popular:");
+          stories.slice(0, 5).forEach((story, i) => {
+            console.log(`  ${i + 1}. "${story.title?.substring(0, 20)}..." - ${story.likes_count} votos - ${story.created_at?.substring(0, 19)}`);
+          });
+        }
 
         // Obtener información de los usuarios
         const userIds = [...new Set(stories.map((story) => story.user_id))];
