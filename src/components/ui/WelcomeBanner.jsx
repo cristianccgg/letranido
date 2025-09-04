@@ -33,10 +33,10 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🗳️</span> ¡Votación activa del reto de agosto! Lee las 37 historias y vota por tus 3 favoritas. ¿Encontraste algún error o tienes sugerencias?
+                    <span>🏆</span> ¡Votación cerrada! Los resultados del reto de agosto serán publicados el 4 de septiembre. ¿Encontraste algún error o tienes sugerencias?
                   </span>
                   <span className="sm:hidden ">
-                    🗳️ ¡Votación activa! Si encuentras algún error repórtanoslo
+                    🏆 ¡Resultados el 4 de septiembre! Si encuentras algún error repórtanoslo
                   </span>
                 </p>
               </div>
