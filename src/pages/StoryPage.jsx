@@ -542,10 +542,10 @@ const StoryPage = () => {
                     const isCurrentContest = story.contest_id === currentContest?.id;
                     const contestToCheck = isCurrentContest ? currentContest : story.contest;
                     const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                    const isVotingPhase = contestPhase === "voting";
+                    const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
 
-                    if (isVotingPhase) {
-                      // Durante votación, no mostrar estadísticas del autor para evitar sesgo
+                    if (isVotingOrCounting) {
+                      // Durante votación y counting, no mostrar estadísticas del autor para evitar sesgo
                       return null;
                     } else {
                       return (
@@ -606,9 +606,9 @@ const StoryPage = () => {
                   const isCurrentContest = story.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : story.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingPhase = contestPhase === "voting";
+                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
 
-                  if (isVotingPhase) {
+                  if (isVotingOrCounting) {
                     // Durante votación: ocultar votos y vistas
                     return (
                       <>
@@ -622,7 +622,7 @@ const StoryPage = () => {
                           onVote={handleVote}
                           onAuthRequired={() => openAuthModal("register")}
                           size="default"
-                          hideCount={true} // Prop para ocultar el número
+                          hideCount={true} // Ocultar el número durante votación y counting
                           isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                           fullWidth={true} // Full width para más prominencia
                         />
@@ -656,7 +656,7 @@ const StoryPage = () => {
                       </>
                     );
                   } else {
-                    // Fuera de votación: mostrar votos y vistas normalmente
+                    // Solo en resultados: mostrar votos y vistas normalmente
                     return (
                       <>
                         {/* Botón de voto - full width */}
@@ -673,12 +673,14 @@ const StoryPage = () => {
                           fullWidth={true} // Full width para más prominencia
                         />
 
-                        {/* Información de vistas y compartir */}
+                        {/* Información de vistas y compartir - Solo mostrar en resultados */}
                         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
-                          <div className="text-center sm:text-left text-gray-600 dark:text-dark-300 text-xs flex items-center">
-                            <Eye className="h-5 w-5 mr-2" />
-                            <span>{story.views_count || 0} vistas</span>
-                          </div>
+                          {contestPhase === "results" && (
+                            <div className="text-center sm:text-left text-gray-600 dark:text-dark-300 text-xs flex items-center">
+                              <Eye className="h-5 w-5 mr-2" />
+                              <span>{story.views_count || 0} vistas</span>
+                            </div>
+                          )}
 
                           {/* Compartir - Forzado a la derecha en desktop */}
                           {getShareData() && (
@@ -774,12 +776,12 @@ const StoryPage = () => {
                   const isCurrentContest = story.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : story.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingPhase = contestPhase === "voting";
+                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
 
                   return (
                     <EnhancedVoteButton
                       isLiked={isLiked}
-                      likesCount={isVotingPhase ? 0 : likesCount} // Ocultar conteo durante votación
+                      likesCount={isVotingOrCounting ? 0 : likesCount} // Ocultar conteo durante votación y counting
                       canVote={votingInfo.canVote}
                       votingInfo={votingInfo}
                       isAuthenticated={isAuthenticated}
@@ -787,7 +789,7 @@ const StoryPage = () => {
                       onAuthRequired={() => openAuthModal("register")}
                       size="large"
                       showTooltip={false}
-                      hideCount={isVotingPhase} // Prop para ocultar el número
+                      hideCount={isVotingOrCounting} // Prop para ocultar el número durante votación y counting
                       isPortfolioStory={!story?.contest_id} // Historia libre si no tiene contest_id
                     />
                   );

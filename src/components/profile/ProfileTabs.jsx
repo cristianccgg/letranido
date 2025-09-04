@@ -141,13 +141,22 @@ const ProfileTabs = ({ user, votingStats }) => {
   };
 
   const ResumenTab = () => {
-    // Calcular estadísticas en tiempo real desde userStories
+    // Calcular estadísticas en tiempo real desde userStories - excluyendo historias en voting/counting
     const { totalLikes, totalViews, recentStory } = useMemo(() => {
-      const totalLikes = userStories.reduce(
+      // Filtrar historias que no están en voting o counting para estadísticas
+      const storiesForStats = userStories.filter(story => {
+        if (!story.contest) return true; // Historias libres siempre incluidas
+        const isCurrentContest = story.contest_id === currentContest?.id;
+        const contestToCheck = isCurrentContest ? currentContest : story.contest;
+        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
+        return contestPhase !== "voting" && contestPhase !== "counting";
+      });
+      
+      const totalLikes = storiesForStats.reduce(
         (total, story) => total + (story.likes_count || 0),
         0
       );
-      const totalViews = userStories.reduce(
+      const totalViews = storiesForStats.reduce(
         (total, story) => total + (story.views_count || 0),
         0
       );
@@ -234,10 +243,12 @@ const ProfileTabs = ({ user, votingStats }) => {
                   const isCurrentContest = recentStory.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : recentStory.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingPhase = contestPhase === "voting";
+                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
 
-                  if (isVotingPhase) {
-                    return <span className="text-yellow-600 dark:text-yellow-400">En votación</span>;
+                  if (isVotingOrCounting) {
+                    return <span className="text-yellow-600 dark:text-yellow-400">
+                      {contestPhase === "voting" ? "En votación" : "Contando votos"}
+                    </span>;
                   } else {
                     return <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>;
                   }
@@ -349,13 +360,15 @@ const ProfileTabs = ({ user, votingStats }) => {
                         const isCurrentContest = story.contest_id === currentContest?.id;
                         const contestToCheck = isCurrentContest ? currentContest : story.contest;
                         const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                        const isVotingPhase = contestPhase === "voting";
+                        const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
 
-                        if (isVotingPhase) {
+                        if (isVotingOrCounting) {
                           return (
                             <>
                               <span>•</span>
-                              <span className="text-yellow-600 dark:text-yellow-400">En votación</span>
+                              <span className="text-yellow-600 dark:text-yellow-400">
+                                {contestPhase === "voting" ? "En votación" : "Contando votos"}
+                              </span>
                             </>
                           );
                         } else {
@@ -418,11 +431,20 @@ const ProfileTabs = ({ user, votingStats }) => {
 
   const LogrosTab = () => {
     const { totalLikes, totalViews } = useMemo(() => {
-      const totalLikes = userStories.reduce(
+      // Filtrar historias que no están en voting o counting para estadísticas
+      const storiesForStats = userStories.filter(story => {
+        if (!story.contest) return true; // Historias libres siempre incluidas
+        const isCurrentContest = story.contest_id === currentContest?.id;
+        const contestToCheck = isCurrentContest ? currentContest : story.contest;
+        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
+        return contestPhase !== "voting" && contestPhase !== "counting";
+      });
+      
+      const totalLikes = storiesForStats.reduce(
         (total, story) => total + (story.likes_count || 0),
         0
       );
-      const totalViews = userStories.reduce(
+      const totalViews = storiesForStats.reduce(
         (total, story) => total + (story.views_count || 0),
         0
       );
