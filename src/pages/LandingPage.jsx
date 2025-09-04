@@ -234,7 +234,7 @@ const LandingPage = () => {
   // ✅ Contador para el siguiente reto
   const [nextTimeLeft, setNextTimeLeft] = useState("");
   useEffect(() => {
-    if (!nextContest?.submission_deadline || currentContestPhase !== "voting") {
+    if (!nextContest?.submission_deadline || (currentContestPhase !== "voting" && currentContestPhase !== "counting")) {
       setNextTimeLeft("");
       return;
     }
@@ -437,7 +437,7 @@ const LandingPage = () => {
                   />
                   <div className="text-center relative z-10">
                     <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
-                      1ER LUGAR
+                      1ER LUGAR{lastContestWinners.winners[0]?.is_tied ? ' (EMPATE)' : ''}
                     </div>
                     <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
                       {lastContestWinners.contest.month}
@@ -471,10 +471,10 @@ const LandingPage = () => {
                   contest={nextContest}
                   phase="submission" // El siguiente siempre está en submission
                   timeLeft={
-                    currentContestPhase === "voting" ? nextTimeLeft : null
+                    (currentContestPhase === "voting" || currentContestPhase === "counting") ? nextTimeLeft : null
                   } // Contador real cuando esté habilitado
                   isNext={true}
-                  isEnabled={currentContestPhase === "voting"} // Solo habilitado si actual está en votación
+                  isEnabled={currentContestPhase === "voting" || currentContestPhase === "counting"} // Habilitado durante votación y counting
                   onRulesClick={() => {
                     setRulesModalContest(nextContest);
                     setShowRulesModal(true);
@@ -763,7 +763,7 @@ const LandingPage = () => {
                           {/* Badge de ganador más prominente */}
                           <div className="absolute -top-3 left-6">
                             <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
-                              🏆 GANADOR
+                              🏆 GANADOR{lastContestWinners.winners[0]?.is_tied ? ' (EMPATE)' : ''}
                             </div>
                           </div>
 
@@ -855,7 +855,10 @@ const LandingPage = () => {
                                           : "bg-gradient-to-r from-indigo-500 to-purple-600"
                                       }`}
                                     >
-                                      {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
+                                      {isSecond 
+                                        ? `🥈 2º LUGAR${story.is_tied ? ' (EMPATE)' : ''}` 
+                                        : `🥉 3º LUGAR${story.is_tied ? ' (EMPATE)' : ''}`
+                                      }
                                     </div>
                                   </div>
 

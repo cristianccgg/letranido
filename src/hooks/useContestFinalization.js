@@ -3,6 +3,62 @@ import { useState } from "react";
 import { useGlobalApp } from "../contexts/GlobalAppContext"; // ✅ CAMBIADO
 import { supabase } from "../lib/supabase";
 
+// Función para calcular ganadores con manejo de empates
+const calculateWinnersWithTies = (stories) => {
+  if (!stories || stories.length === 0) return [];
+
+  // Agrupar por likes_count
+  const groupsByLikes = {};
+  stories.forEach(story => {
+    const likes = story.likes_count || 0;
+    if (!groupsByLikes[likes]) {
+      groupsByLikes[likes] = [];
+    }
+    groupsByLikes[likes].push(story);
+  });
+
+  // Ordenar grupos por likes descendente
+  const likesCountsSorted = Object.keys(groupsByLikes)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  const winners = [];
+  let currentPosition = 1;
+
+  // Procesar cada grupo de likes
+  for (const likesCount of likesCountsSorted) {
+    const group = groupsByLikes[likesCount];
+    
+    // Si hay más de una historia con los mismos likes, es empate
+    const isTied = group.length > 1;
+    
+    // Ordenar dentro del grupo por created_at (criterio de desempate original)
+    group.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    
+    // Asignar la posición actual a todos los del grupo
+    group.forEach(story => {
+      winners.push({
+        ...story,
+        position: currentPosition,
+        is_tied: isTied
+      });
+    });
+
+    // Incluir este grupo si afecta el podio (posiciones 1, 2 o 3)
+    if (currentPosition <= 3) {
+      // La siguiente posición salta según la cantidad de empatados
+      currentPosition += group.length;
+    } else {
+      // Si la posición actual ya es > 3, no incluir más grupos
+      break;
+    }
+  }
+
+  // Retornar todos los ganadores que están en posiciones 1, 2 o 3
+  // Esto incluye empates que pueden hacer que tengamos más de 3 historias ganadoras
+  return winners;
+};
+
 export const useContestFinalization = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -65,40 +121,40 @@ export const useContestFinalization = () => {
         user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
       }));
 
-      // 2. Determinar ganadores (top 3)
-      const winners = storiesWithUsers.slice(0, 3);
+      // 2. Determinar ganadores con manejo de empates
+      const winnersWithTies = calculateWinnersWithTies(storiesWithUsers);
       console.log(
-        "🏆 Ganadores determinados:",
-        winners.map((w) => w.title)
+        "🏆 Ganadores determinados (con empates):",
+        winnersWithTies.map((w) => `${w.title} - Pos: ${w.position}${w.is_tied ? ' (empate)' : ''}`)
       );
 
       // 3. Marcar historias ganadoras
-      const winnerUpdates = winners.map(async (winner, index) => {
-        const position = index + 1;
+      const winnerUpdates = winnersWithTies.map(async (winner) => {
         const { error: updateError } = await supabase
           .from("stories")
           .update({
             is_winner: true,
-            winner_position: position,
+            winner_position: winner.position,
+            is_tied: winner.is_tied || false,
           })
           .eq("id", winner.id);
 
         if (updateError) {
-          console.error(`Error marcando ganador ${position}:`, updateError);
+          console.error(`Error marcando ganador ${winner.position}:`, updateError);
           throw updateError;
         }
 
         console.log(
-          `✅ Historia "${winner.title}" marcada como ganador #${position}`
+          `✅ Historia "${winner.title}" marcada como ganador #${winner.position}${winner.is_tied ? ' (empate)' : ''}`
         );
-        return { ...winner, position };
+        return winner;
       });
 
       await Promise.all(winnerUpdates);
 
       // 4. Actualizar estadísticas de usuarios ganadores y asignar badges
-      const userUpdates = winners.map(async (winner, index) => {
-        const position = index + 1;
+      const userUpdates = winnersWithTies.map(async (winner) => {
+        const position = winner.position;
 
         // Primero obtener valores actuales
         const { data: currentUser, error: getUserError } = await supabase
@@ -207,10 +263,7 @@ export const useContestFinalization = () => {
       return {
         success: true,
         message: "Concurso finalizado exitosamente. Ganadores marcados y estadísticas actualizadas.",
-        winners: winners.map((winner, index) => ({
-          ...winner,
-          position: index + 1,
-        })),
+        winners: winnersWithTies,
         totalStories: stories.length,
       };
     } catch (err) {
@@ -391,20 +444,17 @@ export const useContestFinalization = () => {
         user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
       }));
 
-      // Determinar ganadores (top 3)
-      const winners = storiesWithUsers.slice(0, 3);
+      // Determinar ganadores con manejo de empates (vista previa)
+      const winnersWithTies = calculateWinnersWithTies(storiesWithUsers);
       console.log(
-        "🏆 Vista previa de ganadores:",
-        winners.map((w) => w.title)
+        "🏆 Vista previa de ganadores (con empates):",
+        winnersWithTies.map((w) => `${w.title} - Pos: ${w.position}${w.is_tied ? ' (empate)' : ''}`)
       );
 
       setLoading(false);
       return {
         success: true,
-        winners: winners.map((winner, index) => ({
-          ...winner,
-          position: index + 1,
-        })),
+        winners: winnersWithTies,
         totalStories: stories.length,
       };
     } catch (err) {

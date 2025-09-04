@@ -983,6 +983,69 @@ const CurrentContest = () => {
         </div>
       )}
 
+      {/* Banner informativo durante counting */}
+      {phaseInfo?.phase === "counting" && (
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-3 text-white flex items-center">
+                <Clock className="h-5 w-5 mr-2" />
+                ⏱️ Procesando Resultados
+              </h3>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">
+                      Votación cerrada:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      La fase de votación terminó automáticamente a las 7:00 PM
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">
+                      Próximamente:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Los resultados oficiales se publicarán muy pronto
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-white">
+                      Mientras tanto:
+                    </span>
+                    <span className="text-white/90 ml-1">
+                      Puedes seguir leyendo y comentando las historias
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center lg:text-right flex-shrink-0">
+              <div className="bg-white/20 rounded-lg px-6 py-4">
+                <span className="text-2xl font-bold text-white block">
+                  🏆
+                </span>
+                <div className="text-white/90 text-sm mt-1">
+                  Resultados muy pronto
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Contador de votos prominente - Solo durante votación */}
       {phaseInfo?.phase === "voting" && isAuthenticated && (
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-blue-200 dark:border-blue-600 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
@@ -1418,7 +1481,7 @@ const CurrentContest = () => {
                     </div>
                   ) : (
                     <div className="grid gap-3">
-                      {filteredAndSortedStories.map((story, index) => {
+                      {filteredAndSortedStories.map((story) => {
                         // Verificar si el usuario ya votó por esta historia
                         const hasVoted =
                           story.isLiked ||
@@ -1440,27 +1503,33 @@ const CurrentContest = () => {
                             {/* Header responsive */}
                             <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
                               <div className="flex-1 min-w-0">
-                                {/* Posición si es resultados - más compacta */}
+                                {/* Posición si es resultados - con soporte para empates */}
                                 {sortBy === "popular" &&
                                   phaseInfo?.phase === "results" &&
-                                  index < 3 && (
+                                  story.is_winner && (
                                     <div className="flex items-center mb-2">
-                                      {index === 0 && (
+                                      {story.winner_position === 1 && (
                                         <div className="flex items-center text-yellow-600 text-sm">
                                           <Crown className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">1º</span>
+                                          <span className="font-bold">
+                                            1º{story.is_tied ? " (empate)" : ""}
+                                          </span>
                                         </div>
                                       )}
-                                      {index === 1 && (
+                                      {story.winner_position === 2 && (
                                         <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Medal className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">2º</span>
+                                          <span className="font-bold">
+                                            2º{story.is_tied ? " (empate)" : ""}
+                                          </span>
                                         </div>
                                       )}
-                                      {index === 2 && (
+                                      {story.winner_position === 3 && (
                                         <div className="flex items-center text-gray-600 dark:text-gray-300 text-sm">
                                           <Award className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">3º</span>
+                                          <span className="font-bold">
+                                            3º{story.is_tied ? " (empate)" : ""}
+                                          </span>
                                         </div>
                                       )}
                                     </div>
