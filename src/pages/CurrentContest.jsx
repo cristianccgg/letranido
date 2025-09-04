@@ -1572,8 +1572,8 @@ const CurrentContest = () => {
                             {/* Actions compactas - Layout móvil */}
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                               <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                                {/* Ocultar votos y vistas durante votación para evitar sesgo */}
-                                {phaseInfo?.phase !== "voting" && (
+                                {/* Ocultar votos y vistas durante votación y counting para evitar sesgo */}
+                                {phaseInfo?.phase === "results" && (
                                   <>
                                     {/* Likes display compacto */}
                                     <div
