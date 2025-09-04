@@ -10,9 +10,12 @@ const SupportButton = ({ onClick }) => (
   <button
     onClick={onClick}
     title="Apoya el proyecto ☕"
-    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 hover:-rotate-3"
+    className="relative group flex items-center justify-center md:w-8 md:h-8 w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 hover:-rotate-3"
   >
-    <Coffee className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+    <Coffee className="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform duration-200" />
+    
+    {/* Pequeño punto de notificación */}
+    <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full animate-pulse opacity-80 group-hover:opacity-100"></div>
   </button>
 );
 
