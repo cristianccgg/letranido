@@ -823,8 +823,8 @@ function generateResultsHTML(contest: any): string {
         <!-- Call to action -->
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">¡No te quedes con la curiosidad! Ve los resultados completos y celebra con nosotros.</p>
-          <a href="https://letranido.com/contest-history" style="background: #6366f1; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);">
-            🏆 Ver resultados completos
+          <a href="https://letranido.com/#winners-section" style="background: #6366f1; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);">
+            🏆 Ver ganadores del podio
           </a>
         </div>
       </div>
