@@ -77,9 +77,9 @@ const Layout = ({ children, onFeedbackClick }) => {
       return true;
     }
 
-    // Si el actual está en votación y hay próximo reto disponible, puede escribir ahí
+    // Si el actual está en votación o counting y hay próximo reto disponible, puede escribir ahí
     if (
-      currentContestPhase === "voting" &&
+      (currentContestPhase === "voting" || currentContestPhase === "counting") &&
       nextContest &&
       !hasUserParticipatedInNext
     ) {
@@ -117,7 +117,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       ) {
         return "Escribir"; // Para el reto actual
       } else if (
-        currentContestPhase === "voting" &&
+        (currentContestPhase === "voting" || currentContestPhase === "counting") &&
         nextContest &&
         !hasUserParticipatedInNext
       ) {
@@ -159,7 +159,7 @@ const Layout = ({ children, onFeedbackClick }) => {
       ) {
         return { disabled: false, href: `/write/${currentContest.id}` };
       } else if (
-        currentContestPhase === "voting" &&
+        (currentContestPhase === "voting" || currentContestPhase === "counting") &&
         nextContest &&
         !hasUserParticipatedInNext
       ) {

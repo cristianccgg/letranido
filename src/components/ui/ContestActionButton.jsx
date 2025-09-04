@@ -85,7 +85,7 @@ const ContestActionButton = ({
     targetContestId,
     user?.id,
     isAuthenticated,
-    userStories.length, // Solo longitud para evitar renders innecesarios
+    userStories, // Array completo para detectar cambios de historias
     userStoriesLoading,
   ]); // Removido hasUserParticipated para evitar loops
 
