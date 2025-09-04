@@ -866,10 +866,10 @@ const LandingPage = () => {
                               <Link
                                 key={story.id}
                                 to={`/story/${story.id}`}
-                                className="group block"
+                                className="group block h-full"
                               >
                                 <div
-                                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 h-full flex flex-col ${
                                     isSecond
                                       ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
                                       : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
@@ -943,7 +943,7 @@ const LandingPage = () => {
                                   </div>
 
                                   {/* Call to action */}
-                                  <div className="text-center">
+                                  <div className="text-center mt-auto">
                                     <div
                                       className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
                                         isSecond
@@ -964,9 +964,9 @@ const LandingPage = () => {
                         {lastContestWinners.honoraryMention && (
                           <Link
                             to={`/story/${lastContestWinners.honoraryMention.id}`}
-                            className="group block"
+                            className="group block h-full"
                           >
-                            <div className="relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500 hover:border-blue-400 dark:hover:border-blue-400">
+                            <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 h-full flex flex-col bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500 hover:border-blue-400 dark:hover:border-blue-400">
                               {/* Badge de mención de honor */}
                               <div className="absolute -top-3 left-6">
                                 <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-gradient-to-r from-blue-500 to-sky-600">
@@ -976,8 +976,8 @@ const LandingPage = () => {
 
                               {/* Medalla */}
                               <div className="text-center mb-4 mt-4">
-                                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-400 to-sky-500">
-                                  <span className="text-3xl">🎖️</span>
+                                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-400 to-sky-500">
+                                  <span className="text-4xl">🎖️</span>
                                 </div>
                               </div>
 
@@ -1019,8 +1019,8 @@ const LandingPage = () => {
                               </div>
 
                               {/* Call to action */}
-                              <div className="text-center">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-sky-600 text-white font-medium hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md text-sm">
+                              <div className="text-center mt-auto">
+                                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md">
                                   <BookOpen className="h-4 w-4" />
                                   <span>Leer historia</span>
                                 </div>
