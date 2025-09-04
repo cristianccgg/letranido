@@ -1032,23 +1032,37 @@ const LandingPage = () => {
                     </div>
                   )}
 
-                  {/* Sección motivacional - Ahora después del podium */}
+                  {/* Sección combinada con ambos CTAs */}
                   <div className="text-center bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl border border-indigo-100 dark:border-dark-600 p-6 mt-8">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-2">
-                      ¡Podrías ser el próximo ganador!
+                      ¿Qué quieres hacer ahora?
                     </h3>
-                    <p className="text-gray-600 dark:text-dark-300 mb-4">
-                      Únete al reto actual y demuestra tu talento. Tu historia
-                      podría ser la próxima en brillar.
+                    <p className="text-gray-600 dark:text-dark-300 mb-6">
+                      Explora todas las historias del concurso anterior o únete al reto actual
                     </p>
-                    <Link
-                      to="/contest/current"
-                      className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-                    >
-                      <PenTool className="h-5 w-5 mr-2" />
-                      Participar ahora
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
+                    
+                    {/* Botones lado a lado */}
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                      {/* Botón Ver listado */}
+                      <Link
+                        to={`/contest/${lastContestWinners.contest.id}#stories-section`}
+                        className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 w-full sm:w-auto"
+                      >
+                        <Trophy className="h-5 w-5 mr-2" />
+                        Ver todas las historias
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Link>
+
+                      {/* Botón Participar */}
+                      <Link
+                        to="/contest/current"
+                        className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                      >
+                        <PenTool className="h-5 w-5 mr-2" />
+                        Participar en el reto actual
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
