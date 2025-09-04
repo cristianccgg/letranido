@@ -756,10 +756,32 @@ const ContestAdminPanel = () => {
         console.log(`  ${story.pos}. "${story.title}" - ${story.likes} votos - ${story.created}`);
       });
 
-      const mockWinners = storiesWithUsers.slice(0, 3).map((story, index) => ({
-        ...story,
-        position: index + 1,
-        simulatedPoints: index === 0 ? 100 : index === 1 ? 50 : 25,
+      const mockWinners = await Promise.all(storiesWithUsers.slice(0, 3).map(async (story, index) => {
+        const position = index + 1;
+        
+        // Simular el conteo de victorias como en la finalización real
+        const { data: winsData } = await supabase
+          .from("stories")
+          .select("is_winner, winner_position")
+          .eq("user_id", story.user_id)
+          .eq("is_winner", true);
+        
+        const currentWins = winsData?.length || 0;
+        const newWinsCount = currentWins + 1;
+        
+        console.log(`🏆 DEBUG - Posición ${position}: ${story.user_profiles?.display_name}`);
+        console.log(`  - Votos: ${story.likes_count}`);
+        console.log(`  - Victorias actuales: ${currentWins}`);
+        console.log(`  - Nuevas victorias: ${newWinsCount}`);
+        console.log(`  - ¿Badge veterano?: ${position === 1 && newWinsCount >= 2 ? 'SÍ' : 'NO'}`);
+        
+        return {
+          ...story,
+          position,
+          currentWins,
+          newWinsCount,
+          simulatedPoints: index === 0 ? 100 : index === 1 ? 50 : 25,
+        };
       }));
 
       // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)

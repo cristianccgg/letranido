@@ -170,8 +170,8 @@ export const useContestFinalization = () => {
             console.log(`🏅 Badge ${badgeType} asignado a ${winner.user_profiles?.display_name} (posición ${position})`);
           }
 
-          // Badge de veterano si tiene 2+ victorias
-          if (newWinsCount >= 2) {
+          // Badge de veterano SOLO si tiene 2+ primeros lugares (posición 1)
+          if (position === 1 && newWinsCount >= 2) {
             const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
               target_user_id: winner.user_id,
               badge_type: 'contest_winner_veteran',

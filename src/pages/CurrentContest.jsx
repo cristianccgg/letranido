@@ -437,9 +437,19 @@ const CurrentContest = () => {
 
     switch (sortBy) {
       case "popular":
-        return filtered.sort(
-          (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
-        );
+        return filtered.sort((a, b) => {
+          // Primero por likes_count (descendente)
+          const likesA = a.likes_count || 0;
+          const likesB = b.likes_count || 0;
+          if (likesB !== likesA) {
+            return likesB - likesA;
+          }
+          
+          // En caso de empate, por created_at (ascendente - más antigua primero)
+          const dateA = new Date(a.created_at);
+          const dateB = new Date(b.created_at);
+          return dateA - dateB;
+        });
       case "viewed":
         return filtered.sort(
           (a, b) => (b.views_count || 0) - (a.views_count || 0)

@@ -130,10 +130,10 @@ const Badge = ({
       text: "text-yellow-900",
     },
     contest_finalist: {
-      bg: "from-slate-400 to-slate-600",
-      border: "border-slate-300",
-      glow: "shadow-slate-500/50",
-      text: "text-slate-800",
+      bg: "from-blue-300 to-blue-500",
+      border: "border-blue-200",
+      glow: "shadow-blue-400/50",
+      text: "text-blue-800",
     },
     contest_winner_veteran: {
       bg: "from-red-500 to-red-700",

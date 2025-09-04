@@ -106,9 +106,11 @@ function AppContent() {
     );
 
     // Mostrar página de mantenimiento EXCEPTO:
-    // 1. Si es admin en páginas de admin
-    // 2. Si es una página pública permitida (login, registro, etc.) - SIEMPRE disponible
+    // 1. Si estamos en desarrollo (localhost)
+    // 2. Si es admin en páginas de admin
+    // 3. Si es una página pública permitida (login, registro, etc.) - SIEMPRE disponible
     const shouldShowMaintenance = !(
+      process.env.NODE_ENV === 'development' ||  // Localhost siempre funciona
       (user?.is_admin && isAdminPage) ||
       isPublicAllowedPage
     );
