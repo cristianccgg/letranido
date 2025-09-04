@@ -51,6 +51,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const PremiumPlans = lazy(() => import("./pages/PremiumPlans"));
 const WritePortfolio = lazy(() => import("./pages/WritePortfolio"));
 const FreeStories = lazy(() => import("./pages/FreeStories"));
+const Support = lazy(() => import("./pages/Support"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -248,6 +249,9 @@ function AppContent() {
 
             {/* FAQ */}
             <Route path="/faq" element={<FAQ />} />
+
+            {/* Support */}
+            <Route path="/apoyar" element={<Support />} />
 
             {/* How It Works */}
             <Route path="/como-funciona" element={<HowItWorks />} />

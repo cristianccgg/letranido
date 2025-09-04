@@ -2,11 +2,24 @@ import React, { useEffect, useState } from "react";
 import InstagramButton from "./InstagramButton";
 import FeedbackButton from "./FeedbackButton";
 import FacebookButton from "./FacebookButton";
-import { MessageCircleHeart, ChevronUp, Minus, Sparkles } from "lucide-react";
+import KofiModal from "../modals/KofiModal";
+import { MessageCircleHeart, ChevronUp, Minus, Sparkles, Coffee } from "lucide-react";
+
+// Componente SupportButton para consistencia
+const SupportButton = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    title="Apoya el proyecto ☕"
+    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110 hover:-rotate-3"
+  >
+    <Coffee className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+  </button>
+);
 
 const SocialContainer = ({ onFeedbackClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showKofiModal, setShowKofiModal] = useState(false);
 
   const toggleMenu = () => {
     if (!isAnimating) {
@@ -42,12 +55,15 @@ const SocialContainer = ({ onFeedbackClick }) => {
 
         <div className="flex flex-col gap-2 items-center">
           <div className="transform hover:scale-125 transition-all duration-200 hover:rotate-6">
-            <FeedbackButton onClick={onFeedbackClick} />
+            <SupportButton onClick={() => setShowKofiModal(true)} />
           </div>
           <div className="transform hover:scale-125 transition-all duration-200 hover:-rotate-6">
-            <InstagramButton />
+            <FeedbackButton onClick={onFeedbackClick} />
           </div>
           <div className="transform hover:scale-125 transition-all duration-200 hover:rotate-6">
+            <InstagramButton />
+          </div>
+          <div className="transform hover:scale-125 transition-all duration-200 hover:-rotate-6">
             <FacebookButton />
           </div>
         </div>
@@ -69,7 +85,7 @@ const SocialContainer = ({ onFeedbackClick }) => {
             style={{ transitionDelay: isOpen ? "0.1s" : "0s" }}
           >
             <div className="transform hover:scale-110 transition-transform duration-200">
-              <FeedbackButton onClick={onFeedbackClick} />
+              <SupportButton onClick={() => setShowKofiModal(true)} />
             </div>
           </div>
 
@@ -82,7 +98,7 @@ const SocialContainer = ({ onFeedbackClick }) => {
             style={{ transitionDelay: isOpen ? "0.2s" : "0s" }}
           >
             <div className="transform hover:scale-110 transition-transform duration-200">
-              <InstagramButton />
+              <FeedbackButton onClick={onFeedbackClick} />
             </div>
           </div>
 
@@ -93,6 +109,19 @@ const SocialContainer = ({ onFeedbackClick }) => {
                 : "opacity-0 translate-y-4 scale-75 pointer-events-none"
             }`}
             style={{ transitionDelay: isOpen ? "0.3s" : "0s" }}
+          >
+            <div className="transform hover:scale-110 transition-transform duration-200">
+              <InstagramButton />
+            </div>
+          </div>
+
+          <div
+            className={`transform transition-all duration-300 ease-out ${
+              isOpen
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-4 scale-75 pointer-events-none"
+            }`}
+            style={{ transitionDelay: isOpen ? "0.4s" : "0s" }}
           >
             <div className="transform hover:scale-110 transition-transform duration-200">
               <FacebookButton />
@@ -159,6 +188,12 @@ const SocialContainer = ({ onFeedbackClick }) => {
           }
         }
       `}</style>
+
+      {/* Ko-fi Modal */}
+      <KofiModal
+        isOpen={showKofiModal}
+        onClose={() => setShowKofiModal(false)}
+      />
     </>
   );
 };

@@ -172,10 +172,22 @@ const GlobalFooter = () => {
                 <h3 className="text-xl font-bold text-white">Letranido</h3>
                 <img src={logo} alt="Letranido" className="h-6 w-auto" />
               </Link>
-              <p className="text-primary-200 mb-6 max-w-md">
+              <p className="text-primary-200 mb-4 max-w-md">
                 Una comunidad donde la creatividad literaria no tiene límites.
                 Únete a escritores apasionados de todo el mundo.
               </p>
+              <p className="text-primary-300 text-sm mb-4 max-w-md">
+                Tu donación mantiene Letranido gratuito para todos. Nunca quitaremos funciones - solo añadimos opciones premium para más herramientas ❤️
+              </p>
+              <a
+                href="https://ko-fi.com/letranido"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 mb-6"
+                title="Apoya el proyecto con una donación"
+              >
+                ☕ Apoyar proyecto
+              </a>
 
               {/* Redes sociales */}
               <div>

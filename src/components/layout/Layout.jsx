@@ -11,6 +11,7 @@ import {
   HelpCircle,
   BookOpen,
   MessageCircle,
+  Coffee,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { FEATURES } from "../../lib/config";
@@ -253,6 +254,12 @@ const Layout = ({ children, onFeedbackClick }) => {
           description: "Encuentra respuestas a las dudas más comunes",
         },
         {
+          name: "Apoyar Proyecto",
+          href: "/apoyar",
+          icon: Coffee,
+          description: "Ayúdanos a mantener Letranido gratuito para todos",
+        },
+        {
           name: "Enviar Feedback",
           href: "#feedback",
           icon: MessageCircle,
@@ -323,6 +330,12 @@ const Layout = ({ children, onFeedbackClick }) => {
           href: "/faq",
           icon: HelpCircle,
           description: "Encuentra respuestas a las dudas más comunes",
+        },
+        {
+          name: "Apoyar Proyecto",
+          href: "/apoyar",
+          icon: Coffee,
+          description: "Ayúdanos a mantener Letranido gratuito para todos",
         },
         {
           name: "Enviar Feedback",
