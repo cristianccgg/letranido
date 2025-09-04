@@ -1,5 +1,6 @@
 // components/ui/Badge.jsx - Sistema de badges con diseños CSS/SVG profesionales
-import React from "react";
+import React, { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const Badge = ({
   badge,
@@ -8,6 +9,24 @@ const Badge = ({
   animate = false,
   className = "",
 }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const badgeRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (badgeRef.current && showDescription) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      setTooltipPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 10
+      });
+      setShowTooltip(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
   // Definición de iconos SVG para cada tipo de badge
   const badgeIcons = {
     feather: (
@@ -179,7 +198,13 @@ const Badge = ({
   const icon = badgeIcons[badge.icon] || badgeIcons.feather;
 
   return (
-    <div className={`relative group ${className}`}>
+    <>
+      <div 
+        ref={badgeRef}
+        className={`relative group hover:z-50 ${className}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
       {/* Badge principal */}
       <div
         className={`
@@ -209,9 +234,17 @@ const Badge = ({
         )}
       </div>
 
-      {/* Tooltip con nombre y descripción */}
-      {showDescription && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
+      </div>
+      
+      {/* Tooltip renderizado como portal */}
+      {showTooltip && showDescription && createPortal(
+        <div 
+          className="fixed px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl whitespace-nowrap z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`
+          }}
+        >
           <div className="font-semibold">{badge.name}</div>
           {badge.description && (
             <div className="text-xs text-gray-300 mt-1">
@@ -220,9 +253,10 @@ const Badge = ({
           )}
           {/* Flecha del tooltip */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 
