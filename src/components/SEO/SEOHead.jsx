@@ -14,8 +14,8 @@ const SEOHead = ({
 }) => {
   // Configuración por defecto
   const defaultTitle = 'Letranido - Tu nido creativo de escritura';
-  const defaultDescription = 'Participa en concursos mensuales de escritura y conecta con una comunidad apasionada por las historias. Recibe feedback real, mantén tus derechos y crece como escritor.';
-  const defaultKeywords = 'escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido';
+  const defaultDescription = 'Participa en retos mensuales de escritura y conecta con una comunidad apasionada por las historias. Recibe feedback real, mantén tus derechos y crece como escritor.';
+  const defaultKeywords = 'escritura creativa, retos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido';
   const defaultImage = '/OG_image.png';
   const baseUrl = import.meta.env.VITE_SITE_URL || 'https://www.letranido.com';
   
