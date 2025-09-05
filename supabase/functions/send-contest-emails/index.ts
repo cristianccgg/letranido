@@ -48,7 +48,7 @@ serve(async (req) => {
     // Get request data
     const { emailType, contestId, subject, htmlContent, textContent, email, preview, emailMode }: EmailRequest = await req.json();
     console.log(
-      `📧 Procesando: ${emailType}${contestId ? ` para concurso: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}${emailMode ? ` (modo: ${emailMode})` : ''}`
+      `📧 Procesando: ${emailType}${contestId ? ` para reto: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}${emailMode ? ` (modo: ${emailMode})` : ''}`
     );
     
     // 🔍 DEBUG: Mostrar parámetros recibidos
@@ -67,7 +67,7 @@ serve(async (req) => {
 
     // Unsubscribe functionality removed - users now use preferences page
 
-    // Get contest data (solo para emails de concurso)
+    // Get contest data (solo para emails de reto)
     let contest;
     const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "voting_reminder", "results"].includes(emailType);
     
@@ -132,7 +132,7 @@ serve(async (req) => {
       }
 
       if (!contest) {
-        throw new Error("No se encontró concurso");
+        throw new Error("No se encontró reto");
       }
     }
 
@@ -148,7 +148,7 @@ serve(async (req) => {
       users = data;
       usersError = error;
     } else {
-      // Todos los demás emails (concursos, generales, newsletter) van a usuarios con notificaciones activas
+      // Todos los demás emails (retos, generales, newsletter) van a usuarios con notificaciones activas
       console.log("📧 Obteniendo usuarios con notificaciones activas...");
       
       // Obtener usuarios registrados con notificaciones activas
@@ -229,9 +229,9 @@ serve(async (req) => {
     switch (emailType) {
       case "new_contest":
         emailData = {
-          subject: `🎯 Nuevo concurso disponible: "${contest.title}"`,
+          subject: `🎯 Nuevo reto disponible: "${contest.title}"`,
           html: generateNewContestHTML(contest),
-          text: `Nuevo concurso disponible: "${contest.title}". Visita https://letranido.com/write/${contest.id} para participar.`,
+          text: `Nuevo reto disponible: "${contest.title}". Visita https://letranido.com/write/${contest.id} para participar.`,
         };
         break;
 
@@ -275,9 +275,9 @@ serve(async (req) => {
 
       case "results":
         emailData = {
-          subject: `🏆 ¡Resultados del concurso "${contest.title}"!`,
+          subject: `🏆 ¡Resultados del reto "${contest.title}"!`,
           html: generateResultsHTML(contest),
-          text: `Resultados del concurso "${contest.title}" disponibles. Visita https://letranido.com/contest/current`,
+          text: `Resultados del reto "${contest.title}" disponibles. Visita https://letranido.com/contest/current`,
         };
         break;
 
@@ -519,11 +519,11 @@ function generateNewContestHTML(contest: any): string {
       <!-- Contenido principal -->
       <div style="padding: 40px 30px; background: white; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="color: #1f2937; margin: 0 0 12px 0; font-size: 24px;">🎯 ¡Nuevo concurso disponible!</h2>
+          <h2 style="color: #1f2937; margin: 0 0 12px 0; font-size: 24px;">🎯 ¡Nuevo reto disponible!</h2>
           <div style="width: 60px; height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6); margin: 0 auto;"></div>
         </div>
         
-        <!-- Tarjeta del concurso -->
+        <!-- Tarjeta del reto -->
         <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #e0e7ff; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 22px; font-weight: bold;">"${contest.title}"</h3>
           <p style="color: #475569; margin: 0 0 25px 0; font-size: 16px; line-height: 1.5;">${contest.description}</p>
@@ -651,7 +651,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
           <div style="width: 60px; height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6); margin: 0 auto;"></div>
         </div>
         
-        <!-- Estadísticas del concurso -->
+        <!-- Estadísticas del reto -->
         <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #8b5cf6; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 20px; font-weight: bold;">"${contest.title}"</h3>
           <div style="background: #6366f1; color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -801,10 +801,10 @@ function generateResultsHTML(contest: any): string {
           <div style="width: 60px; height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6); margin: 0 auto;"></div>
         </div>
         
-        <!-- Título del concurso -->
+        <!-- Título del reto -->
         <div style="background: linear-gradient(135deg, #f1f5f9 0%, #fdf4ff 50%, #fef7f0 100%); border: 2px solid #ec4899; border-radius: 16px; padding: 32px; margin: 28px 0; text-align: center; box-shadow: 0 6px 25px rgba(236, 72, 153, 0.15);">
           <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 22px; font-weight: bold;">"${contest.title}"</h3>
-          <p style="color: #6366f1; margin: 0; font-size: 16px; font-weight: 600;">¡Concurso finalizado con éxito!</p>
+          <p style="color: #6366f1; margin: 0; font-size: 16px; font-weight: 600;">¡Reto finalizado con éxito!</p>
         </div>
         
         <!-- Felicitación -->
@@ -953,7 +953,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
         return new Response(
           JSON.stringify({ 
             success: true, 
-            message: "Ya estás suscrito a las notificaciones de concursos en tu cuenta",
+            message: "Ya estás suscrito a las notificaciones de retos en tu cuenta",
             isNewSubscription: false 
           }),
           { 
@@ -1062,7 +1062,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Ya estás suscrito a las notificaciones de concursos",
+          message: "Ya estás suscrito a las notificaciones de retos",
           isNewSubscription: false 
         }),
         { 
@@ -1115,7 +1115,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Suscripción exitosa. Te notificaremos cuando inicie el próximo concurso",
+        message: "Suscripción exitosa. Te notificaremos cuando inicie el próximo reto",
         isNewSubscription: true 
       }),
       { 
