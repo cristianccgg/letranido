@@ -118,37 +118,40 @@ export const useContestFinalization = () => {
       const userUpdates = winners.map(async (winner, index) => {
         const position = index + 1;
 
-        // Primero obtener valores actuales
-        const { data: currentUser, error: getUserError } = await supabase
-          .from("user_profiles")
-          .select("wins_count")
-          .eq("id", winner.user_id)
-          .single();
+        // Solo actualizar wins_count para primer lugar
+        if (position === 1) {
+          // Primero obtener valores actuales
+          const { data: currentUser, error: getUserError } = await supabase
+            .from("user_profiles")
+            .select("wins_count")
+            .eq("id", winner.user_id)
+            .single();
 
-        if (getUserError) {
-          console.error(
-            `Error obteniendo datos del usuario ${winner.user_id}:`,
-            getUserError
-          );
-          throw getUserError;
-        }
+          if (getUserError) {
+            console.error(
+              `Error obteniendo datos del usuario ${winner.user_id}:`,
+              getUserError
+            );
+            throw getUserError;
+          }
 
-        const newWinsCount = (currentUser.wins_count || 0) + 1;
+          const newWinsCount = (currentUser.wins_count || 0) + 1;
 
-        // Actualizar wins_count
-        const { error: userUpdateError } = await supabase
-          .from("user_profiles")
-          .update({
-            wins_count: newWinsCount,
-          })
-          .eq("id", winner.user_id);
+          // Actualizar wins_count solo para primer lugar
+          const { error: userUpdateError } = await supabase
+            .from("user_profiles")
+            .update({
+              wins_count: newWinsCount,
+            })
+            .eq("id", winner.user_id);
 
-        if (userUpdateError) {
-          console.error(
-            `Error actualizando usuario ${winner.user_id}:`,
-            userUpdateError
-          );
-          throw userUpdateError;
+          if (userUpdateError) {
+            console.error(
+              `Error actualizando usuario ${winner.user_id}:`,
+              userUpdateError
+            );
+            throw userUpdateError;
+          }
         }
 
         // 🏆 ASIGNAR BADGES DE GANADORES
@@ -171,17 +174,26 @@ export const useContestFinalization = () => {
           }
 
           // Badge de veterano SOLO si tiene 2+ primeros lugares (posición 1)
-          if (position === 1 && newWinsCount >= 2) {
-            const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
-              target_user_id: winner.user_id,
-              badge_type: 'contest_winner_veteran',
-              contest_id: contestId
-            });
+          if (position === 1) {
+            // Obtener el newWinsCount actualizado solo para primer lugar
+            const { data: updatedUser, error: getUpdatedUserError } = await supabase
+              .from("user_profiles")
+              .select("wins_count")
+              .eq("id", winner.user_id)
+              .single();
+              
+            if (!getUpdatedUserError && updatedUser.wins_count >= 2) {
+              const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
+                target_user_id: winner.user_id,
+                badge_type: 'contest_winner_veteran',
+                contest_id: contestId
+              });
 
-            if (veteranBadgeError) {
-              console.error(`Error asignando badge veteran a usuario ${winner.user_id}:`, veteranBadgeError);
-            } else {
-              console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${newWinsCount} victorias)`);
+              if (veteranBadgeError) {
+                console.error(`Error asignando badge veteran a usuario ${winner.user_id}:`, veteranBadgeError);
+              } else {
+                console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${updatedUser.wins_count} victorias)`);
+              }
             }
           }
 
@@ -190,9 +202,15 @@ export const useContestFinalization = () => {
           // Continuar sin fallar el proceso
         }
 
-        console.log(
-          `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria (posición ${position})`
-        );
+        if (position === 1) {
+          console.log(
+            `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria (1er lugar)`
+          );
+        } else {
+          console.log(
+            `🎖️ Usuario ${winner.user_profiles?.display_name}: posición ${position} (sin incremento wins_count)`
+          );
+        }
       });
 
       await Promise.all(userUpdates);
@@ -283,37 +301,44 @@ export const useContestFinalization = () => {
           );
         }
 
-        // 3. Revertir estadísticas de usuarios (solo wins_count por ahora)
+        // 3. Revertir estadísticas de usuarios (solo wins_count para primer lugar)
         const userReverts = winnerStories.map(async (story) => {
-          // Primero obtener valores actuales
-          const { data: currentUser, error: getUserError } = await supabase
-            .from("user_profiles")
-            .select("wins_count")
-            .eq("id", story.user_id)
-            .single();
+          // Solo revertir wins_count para primer lugar (winner_position === 1)
+          if (story.winner_position === 1) {
+            // Primero obtener valores actuales
+            const { data: currentUser, error: getUserError } = await supabase
+              .from("user_profiles")
+              .select("wins_count")
+              .eq("id", story.user_id)
+              .single();
 
-          if (getUserError) {
-            console.error(
-              `Error obteniendo datos del usuario ${story.user_id}:`,
-              getUserError
-            );
-            throw getUserError;
-          }
+            if (getUserError) {
+              console.error(
+                `Error obteniendo datos del usuario ${story.user_id}:`,
+                getUserError
+              );
+              throw getUserError;
+            }
 
-          // Revertir solo wins_count
-          const { error: userRevertError } = await supabase
-            .from("user_profiles")
-            .update({
-              wins_count: Math.max((currentUser.wins_count || 0) - 1, 0),
-            })
-            .eq("id", story.user_id);
+            // Revertir solo wins_count para primer lugar
+            const { error: userRevertError } = await supabase
+              .from("user_profiles")
+              .update({
+                wins_count: Math.max((currentUser.wins_count || 0) - 1, 0),
+              })
+              .eq("id", story.user_id);
 
-          if (userRevertError) {
-            console.error(
-              `Error revirtiendo usuario ${story.user_id}:`,
-              userRevertError
-            );
-            throw userRevertError;
+            if (userRevertError) {
+              console.error(
+                `Error revirtiendo usuario ${story.user_id}:`,
+                userRevertError
+              );
+              throw userRevertError;
+            }
+            
+            console.log(`↩️ Wins_count revertido para usuario ${story.user_id} (era 1er lugar)`);
+          } else {
+            console.log(`↩️ Sin cambios en wins_count para usuario ${story.user_id} (era posición ${story.winner_position})`);
           }
         });
 

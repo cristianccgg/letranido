@@ -45,7 +45,7 @@ export const FEATURES = {
   PREMIUM_PLANS: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM === 'true',
   PORTFOLIO_STORIES: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PORTFOLIO === 'true',
   FEEDBACK_SYSTEM: import.meta.env.VITE_ENABLE_FEEDBACK === 'true',
-  PREMIUM_EDITOR: import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true',
+  PREMIUM_EDITOR: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true',
   BETA_ROUTES: import.meta.env.DEV || import.meta.env.VITE_BETA_ROUTES === 'true',
 };
 

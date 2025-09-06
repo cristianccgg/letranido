@@ -10,6 +10,7 @@ import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
+import PremiumLiteraryEditor from "../components/ui/PremiumLiteraryEditor";
 import SEOHead from "../components/SEO/SEOHead";
 import { Link } from "react-router-dom";
 
@@ -345,12 +346,24 @@ const WritePortfolio = () => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Tu historia
           </label>
-          <LiteraryEditor
-            value={text}
-            onChange={setText}
-            placeholder="Escribe tu historia aquí... Sin límites de concursos, solo tu imaginación."
-            className="min-h-[400px]"
-          />
+          {/* Editor Premium para historias libres */}
+          {isPremium && FEATURES.PREMIUM_EDITOR ? (
+            <PremiumLiteraryEditor
+              value={text}
+              onChange={setText}
+              placeholder="Escribe tu historia aquí... Sin límites de concursos, solo tu imaginación."
+              className="min-h-[400px]"
+              spellCheck={true}
+              rows={25}
+            />
+          ) : (
+            <LiteraryEditor
+              value={text}
+              onChange={setText}
+              placeholder="Escribe tu historia aquí... Sin límites de concursos, solo tu imaginación."
+              className="min-h-[400px]"
+            />
+          )}
           
           {/* Contador de palabras */}
           <div className="flex items-center justify-between mt-2 text-sm">

@@ -15,6 +15,7 @@ import { supabase } from "../lib/supabase";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
+import PremiumLiteraryEditor from "../components/ui/PremiumLiteraryEditor";
 import SEOHead from "../components/SEO/SEOHead";
 import { useGlobalToast } from "../contexts/ToastContext";
 
@@ -666,13 +667,25 @@ const WritePrompt = () => {
             >
               Tu historia
             </label>
-            <LiteraryEditor
-              value={text}
-              onChange={setText}
-              placeholder="Comienza a escribir tu historia aquí..."
-              disabled={isSubmissionClosed()}
-              rows={20}
-            />
+            {/* Editor condicional: Premium vs Básico */}
+            {isPremium && FEATURES.PREMIUM_EDITOR ? (
+              <PremiumLiteraryEditor
+                value={text}
+                onChange={setText}
+                placeholder="Comienza a escribir tu historia aquí..."
+                disabled={isSubmissionClosed()}
+                rows={20}
+                spellCheck={true}
+              />
+            ) : (
+              <LiteraryEditor
+                value={text}
+                onChange={setText}
+                placeholder="Comienza a escribir tu historia aquí..."
+                disabled={isSubmissionClosed()}
+                rows={20}
+              />
+            )}
           </div>
 
           {/* Contador de palabras y acciones */}
