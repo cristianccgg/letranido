@@ -679,7 +679,11 @@ const WritePrompt = () => {
               id="storyCategory"
               value={storyCategory}
               onChange={(e) => setStoryCategory(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300 appearance-none bg-no-repeat bg-right bg-[length:16px] pr-10 cursor-pointer hover:border-primary-400 dark:hover:border-primary-500"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 12px center'
+              }}
               disabled={isSubmissionClosed()}
             >
               {getCategoryOptions().map((category) => (

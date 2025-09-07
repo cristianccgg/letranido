@@ -354,7 +354,11 @@ const AllStories = () => {
                 <select
                   value={categoryFilter}
                   onChange={(e) => handleFilter('category', e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  className="pl-3 pr-10 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none appearance-none bg-no-repeat bg-right bg-[length:16px] cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: 'right 12px center'
+                  }}
                 >
                   <option value="">Todas las categorías</option>
                   {availableCategories.map((category) => (
@@ -368,9 +372,13 @@ const AllStories = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => handleFilter('sort', e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  className="pl-3 pr-10 py-2 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none appearance-none bg-no-repeat bg-right bg-[length:16px] cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: 'right 12px center'
+                  }}
                 >
-                  <option value="best">Mejores primero</option>
+                  <option value="best">Más votadas</option>
                   <option value="popular">Más populares</option>
                   <option value="views">Más vistas</option>
                   <option value="recent">Más recientes</option>
