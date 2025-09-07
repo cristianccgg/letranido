@@ -179,20 +179,8 @@ const Layout = ({ children, onFeedbackClick }) => {
 
   const getGalleryText = () => {
     if (!currentContestPhase) return "Galería";
-    switch (currentContestPhase) {
-      case "submission":
-        return isCompactNav ? "Actual (Envío)" : "Reto Actual (Envío)";
-      case "voting":
-        return isCompactNav
-          ? "Actual (Votación)"
-          : "Reto Actual (Votación)";
-      case "results":
-        return isCompactNav
-          ? "Actual (Resultados)"
-          : "Reto Actual (Resultados)";
-      default:
-        return isCompactNav ? "Actual" : "Reto Actual";
-    }
+    // Simplificado: siempre "Reto Actual" sin indicadores de fase en paréntesis
+    return isCompactNav ? "Actual" : "Reto Actual";
   };
 
   const writeButtonState = getWriteButtonState();
@@ -214,6 +202,15 @@ const Layout = ({ children, onFeedbackClick }) => {
       name: getGalleryText(),
       href: "/contest/current",
     },
+    // ✅ MOSTRAR ENLACE PARA LEER TODAS LAS HISTORIAS - MÁS PROMINENTE
+    ...(hasFinishedContests
+      ? [
+          {
+            name: "Leer",
+            href: "/historias",
+          },
+        ]
+      : []),
     // ✅ MOSTRAR HISTORIAS LIBRES SI EL FEATURE ESTÁ HABILITADO
     ...(FEATURES.PORTFOLIO_STORIES
       ? [
@@ -223,7 +220,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           },
         ]
       : []),
-    // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS
+    // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS - MENOS PROMINENTE
     ...(hasFinishedContests
       ? [
           {
@@ -292,6 +289,15 @@ const Layout = ({ children, onFeedbackClick }) => {
       name: "Reto Actual",
       href: "/contest/current",
     },
+    // ✅ MOSTRAR ENLACE PARA LEER TODAS LAS HISTORIAS - MÁS PROMINENTE
+    ...(hasFinishedContests
+      ? [
+          {
+            name: "Leer",
+            href: "/historias",
+          },
+        ]
+      : []),
     // ✅ MOSTRAR HISTORIAS LIBRES TAMBIÉN PARA USUARIOS NO AUTENTICADOS (pueden leer contenido premium)
     ...(FEATURES.PORTFOLIO_STORIES
       ? [
@@ -301,7 +307,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           },
         ]
       : []),
-    // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS
+    // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS - MENOS PROMINENTE
     ...(hasFinishedContests
       ? [
           {

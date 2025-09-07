@@ -1,6 +1,6 @@
 // pages/StoryPage.jsx - COMPLETAMENTE REFACTORIZADO
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   Heart,
   Eye,
@@ -39,6 +39,7 @@ import SEOHead from "../components/SEO/SEOHead";
 const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isDark } = useTheme();
   const { trackEvent } = useGoogleAnalytics();
 
@@ -474,9 +475,14 @@ const StoryPage = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => {
-              // Navegar inteligentemente según el contexto
-              if (story?.contest_id) {
-                // Si la historia pertenece a un concurso, ir a ese concurso específico
+              // Navegar inteligentemente según el parámetro 'from' en la URL
+              const fromParam = searchParams.get('from');
+              
+              if (fromParam === 'historias') {
+                // Si vino desde la página "Leer", volver ahí
+                navigate("/historias");
+              } else if (story?.contest_id) {
+                // Si vino desde un concurso específico, ir a ese concurso
                 navigate(`/contest/${story.contest_id}`);
               } else {
                 // Fallback: ir al concurso actual
@@ -486,7 +492,10 @@ const StoryPage = () => {
             className="flex items-center text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 transition-colors"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
-            Volver al concurso
+            {(() => {
+              const fromParam = searchParams.get('from');
+              return fromParam === 'historias' ? "Volver a Leer" : "Volver al concurso";
+            })()}
           </button>
 
           <div className="flex items-center gap-2">
