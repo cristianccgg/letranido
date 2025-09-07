@@ -571,16 +571,68 @@ export function GlobalAppProvider({ children }) {
 
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
-              // Verificar si es el mismo usuario para evitar carga duplicada
-              if (state.user && state.user.id === session.user.id && state.userStories.length > 0) {
+              // Verificar si es el mismo usuario Y si los datos ya fueron cargados completamente
+              if (state.user && 
+                  state.user.id === session.user.id && 
+                  !state.userStoriesLoading && 
+                  state.authInitialized) {
                 console.log(
                   "🔄 SIGNED_IN event - mismo usuario con datos ya cargados, saltando"
                 );
                 return;
               }
               console.log(
-                "🔄 SIGNED_IN event - usuario nuevo o sin datos, cargando..."
+                "🔄 SIGNED_IN event - usuario nuevo o datos no cargados, cargando..."
               );
+              
+              // Procesar el SIGNED_IN igual que INITIAL_SESSION para cargar datos del usuario
+              const { data: profile, error: profileError } = await supabase
+                .from("user_profiles")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+              const userData = {
+                id: session.user.id,
+                email: session.user.email,
+                name: profile?.display_name || session.user.user_metadata?.name,
+                display_name: profile?.display_name,
+                avatar_url: profile?.avatar_url || session.user.user_metadata?.avatar_url,
+                created_at: profile?.created_at || session.user.created_at,
+                is_admin: profile?.is_admin || false,
+                ...profile,
+              };
+
+              dispatch({
+                type: actions.SET_AUTH_STATE,
+                payload: {
+                  user: userData,
+                  isAuthenticated: true,
+                  authLoading: false,
+                  authInitialized: true,
+                },
+              });
+
+              // Cargar datos del usuario inmediatamente
+              console.log("🔄 Cargando datos del usuario después de SIGNED_IN");
+              const loadWithTimeout = async (loadFn, name, ...args) => {
+                const timeoutId = setTimeout(() => {
+                  console.warn(`⚠️ ${name} está tardando más de lo esperado...`);
+                }, 3000);
+                try {
+                  await loadFn(...args);
+                  clearTimeout(timeoutId);
+                } catch (error) {
+                  clearTimeout(timeoutId);
+                  console.error(`❌ Error loading ${name}:`, error);
+                }
+              };
+              
+              await Promise.all([
+                loadWithTimeout(loadUserStories, "userStories", userData.id),
+                loadWithTimeout(loadVotingStats, "votingStats", userData.id),
+              ]);
+              console.log("✅ Proceso de SIGNED_IN completado");
             }
 
             if (event === "INITIAL_SESSION" && session?.user) {
