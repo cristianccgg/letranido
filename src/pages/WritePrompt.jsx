@@ -12,6 +12,7 @@ import { usePremiumFeatures } from "../hooks/usePremiumFeatures";
 import { FEATURES } from "../lib/config";
 import { logger } from "../utils/logger";
 import { supabase } from "../lib/supabase";
+import { STORY_CATEGORIES, DEFAULT_STORY_CATEGORY, getCategoryOptions } from "../lib/storyCategories";
 import AuthModal from "../components/forms/AuthModal";
 import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmationModal";
 import LiteraryEditor from "../components/ui/LiteraryEditor";
@@ -26,6 +27,7 @@ const WritePrompt = () => {
   const editStoryId = searchParams.get("edit");
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
+  const [storyCategory, setStoryCategory] = useState(DEFAULT_STORY_CATEGORY);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [wordCount, setWordCount] = useState(0);
@@ -146,6 +148,7 @@ const WritePrompt = () => {
           setOriginalStory(story);
           setTitle(story.title);
           setText(story.content);
+          setStoryCategory(story.story_category || DEFAULT_STORY_CATEGORY);
           setIsEditing(true);
         } catch (error) {
           console.error("Error inesperado:", error);
@@ -181,7 +184,7 @@ const WritePrompt = () => {
     const timeoutId = setTimeout(() => {
       // Solo guardar si hay contenido real
       if (title.trim() || text.trim()) {
-        saveDraft(title, text);
+        saveDraft(title, text, storyCategory);
         trackDraftSaved(newWordCount, title);
 
         // Mostrar indicador de guardado
@@ -205,6 +208,7 @@ const WritePrompt = () => {
       const draft = loadDraft();
       if (draft.title && !title) setTitle(draft.title);
       if (draft.text && !text) setText(draft.text);
+      if (draft.storyCategory && !storyCategory) setStoryCategory(draft.storyCategory);
       hasLoaded = true;
     }
 
@@ -304,6 +308,7 @@ const WritePrompt = () => {
             content: text.trim(),
             word_count: wordCount,
             is_mature: hasMatureContent,
+            story_category: storyCategory,
           })
           .eq("id", originalStory.id)
           .eq("user_id", user.id)
@@ -369,6 +374,7 @@ const WritePrompt = () => {
           wordCount,
           contestId: contestToUse.id,
           hasMatureContent,
+          storyCategory,
         };
 
         // ✅ submitStory del contexto actualiza automáticamente userStories
@@ -450,6 +456,7 @@ const WritePrompt = () => {
     const draft = loadDraft();
     if (draft.title) setTitle(draft.title);
     if (draft.text) setText(draft.text);
+    if (draft.storyCategory) setStoryCategory(draft.storyCategory);
   };
 
   const getWordCountColor = () => {
@@ -658,6 +665,32 @@ const WritePrompt = () => {
               maxLength={100}
               disabled={isSubmissionClosed()}
             />
+          </div>
+
+          {/* Campo de categoría de historia */}
+          <div className="mb-6">
+            <label
+              htmlFor="storyCategory"
+              className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2 transition-colors duration-300"
+            >
+              Categoría de la historia
+            </label>
+            <select
+              id="storyCategory"
+              value={storyCategory}
+              onChange={(e) => setStoryCategory(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 outline-none transition-colors duration-300"
+              disabled={isSubmissionClosed()}
+            >
+              {getCategoryOptions().map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-600 dark:text-dark-400 mt-1">
+              Selecciona el género que mejor describe tu historia
+            </p>
           </div>
 
           <div className="mb-6">

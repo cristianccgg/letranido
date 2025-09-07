@@ -20,6 +20,7 @@ import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import UserAvatar from "../components/ui/UserAvatar";
 import SEOHead from "../components/SEO/SEOHead";
 import { supabase } from "../lib/supabase";
+import { getCategoryName } from "../lib/storyCategories";
 
 const AllStories = () => {
   const { contests } = useGlobalApp();
@@ -44,12 +45,11 @@ const AllStories = () => {
   // Configuración
   const STORIES_PER_PAGE = 12;
 
-  // Obtener categorías únicas de los concursos
+  // Obtener categorías únicas de las historias cargadas
   const availableCategories = useMemo(() => {
-    const finishedContests = contests.filter(c => c.status === "results");
-    const categories = [...new Set(finishedContests.map(c => c.category))].filter(Boolean);
+    const categories = [...new Set(stories.map(s => s.story_category || s.contest_category))].filter(Boolean);
     return categories.sort();
-  }, [contests]);
+  }, [stories]);
 
   // Usar historias de concursos finalizados desde el contexto global
   const finishedContests = useMemo(() => 
@@ -88,6 +88,8 @@ const AllStories = () => {
               contest_status: contest.status,
               // El campo author ya debería estar en la historia, si no, usar placeholder
               author: story.author || 'Autor desconocido',
+              // Si no hay story_category, usar por defecto basado en el concurso o 'Ficción'
+              story_category: story.story_category || 'ficcion',
             }));
             
             allStories.push(...storiesWithContest);
@@ -224,7 +226,9 @@ const AllStories = () => {
     }
 
     if (categoryFilter) {
-      filtered = filtered.filter(story => story.contest_category === categoryFilter);
+      filtered = filtered.filter(story => 
+        (story.story_category || story.contest_category) === categoryFilter
+      );
     }
 
     // Aplicar ordenamiento
@@ -355,7 +359,7 @@ const AllStories = () => {
                   <option value="">Todas las categorías</option>
                   {availableCategories.map((category) => (
                     <option key={category} value={category}>
-                      {category}
+                      {getCategoryName(category)}
                     </option>
                   ))}
                 </select>
@@ -534,7 +538,7 @@ const AllStories = () => {
                           ) : null}
                           
                           <span className="px-2 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 text-indigo-700 dark:text-indigo-300 text-xs font-medium rounded-full">
-                            {story.contest_category}
+                            {getCategoryName(story.story_category || story.contest_category)}
                           </span>
                         </div>
                       </div>
@@ -627,7 +631,7 @@ const AllStories = () => {
                               • {story.contest_month}
                             </span>
                             <span className="px-2 py-1 bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-dark-300 text-xs rounded">
-                              {story.contest_category}
+                              {getCategoryName(story.story_category || story.contest_category)}
                             </span>
                           </div>
                         </div>

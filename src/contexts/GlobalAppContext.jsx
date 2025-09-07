@@ -1869,6 +1869,7 @@ export function GlobalAppProvider({ children }) {
           user_id: state.user.id,
           contest_id: storyData.contestId,
           is_mature: storyData.hasMatureContent || false,
+          story_category: storyData.storyCategory || 'ficcion',
           published_at: new Date().toISOString(),
         };
 
