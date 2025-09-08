@@ -13,6 +13,10 @@ Disallow: /register/
 # Disallow API endpoints
 Disallow: /api/
 
+# Disallow non-existent pages
+Disallow: /rules
+Disallow: /rules/
+
 # Disallow user-specific pages that shouldn't be indexed
 Disallow: /profile
 Disallow: /profile/
