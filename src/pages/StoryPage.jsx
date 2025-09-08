@@ -332,10 +332,8 @@ const StoryPage = () => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("es-ES", {
       year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      month: "2-digit", 
+      day: "2-digit",
     });
   };
 
@@ -533,60 +531,76 @@ const StoryPage = () => {
             </h1>
 
             {/* Author Info */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-              <div className="flex items-center mb-4 md:mb-0">
-                <div className="mr-4">
-                  <UserAvatar user={story.author} size="lg" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
-                    <UserWithTopBadge
-                      userId={story.user_id}
-                      userName={story.author.name}
-                    />
-                  </h3>
-                  {/* Ocultar estadísticas del autor durante votación para evitar sesgo */}
-                  {(() => {
-                    // Usar currentContest si es el concurso actual, sino usar story.contest
-                    const isCurrentContest = story.contest_id === currentContest?.id;
-                    const contestToCheck = isCurrentContest ? currentContest : story.contest;
-                    const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                    const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
-
-                    if (isVotingOrCounting) {
-                      // Durante votación y counting, no mostrar estadísticas del autor para evitar sesgo
-                      return null;
-                    } else {
-                      return (
-                        <div className="flex items-center text-sm text-gray-600 dark:text-dark-300">
-                          <Award className="h-4 w-4 mr-1" />
-                          <span>{story.author.wins} victorias</span>
-                          <span className="mx-2">•</span>
-                          <Heart className="h-4 w-4 mr-1" />
-                          <span>{likesCount} votos en esta historia</span>
-                        </div>
-                      );
-                    }
-                  })()}
-                </div>
+            <div className="flex items-center mb-6">
+              <div className="mr-4">
+                <UserAvatar user={story.author} size="lg" />
               </div>
-
-              {/* Story Stats */}
-              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-dark-300">
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>{getReadingTime(story.word_count)} min de lectura</span>
-                </div>
-                <div className="flex items-center">
-                  <PenTool className="h-4 w-4 mr-1" />
-                  <span>{story.word_count} palabras</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>{formatDate(story.created_at)}</span>
-                </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
+                  <UserWithTopBadge
+                    userId={story.user_id}
+                    userName={story.author.name}
+                  />
+                </h3>
               </div>
             </div>
+
+            {/* Story Stats - Debajo del usuario, victorias y votos primero */}
+            {(() => {
+              // Determinar fase del concurso para mostrar/ocultar estadísticas
+              const isCurrentContest = story.contest_id === currentContest?.id;
+              const contestToCheck = isCurrentContest ? currentContest : story.contest;
+              const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
+              const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 text-sm mb-6">
+                  {/* Victorias del autor - PRIMERO, oculto durante votación */}
+                  {!isVotingOrCounting && story.author?.wins > 0 && (
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
+                      <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                      <span className="text-gray-700 dark:text-dark-200 font-medium">
+                        {story.author.wins} victorias
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Votos - SEGUNDO, oculto durante votación */}
+                  {!isVotingOrCounting && (
+                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
+                      <Heart className="h-4 w-4 text-red-500 dark:text-red-400 flex-shrink-0" />
+                      <span className="text-gray-700 dark:text-dark-200 font-medium">
+                        {likesCount} votos
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Tiempo de lectura - siempre visible */}
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
+                    <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-dark-200 font-medium">
+                      {getReadingTime(story.word_count)} min
+                    </span>
+                  </div>
+                  
+                  {/* Palabras - siempre visible */}
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
+                    <PenTool className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-dark-200 font-medium">
+                      {story.word_count.toLocaleString()} palabras
+                    </span>
+                  </div>
+                  
+                  {/* Fecha - siempre visible */}
+                  <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
+                    <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-dark-200 font-medium">
+                      {formatDate(story.created_at)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Mature Content Warning */}
             {story.is_mature && (
@@ -767,14 +781,12 @@ const StoryPage = () => {
                   Esta historia participó en el concurso{" "}
                   <strong>"{story.contest.title}"</strong>
                 </p>
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-dark-400">
-                  <span>Publicada el {formatDate(story.created_at)}</span>
-                  <span>•</span>
-                  <span>{story.word_count} palabras</span>
-                  <span>•</span>
-                  <span>
-                    {getReadingTime(story.word_count)} minutos de lectura
-                  </span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-dark-400">
+                  <span>{formatDate(story.created_at)}</span>
+                  <span className="hidden sm:inline">•</span>
+                  <span>{story.word_count.toLocaleString()} palabras</span>
+                  <span className="hidden sm:inline">•</span>
+                  <span>{getReadingTime(story.word_count)} min lectura</span>
                 </div>
               </div>
 
