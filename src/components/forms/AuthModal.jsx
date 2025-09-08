@@ -259,6 +259,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type="text"
+                  name="name"
+                  autoComplete="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
@@ -284,6 +286,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
@@ -309,6 +313,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type={showPassword ? "text" : "password"}
+                  name="password"
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
                   className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-gray-900 dark:text-dark-100 bg-white dark:bg-dark-700 ${
@@ -356,6 +362,8 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-dark-500" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={(e) =>
                     handleInputChange("confirmPassword", e.target.value)
