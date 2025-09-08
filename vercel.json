@@ -1,4 +1,16 @@
 {
+  "redirects": [
+    {
+      "source": "http://letranido.com/(.*)",
+      "destination": "https://letranido.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "http://www.letranido.com/(.*)", 
+      "destination": "https://letranido.com/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -12,6 +24,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
         }
       ]
     }
