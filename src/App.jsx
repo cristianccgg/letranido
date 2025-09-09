@@ -1,4 +1,5 @@
 // App.jsx - VERSIÓN COMPLETAMENTE ACTUALIZADA PARA CONTEXTO UNIFICADO
+console.log('🚀 App loaded:', new Date().toISOString());
 import {
   BrowserRouter as Router,
   Routes,
