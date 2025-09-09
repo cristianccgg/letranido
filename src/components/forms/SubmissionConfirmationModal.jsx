@@ -228,7 +228,7 @@ const SubmissionConfirmationModal = ({
               className={`flex-1 py-2 px-4 flex items-center justify-center font-medium rounded-lg transition-all text-sm ${
                 !canSubmit 
                   ? "opacity-50 cursor-not-allowed bg-slate-300 dark:bg-gray-600 text-slate-500 dark:text-gray-400" 
-                  : "bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white hover:from-indigo-700 hover:to-purple-700 dark:hover:from-indigo-800 dark:hover:to-purple-800"
+                  : "cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white hover:from-indigo-700 hover:to-purple-700 dark:hover:from-indigo-800 dark:hover:to-purple-800"
               }`}
             >
               {isSubmitting && (
