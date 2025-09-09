@@ -62,7 +62,7 @@ const SuccessToast = ({
         `}
       >
         <div className="
-          bg-white dark:bg-dark-800 
+          bg-white dark:bg-gray-800 
           border border-green-200 dark:border-green-700
           rounded-xl shadow-2xl
           p-6 sm:p-8 max-w-lg sm:max-w-md w-full mx-3 sm:mx-4
@@ -76,10 +76,10 @@ const SuccessToast = ({
             {/* Botón cerrar */}
             <button
               onClick={handleClose}
-              className="absolute -top-2 -right-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors duration-150"
+              className="absolute -top-2 -right-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
               aria-label="Cerrar"
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             </button>
 
             {/* Icono animado */}
@@ -118,20 +118,20 @@ const SuccessToast = ({
 
             {/* Título de la historia */}
             {storyTitle && (
-              <p className="text-center text-gray-700 dark:text-dark-300 font-medium mb-4 text-lg">
+              <p className="text-center text-gray-700 dark:text-gray-300 font-medium mb-4 text-lg">
                 "{storyTitle}"
               </p>
             )}
 
             {/* Mensaje */}
-            <div className="text-center text-gray-600 dark:text-dark-400 leading-relaxed space-y-2">
+            <div className="text-center text-gray-600 dark:text-gray-300 leading-relaxed space-y-2">
               <p className="text-green-700 dark:text-green-300 font-medium">
                 ✅ Historia enviada y guardada exitosamente
               </p>
               <p className="text-sm">
                 📅 Podrá ser <strong>leída cuando comience la votación</strong>
               </p>
-              <p className="text-xs text-gray-500 dark:text-dark-500 mt-3 p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
+              <p className="text-xs text-gray-600 dark:text-gray-300 mt-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-600">
                 💡 Realizamos revisión automática para clasificación. Si detectamos contenido adulto, la marcaremos como +18.
               </p>
             </div>
