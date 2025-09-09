@@ -11,7 +11,7 @@ import { supabase } from '../../lib/supabase';
 
 const ProfileTabs = ({ user, votingStats }) => {
   const [activeTab, setActiveTab] = useState('resumen');
-  const { userStories, userStoriesLoading, deleteUserStory, currentContest, getContestPhase } = useGlobalApp();
+  const { userStories, userStoriesLoading, deleteUserStory, refreshUserData, currentContest, getContestPhase } = useGlobalApp();
   const { isPremium } = usePremiumFeatures();
   
   // Estados para historias del portafolio
@@ -108,6 +108,8 @@ const ProfileTabs = ({ user, votingStats }) => {
       const result = await deleteUserStory(storyId);
       if (result.success) {
         alert('✅ Historia eliminada exitosamente');
+        // 🔄 Refrescar datos del usuario para actualizar estados
+        await refreshUserData();
       } else {
         alert('❌ Error al eliminar: ' + result.error);
       }

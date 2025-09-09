@@ -39,7 +39,7 @@ const KofiModal = ({ isOpen, onClose }) => {
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden">
             <iframe 
               id='kofiframe' 
-              src='https://ko-fi.com/letranido/?hidefeed=true&widget=true&embed=true&preview=true' 
+              src={`https://ko-fi.com/letranido/?hidefeed=true&widget=true&embed=true&preview=true&_=${Date.now()}`} 
               style={{
                 border: 'none',
                 width: '100%',

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, X } from 'lucide-react';
+import { CheckCircle, X, Coffee } from 'lucide-react';
 
 const SuccessToast = ({ 
-  message, 
+  message, // eslint-disable-line no-unused-vars
   title = "¡Éxito!",
-  duration = 6000, 
   onClose,
-  storyTitle = ""
+  storyTitle = "",
+  onDonate
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -20,16 +20,13 @@ const SuccessToast = ({
       setTimeout(() => setShowCheck(true), 300);
     }, 100);
     
-    // Auto-close
-    const closeTimer = setTimeout(() => {
-      handleClose();
-    }, duration);
+    // NUNCA cerrar automáticamente - siempre manual
+    // El usuario debe tomar la decisión de cerrar después de leer
 
     return () => {
       clearTimeout(timer);
-      clearTimeout(closeTimer);
     };
-  }, [duration]);
+  }, []);
 
   const handleClose = () => {
     setIsLeaving(true);
@@ -139,18 +136,36 @@ const SuccessToast = ({
               </p>
             </div>
 
-            {/* Barra de progreso */}
-            <div className="mt-6">
-              <div className="h-1 bg-gray-200 dark:bg-dark-600 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-300 ease-out"
-                  style={{
-                    width: isVisible && !isLeaving ? '100%' : '0%',
-                    transitionDuration: `${duration}ms`
-                  }}
-                />
+            {/* Sección de Donación */}
+            {onDonate && (
+              <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700">
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-lg p-3 sm:p-4">
+                  {/* Layout responsive: vertical en mobile, horizontal en desktop */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex-1 text-center sm:text-left">
+                      <p className="text-sm sm:text-base font-medium text-orange-900 dark:text-orange-100 mb-1">
+                        💝 ¡Gracias por formar parte de Letranido!
+                      </p>
+                      <p className="text-xs sm:text-sm text-orange-700 dark:text-orange-200 leading-relaxed">
+                        Tu donación mantiene todo <strong>gratuito</strong> y sin anuncios para todos los escritores
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onDonate();
+                        handleClose();
+                      }}
+                      className="self-center sm:self-auto px-6 py-3 sm:px-4 sm:py-2 text-sm sm:text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-1.5 shadow-lg hover:shadow-xl transform hover:scale-105 border border-orange-400 min-w-[120px] sm:min-w-0"
+                    >
+                      <Coffee className="w-4 h-4 sm:w-3 sm:h-3" />
+                      ❤️ Apoyar
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            
           </div>
         </div>
       </div>

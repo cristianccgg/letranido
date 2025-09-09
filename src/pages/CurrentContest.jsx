@@ -21,7 +21,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
-import { useGlobalToast } from "../contexts/ToastContext";
+import { useGlobalToast } from "../hooks/useGlobalToast";
 import SEOHead from "../components/SEO/SEOHead";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
@@ -113,13 +113,17 @@ const CurrentContest = () => {
       location.state?.storyTitle &&
       !toastShown
     ) {
+      const storyTitle = location.state.storyTitle;
+
       // Delay pequeño para que la página se cargue
       const timer = setTimeout(() => {
         showSuccessToast(
           "¡Historia Enviada!",
           "Guardada exitosamente en el concurso",
-          location.state.storyTitle,
-          { duration: 9000 }
+          storyTitle,
+          { 
+            showDonation: true // Mostrar sección de donación
+          }
         );
 
         // Marcar como mostrado para evitar loops

@@ -18,7 +18,7 @@ import SubmissionConfirmationModal from "../components/forms/SubmissionConfirmat
 import LiteraryEditor from "../components/ui/LiteraryEditor";
 import PremiumLiteraryEditor from "../components/ui/PremiumLiteraryEditor";
 import SEOHead from "../components/SEO/SEOHead";
-import { useGlobalToast } from "../contexts/ToastContext";
+import { useGlobalToast } from "../hooks/useGlobalToast";
 
 const WritePrompt = () => {
   const navigate = useNavigate();
@@ -46,6 +46,7 @@ const WritePrompt = () => {
     user,
     submitStory, // ✅ Función integrada en el contexto
     userStories,
+    refreshUserData, // ✅ Para refrescar después de enviar
     getContestPhase, // ✅ Para verificar si se pueden enviar historias
   } = useGlobalApp();
 
@@ -95,13 +96,15 @@ const WritePrompt = () => {
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA (Optimizada con useMemo)
   const hasUserParticipated = useMemo(() => {
-    return isAuthenticated &&
-      contestToUse &&
-      userStories.length > 0 &&
-      !isEditing
-      ? userStories.some((story) => story.contest_id === contestToUse.id)
-      : false;
-  }, [isAuthenticated, contestToUse, userStories, isEditing]);
+    if (!isAuthenticated || !contestToUse || isEditing) {
+      return false;
+    }
+    
+    // Verificar si el usuario tiene una historia para este concurso específico
+    return userStories.some(
+      (story) => story.contest_id === contestToUse.id
+    );
+  }, [isAuthenticated, contestToUse?.id, userStories, isEditing]);
 
   // ✅ CARGAR HISTORIA PARA EDICIÓN
   useEffect(() => {
@@ -428,6 +431,9 @@ const WritePrompt = () => {
 
           // Finalizar sesión de escritura con éxito
           endWritingSession("completed", wordCount, title);
+
+          // 🔄 Refrescar datos del usuario para sincronizar estados
+          await refreshUserData();
 
           // Redirigir inmediatamente al concurso con información para mostrar toast
           navigate(`/contest/${contestToUse.id}`, {

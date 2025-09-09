@@ -16,7 +16,7 @@ import { useMaintenanceMode } from "./hooks/useMaintenanceMode";
 import Layout from "./components/layout/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import { ToastContainer } from "./components/ui/Toast";
-import { useGlobalToast } from "./contexts/ToastContext";
+import { useGlobalToast } from "./hooks/useGlobalToast";
 import SocialContainer from "./components/ui/SocialContainer";
 import FeedbackModal from "./components/modals/FeedbackModal";
 import { Analytics } from "@vercel/analytics/react";

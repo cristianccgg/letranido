@@ -1,12 +1,13 @@
-import { createContext, useContext, useState } from 'react';
+import { useState } from 'react';
 import { useToast } from '../components/ui/Toast';
 import SuccessToast from '../components/ui/SuccessToast';
-
-const ToastContext = createContext();
+import KofiModal from '../components/modals/KofiModal';
+import { ToastContext } from './ToastContextDefinition';
 
 export const ToastProvider = ({ children }) => {
   const toastMethods = useToast();
   const [successToast, setSuccessToast] = useState(null);
+  const [kofiModal, setKofiModal] = useState(false);
   
   const showSuccessToast = (title, message, storyTitle, options = {}) => {
     const id = Date.now();
@@ -15,7 +16,7 @@ export const ToastProvider = ({ children }) => {
       title,
       message,
       storyTitle,
-      duration: options.duration || 6000
+      showDonation: options.showDonation || false
     });
   };
 
@@ -23,10 +24,20 @@ export const ToastProvider = ({ children }) => {
     setSuccessToast(null);
   };
 
+  const showKofiModal = () => {
+    setKofiModal(true);
+  };
+
+  const hideKofiModal = () => {
+    setKofiModal(false);
+  };
+
   const contextValue = {
     ...toastMethods,
     showSuccessToast,
-    hideSuccessToast
+    hideSuccessToast,
+    showKofiModal,
+    hideKofiModal
   };
   
   return (
@@ -39,18 +50,16 @@ export const ToastProvider = ({ children }) => {
           title={successToast.title}
           message={successToast.message}
           storyTitle={successToast.storyTitle}
-          duration={successToast.duration}
           onClose={hideSuccessToast}
+          onDonate={successToast.showDonation ? showKofiModal : null}
         />
       )}
+      {/* Ko-fi Modal */}
+      <KofiModal 
+        isOpen={kofiModal}
+        onClose={hideKofiModal}
+      />
     </ToastContext.Provider>
   );
 };
 
-export const useGlobalToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useGlobalToast must be used within a ToastProvider');
-  }
-  return context;
-};
