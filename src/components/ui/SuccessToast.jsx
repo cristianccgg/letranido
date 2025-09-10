@@ -140,24 +140,23 @@ const SuccessToast = ({
             {onDonate && (
               <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700">
                 <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-lg p-3 sm:p-4">
-                  {/* Layout responsive: vertical en mobile, horizontal en desktop */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex-1 text-center sm:text-left">
-                      <p className="text-sm sm:text-base font-medium text-orange-900 dark:text-orange-100 mb-1">
+                  <div className="flex flex-col gap-3 text-center">
+                    <div>
+                      <p className="text-sm font-medium text-orange-900 dark:text-orange-100 mb-1">
                         💝 ¡Gracias por formar parte de Letranido!
                       </p>
-                      <p className="text-xs sm:text-sm text-orange-700 dark:text-orange-200 leading-relaxed">
+                      <p className="text-xs text-orange-700 dark:text-orange-200 leading-relaxed">
                         Tu donación mantiene todo <strong>gratuito</strong> y sin anuncios para todos los escritores
                       </p>
                     </div>
                     <button
                       onClick={() => {
-                        onDonate();
+                        window.open('https://ko-fi.com/A0A71KQSH9', '_blank');
                         handleClose();
                       }}
-                      className="self-center sm:self-auto px-6 py-3 sm:px-4 sm:py-2 text-sm sm:text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 sm:gap-1.5 shadow-lg hover:shadow-xl transform hover:scale-105 border border-orange-400 min-w-[120px] sm:min-w-0"
+                      className="self-center px-6 py-3 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-orange-400 cursor-pointer"
                     >
-                      <Coffee className="w-4 h-4 sm:w-3 sm:h-3" />
+                      <Coffee className="w-4 h-4" />
                       ❤️ Apoyar
                     </button>
                   </div>
