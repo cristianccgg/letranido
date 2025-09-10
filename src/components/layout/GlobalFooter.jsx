@@ -180,7 +180,7 @@ const GlobalFooter = () => {
                 Tu donación mantiene Letranido gratuito para todos. Nunca quitaremos funciones - solo añadimos opciones premium para más herramientas ❤️
               </p>
               <a
-                href="https://ko-fi.com/letranido"
+                href="https://ko-fi.com/A0A71KQSH9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 mb-6"

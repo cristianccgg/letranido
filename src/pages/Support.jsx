@@ -113,7 +113,7 @@ const Support = () => {
                   Invítanos un café y ayúdanos a mantener Letranido funcionando para todos
                 </p>
                 <a
-                  href="https://ko-fi.com/letranido"
+                  href="https://ko-fi.com/A0A71KQSH9"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-lg"

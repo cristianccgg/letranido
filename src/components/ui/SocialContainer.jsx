@@ -58,7 +58,7 @@ const SocialContainer = ({ onFeedbackClick }) => {
 
         <div className="flex flex-col gap-2 items-center">
           <div className="transform hover:scale-125 transition-all duration-200 hover:rotate-6">
-            <SupportButton onClick={() => setShowKofiModal(true)} />
+            <SupportButton onClick={() => window.open('https://ko-fi.com/A0A71KQSH9', '_blank')} />
           </div>
           <div className="transform hover:scale-125 transition-all duration-200 hover:-rotate-6">
             <FeedbackButton onClick={onFeedbackClick} />
@@ -88,7 +88,7 @@ const SocialContainer = ({ onFeedbackClick }) => {
             style={{ transitionDelay: isOpen ? "0.1s" : "0s" }}
           >
             <div className="transform hover:scale-110 transition-transform duration-200">
-              <SupportButton onClick={() => setShowKofiModal(true)} />
+              <SupportButton onClick={() => window.open('https://ko-fi.com/A0A71KQSH9', '_blank')} />
             </div>
           </div>
 
