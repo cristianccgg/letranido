@@ -160,13 +160,22 @@ const ResetPassword = () => {
       // Verificar que tenemos tokens válidos
       if (resetTokens) {
         console.log("🔑 Usando tokens guardados para reset");
-        await supabase.auth.setSession({
+        console.log("🔑 Access token length:", resetTokens.access_token?.length || 0);
+        
+        console.log("🔄 Llamando setSession...");
+        const sessionResult = await supabase.auth.setSession({
           access_token: resetTokens.access_token,
           refresh_token: resetTokens.refresh_token
         });
+        console.log("✅ setSession completado:", sessionResult.error ? "ERROR" : "SUCCESS");
+        if (sessionResult.error) {
+          console.error("❌ Error en setSession:", sessionResult.error);
+        }
         
         // Esperar un momento para que se establezca la sesión
+        console.log("⏳ Esperando 500ms...");
         await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("✅ Espera completada");
       }
       
       // Verificar que estamos autenticados antes de cambiar contraseña
