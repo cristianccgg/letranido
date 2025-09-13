@@ -584,14 +584,10 @@ export function GlobalAppProvider({ children }) {
               // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
               // LOGS YA HABILITADOS GLOBALMENTE
               
-              // CORREGIDO: Detectar flujo de reset password por estar en la ruta O por tener tokens preservados
-              const hasPreservedTokens = sessionStorage.getItem('temp_access_token') !== null;
-              console.log("🔍 DEBUG NUEVO CÓDIGO - hasPreservedTokens:", hasPreservedTokens);
-              const isResetPasswordFlow = window.location.pathname === '/reset-password' && 
-                                         ((window.location.hash.includes('access_token') || 
-                                          window.location.search.includes('access_token')) ||
-                                          hasPreservedTokens);
-              console.log("🔍 DEBUG NUEVO CÓDIGO - isResetPasswordFlow calculado:", isResetPasswordFlow);
+              // CORREGIDO: Si estamos en /reset-password, SIEMPRE bloquear autenticación
+              // No importa si hay tokens visibles o no - es un flujo de reset
+              const isResetPasswordFlow = window.location.pathname === '/reset-password';
+              console.log("🔍 SEGURIDAD: En ruta /reset-password - BLOQUEANDO autenticación automática");
               
               // TAMBIÉN detectar si estamos en la raíz con tokens (caso problemático)
               const isRootWithTokens = window.location.pathname === '/' && 
