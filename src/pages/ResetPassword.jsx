@@ -6,6 +6,9 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase";
 
 const ResetPassword = () => {
+  console.log("🏠 ResetPassword component mounted");
+  console.log("🏠 URL:", window.location.href);
+  
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated, completePasswordReset } = useGlobalApp();

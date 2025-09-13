@@ -3801,6 +3801,8 @@ export function GlobalAppProvider({ children }) {
   };
 
   // 🛡️ DETECCIÓN INMEDIATA DE RESET PASSWORD AL CARGAR LA PÁGINA
+  console.log("🚀 GlobalAppContext montado - URL:", window.location.href);
+  
   useEffect(() => {
     const checkResetPasswordFlow = () => {
       console.log("🔍 INMEDIATO: Verificando flujo de reset al cargar página");
@@ -3810,6 +3812,8 @@ export function GlobalAppProvider({ children }) {
       
       // DETECTAR si venimos de un enlace de Supabase (reset password)
       const comesFromSupabaseAuth = document.referrer.includes('supabase.co/auth/v1/verify');
+      console.log("🔍 Referrer:", document.referrer);
+      console.log("🔍 comesFromSupabaseAuth:", comesFromSupabaseAuth);
       
       const isRootWithAuthFlow = window.location.pathname === '/' && 
         (window.location.hash.includes('access_token') || 
@@ -3818,6 +3822,8 @@ export function GlobalAppProvider({ children }) {
          window.location.search.includes('type=recovery') ||
          // O si venimos de Supabase auth (probablemente un reset)
          comesFromSupabaseAuth);
+      
+      console.log("🔍 isRootWithAuthFlow:", isRootWithAuthFlow);
       
       if (isRootWithAuthFlow) {
         console.log("🔄 INMEDIATO: Detectado flujo de auth - preservando tokens");
