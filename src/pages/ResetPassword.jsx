@@ -24,17 +24,31 @@ const ResetPassword = () => {
 
   // Verificar si hay tokens válidos en la URL (pueden estar en hash o query params)
   useEffect(() => {
+    console.log("🔍 RESET PAGE: Verificando tokens en ResetPassword");
+    console.log("🔍 URL completa:", window.location.href);
+    console.log("🔍 Hash:", window.location.hash);
+    console.log("🔍 Search params:", window.location.search);
+    
     // Intentar obtener de query params primero
     let accessToken = searchParams.get("access_token");
     let refreshToken = searchParams.get("refresh_token");
     let _type = searchParams.get("type");
     
+    console.log("🔍 Query params - accessToken:", accessToken);
+    console.log("🔍 Query params - refreshToken:", refreshToken);
+    console.log("🔍 Query params - type:", _type);
+    
     // Si no están en query params, buscar en el hash
     if (!accessToken && window.location.hash) {
+      console.log("🔍 Buscando en hash...");
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       accessToken = hashParams.get("access_token");
       refreshToken = hashParams.get("refresh_token");
       _type = hashParams.get("type");
+      
+      console.log("🔍 Hash params - accessToken:", accessToken ? "FOUND" : "NOT FOUND");
+      console.log("🔍 Hash params - refreshToken:", refreshToken ? "FOUND" : "NOT FOUND");
+      console.log("🔍 Hash params - type:", _type);
     }
     
     // Si estamos autenticados pero no hay tokens visibles, 
@@ -68,6 +82,10 @@ const ResetPassword = () => {
         refresh_token: refreshToken,
       });
     } else {
+      console.log("❌ NO HAY TOKENS VÁLIDOS");
+      console.log("❌ accessToken:", accessToken);
+      console.log("❌ refreshToken:", refreshToken);
+      console.log("❌ isAuthenticated:", isAuthenticated);
       setError("Enlace inválido o expirado. Solicita un nuevo email de recuperación.");
     }
   }, [searchParams, isAuthenticated]);
