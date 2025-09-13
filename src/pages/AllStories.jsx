@@ -278,7 +278,7 @@ const AllStories = () => {
         description="Descubre todas las historias de los concursos de escritura de Letranido. Lee obras creativas de nuestra comunidad de escritores, organizadas por popularidad, fecha y categoría."
         keywords="historias escritura, cuentos, relatos, literatura, escritores, concursos literatura"
         url="/historias"
-        canonicalUrl="https://letranido.com/historias"
+        canonicalUrl="https://www.letranido.com/historias"
       />
       
       <div className="max-w-6xl mx-auto">

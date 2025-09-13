@@ -35,6 +35,7 @@ Allow: /
 Allow: /contest/
 Allow: /contest-history
 Allow: /write
+Allow: /historias
 Allow: /story/
 Allow: /terms
 Allow: /privacy
