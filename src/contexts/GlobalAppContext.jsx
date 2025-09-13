@@ -582,6 +582,12 @@ export function GlobalAppProvider({ children }) {
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
               // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
+              // FORZAR LOGS EN PRODUCCIÓN TEMPORALMENTE
+              const originalLog = console.log;
+              console.log = function(...args) {
+                originalLog.apply(console, args);
+              };
+              
               console.log("🔍 DEBUG: Verificando flujo de reset");
               console.log("🔍 Current pathname:", window.location.pathname);
               console.log("🔍 Current hash:", window.location.hash);
@@ -610,8 +616,12 @@ export function GlobalAppProvider({ children }) {
                 
                 // Si estamos en la raíz con tokens, redirigir inmediatamente a reset-password
                 if (isRootWithTokens) {
+                  console.log("🔄 DETECTADO: Usuario en raíz con tokens de reset");
                   console.log("🔄 Redirigiendo de raíz a /reset-password");
-                  window.location.replace('/reset-password' + window.location.hash);
+                  console.log("🔄 Hash actual:", window.location.hash);
+                  const newUrl = '/reset-password' + window.location.hash;
+                  console.log("🔄 Nueva URL:", newUrl);
+                  window.location.replace(newUrl);
                   return;
                 }
               }
@@ -2745,7 +2755,8 @@ export function GlobalAppProvider({ children }) {
         console.log("🔄 Enviando email de recuperación para:", email);
 
         const redirectUrl = `${SITE_CONFIG.url}/reset-password`;
-        console.log("🔄 Enviando reset con redirectTo:", redirectUrl);
+        console.log("🔄 RESET EMAIL: Enviando reset con redirectTo:", redirectUrl);
+        console.log("🔄 RESET EMAIL: SITE_CONFIG.url:", SITE_CONFIG.url);
         
         const { error } = await supabase.auth.resetPasswordForEmail(
           email.trim().toLowerCase(),
