@@ -30,6 +30,11 @@ interface EmailRequest {
   textContent?: string;
   // Para modo test desde frontend
   emailMode?: string;
+  // Para sistema de lotes
+  countOnly?: boolean;
+  batchLimit?: number;
+  batchOffset?: number;
+  batchNumber?: number;
 }
 
 serve(async (req) => {
@@ -46,7 +51,7 @@ serve(async (req) => {
     );
 
     // Get request data
-    const { emailType, contestId, subject, htmlContent, textContent, email, preview, emailMode }: EmailRequest = await req.json();
+    const { emailType, contestId, subject, htmlContent, textContent, email, preview, emailMode, countOnly, batchLimit, batchOffset, batchNumber }: EmailRequest = await req.json();
     console.log(
       `📧 Procesando: ${emailType}${contestId ? ` para reto: ${contestId}` : ''}${email ? ` para email: ${email}` : ''}${preview ? ' (PREVIEW MODE)' : ''}${emailMode ? ` (modo: ${emailMode})` : ''}`
     );
@@ -224,6 +229,28 @@ serve(async (req) => {
       );
     }
 
+    // 📊 COUNT ONLY MODE - Retornar solo el conteo sin procesar contenido
+    if (countOnly) {
+      console.log(`📊 COUNT ONLY: Retornando conteo para ${emailType}`);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          totalRecipients: recipients.length,
+          details: {
+            emailType,
+            contestId: contest?.id || null,
+            usersFound: users?.length || 0,
+            validEmails: recipients.length
+          },
+          message: `${recipients.length} destinatarios encontrados para ${emailType}`
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     // Prepare email content based on type
     let emailData;
     switch (emailType) {
@@ -343,9 +370,29 @@ serve(async (req) => {
     // In test mode, send only to admin (but not for newsletter subscriptions)
     // Priorizar emailMode del frontend, fallback a env var
     const isTestMode = emailMode === "test" || Deno.env.get("EMAIL_MODE") === "test";
-    const finalRecipients = isTestMode
+    let baseRecipients = isTestMode
       ? [Deno.env.get("ADMIN_EMAIL") || "cristianccggg@gmail.com"]
       : recipients;
+
+    // 📦 BATCH MODE - Aplicar paginación si se especificaron parámetros de lote
+    let finalRecipients = baseRecipients;
+    let batchInfo = null;
+
+    if (batchLimit !== undefined && batchOffset !== undefined) {
+      const startIndex = batchOffset;
+      const endIndex = startIndex + batchLimit;
+      finalRecipients = baseRecipients.slice(startIndex, endIndex);
+      
+      batchInfo = {
+        batchNumber: batchNumber || 1,
+        batchSize: finalRecipients.length,
+        totalRecipients: baseRecipients.length,
+        offset: startIndex,
+        isPartialSend: finalRecipients.length < baseRecipients.length
+      };
+      
+      console.log(`📦 BATCH MODE: Enviando lote ${batchNumber || 1} - ${startIndex + 1} a ${startIndex + finalRecipients.length} de ${baseRecipients.length} total`);
+    }
 
     console.log(
       `📧 Enviando a ${finalRecipients.length} destinatarios (modo: ${isTestMode ? "test" : "production"})`
@@ -437,6 +484,11 @@ serve(async (req) => {
         sent: finalRecipients.length,
         mode: isTestMode ? "test" : "production",
         data: { batches: batches.length, results: results },
+        
+        // Información adicional del lote si aplica
+        ...(batchInfo && {
+          batchInfo: batchInfo
+        })
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

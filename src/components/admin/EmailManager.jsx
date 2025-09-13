@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Mail, Send, CheckCircle, AlertCircle, Clock, Edit, Eye, X, Shield } from 'lucide-react';
-import { sendContestEmailViaSupabase } from '../../lib/email/supabase-emails.js';
+import { sendContestEmailViaSupabase, getEmailRecipientsCount, sendEmailBatch } from '../../lib/email/supabase-emails.js';
 import { sendTestEmailLocal, showEmailPreview } from '../../lib/email/local-test-mailer.js';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import { supabase } from '../../lib/supabase.js';
@@ -29,6 +29,10 @@ const EmailManager = () => {
   const [previewData, setPreviewData] = useState(null);
   const [previewLoading, setPreviewLoading] = useState({}); // Cambiar a objeto para loading individual
   const [activePreviewTab, setActivePreviewTab] = useState('html');
+  
+  // Estados para envío por lotes
+  const [batchInfo, setBatchInfo] = useState({}); // Información de lotes por emailType
+  const [showBatchOptions, setShowBatchOptions] = useState({}); // Mostrar opciones de lote por emailType
 
   // Cargar posts disponibles al montar el componente
   useEffect(() => {
@@ -349,6 +353,139 @@ const EmailManager = () => {
     });
   };
 
+  // Obtener información de lotes para un email
+  const handleGetBatchInfo = async (emailType, manualData = null) => {
+    setLoading(prev => ({ ...prev, [`${emailType}_count`]: true }));
+    
+    try {
+      let requestData = { emailType };
+      
+      // Para emails de concurso, incluir el contestId apropiado
+      const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+      if (isContestEmail) {
+        if (emailType === "results") {
+          const finalizedContests = contests?.filter(c => c.finalized_at !== null) || [];
+          const latestFinalized = finalizedContests.sort((a, b) => 
+            new Date(b.finalized_at) - new Date(a.finalized_at)
+          )[0];
+          
+          if (latestFinalized) {
+            requestData.contestId = latestFinalized.id;
+          } else {
+            throw new Error("No hay concursos finalizados");
+          }
+        } else {
+          requestData.contestId = currentContest?.id;
+        }
+      }
+      
+      // Si es email manual, agregar los datos del formulario
+      if (manualData) {
+        requestData = { ...requestData, ...manualData };
+      }
+      
+      const result = await getEmailRecipientsCount(emailType, requestData);
+      
+      if (result.success) {
+        const totalRecipients = result.totalRecipients;
+        const batchSize = 100;
+        const totalBatches = Math.ceil(totalRecipients / batchSize);
+        
+        setBatchInfo(prev => ({
+          ...prev,
+          [emailType]: {
+            totalRecipients,
+            batchSize,
+            totalBatches,
+            batches: Array.from({ length: totalBatches }, (_, i) => ({
+              number: i + 1,
+              offset: i * batchSize,
+              size: Math.min(batchSize, totalRecipients - (i * batchSize)),
+              sent: false
+            }))
+          }
+        }));
+        
+        setShowBatchOptions(prev => ({ ...prev, [emailType]: true }));
+        
+        setResult({
+          success: true,
+          message: `Se encontraron ${totalRecipients} destinatarios. Se necesitarán ${totalBatches} lote(s) de ${batchSize} emails cada uno.`
+        });
+      } else {
+        setResult({ success: false, message: result.error });
+      }
+    } catch (error) {
+      setResult({ success: false, message: error.message });
+    }
+    
+    setLoading(prev => ({ ...prev, [`${emailType}_count`]: false }));
+  };
+
+  // Enviar un lote específico
+  const handleSendBatch = async (emailType, batchNumber, manualData = null) => {
+    const batchKey = `${emailType}_batch_${batchNumber}`;
+    setLoading(prev => ({ ...prev, [batchKey]: true }));
+    
+    try {
+      const batch = batchInfo[emailType]?.batches?.find(b => b.number === batchNumber);
+      if (!batch) {
+        throw new Error("Lote no encontrado");
+      }
+      
+      let requestData = { emailType };
+      
+      // Para emails de concurso
+      const isContestEmail = ["new_contest", "submission_reminder", "voting_started", "results"].includes(emailType);
+      if (isContestEmail) {
+        if (emailType === "results") {
+          const finalizedContests = contests?.filter(c => c.finalized_at !== null) || [];
+          const latestFinalized = finalizedContests.sort((a, b) => 
+            new Date(b.finalized_at) - new Date(a.finalized_at)
+          )[0];
+          requestData.contestId = latestFinalized?.id;
+        } else {
+          requestData.contestId = currentContest?.id;
+        }
+      }
+      
+      // Si es email manual
+      if (manualData) {
+        requestData = { ...requestData, ...manualData };
+      }
+      
+      const result = await sendEmailBatch(emailType, {
+        batchNumber: batch.number,
+        batchSize: batch.size,
+        offset: batch.offset
+      }, requestData);
+      
+      if (result.success) {
+        // Marcar el lote como enviado
+        setBatchInfo(prev => ({
+          ...prev,
+          [emailType]: {
+            ...prev[emailType],
+            batches: prev[emailType].batches.map(b => 
+              b.number === batchNumber ? { ...b, sent: true } : b
+            )
+          }
+        }));
+        
+        setResult({
+          success: true,
+          message: `Lote ${batchNumber} enviado exitosamente: ${result.sent} emails enviados en modo ${result.mode}`
+        });
+      } else {
+        setResult({ success: false, message: result.error });
+      }
+    } catch (error) {
+      setResult({ success: false, message: error.message });
+    }
+    
+    setLoading(prev => ({ ...prev, [batchKey]: false }));
+  };
+
   const contestEmailTypes = [
     { type: 'new_contest', label: '🎯 Nuevo Concurso', desc: 'Email de concurso disponible (usa concurso actual)' },
     { type: 'submission_reminder', label: '⏰ Recordatorio', desc: 'Recordatorio de últimos días para enviar (usa concurso actual)' },
@@ -433,23 +570,76 @@ const EmailManager = () => {
               <div key={email.type} className="bg-white/95 backdrop-blur-sm border border-indigo-100 hover:border-purple-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                 <h4 className="font-bold text-gray-900 mb-2 text-lg">{email.label}</h4>
                 <p className="text-sm text-gray-600 mb-4 leading-relaxed">{email.desc}</p>
-                <div className="flex gap-2">
+                <div className="space-y-3">
+                  {/* Botones principales */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handlePreviewEmail(email.type)}
+                      disabled={previewLoading[email.type] || loading[email.type]}
+                      className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                    >
+                      {previewLoading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
+                      Preview
+                    </button>
+                    <button
+                      onClick={() => handleSendEmail(email.type)}
+                      disabled={loading[email.type] || previewLoading[email.type]}
+                      className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      {loading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                      Enviar Todo
+                    </button>
+                  </div>
+                  
+                  {/* Botón para ver opciones de lotes */}
                   <button
-                    onClick={() => handlePreviewEmail(email.type)}
-                    disabled={previewLoading[email.type] || loading[email.type]}
-                    className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center justify-center font-medium transition-all duration-300"
+                    onClick={() => showBatchOptions[email.type] ? setShowBatchOptions(prev => ({ ...prev, [email.type]: false })) : handleGetBatchInfo(email.type)}
+                    disabled={loading[`${email.type}_count`]}
+                    className="w-full px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 disabled:opacity-50 flex items-center justify-center font-medium text-sm transition-all duration-300"
                   >
-                    {previewLoading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />}
-                    Preview
+                    {loading[`${email.type}_count`] ? <Clock className="h-3 w-3 mr-1 animate-spin" /> : '📦'}
+                    {showBatchOptions[email.type] ? 'Ocultar Lotes' : 'Enviar por Lotes (>100 usuarios)'}
                   </button>
-                  <button
-                    onClick={() => handleSendEmail(email.type)}
-                    disabled={loading[email.type] || previewLoading[email.type]}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
-                  >
-                    {loading[email.type] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                    Enviar
-                  </button>
+                  
+                  {/* Panel de lotes */}
+                  {showBatchOptions[email.type] && batchInfo[email.type] && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
+                      <div className="text-xs text-yellow-800 font-semibold">
+                        📊 Total: {batchInfo[email.type].totalRecipients} destinatarios en {batchInfo[email.type].totalBatches} lote(s)
+                      </div>
+                      
+                      {batchInfo[email.type].batches.map((batch) => (
+                        <div key={batch.number} className="flex items-center justify-between bg-white rounded p-2 text-xs">
+                          <span className={`font-medium ${batch.sent ? 'text-green-600' : 'text-gray-700'}`}>
+                            {batch.sent ? '✅' : '📦'} Lote {batch.number}: {batch.size} emails
+                          </span>
+                          
+                          {!batch.sent && (
+                            <button
+                              onClick={() => handleSendBatch(email.type, batch.number)}
+                              disabled={loading[`${email.type}_batch_${batch.number}`]}
+                              className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
+                            >
+                              {loading[`${email.type}_batch_${batch.number}`] ? (
+                                <Clock className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Send className="h-3 w-3" />
+                              )}
+                              Enviar
+                            </button>
+                          )}
+                          
+                          {batch.sent && (
+                            <span className="text-green-600 text-xs font-semibold">Enviado ✓</span>
+                          )}
+                        </div>
+                      ))}
+                      
+                      <div className="text-xs text-yellow-700 bg-yellow-100 p-2 rounded">
+                        💡 <strong>Tip:</strong> Envía un lote por día para respetar el límite de 100 emails diarios de Resend
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -692,9 +882,46 @@ const EmailManager = () => {
                   className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   {loading['manual_regular'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                  Enviar
+                  Enviar Todo
                 </button>
               </div>
+              
+              {/* Botón para lotes - Regular */}
+              <button
+                onClick={() => showBatchOptions['manual_regular'] ? setShowBatchOptions(prev => ({ ...prev, 'manual_regular': false })) : handleGetBatchInfo('manual_regular', manualEmailForm)}
+                disabled={loading['manual_regular_count']}
+                className="w-full px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs hover:bg-yellow-200 disabled:opacity-50 flex items-center justify-center font-medium mt-2"
+              >
+                {loading['manual_regular_count'] ? <Clock className="h-3 w-3 mr-1 animate-spin" /> : '📦'}
+                {showBatchOptions['manual_regular'] ? 'Ocultar' : 'Lotes'}
+              </button>
+              
+              {/* Panel de lotes para manual_regular */}
+              {showBatchOptions['manual_regular'] && batchInfo['manual_regular'] && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded p-2 space-y-1 text-xs mt-2">
+                  <div className="text-yellow-800 font-semibold">
+                    📊 {batchInfo['manual_regular'].totalRecipients} destinatarios en {batchInfo['manual_regular'].totalBatches} lote(s)
+                  </div>
+                  
+                  {batchInfo['manual_regular'].batches.map((batch) => (
+                    <div key={batch.number} className="flex items-center justify-between bg-white rounded p-1">
+                      <span className={batch.sent ? 'text-green-600' : 'text-gray-700'}>
+                        {batch.sent ? '✅' : '📦'} Lote {batch.number}: {batch.size}
+                      </span>
+                      
+                      {!batch.sent && (
+                        <button
+                          onClick={() => handleSendBatch('manual_regular', batch.number, manualEmailForm)}
+                          disabled={loading[`manual_regular_batch_${batch.number}`]}
+                          className="px-1 py-0.5 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 disabled:opacity-50"
+                        >
+                          {loading[`manual_regular_batch_${batch.number}`] ? '⏳' : 'Enviar'}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div className="bg-white/95 backdrop-blur-sm border border-red-100 hover:border-red-300 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -718,9 +945,46 @@ const EmailManager = () => {
                   className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 disabled:opacity-50 flex items-center justify-center font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   {loading['manual_essential'] ? <Clock className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-                  Enviar
+                  Enviar Todo
                 </button>
               </div>
+              
+              {/* Botón para lotes - Esencial */}
+              <button
+                onClick={() => showBatchOptions['manual_essential'] ? setShowBatchOptions(prev => ({ ...prev, 'manual_essential': false })) : handleGetBatchInfo('manual_essential', manualEmailForm)}
+                disabled={loading['manual_essential_count']}
+                className="w-full px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs hover:bg-yellow-200 disabled:opacity-50 flex items-center justify-center font-medium mt-2"
+              >
+                {loading['manual_essential_count'] ? <Clock className="h-3 w-3 mr-1 animate-spin" /> : '📦'}
+                {showBatchOptions['manual_essential'] ? 'Ocultar' : 'Lotes'}
+              </button>
+              
+              {/* Panel de lotes para manual_essential */}
+              {showBatchOptions['manual_essential'] && batchInfo['manual_essential'] && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded p-2 space-y-1 text-xs mt-2">
+                  <div className="text-yellow-800 font-semibold">
+                    📊 {batchInfo['manual_essential'].totalRecipients} destinatarios en {batchInfo['manual_essential'].totalBatches} lote(s)
+                  </div>
+                  
+                  {batchInfo['manual_essential'].batches.map((batch) => (
+                    <div key={batch.number} className="flex items-center justify-between bg-white rounded p-1">
+                      <span className={batch.sent ? 'text-green-600' : 'text-gray-700'}>
+                        {batch.sent ? '✅' : '📦'} Lote {batch.number}: {batch.size}
+                      </span>
+                      
+                      {!batch.sent && (
+                        <button
+                          onClick={() => handleSendBatch('manual_essential', batch.number, manualEmailForm)}
+                          disabled={loading[`manual_essential_batch_${batch.number}`]}
+                          className="px-1 py-0.5 bg-red-500 text-white rounded text-xs hover:bg-red-600 disabled:opacity-50"
+                        >
+                          {loading[`manual_essential_batch_${batch.number}`] ? '⏳' : 'Enviar'}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
