@@ -3808,16 +3808,37 @@ export function GlobalAppProvider({ children }) {
       console.log("🔍 Hash:", window.location.hash);
       console.log("🔍 Search:", window.location.search);
       
-      // Si estamos en la raíz Y hay tokens de Supabase en la URL
-      const isRootWithSupabaseTokens = window.location.pathname === '/' && 
+      // DETECTAR si venimos de un enlace de Supabase (reset password)
+      const comesFromSupabaseAuth = document.referrer.includes('supabase.co/auth/v1/verify');
+      
+      const isRootWithAuthFlow = window.location.pathname === '/' && 
         (window.location.hash.includes('access_token') || 
          window.location.search.includes('access_token') ||
          window.location.hash.includes('type=recovery') ||
-         window.location.search.includes('type=recovery'));
+         window.location.search.includes('type=recovery') ||
+         // O si venimos de Supabase auth (probablemente un reset)
+         comesFromSupabaseAuth);
       
-      if (isRootWithSupabaseTokens) {
-        console.log("🔄 INMEDIATO: Detectados tokens de Supabase en raíz - redirigiendo a reset-password");
-        window.location.replace('/reset-password' + window.location.hash + window.location.search);
+      if (isRootWithAuthFlow) {
+        console.log("🔄 INMEDIATO: Detectado flujo de auth - preservando tokens");
+        
+        // PRESERVAR tokens antes de que Supabase los procese
+        const currentHash = window.location.hash;
+        const currentSearch = window.location.search;
+        
+        // Guardar tokens en sessionStorage INMEDIATAMENTE
+        if (currentHash.includes('access_token')) {
+          const hashParams = new URLSearchParams(currentHash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+          if (accessToken) {
+            sessionStorage.setItem('temp_access_token', accessToken);
+            sessionStorage.setItem('temp_refresh_token', refreshToken || '');
+            console.log("💾 Tokens preservados en sessionStorage");
+          }
+        }
+        
+        window.location.replace('/reset-password' + currentHash + currentSearch);
       }
     };
     

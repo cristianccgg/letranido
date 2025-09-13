@@ -82,11 +82,37 @@ const ResetPassword = () => {
         refresh_token: refreshToken,
       });
     } else {
-      console.log("❌ NO HAY TOKENS VÁLIDOS");
-      console.log("❌ accessToken:", accessToken);
-      console.log("❌ refreshToken:", refreshToken);
-      console.log("❌ isAuthenticated:", isAuthenticated);
-      setError("Enlace inválido o expirado. Solicita un nuevo email de recuperación.");
+      // INTENTAR RECUPERAR tokens preservados de sessionStorage
+      const tempAccessToken = sessionStorage.getItem('temp_access_token');
+      const tempRefreshToken = sessionStorage.getItem('temp_refresh_token');
+      
+      console.log("🔍 Buscando tokens preservados...");
+      console.log("🔍 tempAccessToken:", tempAccessToken ? "FOUND" : "NOT FOUND");
+      
+      if (tempAccessToken) {
+        console.log("✅ USANDO tokens preservados de sessionStorage");
+        setValidToken(true);
+        setResetTokens({
+          access_token: tempAccessToken,
+          refresh_token: tempRefreshToken
+        });
+        
+        // Establecer sesión con tokens preservados
+        supabase.auth.setSession({
+          access_token: tempAccessToken,
+          refresh_token: tempRefreshToken,
+        });
+        
+        // Limpiar tokens temporales
+        sessionStorage.removeItem('temp_access_token');
+        sessionStorage.removeItem('temp_refresh_token');
+      } else {
+        console.log("❌ NO HAY TOKENS VÁLIDOS");
+        console.log("❌ accessToken:", accessToken);
+        console.log("❌ refreshToken:", refreshToken);
+        console.log("❌ isAuthenticated:", isAuthenticated);
+        setError("Enlace inválido o expirado. Solicita un nuevo email de recuperación.");
+      }
     }
   }, [searchParams, isAuthenticated]);
 
