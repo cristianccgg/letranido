@@ -597,9 +597,9 @@ export function GlobalAppProvider({ children }) {
                                       (window.location.hash.includes('access_token') || 
                                        window.location.search.includes('access_token'));
               
-              // DETECTAR si estamos en raíz con hash mode=reset-password
+              // DETECTAR si estamos en raíz con parámetro rp=1 (reset password)
               const isRootWithResetMode = window.location.pathname === '/' && 
-                                         window.location.hash.includes('mode=reset-password');
+                                         window.location.search.includes('rp=1');
               
               console.log("🔍 DEBUG: Verificando flujo de reset");
               console.log("🔍 Current pathname:", window.location.pathname);
@@ -615,7 +615,7 @@ export function GlobalAppProvider({ children }) {
                 console.log("🔍 Tipo:", 
                   isResetPasswordFlow ? "En /reset-password" : 
                   isRootWithTokens ? "En raíz con tokens" :
-                  "En raíz con mode=reset-password");
+                  "En raíz con rp=1");
                 
                 sessionStorage.setItem('password_reset_pending', 'true');
                 sessionStorage.setItem('reset_user_id', session.user.id);
@@ -631,12 +631,12 @@ export function GlobalAppProvider({ children }) {
                   console.log("🔄 Hash actual:", window.location.hash);
                   console.log("🔄 Search actual:", window.location.search);
                   
-                  // Limpiar el hash mode=reset-password y dejar solo los tokens de Supabase
-                  let cleanHash = window.location.hash.replace('#mode=reset-password', '').replace('##', '#');
-                  if (cleanHash === '#') cleanHash = '';
+                  // Remover rp=1 del query string y mantener solo los tokens
+                  let cleanSearch = window.location.search.replace('rp=1', '').replace('&rp=1', '').replace('?rp=1&', '?').replace('?rp=1', '');
+                  if (cleanSearch === '?' || cleanSearch === '&') cleanSearch = '';
                   
-                  const newUrl = '/reset-password' + cleanHash + window.location.search;
-                  console.log("🔄 Hash limpio:", cleanHash);
+                  const newUrl = '/reset-password' + window.location.hash + cleanSearch;
+                  console.log("🔄 Search limpio:", cleanSearch);
                   console.log("🔄 Nueva URL:", newUrl);
                   
                   window.location.replace(newUrl);
@@ -2772,7 +2772,7 @@ export function GlobalAppProvider({ children }) {
       try {
         console.log("🔄 Enviando email de recuperación para:", email);
 
-        const redirectUrl = `${SITE_CONFIG.url}#mode=reset-password`;
+        const redirectUrl = `${SITE_CONFIG.url}?rp=1`;
         console.log("🔄 RESET EMAIL: Enviando reset con redirectTo:", redirectUrl);
         console.log("🔄 RESET EMAIL: SITE_CONFIG.url:", SITE_CONFIG.url);
         
