@@ -9,6 +9,7 @@ Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /register/
+Disallow: /reset-password
 
 # Disallow API endpoints
 Disallow: /api/
@@ -39,7 +40,7 @@ Allow: /faq
 Allow: /writing-resources
 
 # Sitemap location
-Sitemap: https://letranido.com/sitemap.xml
+Sitemap: https://www.letranido.com/sitemap.xml
 
 # Crawl delay (be respectful)
 Crawl-delay: 1
