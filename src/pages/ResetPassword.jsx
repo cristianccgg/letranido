@@ -8,7 +8,7 @@ import { supabase } from "../lib/supabase";
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useGlobalApp();
+  const { isAuthenticated, completePasswordReset } = useGlobalApp();
   
   const [formData, setFormData] = useState({
     password: "",
@@ -27,14 +27,14 @@ const ResetPassword = () => {
     // Intentar obtener de query params primero
     let accessToken = searchParams.get("access_token");
     let refreshToken = searchParams.get("refresh_token");
-    let type = searchParams.get("type");
+    let _type = searchParams.get("type");
     
     // Si no están en query params, buscar en el hash
     if (!accessToken && window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       accessToken = hashParams.get("access_token");
       refreshToken = hashParams.get("refresh_token");
-      type = hashParams.get("type");
+      _type = hashParams.get("type");
     }
     
     // Si estamos autenticados pero no hay tokens visibles, 
@@ -70,7 +70,7 @@ const ResetPassword = () => {
     } else {
       setError("Enlace inválido o expirado. Solicita un nuevo email de recuperación.");
     }
-  }, [searchParams]);
+  }, [searchParams, isAuthenticated]);
 
   // NO redirigir automáticamente - queremos que el usuario cambie su contraseña
   // useEffect(() => {
@@ -131,6 +131,9 @@ const ResetPassword = () => {
 
       setSuccess(true);
       setIsLoading(false);
+      
+      // ✅ SEGURIDAD: Completar el reset de contraseña y limpiar estado temporal
+      completePasswordReset();
       
       // Cerrar sesión después del cambio exitoso
       await supabase.auth.signOut();

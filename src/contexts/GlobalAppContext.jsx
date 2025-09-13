@@ -18,6 +18,7 @@ const initialState = {
   isAuthenticated: false,
   authLoading: false,
   authInitialized: false,
+  isPasswordResetPending: false, // 🛡️ Estado para reset password temporal
 
   // Contests State
   contests: [],
@@ -123,6 +124,9 @@ const actions = {
 
   // Auth Modal
   SET_AUTH_MODAL: "SET_AUTH_MODAL",
+  
+  // Password Reset Security
+  SET_PASSWORD_RESET_PENDING: "SET_PASSWORD_RESET_PENDING",
 
   // Cookie Consent
   SET_COOKIE_CONSENT: "SET_COOKIE_CONSENT",
@@ -408,6 +412,12 @@ function globalAppReducer(state, action) {
             : state.resetPasswordSuccess,
       };
 
+    case actions.SET_PASSWORD_RESET_PENDING:
+      return {
+        ...state,
+        isPasswordResetPending: action.payload,
+      };
+
     case actions.SET_COOKIE_CONSENT:
       return {
         ...state,
@@ -571,6 +581,21 @@ export function GlobalAppProvider({ children }) {
 
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
+              // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
+              const isResetPasswordFlow = window.location.pathname === '/reset-password' && 
+                                         (window.location.hash.includes('access_token') || 
+                                          window.location.search.includes('access_token'));
+              
+              if (isResetPasswordFlow) {
+                console.log("🔐 Flujo de reset password detectado - marcando como temporal");
+                sessionStorage.setItem('password_reset_pending', 'true');
+                sessionStorage.setItem('reset_user_id', session.user.id);
+                dispatch({
+                  type: actions.SET_PASSWORD_RESET_PENDING,
+                  payload: true,
+                });
+              }
+              
               // Verificar si es el mismo usuario Y si los datos ya fueron cargados completamente
               if (state.user && 
                   state.user.id === session.user.id && 
@@ -3575,6 +3600,37 @@ export function GlobalAppProvider({ children }) {
     }
   }, [state.user?.id, state.currentContest?.id, state.initialized, loadVotingStats]);
 
+  // 🛡️ FUNCIONES DE SEGURIDAD PARA RESET PASSWORD
+  const completePasswordReset = useCallback(() => {
+    console.log("🔐 Completando reset de contraseña - limpiando estado temporal");
+    sessionStorage.removeItem('password_reset_pending');
+    sessionStorage.removeItem('reset_user_id');
+    dispatch({
+      type: actions.SET_PASSWORD_RESET_PENDING,
+      payload: false,
+    });
+  }, []);
+
+  const forceLogoutIfResetPending = useCallback(() => {
+    console.log("🛡️ Verificando si hay reset pendiente y usuario intenta salir de /reset-password");
+    const isPending = sessionStorage.getItem('password_reset_pending') === 'true';
+    const isOnResetPage = window.location.pathname === '/reset-password';
+    
+    if (isPending && !isOnResetPage) {
+      console.log("🚨 SEGURIDAD: Usuario con reset pendiente intentó salir - forzando logout");
+      sessionStorage.removeItem('password_reset_pending');
+      sessionStorage.removeItem('reset_user_id');
+      dispatch({
+        type: actions.SET_PASSWORD_RESET_PENDING,
+        payload: false,
+      });
+      // Logout inmediato
+      supabase.auth.signOut();
+      return true; // Indica que se forzó logout
+    }
+    return false;
+  }, []);
+
   // ✅ FUNCIÓN DE DEBUG
   const debugAuth = useCallback(async () => {
     console.log("🔍 DEBUG: Verificando estado de Supabase...");
@@ -3589,6 +3645,7 @@ export function GlobalAppProvider({ children }) {
       user: state.user,
       authInitialized: state.authInitialized,
       initialized: state.initialized,
+      isPasswordResetPending: state.isPasswordResetPending,
     });
   }, [state]);
 
@@ -3609,6 +3666,10 @@ export function GlobalAppProvider({ children }) {
     resetPassword,
     logout,
     updateUser,
+    
+    // Funciones de seguridad para reset password
+    completePasswordReset,
+    forceLogoutIfResetPending,
 
     // Funciones de datos principales
     refreshUserData,

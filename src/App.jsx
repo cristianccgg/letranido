@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./contexts/ToastContext";
@@ -56,7 +56,7 @@ const Support = lazy(() => import("./pages/Support"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
-  const { initialized, authInitialized, user } = useGlobalApp();
+  const { initialized, authInitialized, user, forceLogoutIfResetPending } = useGlobalApp();
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const {
     isActive: maintenanceActive,
@@ -69,6 +69,14 @@ function AppContent() {
 
   // Inicializar Google Analytics cuando el contexto esté listo
   useGoogleAnalytics();
+
+  // ✅ GUARD DE SEGURIDAD PARA PASSWORD RESET
+  // Verificar si el usuario está intentando salir de reset-password sin completar el cambio
+  useEffect(() => {
+    if (authInitialized) {
+      forceLogoutIfResetPending();
+    }
+  }, [authInitialized, forceLogoutIfResetPending]);
 
   // ✅ VERIFICAR MODO MANTENIMIENTO PRIMERO
   // Si el mantenimiento está activo, mostrar página de mantenimiento de forma inteligente
@@ -111,8 +119,9 @@ function AppContent() {
     // 1. Si estamos en desarrollo (localhost)
     // 2. Si es admin en páginas de admin
     // 3. Si es una página pública permitida (login, registro, etc.) - SIEMPRE disponible
+    const isDevelopment = import.meta.env.DEV;
     const shouldShowMaintenance = !(
-      process.env.NODE_ENV === 'development' ||  // Localhost siempre funciona
+      isDevelopment ||  // Localhost siempre funciona
       (user?.is_admin && isAdminPage) ||
       isPublicAllowedPage
     );
