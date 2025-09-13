@@ -588,12 +588,6 @@ export function GlobalAppProvider({ children }) {
                 originalLog.apply(console, args);
               };
               
-              console.log("🔍 DEBUG: Verificando flujo de reset");
-              console.log("🔍 Current pathname:", window.location.pathname);
-              console.log("🔍 Current hash:", window.location.hash);
-              console.log("🔍 Current search:", window.location.search);
-              console.log("🔍 Full URL:", window.location.href);
-              
               const isResetPasswordFlow = window.location.pathname === '/reset-password' && 
                                          (window.location.hash.includes('access_token') || 
                                           window.location.search.includes('access_token'));
@@ -606,6 +600,15 @@ export function GlobalAppProvider({ children }) {
               // DETECTAR si estamos en raíz con hash mode=reset-password
               const isRootWithResetMode = window.location.pathname === '/' && 
                                          window.location.hash.includes('mode=reset-password');
+              
+              console.log("🔍 DEBUG: Verificando flujo de reset");
+              console.log("🔍 Current pathname:", window.location.pathname);
+              console.log("🔍 Current hash:", window.location.hash);
+              console.log("🔍 Current search:", window.location.search);
+              console.log("🔍 Full URL:", window.location.href);
+              console.log("🔍 isResetPasswordFlow:", isResetPasswordFlow);
+              console.log("🔍 isRootWithTokens:", isRootWithTokens);
+              console.log("🔍 isRootWithResetMode:", isRootWithResetMode);
               
               if (isResetPasswordFlow || isRootWithTokens || isRootWithResetMode) {
                 console.log("🔐 Flujo de reset password detectado - marcando como temporal");
@@ -627,8 +630,15 @@ export function GlobalAppProvider({ children }) {
                   console.log("🔄 Redirigiendo de raíz a /reset-password");
                   console.log("🔄 Hash actual:", window.location.hash);
                   console.log("🔄 Search actual:", window.location.search);
-                  const newUrl = '/reset-password' + window.location.hash + window.location.search;
+                  
+                  // Limpiar el hash mode=reset-password y dejar solo los tokens de Supabase
+                  let cleanHash = window.location.hash.replace('#mode=reset-password', '').replace('##', '#');
+                  if (cleanHash === '#') cleanHash = '';
+                  
+                  const newUrl = '/reset-password' + cleanHash + window.location.search;
+                  console.log("🔄 Hash limpio:", cleanHash);
                   console.log("🔄 Nueva URL:", newUrl);
+                  
                   window.location.replace(newUrl);
                   return;
                 }
