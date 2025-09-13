@@ -603,9 +603,16 @@ export function GlobalAppProvider({ children }) {
                                       (window.location.hash.includes('access_token') || 
                                        window.location.search.includes('access_token'));
               
-              if (isResetPasswordFlow || isRootWithTokens) {
+              // DETECTAR si estamos en raíz con parámetro mode=reset-password
+              const isRootWithResetMode = window.location.pathname === '/' && 
+                                         window.location.search.includes('mode=reset-password');
+              
+              if (isResetPasswordFlow || isRootWithTokens || isRootWithResetMode) {
                 console.log("🔐 Flujo de reset password detectado - marcando como temporal");
-                console.log("🔍 Tipo:", isResetPasswordFlow ? "En /reset-password" : "En raíz con tokens");
+                console.log("🔍 Tipo:", 
+                  isResetPasswordFlow ? "En /reset-password" : 
+                  isRootWithTokens ? "En raíz con tokens" :
+                  "En raíz con mode=reset-password");
                 
                 sessionStorage.setItem('password_reset_pending', 'true');
                 sessionStorage.setItem('reset_user_id', session.user.id);
@@ -614,12 +621,13 @@ export function GlobalAppProvider({ children }) {
                   payload: true,
                 });
                 
-                // Si estamos en la raíz con tokens, redirigir inmediatamente a reset-password
-                if (isRootWithTokens) {
-                  console.log("🔄 DETECTADO: Usuario en raíz con tokens de reset");
+                // Si estamos en la raíz con tokens o con mode=reset-password, redirigir
+                if (isRootWithTokens || isRootWithResetMode) {
+                  console.log("🔄 DETECTADO: Usuario en raíz que necesita ir a reset-password");
                   console.log("🔄 Redirigiendo de raíz a /reset-password");
                   console.log("🔄 Hash actual:", window.location.hash);
-                  const newUrl = '/reset-password' + window.location.hash;
+                  console.log("🔄 Search actual:", window.location.search);
+                  const newUrl = '/reset-password' + window.location.hash + window.location.search;
                   console.log("🔄 Nueva URL:", newUrl);
                   window.location.replace(newUrl);
                   return;
@@ -2754,7 +2762,7 @@ export function GlobalAppProvider({ children }) {
       try {
         console.log("🔄 Enviando email de recuperación para:", email);
 
-        const redirectUrl = `${SITE_CONFIG.url}/reset-password`;
+        const redirectUrl = `${SITE_CONFIG.url}?mode=reset-password`;
         console.log("🔄 RESET EMAIL: Enviando reset con redirectTo:", redirectUrl);
         console.log("🔄 RESET EMAIL: SITE_CONFIG.url:", SITE_CONFIG.url);
         
