@@ -65,7 +65,15 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
     } catch (error) {
       console.error('Error enviando feedback:', error);
-      setError('Error al enviar el feedback. Por favor intenta nuevamente.');
+      
+      // Mensaje de error más específico
+      if (error.message.includes('Configuración de EmailJS incompleta')) {
+        setError('El sistema de feedback no está configurado correctamente. Por favor contacta al administrador.');
+      } else if (error.text && error.text.includes('Invalid template')) {
+        setError('Error de configuración del sistema. Por favor intenta más tarde.');
+      } else {
+        setError('Error al enviar el feedback. Por favor intenta nuevamente o contacta al soporte.');
+      }
     } finally {
       setIsLoading(false);
     }
