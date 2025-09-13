@@ -603,9 +603,9 @@ export function GlobalAppProvider({ children }) {
                                       (window.location.hash.includes('access_token') || 
                                        window.location.search.includes('access_token'));
               
-              // DETECTAR si estamos en raíz con parámetro mode=reset-password
+              // DETECTAR si estamos en raíz con hash mode=reset-password
               const isRootWithResetMode = window.location.pathname === '/' && 
-                                         window.location.search.includes('mode=reset-password');
+                                         window.location.hash.includes('mode=reset-password');
               
               if (isResetPasswordFlow || isRootWithTokens || isRootWithResetMode) {
                 console.log("🔐 Flujo de reset password detectado - marcando como temporal");
@@ -2762,7 +2762,7 @@ export function GlobalAppProvider({ children }) {
       try {
         console.log("🔄 Enviando email de recuperación para:", email);
 
-        const redirectUrl = `${SITE_CONFIG.url}?mode=reset-password`;
+        const redirectUrl = `${SITE_CONFIG.url}#mode=reset-password`;
         console.log("🔄 RESET EMAIL: Enviando reset con redirectTo:", redirectUrl);
         console.log("🔄 RESET EMAIL: SITE_CONFIG.url:", SITE_CONFIG.url);
         
