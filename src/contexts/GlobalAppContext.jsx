@@ -582,18 +582,38 @@ export function GlobalAppProvider({ children }) {
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
               // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
+              console.log("🔍 DEBUG: Verificando flujo de reset");
+              console.log("🔍 Current pathname:", window.location.pathname);
+              console.log("🔍 Current hash:", window.location.hash);
+              console.log("🔍 Current search:", window.location.search);
+              console.log("🔍 Full URL:", window.location.href);
+              
               const isResetPasswordFlow = window.location.pathname === '/reset-password' && 
                                          (window.location.hash.includes('access_token') || 
                                           window.location.search.includes('access_token'));
               
-              if (isResetPasswordFlow) {
+              // TAMBIÉN detectar si estamos en la raíz con tokens (caso problemático)
+              const isRootWithTokens = window.location.pathname === '/' && 
+                                      (window.location.hash.includes('access_token') || 
+                                       window.location.search.includes('access_token'));
+              
+              if (isResetPasswordFlow || isRootWithTokens) {
                 console.log("🔐 Flujo de reset password detectado - marcando como temporal");
+                console.log("🔍 Tipo:", isResetPasswordFlow ? "En /reset-password" : "En raíz con tokens");
+                
                 sessionStorage.setItem('password_reset_pending', 'true');
                 sessionStorage.setItem('reset_user_id', session.user.id);
                 dispatch({
                   type: actions.SET_PASSWORD_RESET_PENDING,
                   payload: true,
                 });
+                
+                // Si estamos en la raíz con tokens, redirigir inmediatamente a reset-password
+                if (isRootWithTokens) {
+                  console.log("🔄 Redirigiendo de raíz a /reset-password");
+                  window.location.replace('/reset-password' + window.location.hash);
+                  return;
+                }
               }
               
               // Verificar si es el mismo usuario Y si los datos ya fueron cargados completamente
