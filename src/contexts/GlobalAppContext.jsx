@@ -607,7 +607,7 @@ export function GlobalAppProvider({ children }) {
               console.log("🔍 isRootWithResetMode:", isRootWithResetMode);
               
               if (isResetPasswordFlow || isRootWithTokens || isRootWithResetMode) {
-                console.log("🔐 Flujo de reset password detectado - marcando como temporal");
+                console.log("🔐 FLUJO RESET PASSWORD DETECTADO - BLOQUEANDO AUTENTICACIÓN AUTOMÁTICA");
                 console.log("🔍 Tipo:", 
                   isResetPasswordFlow ? "En /reset-password" : 
                   isRootWithTokens ? "En raíz con tokens" :
@@ -619,6 +619,10 @@ export function GlobalAppProvider({ children }) {
                   type: actions.SET_PASSWORD_RESET_PENDING,
                   payload: true,
                 });
+                
+                // SEGURIDAD: NO procesar más la autenticación
+                // El usuario NO debe estar autenticado hasta completar el reset
+                console.log("🚫 BLOQUEANDO autenticación automática por seguridad");
                 
                 // Si estamos en la raíz con tokens o con mode=reset-password, redirigir
                 if (isRootWithTokens || isRootWithResetMode) {
@@ -638,6 +642,10 @@ export function GlobalAppProvider({ children }) {
                   window.location.replace(newUrl);
                   return;
                 }
+                
+                // SEGURIDAD: Si estamos en reset-password, NO continuar con autenticación
+                console.log("🚫 RETORNANDO sin autenticar - flujo de reset password");
+                return;
               }
               
               // Verificar si es el mismo usuario Y si los datos ya fueron cargados completamente

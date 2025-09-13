@@ -154,39 +154,34 @@ const ResetPassword = () => {
     }
 
     setIsLoading(true);
-    console.log("🔄 Iniciando cambio de contraseña...");
+    console.log("🔄 Iniciando cambio de contraseña SEGURO...");
 
     try {
-      // El usuario ya está autenticado automáticamente por Supabase
-      // NO necesitamos setSession() - puede causar conflictos
+      // SEGURIDAD: No usar sesión automática de Supabase
+      // Usar solo los tokens del reset para cambiar contraseña
       
-      console.log("🔍 Verificando sesión actual...");
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("🔍 Sesión antes de cambiar contraseña:", session ? "ACTIVA" : "NO ACTIVA");
-      
-      if (!session) {
-        console.log("❌ No hay sesión activa, intentando usar tokens preservados...");
-        
-        // Solo SI no hay sesión, intentar establecer una
-        if (resetTokens) {
-          console.log("🔄 Estableciendo sesión con tokens preservados...");
-          await supabase.auth.setSession({
-            access_token: resetTokens.access_token,
-            refresh_token: resetTokens.refresh_token
-          });
-          
-          // Verificar sesión nuevamente
-          const { data: { session: newSession } } = await supabase.auth.getSession();
-          if (!newSession) {
-            throw new Error("No se pudo establecer sesión con tokens preservados");
-          }
-        } else {
-          throw new Error("No hay sesión activa ni tokens para establecer una");
-        }
+      if (!resetTokens || !resetTokens.access_token) {
+        throw new Error("No hay tokens válidos para el reset de contraseña");
       }
       
-      console.log("🔄 Llamando updateUser...");
-      const { error } = await supabase.auth.updateUser({
+      console.log("🔐 Usando tokens de reset para cambio seguro de contraseña");
+      
+      // Crear un cliente temporal solo para esta operación
+      const { createClient } = await import('@supabase/supabase-js');
+      const tempSupabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY,
+        {
+          global: {
+            headers: {
+              Authorization: `Bearer ${resetTokens.access_token}`
+            }
+          }
+        }
+      );
+      
+      console.log("🔄 Llamando updateUser con cliente temporal...");
+      const { error } = await tempSupabase.auth.updateUser({
         password: formData.password
       });
       
@@ -203,11 +198,19 @@ const ResetPassword = () => {
       setSuccess(true);
       setIsLoading(false);
       
-      // ✅ SEGURIDAD: Completar el reset de contraseña y limpiar estado temporal
+      console.log("✅ Contraseña actualizada exitosamente");
+      
+      // ✅ SEGURIDAD: Completar el reset y limpiar estado temporal
       completePasswordReset();
       
-      // Cerrar sesión después del cambio exitoso
+      // SEGURIDAD: Asegurar que no hay sesión automática después del reset
       await supabase.auth.signOut();
+      
+      // Limpiar cualquier token temporal
+      sessionStorage.removeItem('temp_access_token');
+      sessionStorage.removeItem('temp_refresh_token');
+      
+      console.log("🔐 Reset completado de forma segura - usuario debe iniciar sesión");
       
       // Redirigir al login después de 3 segundos
       setTimeout(() => {
