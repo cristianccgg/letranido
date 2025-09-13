@@ -5,7 +5,7 @@ export const SITE_CONFIG = {
   name: 'Letranido',
   title: 'Letranido - Tu nido creativo de escritura',
   description: 'Participa en concursos mensuales de escritura y conecta con una comunidad apasionada por las historias. Recibe feedback real, mantén tus derechos y crece como escritor.',
-  url: import.meta.env.VITE_SITE_URL || 'https://letranido.com',
+  url: import.meta.env.VITE_SITE_URL || 'https://www.letranido.com',
   domain: 'letranido.com',
   keywords: 'escritura creativa, concursos de escritura, comunidad escritores, historias originales, ficción, narrativa, letranido',
 };
