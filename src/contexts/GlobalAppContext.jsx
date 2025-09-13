@@ -3800,6 +3800,31 @@ export function GlobalAppProvider({ children }) {
     dispatch,
   };
 
+  // 🛡️ DETECCIÓN INMEDIATA DE RESET PASSWORD AL CARGAR LA PÁGINA
+  useEffect(() => {
+    const checkResetPasswordFlow = () => {
+      console.log("🔍 INMEDIATO: Verificando flujo de reset al cargar página");
+      console.log("🔍 URL completa:", window.location.href);
+      console.log("🔍 Hash:", window.location.hash);
+      console.log("🔍 Search:", window.location.search);
+      
+      // Si estamos en la raíz Y hay tokens de Supabase en la URL
+      const isRootWithSupabaseTokens = window.location.pathname === '/' && 
+        (window.location.hash.includes('access_token') || 
+         window.location.search.includes('access_token') ||
+         window.location.hash.includes('type=recovery') ||
+         window.location.search.includes('type=recovery'));
+      
+      if (isRootWithSupabaseTokens) {
+        console.log("🔄 INMEDIATO: Detectados tokens de Supabase en raíz - redirigiendo a reset-password");
+        window.location.replace('/reset-password' + window.location.hash + window.location.search);
+      }
+    };
+    
+    // Ejecutar inmediatamente al cargar la página
+    checkResetPasswordFlow();
+  }, []); // Solo una vez al montar el componente
+
   return (
     <GlobalAppContext.Provider value={contextValue}>
       {children}
