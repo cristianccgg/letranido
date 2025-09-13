@@ -6,8 +6,8 @@ import { initEmailJS } from "./lib/emailjs.js";
 import App from "./App.jsx";
 import "./index.css";
 
-// Limpiar console logs en producción
-overrideConsoleForProduction();
+// Limpiar console logs en producción - TEMPORALMENTE DESACTIVADO PARA DEBUG
+// overrideConsoleForProduction();
 
 // Inicializar EmailJS
 initEmailJS();
