@@ -151,19 +151,35 @@ const ResetPassword = () => {
     }
 
     setIsLoading(true);
+    console.log("🔄 Iniciando cambio de contraseña...");
 
     try {
-      // Usar los tokens guardados para el reset
+      // Verificar que tenemos tokens válidos
       if (resetTokens) {
+        console.log("🔑 Usando tokens guardados para reset");
         await supabase.auth.setSession({
           access_token: resetTokens.access_token,
           refresh_token: resetTokens.refresh_token
         });
+        
+        // Esperar un momento para que se establezca la sesión
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
+      // Verificar que estamos autenticados antes de cambiar contraseña
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("🔍 Sesión antes de cambiar contraseña:", session ? "ACTIVA" : "NO ACTIVA");
+      
+      if (!session) {
+        throw new Error("No hay sesión activa para cambiar contraseña");
+      }
+      
+      console.log("🔄 Llamando updateUser...");
       const { error } = await supabase.auth.updateUser({
         password: formData.password
       });
+      
+      console.log("📝 Resultado de updateUser:", error ? "ERROR" : "SUCCESS");
 
       if (error) {
         console.error("Error updating password:", error);
@@ -188,7 +204,13 @@ const ResetPassword = () => {
       }, 3000);
       
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("❌ Error inesperado en cambio de contraseña:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        code: error.code,
+        status: error.status
+      });
+      
       const friendlyError = getErrorMessage(error);
       setError(friendlyError);
       setIsLoading(false);
