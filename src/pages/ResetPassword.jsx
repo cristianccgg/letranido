@@ -166,22 +166,19 @@ const ResetPassword = () => {
       
       console.log("🔐 Usando tokens de reset para cambio seguro de contraseña");
       
-      // Crear un cliente temporal solo para esta operación
-      const { createClient } = await import('@supabase/supabase-js');
-      const tempSupabase = createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_ANON_KEY,
-        {
-          global: {
-            headers: {
-              Authorization: `Bearer ${resetTokens.access_token}`
-            }
-          }
-        }
-      );
+      // Establecer sesión temporal solo para cambiar contraseña
+      console.log("🔄 Estableciendo sesión temporal con tokens de reset...");
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: resetTokens.access_token,
+        refresh_token: resetTokens.refresh_token
+      });
       
-      console.log("🔄 Llamando updateUser con cliente temporal...");
-      const { error } = await tempSupabase.auth.updateUser({
+      if (sessionError) {
+        throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
+      }
+      
+      console.log("🔄 Llamando updateUser con sesión temporal...");
+      const { error } = await supabase.auth.updateUser({
         password: formData.password
       });
       
