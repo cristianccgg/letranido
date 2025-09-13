@@ -51,7 +51,7 @@ const ResetPassword = () => {
           });
         }
       });
-      return;
+      // NO hacer return aquí - queremos que vea el formulario
     }
     
     // Logs removidos para producción
