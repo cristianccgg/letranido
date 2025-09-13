@@ -6,12 +6,8 @@ import { initEmailJS } from "./lib/emailjs.js";
 import App from "./App.jsx";
 import "./index.css";
 
-// Limpiar console logs en producción - TEMPORALMENTE DESACTIVADO PARA DEBUG
-// overrideConsoleForProduction();
-
-// FORZAR LOGS PARA DEBUG
-console.log("🔧 LOGS HABILITADOS PARA DEBUG");
-console.log("🔧 URL inicial:", window.location.href);
+// Limpiar console logs en producción
+overrideConsoleForProduction();
 
 // Inicializar EmailJS
 initEmailJS();

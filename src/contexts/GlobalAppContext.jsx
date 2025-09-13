@@ -584,10 +584,8 @@ export function GlobalAppProvider({ children }) {
               // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
               // LOGS YA HABILITADOS GLOBALMENTE
               
-              // CORREGIDO: Si estamos en /reset-password, SIEMPRE bloquear autenticación
-              // No importa si hay tokens visibles o no - es un flujo de reset
+              // Si estamos en /reset-password, SIEMPRE bloquear autenticación
               const isResetPasswordFlow = window.location.pathname === '/reset-password';
-              console.log("🔍 SEGURIDAD: En ruta /reset-password - BLOQUEANDO autenticación automática");
               
               // TAMBIÉN detectar si estamos en la raíz con tokens (caso problemático)
               const isRootWithTokens = window.location.pathname === '/' && 
@@ -598,22 +596,8 @@ export function GlobalAppProvider({ children }) {
               const isRootWithResetMode = window.location.pathname === '/' && 
                                          window.location.search.includes('rp=1');
               
-              console.log("🔍 DEBUG: Verificando flujo de reset");
-              console.log("🔍 Current pathname:", window.location.pathname);
-              console.log("🔍 Current hash:", window.location.hash);
-              console.log("🔍 Current search:", window.location.search);
-              console.log("🔍 Full URL:", window.location.href);
-              console.log("🔍 isResetPasswordFlow:", isResetPasswordFlow);
-              console.log("🔍 isRootWithTokens:", isRootWithTokens);
-              console.log("🔍 isRootWithResetMode:", isRootWithResetMode);
               
               if (isResetPasswordFlow || isRootWithTokens || isRootWithResetMode) {
-                console.log("🔐 FLUJO RESET PASSWORD DETECTADO - BLOQUEANDO AUTENTICACIÓN AUTOMÁTICA");
-                console.log("🔍 Tipo:", 
-                  isResetPasswordFlow ? "En /reset-password" : 
-                  isRootWithTokens ? "En raíz con tokens" :
-                  "En raíz con rp=1");
-                
                 sessionStorage.setItem('password_reset_pending', 'true');
                 sessionStorage.setItem('reset_user_id', session.user.id);
                 dispatch({
@@ -621,31 +605,18 @@ export function GlobalAppProvider({ children }) {
                   payload: true,
                 });
                 
-                // SEGURIDAD: NO procesar más la autenticación
-                // El usuario NO debe estar autenticado hasta completar el reset
-                console.log("🚫 BLOQUEANDO autenticación automática por seguridad");
-                
                 // Si estamos en la raíz con tokens o con mode=reset-password, redirigir
                 if (isRootWithTokens || isRootWithResetMode) {
-                  console.log("🔄 DETECTADO: Usuario en raíz que necesita ir a reset-password");
-                  console.log("🔄 Redirigiendo de raíz a /reset-password");
-                  console.log("🔄 Hash actual:", window.location.hash);
-                  console.log("🔄 Search actual:", window.location.search);
-                  
                   // Remover rp=1 del query string y mantener solo los tokens
                   let cleanSearch = window.location.search.replace('rp=1', '').replace('&rp=1', '').replace('?rp=1&', '?').replace('?rp=1', '');
                   if (cleanSearch === '?' || cleanSearch === '&') cleanSearch = '';
                   
                   const newUrl = '/reset-password' + window.location.hash + cleanSearch;
-                  console.log("🔄 Search limpio:", cleanSearch);
-                  console.log("🔄 Nueva URL:", newUrl);
-                  
                   window.location.replace(newUrl);
                   return;
                 }
                 
                 // SEGURIDAD: Si estamos en reset-password, NO continuar con autenticación
-                console.log("🚫 RETORNANDO sin autenticar - flujo de reset password");
                 return;
               }
               

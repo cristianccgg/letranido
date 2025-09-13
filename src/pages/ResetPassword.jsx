@@ -6,8 +6,6 @@ import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { supabase } from "../lib/supabase";
 
 const ResetPassword = () => {
-  console.log("🏠 ResetPassword component mounted");
-  console.log("🏠 URL:", window.location.href);
   
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -27,31 +25,17 @@ const ResetPassword = () => {
 
   // Verificar si hay tokens válidos en la URL (pueden estar en hash o query params)
   useEffect(() => {
-    console.log("🔍 RESET PAGE: Verificando tokens en ResetPassword");
-    console.log("🔍 URL completa:", window.location.href);
-    console.log("🔍 Hash:", window.location.hash);
-    console.log("🔍 Search params:", window.location.search);
-    
     // Intentar obtener de query params primero
     let accessToken = searchParams.get("access_token");
     let refreshToken = searchParams.get("refresh_token");
     let _type = searchParams.get("type");
     
-    console.log("🔍 Query params - accessToken:", accessToken);
-    console.log("🔍 Query params - refreshToken:", refreshToken);
-    console.log("🔍 Query params - type:", _type);
-    
     // Si no están en query params, buscar en el hash
     if (!accessToken && window.location.hash) {
-      console.log("🔍 Buscando en hash...");
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       accessToken = hashParams.get("access_token");
       refreshToken = hashParams.get("refresh_token");
       _type = hashParams.get("type");
-      
-      console.log("🔍 Hash params - accessToken:", accessToken ? "FOUND" : "NOT FOUND");
-      console.log("🔍 Hash params - refreshToken:", refreshToken ? "FOUND" : "NOT FOUND");
-      console.log("🔍 Hash params - type:", _type);
     }
     
     // Si estamos autenticados pero no hay tokens visibles, 
@@ -89,11 +73,7 @@ const ResetPassword = () => {
       const tempAccessToken = sessionStorage.getItem('temp_access_token');
       const tempRefreshToken = sessionStorage.getItem('temp_refresh_token');
       
-      console.log("🔍 Buscando tokens preservados...");
-      console.log("🔍 tempAccessToken:", tempAccessToken ? "FOUND" : "NOT FOUND");
-      
       if (tempAccessToken) {
-        console.log("✅ USANDO tokens preservados de sessionStorage");
         setValidToken(true);
         setResetTokens({
           access_token: tempAccessToken,
@@ -110,10 +90,6 @@ const ResetPassword = () => {
         sessionStorage.removeItem('temp_access_token');
         sessionStorage.removeItem('temp_refresh_token');
       } else {
-        console.log("❌ NO HAY TOKENS VÁLIDOS");
-        console.log("❌ accessToken:", accessToken);
-        console.log("❌ refreshToken:", refreshToken);
-        console.log("❌ isAuthenticated:", isAuthenticated);
         setError("Enlace inválido o expirado. Solicita un nuevo email de recuperación.");
       }
     }
@@ -154,7 +130,6 @@ const ResetPassword = () => {
     }
 
     setIsLoading(true);
-    console.log("🔄 Iniciando cambio de contraseña SEGURO...");
 
     try {
       // SEGURIDAD: No usar sesión automática de Supabase
@@ -164,10 +139,7 @@ const ResetPassword = () => {
         throw new Error("No hay tokens válidos para el reset de contraseña");
       }
       
-      console.log("🔐 Usando tokens de reset para cambio seguro de contraseña");
-      
       // Establecer sesión temporal solo para cambiar contraseña
-      console.log("🔄 Estableciendo sesión temporal con tokens de reset...");
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: resetTokens.access_token,
         refresh_token: resetTokens.refresh_token
@@ -177,12 +149,9 @@ const ResetPassword = () => {
         throw new Error(`Error estableciendo sesión: ${sessionError.message}`);
       }
       
-      console.log("🔄 Llamando updateUser con sesión temporal...");
       const { error } = await supabase.auth.updateUser({
         password: formData.password
       });
-      
-      console.log("📝 Resultado de updateUser:", error ? "ERROR" : "SUCCESS");
 
       if (error) {
         console.error("Error updating password:", error);
@@ -195,8 +164,6 @@ const ResetPassword = () => {
       setSuccess(true);
       setIsLoading(false);
       
-      console.log("✅ Contraseña actualizada exitosamente");
-      
       // ✅ SEGURIDAD: Completar el reset y limpiar estado temporal
       completePasswordReset();
       
@@ -206,8 +173,6 @@ const ResetPassword = () => {
       // Limpiar cualquier token temporal
       sessionStorage.removeItem('temp_access_token');
       sessionStorage.removeItem('temp_refresh_token');
-      
-      console.log("🔐 Reset completado de forma segura - usuario debe iniciar sesión");
       
       // Redirigir al login después de 3 segundos
       setTimeout(() => {
