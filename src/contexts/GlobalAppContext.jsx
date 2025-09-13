@@ -2724,10 +2724,13 @@ export function GlobalAppProvider({ children }) {
       try {
         console.log("🔄 Enviando email de recuperación para:", email);
 
+        const redirectUrl = `${SITE_CONFIG.url}/reset-password`;
+        console.log("🔄 Enviando reset con redirectTo:", redirectUrl);
+        
         const { error } = await supabase.auth.resetPasswordForEmail(
           email.trim().toLowerCase(),
           {
-            redirectTo: `${SITE_CONFIG.url}/reset-password`,
+            redirectTo: redirectUrl,
           }
         );
         
