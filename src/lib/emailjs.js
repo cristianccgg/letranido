@@ -9,17 +9,10 @@ const EMAILJS_CONFIG = {
 
 // Inicializar EmailJS (llamar una vez al cargar la app)
 export const initEmailJS = () => {
-  console.log('🔧 Inicializando EmailJS...');
-  console.log('🔧 Service ID:', EMAILJS_CONFIG.serviceId ? 'CONFIGURADO' : 'FALTANTE');
-  console.log('🔧 Template ID:', EMAILJS_CONFIG.templateId ? 'CONFIGURADO' : 'FALTANTE');
-  console.log('🔧 Public Key:', EMAILJS_CONFIG.publicKey ? 'CONFIGURADO' : 'FALTANTE');
-  
   if (EMAILJS_CONFIG.publicKey) {
     emailjs.init(EMAILJS_CONFIG.publicKey);
-    console.log('✅ EmailJS inicializado correctamente');
   } else {
-    console.error('❌ EmailJS Public Key no encontrada en las variables de entorno');
-    console.error('❌ Variables necesarias: VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY');
+    console.error('EmailJS Public Key no encontrada en las variables de entorno');
   }
 };
 

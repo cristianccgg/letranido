@@ -6,13 +6,8 @@ import { initEmailJS } from "./lib/emailjs.js";
 import App from "./App.jsx";
 import "./index.css";
 
-// TEMPORALMENTE HABILITAR LOGS PARA DIAGNOSTICAR EMAILJS
-// overrideConsoleForProduction();
-
-console.log("🔧 DEBUG: Verificando variables de entorno EmailJS");
-console.log("🔧 VITE_EMAILJS_SERVICE_ID:", import.meta.env.VITE_EMAILJS_SERVICE_ID || "UNDEFINED");
-console.log("🔧 VITE_EMAILJS_TEMPLATE_ID:", import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "UNDEFINED");
-console.log("🔧 VITE_EMAILJS_PUBLIC_KEY:", import.meta.env.VITE_EMAILJS_PUBLIC_KEY ? "SET" : "UNDEFINED");
+// Limpiar console logs en producción
+overrideConsoleForProduction();
 
 // Inicializar EmailJS
 initEmailJS();
