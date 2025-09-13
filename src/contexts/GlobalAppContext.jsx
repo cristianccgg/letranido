@@ -582,11 +582,7 @@ export function GlobalAppProvider({ children }) {
             // Solo procesar SIGNED_IN si no es parte de la inicialización
             if (event === "SIGNED_IN" && session?.user) {
               // 🛡️ DETECTAR FLUJO DE RESET PASSWORD
-              // FORZAR LOGS EN PRODUCCIÓN TEMPORALMENTE
-              const originalLog = console.log;
-              console.log = function(...args) {
-                originalLog.apply(console, args);
-              };
+              // LOGS YA HABILITADOS GLOBALMENTE
               
               const isResetPasswordFlow = window.location.pathname === '/reset-password' && 
                                          (window.location.hash.includes('access_token') || 

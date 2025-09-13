@@ -9,6 +9,10 @@ import "./index.css";
 // Limpiar console logs en producción - TEMPORALMENTE DESACTIVADO PARA DEBUG
 // overrideConsoleForProduction();
 
+// FORZAR LOGS PARA DEBUG
+console.log("🔧 LOGS HABILITADOS PARA DEBUG");
+console.log("🔧 URL inicial:", window.location.href);
+
 // Inicializar EmailJS
 initEmailJS();
 
