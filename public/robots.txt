@@ -26,6 +26,10 @@ Disallow: /preferences/
 Disallow: /settings/
 Disallow: /unsubscribe/
 
+# Disallow any dynamic user content
+Disallow: /*?user=*
+Disallow: /*?id=*
+
 # Allow important pages
 Allow: /
 Allow: /contest/
