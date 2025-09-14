@@ -142,7 +142,7 @@ const SocialShareDropdown = ({
             ? "bg-green-500 hover:bg-green-600 text-white"
             : "bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:scale-105 transition-all duration-300 ease-in-out"
         } rounded-lg flex items-center gap-2 cursor-pointer border border-blue-200 dark:border-blue-700`}
-        title={copied ? "¡Enlace copiado!" : `¡Nuevo! Compartir ${variant === "story" ? "historia" : "concurso"} en redes sociales`}
+        title={copied ? "¡Enlace copiado!" : `¡Nuevo! Compartir ${variant === "story" ? "historia" : "reto"} en redes sociales`}
       >
         {copied ? (
           <>
@@ -185,7 +185,7 @@ const SocialShareDropdown = ({
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-dark-100 flex items-center gap-2">
                   <Share2 className="h-4 w-4 text-blue-500" />
-                  Compartir {variant === "story" ? "historia" : "concurso"}
+                  Compartir {variant === "story" ? "historia" : "reto"}
                 </h3>
                 <button
                   onClick={() => setIsOpen(false)}

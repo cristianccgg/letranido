@@ -94,7 +94,7 @@ const SubmissionConfirmationModal = ({
                   <p className="font-semibold text-indigo-900 dark:text-indigo-100 text-xs">{wordCount}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-indigo-600 dark:text-indigo-300 font-medium">Concurso</span>
+                  <span className="text-xs text-indigo-600 dark:text-indigo-300 font-medium">Reto</span>
                   <p className="font-semibold text-indigo-900 dark:text-indigo-100 text-xs truncate">{prompt.title}</p>
                 </div>
               </div>

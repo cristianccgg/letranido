@@ -201,7 +201,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         }
       }
 
-      // Obtener información de concursos por separado
+      // Obtener información de retos por separado
       let contestsData = [];
       if (stories && stories.length > 0) {
         const { data: contests, error: contestsError } = await supabase
@@ -325,7 +325,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
       userStats.totalKarma += KARMA_POINTS.STORY_PUBLISHED;
       userStats.totalStories++;
 
-      // Buscar información del concurso
+      // Buscar información del reto
       const contest = contests.find(c => c.id === story.contest_id);
       const canShowVotes = contest && (
         contest.status === 'results' || 
@@ -481,12 +481,12 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                 {/* Mostrar información de actualización */}
                 {isUsingCache && lastUpdated && (
                   <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                    🏆 Rankings actualizados al finalizar concursos
+                    🏆 Rankings actualizados al finalizar retos
                   </p>
                 )}
                 {!isUsingCache && (
                   <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                    🏆 Rankings se actualizan al finalizar concursos
+                    🏆 Rankings se actualizan al finalizar retos
                   </p>
                 )}
               </div>
@@ -587,7 +587,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Crown className="h-3 w-3" />
-                    <span>Ganar concurso: <strong>+75</strong></span>
+                    <span>Ganar reto: <strong>+75</strong></span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Medal className="h-3 w-3" />
@@ -606,7 +606,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                   onClick={onClose}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all duration-200"
                 >
-                  <span>Ver concurso actual</span>
+                  <span>Ver reto actual</span>
                   <ChevronRight className="h-4 w-4" />
                 </a>
               </div>

@@ -236,7 +236,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-                Concurso: {recentStory.contest?.title}
+                Reto: {recentStory.contest?.title}
               </p>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>{recentStory.word_count || 0} palabras</span>
@@ -268,7 +268,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                 className="inline-flex items-center mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
-                Ver Concurso Actual
+                Ver Reto Actual
               </Link>
             </div>
           )}
@@ -282,7 +282,7 @@ const ProfileTabs = ({ user, votingStats }) => {
     const canEditStory = (story) => {
       if (!story.contest) return false;
       
-      // Usar getContestPhase para determinar la fase actual del concurso
+      // Usar getContestPhase para determinar la fase actual del reto
       const phase = getContestPhase(story.contest);
       return phase === 'submission';
     };
@@ -302,14 +302,14 @@ const ProfileTabs = ({ user, votingStats }) => {
               Aún no tienes historias
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              ¡Participa en un concurso para escribir tu primera historia!
+              ¡Participa en un reto para escribir tu primera historia!
             </p>
             <Link
               to={currentContest?.id ? `/contest/${currentContest.id}` : "/contest/current"}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <BookOpen className="w-4 h-4 mr-2" />
-              Ver Concurso Actual
+              Ver Reto Actual
             </Link>
           </div>
         ) : (
@@ -329,7 +329,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                         {story.title}
                       </h4>
                       <p className="text-gray-600 dark:text-gray-400 text-sm truncate">
-                        Concurso: {story.contest?.title}
+                        Reto: {story.contest?.title}
                       </p>
                     </div>
                     
@@ -574,7 +574,7 @@ const ProfileTabs = ({ user, votingStats }) => {
               </span>
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Historias libres sin restricciones de concursos
+              Historias libres sin restricciones de retos
             </p>
           </div>
           <Link
@@ -633,7 +633,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                 Tu portafolio está vacío
               </h4>
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Crea historias libres sin restricciones de concursos. Explora cualquier tema, género o estilo que te inspire.
+                Crea historias libres sin restricciones de retos. Explora cualquier tema, género o estilo que te inspire.
               </p>
               <Link
                 to="/write/portfolio"

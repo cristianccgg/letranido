@@ -128,7 +128,7 @@ const UserWithWinnerBadges = ({ user, userId, userName, className = "" }) => {
 
   const displayName = userName || user?.name || user?.display_name || "Usuario";
 
-  // Solo badges de concursos
+  // Solo badges de retos
   const winnerBadges = userBadges.filter((badge) =>
     ["contest_winner", "contest_finalist", "contest_winner_veteran"].includes(
       badge.id

@@ -69,7 +69,7 @@ const NotificationBell = ({ userId, className = "" }) => {
       // Ir al perfil para ver badges
       window.location.href = `/profile`;
     } else if (notification.type === 'contest_winner') {
-      // Ir a los resultados del concurso
+      // Ir a los resultados del reto
       window.location.href = `/contest/current`;
     }
     

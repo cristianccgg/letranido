@@ -44,7 +44,7 @@ const ShareDropdown = ({ shareData, className = "", size = "default" }) => {
           ? "bg-green-500 hover:bg-green-600 text-white"
           : "bg-blue-100 hover:bg-blue-200 text-gray-700 hover:scale-105 transition-all duration-300 ease-in-out"
       } rounded-lg transition-colors flex items-center gap-2  cursor-pointer ${className}`}
-      title={copied ? "¡Enlace copiado!" : "Invitar amigos al concurso"}
+      title={copied ? "¡Enlace copiado!" : "Invitar amigos al reto"}
     >
       {copied ? (
         <>

@@ -43,7 +43,7 @@ const CommentGuideModal = ({ isOpen, onClose }) => {
     {
       icon: <XCircle className="h-4 w-4 text-red-500" />,
       title: "Comparaciones negativas",
-      example: "Esta historia es mucho peor que las otras del concurso.",
+      example: "Esta historia es mucho peor que las otras del reto.",
       why: "Crea competencia tóxica"
     }
   ];

@@ -90,7 +90,7 @@ const Layout = ({ children, onFeedbackClick }) => {
     return false;
   };
 
-  // ✅ VERIFICAR SI HAY CONCURSOS FINALIZADOS PARA MOSTRAR HISTORIAL
+  // ✅ VERIFICAR SI HAY RETOS FINALIZADOS PARA MOSTRAR HISTORIAL
   const hasFinishedContests = contests.some(
     (contest) => contest.status === "results"
   );
@@ -220,7 +220,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           },
         ]
       : []),
-    // ✅ MOSTRAR HISTORIAL SOLO SI HAY CONCURSOS FINALIZADOS - MENOS PROMINENTE
+    // ✅ MOSTRAR HISTORIAL SOLO SI HAY RETOS FINALIZADOS - MENOS PROMINENTE
     ...(hasFinishedContests
       ? [
           {
@@ -307,7 +307,7 @@ const Layout = ({ children, onFeedbackClick }) => {
           },
         ]
       : []),
-    // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY CONCURSOS FINALIZADOS - MENOS PROMINENTE
+    // ✅ MOSTRAR HISTORIAL TAMBIÉN PARA USUARIOS NO AUTENTICADOS SI HAY RETOS FINALIZADOS - MENOS PROMINENTE
     ...(hasFinishedContests
       ? [
           {

@@ -411,7 +411,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess, initialMode = "login" }) => {
                   📧 Notificaciones por email
                 </label>
                 <p className="text-xs text-gray-600 dark:text-dark-400 mt-1">
-                  Acepto recibir emails sobre nuevos concursos, recordatorios y resultados. 
+                  Acepto recibir emails sobre nuevos retos, recordatorios y resultados. 
                   Puedes desuscribirte en cualquier momento desde tu perfil o desde los emails.
                 </p>
               </div>
