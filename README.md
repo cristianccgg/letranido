@@ -1,6 +1,6 @@
 # Letranido - Plataforma de Escritura Creativa
 
-Letranido es una plataforma de concursos de escritura donde los usuarios participan en retos mensuales, votan por sus historias favoritas y descubren nuevos talentos literarios.
+Letranido es una plataforma de retos de escritura donde los usuarios participan en retos mensuales, votan por sus historias favoritas y descubren nuevos talentos literarios.
 
 ## 🚀 Tecnologías
 
@@ -20,7 +20,7 @@ npm run lint         # ESLint
 npm run env:status   # Ver configuración actual
 ```
 
-## 🏆 Flujo de Concursos
+## 🏆 Flujo de Retos
 
 ### Fases Automáticas (por fecha/tiempo)
 1. **`submission`** - Hasta `submission_deadline` ⏰
@@ -30,32 +30,32 @@ npm run env:status   # Ver configuración actual
 
 ### Transiciones Críticas
 - **7:00 PM Colombia**: Cierre automático de votación
-- **Fase "counting"**: Votación bloqueada, concurso sigue siendo "actual"
+- **Fase "counting"**: Votación bloqueada, reto sigue siendo "actual"
 - **Finalización manual**: Marca `status: "results"` + `finalized_at`
-- **Rotación automática**: Siguiente concurso → actual
+- **Rotación automática**: Siguiente reto → actual
 
 ## 🔧 Archivos Clave
 
 ### Frontend Principal
 - `src/contexts/GlobalAppContext.jsx` - Estado global y lógica principal
-- `src/pages/CurrentContest.jsx` - Página del concurso actual
+- `src/pages/CurrentContest.jsx` - Página del reto actual
 - `src/pages/LandingPage.jsx` - Landing page con ganadores
 - `src/pages/StoryPage.jsx` - Vista individual de historia
 
-### Lógica de Concursos
+### Lógica de Retos
 - `src/hooks/useContestFinalization.js` - Finalización y generación de resultados
 - `src/components/admin/ContestAdminPanel.jsx` - Panel de administración
 
 ### Funciones Críticas
 - `getContestPhase(contest)` - Determina fase actual por fechas
-- `findCurrentContest(contests)` - Selecciona concurso activo
+- `findCurrentContest(contests)` - Selecciona reto activo
 - `finalizeContest(contestId)` - Genera resultados y marca ganadores
 - `canVoteInStory(storyId)` - Valida permisos de votación
 
 ## 🗳️ Sistema de Votación
 
 ### Reglas
-- **3 votos máximo** por usuario en el concurso actual
+- **3 votos máximo** por usuario en el reto actual
 - **Votación ciega** durante fase `voting` (sin ver conteos)
 - **Votos privados** - solo el usuario ve sus votos
 - **Bloqueo automático** en fases `submission`, `counting`, `results`
@@ -69,9 +69,9 @@ npm run env:status   # Ver configuración actual
 ## 📱 UI Estados
 
 ### Landing Page Containers
-- **Superior**: Concurso actual (todas las fases)
-- **Inferior**: Siguiente concurso (siempre `phase: "submission"`)
-- **Sección Ganadores**: Solo concursos con `status: "results"` (excluyendo actual)
+- **Superior**: Reto actual (todas las fases)
+- **Inferior**: Siguiente reto (siempre `phase: "submission"`)
+- **Sección Ganadores**: Solo retos con `status: "results"` (excluyendo actual)
 
 ### Mensajes por Fase
 - **submission**: "📝 Período de Envío"
@@ -91,21 +91,21 @@ npm run env:status   # Ver configuración actual
 - `utcToColombiaLocal()` - UTC de BD → DateTime local
 - `formatColombiaDateTime()` - Para emails y displays
 
-## 🚨 Proceso de Cierre de Concurso
+## 🚨 Proceso de Cierre de Reto
 
 ### Antes del Cierre (6:59 PM)
-- Concurso actual en fase `voting`
+- Reto actual en fase `voting`
 - Usuarios pueden votar normalmente
-- Siguiente concurso visible en contenedor inferior
+- Siguiente reto visible en contenedor inferior
 
 ### Cierre Automático (7:00 PM)
 - **Automático**: Fase cambia a `counting`
 - **UI**: "⏱️ Votación Cerrada" 
 - **Votación**: Bloqueada con mensaje transparente
-- **Concursos**: Misma disposición (actual/siguiente)
+- **Retos**: Misma disposición (actual/siguiente)
 
 ### Finalización Manual (Admin)
-- **Panel Admin**: Botón "Finalizar Concurso"
+- **Panel Admin**: Botón "Finalizar Reto"
 - **Backend**: `finalizeContest()` procesa ganadores
 - **Actualización**: `status: "results"` + `finalized_at`
 - **Rotación**: Siguiente → actual, nuevo siguiente → contenedor
@@ -113,12 +113,12 @@ npm run env:status   # Ver configuración actual
 ## 📊 Base de Datos
 
 ### Tablas Principales
-- `contests` - Concursos y fechas límite
+- `contests` - Retos y fechas límite
 - `stories` - Historias con `is_winner`, `winner_position`
-- `votes` - Votos de usuarios (3 max por concurso actual)
+- `votes` - Votos de usuarios (3 max por reto actual)
 - `user_profiles` - Usuarios con `wins_count`
 
-### Estados de Concurso
+### Estados de Reto
 - `status`: `'submission'`, `'voting'`, `'results'` (manual)
 - `finalized_at`: NULL hasta finalización manual
 - **Fases calculadas**: Por comparación de fechas en tiempo real
@@ -127,14 +127,14 @@ npm run env:status   # Ver configuración actual
 
 1. **Zona horaria**: Todo en Colombia (UTC-5)
 2. **Fases automáticas**: Por fechas, no por `status`
-3. **Votación limitada**: 3 votos solo en concurso actual
+3. **Votación limitada**: 3 votos solo en reto actual
 4. **Finalización manual**: Único momento que cambia `status: "results"`
 5. **Transparencia**: Mensajes indican procesos automáticos
 
 ## 🔍 Debug y Troubleshooting
 
 ### Logs Importantes
-- `🔄 loadContests` - Carga y determina concursos actual/siguiente
+- `🔄 loadContests` - Carga y determina retos actual/siguiente
 - `🗳️ VotingInfo` - Validación de permisos de voto
 - `🏆 Ganadores determinados` - Proceso de finalización
 
@@ -147,16 +147,16 @@ git status            # Estado del repositorio
 
 ### Panel Admin
 - **URL**: `/admin` (solo usuarios con `is_admin: true`)
-- **Funciones**: Finalizar concursos, previsualizar ganadores, revertir
+- **Funciones**: Finalizar retos, previsualizar ganadores, revertir
 
-## 🎯 Flujo Típico de Concurso
+## 🎯 Flujo Típico de Reto
 
-1. **Creación**: Admin crea concurso con fechas
+1. **Creación**: Admin crea reto con fechas
 2. **Submission**: Usuarios envían historias hasta `submission_deadline`
 3. **Voting**: Votación hasta `voting_deadline` (automático)
 4. **Counting**: UI muestra "cerrado", votación bloqueada (automático)
 5. **Results**: Admin finaliza manualmente, ganadores generados
-6. **Rotación**: Siguiente concurso → actual automáticamente
+6. **Rotación**: Siguiente reto → actual automáticamente
 
 ---
 

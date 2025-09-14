@@ -142,7 +142,7 @@ const FreeStories = () => {
     <div className="max-w-6xl mx-auto py-6 space-y-6">
       <SEOHead
         title="Historias Libres - Letranido"
-        description="Descubre historias originales sin restricciones de concursos. Creatividad libre de la comunidad de escritores de Letranido."
+        description="Descubre historias originales sin restricciones de retos. Creatividad libre de la comunidad de escritores de Letranido."
         keywords="historias libres, escritura libre, creatividad, portafolio, literatura"
         url="/stories"
       />
@@ -157,7 +157,7 @@ const FreeStories = () => {
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Creatividad sin límites. Explora historias originales creadas por nuestra comunidad 
-          fuera de los concursos tradicionales.
+          fuera de los retos tradicionales.
         </p>
 
         {/* CTA para crear historia */}
@@ -178,7 +178,7 @@ const FreeStories = () => {
               </span>
             </div>
             <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">
-              Únete a Premium para crear historias sin restricciones de concursos
+              Únete a Premium para crear historias sin restricciones de retos
             </p>
             <Link
               to="/planes"

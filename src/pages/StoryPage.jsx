@@ -406,10 +406,10 @@ const StoryPage = () => {
         title={story?.title || "Historia"}
         description={
           story?.story
-            ? `"${story.story.replace(/<[^>]*>/g, "").substring(0, 140)}..." - Historia de ${story.author?.display_name || "un escritor"} para el concurso "${story.contest?.title || "creativo"}" en Letranido.`
+            ? `"${story.story.replace(/<[^>]*>/g, "").substring(0, 140)}..." - Historia de ${story.author?.display_name || "un escritor"} para el reto "${story.contest?.title || "creativo"}" en Letranido.`
             : "Lee esta historia creativa de nuestra comunidad de escritores en Letranido. Descubre nuevas voces y talentos literarios."
         }
-        keywords={`${story?.title?.split(" ").slice(0, 3).join(", ") || "historia"}, ${story?.contest?.title || "escritura creativa"}, ${story?.author?.display_name || "autor"}, concurso literario, ficción, letranido`}
+        keywords={`${story?.title?.split(" ").slice(0, 3).join(", ") || "historia"}, ${story?.contest?.title || "escritura creativa"}, ${story?.author?.display_name || "autor"}, reto literario, ficción, letranido`}
         url={`/story/${id}`}
         canonicalUrl={`https://letranido.com/story/${id}`}
         type="article"
@@ -480,10 +480,10 @@ const StoryPage = () => {
                 // Si vino desde la página "Leer", volver ahí
                 navigate("/historias");
               } else if (story?.contest_id) {
-                // Si vino desde un concurso específico, ir a ese concurso
+                // Si vino desde un reto específico, ir a ese reto
                 navigate(`/contest/${story.contest_id}`);
               } else {
-                // Fallback: ir al concurso actual
+                // Fallback: ir al reto actual
                 navigate("/contest/current");
               }
             }}
@@ -492,7 +492,7 @@ const StoryPage = () => {
             <ChevronLeft className="h-5 w-5 mr-1" />
             {(() => {
               const fromParam = searchParams.get('from');
-              return fromParam === 'historias' ? "Volver a Leer" : "Volver al concurso";
+              return fromParam === 'historias' ? "Volver a Leer" : "Volver al reto";
             })()}
           </button>
 
@@ -509,7 +509,7 @@ const StoryPage = () => {
               <div className="flex items-center">
                 <Trophy className="h-5 w-5 mr-2" />
                 <span className="font-medium">
-                  Concurso de {story.contest.month} - {story.contest.category}
+                  Reto de {story.contest.month} - {story.contest.category}
                 </span>
               </div>
 
@@ -517,7 +517,7 @@ const StoryPage = () => {
                 to="/contest/current"
                 className="text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white text-sm flex items-center"
               >
-                Ver concurso
+                Ver reto
                 <ExternalLink className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -547,7 +547,7 @@ const StoryPage = () => {
 
             {/* Story Stats - Debajo del usuario, victorias y votos primero */}
             {(() => {
-              // Determinar fase del concurso para mostrar/ocultar estadísticas
+              // Determinar fase del reto para mostrar/ocultar estadísticas
               const isCurrentContest = story.contest_id === currentContest?.id;
               const contestToCheck = isCurrentContest ? currentContest : story.contest;
               const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
@@ -625,7 +625,7 @@ const StoryPage = () => {
               <div className="space-y-3">
                 {/* Determinar si estamos en fase de votación */}
                 {(() => {
-                  // Usar currentContest si es el concurso actual, sino usar story.contest
+                  // Usar currentContest si es el reto actual, sino usar story.contest
                   const isCurrentContest = story.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : story.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
@@ -778,7 +778,7 @@ const StoryPage = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="mb-4 md:mb-0">
                 <p className="text-gray-600 dark:text-dark-300 text-sm mb-2">
-                  Esta historia participó en el concurso{" "}
+                  Esta historia participó en el reto{" "}
                   <strong>"{story.contest.title}"</strong>
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-dark-400">
@@ -793,7 +793,7 @@ const StoryPage = () => {
               <div className="flex items-center gap-2">
                 {/* Botón de voto en el footer - también ocultar conteo durante votación */}
                 {(() => {
-                  // Usar currentContest si es el concurso actual, sino usar story.contest
+                  // Usar currentContest si es el reto actual, sino usar story.contest
                   const isCurrentContest = story.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : story.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
@@ -862,11 +862,11 @@ const StoryPage = () => {
               <div className="flex items-center mb-2">
                 <Trophy className="h-5 w-5 text-primary-600 mr-2" />
                 <span className="font-medium text-primary-900 dark:text-primary-300">
-                  Ver más historias del concurso
+                  Ver más historias del reto
                 </span>
               </div>
               <p className="text-primary-700 dark:text-primary-400 text-sm">
-                Descubre más historias del concurso de {story.contest.month}
+                Descubre más historias del reto de {story.contest.month}
               </p>
             </Link>
 
@@ -885,7 +885,7 @@ const StoryPage = () => {
               </p>
             </Link>
 
-            {/* Enlace al concurso actual si esta historia es de un concurso cerrado */}
+            {/* Enlace al reto actual si esta historia es de un reto cerrado */}
             {story?.contest?.status === "results" && (
               <Link
                 to="/contest/current"
@@ -894,11 +894,11 @@ const StoryPage = () => {
                 <div className="flex items-center mb-2">
                   <Trophy className="h-5 w-5 text-purple-600 mr-2" />
                   <span className="font-medium text-purple-900 dark:text-purple-300">
-                    Ver concurso actual
+                    Ver reto actual
                   </span>
                 </div>
                 <p className="text-purple-700 dark:text-purple-400 text-sm">
-                  Participa en el concurso activo de este mes
+                  Participa en el reto activo de este mes
                 </p>
               </Link>
             )}

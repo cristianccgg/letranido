@@ -1038,7 +1038,7 @@ const LandingPage = () => {
                       ¿Qué quieres hacer ahora?
                     </h3>
                     <p className="text-gray-600 dark:text-dark-300 mb-6">
-                      Explora todas las historias del concurso anterior o únete al reto actual
+                      Explora todas las historias del reto anterior o únete al reto actual
                     </p>
                     
                     {/* Botones lado a lado */}

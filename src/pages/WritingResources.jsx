@@ -440,7 +440,7 @@ const WritingResources = () => {
               ¿Listo para poner en práctica estos consejos?
             </h2>
             <p className="text-gray-700 mb-6 text-lg max-w-2xl mx-auto">
-              Únete a nuestra comunidad de escritores y participa en concursos
+              Únete a nuestra comunidad de escritores y participa en retos
               mensuales donde podrás aplicar estas técnicas y recibir feedback
               de otros escritores.
             </p>
@@ -450,7 +450,7 @@ const WritingResources = () => {
                 className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 <PenTool className="h-5 w-5 mr-3" />
-                Participar en concurso actual
+                Participar en reto actual
                 <ArrowRight className="h-5 w-5 ml-3" />
               </Link>
               {!isAuthenticated && (
@@ -499,7 +499,7 @@ const WritingResources = () => {
             >
               <Trophy className="h-8 w-8 text-pink-600 mx-auto mb-3" />
               <h3 className="font-semibold text-gray-900 mb-2">
-                Concursos Activos
+                Retos Activos
               </h3>
               <p className="text-sm text-gray-600">Ver prompts y participar</p>
             </Link>

@@ -134,7 +134,7 @@ const MaintenancePage = ({ maintenanceInfo }) => {
                 </li>
                 <li className="flex items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  Mejorando el sistema de concursos
+                  Mejorando el sistema de retos
                 </li>
                 <li className="flex items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>

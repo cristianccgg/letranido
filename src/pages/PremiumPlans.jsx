@@ -93,7 +93,7 @@ const PremiumPlans = () => {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-500 mr-3" />
-                  <span className="text-gray-700 dark:text-gray-300">1 concurso por mes</span>
+                  <span className="text-gray-700 dark:text-gray-300">1 reto por mes</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-500 mr-3" />
@@ -158,7 +158,7 @@ const PremiumPlans = () => {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-300 mr-3" />
-                  <span className="text-white font-medium">Concursos ilimitados</span>
+                  <span className="text-white font-medium">Retos ilimitados</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="w-5 h-5 text-green-300 mr-3" />
@@ -281,7 +281,7 @@ const PremiumPlans = () => {
                 <ul className="space-y-2 text-gray-600 dark:text-gray-300">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                    <span>Concursos ilimitados por mes</span>
+                    <span>Retos ilimitados por mes</span>
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>

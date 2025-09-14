@@ -493,7 +493,7 @@ const BlogPost = () => {
                 className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
-                Ver Concurso Actual
+                Ver Reto Actual
               </Link>
               <Link
                 to="/blog"

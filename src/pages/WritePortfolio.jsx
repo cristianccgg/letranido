@@ -264,7 +264,7 @@ const WritePortfolio = () => {
     <div className="max-w-4xl mx-auto py-6 space-y-6">
       <SEOHead
         title={isEditing ? "Editar Historia Libre - Letranido" : "Escribir Historia Libre - Letranido"}
-        description={isEditing ? "Edita tu historia libre en Letranido" : "Crea una historia libre sin restricciones de concursos"}
+        description={isEditing ? "Edita tu historia libre en Letranido" : "Crea una historia libre sin restricciones de retos"}
         keywords="historia libre, escritura creativa, portafolio, premium"
         url="/write/portfolio"
       />
@@ -351,7 +351,7 @@ const WritePortfolio = () => {
             <PremiumLiteraryEditor
               value={text}
               onChange={setText}
-              placeholder="Escribe tu historia aquí... Sin límites de concursos, solo tu imaginación."
+              placeholder="Escribe tu historia aquí... Sin límites de retos, solo tu imaginación."
               className="min-h-[400px]"
               spellCheck={true}
               rows={25}
@@ -360,7 +360,7 @@ const WritePortfolio = () => {
             <LiteraryEditor
               value={text}
               onChange={setText}
-              placeholder="Escribe tu historia aquí... Sin límites de concursos, solo tu imaginación."
+              placeholder="Escribe tu historia aquí... Sin límites de retos, solo tu imaginación."
               className="min-h-[400px]"
             />
           )}

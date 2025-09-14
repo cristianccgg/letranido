@@ -30,13 +30,13 @@ const ContestHistory = () => {
   const [contestsWithWinners, setContestsWithWinners] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ SOLO MOSTRAR CONCURSOS FINALIZADOS - MEMOIZADO PARA EVITAR BUCLES
+  // ✅ SOLO MOSTRAR RETOS FINALIZADOS - MEMOIZADO PARA EVITAR BUCLES
   const finishedContests = useMemo(() => 
     contests.filter((contest) => contest.status === "results"),
     [contests]
   );
 
-  // ✅ CARGAR GANADORES PARA CADA CONCURSO
+  // ✅ CARGAR GANADORES PARA CADA RETO
   useEffect(() => {
     const loadContestWinners = async () => {
       if (finishedContests.length === 0) {
@@ -146,7 +146,7 @@ const ContestHistory = () => {
   return (
     <>
       <SEOHead
-        title="Historial de Concursos"
+        title="Historial de Retos"
         description="Explora todos los retos de escritura pasados de Letranido. Descubre las historias ganadoras, participantes destacados y la evolución de nuestra comunidad creativa."
         keywords="historial retos escritura, retos pasados letranido, historias ganadoras, escritores destacados"
         url="/contest-history"
@@ -156,7 +156,7 @@ const ContestHistory = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-100 mb-2">
-            Historial de Concursos
+            Historial de Retos
           </h1>
           <p className="text-gray-600 dark:text-dark-300 mb-6">
             Explora retos pasados y descubre a los ganadores
