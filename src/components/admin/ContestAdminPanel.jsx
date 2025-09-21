@@ -1738,23 +1738,23 @@ const ContestAdminPanel = () => {
                               </div>
 
                               {userDeletionResult.simulation?.stories?.total > 0 && (
-                                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200">
-                                      ANONIMIZAR
+                                    <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200">
+                                      ELIMINAR
                                     </span>
-                                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                                      {userDeletionResult.simulation.stories.total} historias serán anonimizadas
+                                    <span className="text-sm font-medium text-red-800 dark:text-red-200">
+                                      {userDeletionResult.simulation.stories.total} historias del usuario serán eliminadas
                                     </span>
                                   </div>
-                                  <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                                    Las historias se mantendrán como "[Historia eliminada]" para preservar la integridad de concursos y comentarios de otros usuarios.
+                                  <p className="text-xs text-red-700 dark:text-red-300">
+                                    Su contenido será eliminado permanentemente. Nadie podrá leerlas.
                                   </p>
                                   
                                   {userDeletionResult.simulation.stories.titles?.length > 0 && (
                                     <div className="mt-2">
-                                      <strong className="text-xs">Títulos a anonimizar:</strong>
-                                      <ul className="list-disc list-inside mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                      <strong className="text-xs">Historias a eliminar:</strong>
+                                      <ul className="list-disc list-inside mt-1 text-xs text-red-600 dark:text-red-400">
                                         {userDeletionResult.simulation.stories.titles.map((title, index) => (
                                           <li key={index}>"{title}"</li>
                                         ))}
