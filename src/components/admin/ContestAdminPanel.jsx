@@ -48,6 +48,11 @@ const ContestAdminPanel = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [simulatedWinners, setSimulatedWinners] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null); // ID del concurso que se está eliminando
+  
+  // Estados para eliminación manual de usuarios
+  const [userEmail, setUserEmail] = useState('');
+  const [userDeletionLoading, setUserDeletionLoading] = useState(false);
+  const [userDeletionResult, setUserDeletionResult] = useState(null);
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
   const [rankingLoading, setRankingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("concursos");
@@ -138,7 +143,7 @@ const ContestAdminPanel = () => {
   };
 
   // Usar el contexto global unificado
-  const { user, isAuthenticated, contests, contestsLoading, refreshContests } =
+  const { user, isAuthenticated, contests, contestsLoading, refreshContests, simulateUserDeletion, deleteUserAccount } =
     useGlobalApp();
 
   const {
@@ -994,6 +999,84 @@ const ContestAdminPanel = () => {
     }
   };
 
+  // Funciones para eliminación manual de usuarios
+  const handleSimulateUserDeletion = async () => {
+    if (!userEmail.trim()) {
+      alert('Por favor ingresa un email');
+      return;
+    }
+
+    setUserDeletionLoading(true);
+    setUserDeletionResult(null);
+
+    try {
+      // Buscar usuario por email
+      const { data: userProfile, error } = await supabase
+        .from('user_profiles')
+        .select('id, display_name, email')
+        .eq('email', userEmail.trim())
+        .single();
+
+      if (error || !userProfile) {
+        setUserDeletionResult({ 
+          success: false, 
+          error: 'Usuario no encontrado con ese email' 
+        });
+        return;
+      }
+
+      // Simular eliminación
+      const result = await simulateUserDeletion(userProfile.id);
+      setUserDeletionResult({
+        ...result,
+        userInfo: userProfile
+      });
+
+    } catch (error) {
+      setUserDeletionResult({ 
+        success: false, 
+        error: error.message 
+      });
+    } finally {
+      setUserDeletionLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userDeletionResult?.success || !userDeletionResult?.userInfo) {
+      alert('Primero debes simular la eliminación');
+      return;
+    }
+
+    const confirmText = `${userDeletionResult.userInfo.display_name || userDeletionResult.userInfo.email}`;
+    const userConfirm = prompt(
+      `🚨 CONFIRMACIÓN FINAL: Esto eliminará TODOS los datos del usuario permanentemente.\n\nEscribe "${confirmText}" para confirmar:`
+    );
+
+    if (userConfirm !== confirmText) {
+      alert('Confirmación incorrecta. Eliminación cancelada.');
+      return;
+    }
+
+    setUserDeletionLoading(true);
+
+    try {
+      const result = await deleteUserAccount(userDeletionResult.userInfo.id, { dryRun: false });
+      
+      if (result.success) {
+        alert(`✅ Usuario "${userDeletionResult.userInfo.display_name || userDeletionResult.userInfo.email}" eliminado exitosamente.`);
+        setUserEmail('');
+        setUserDeletionResult(null);
+      } else {
+        alert(`❌ Error eliminando usuario: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`💥 Error crítico: ${error.message}`);
+    } finally {
+      setUserDeletionLoading(false);
+    }
+  };
+
   const categories = [
     "Ficción",
     "Drama",
@@ -1054,6 +1137,7 @@ const ContestAdminPanel = () => {
   const tabs = [
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "analytics", label: "Analytics", icon: Award },
+    { id: "usuarios", label: "Usuarios", icon: Trash2 },
     { id: "moderacion", label: "Moderación", icon: Shield },
     { id: "mantenimiento", label: "Mantenimiento", icon: Settings },
     { id: "comunicaciones", label: "Comunicaciones", icon: Users },
@@ -1557,6 +1641,166 @@ const ContestAdminPanel = () => {
           {activeTab === "analytics" && (
             <div className="p-6">
               <AnalyticsDashboard />
+            </div>
+          )}
+
+          {activeTab === "usuarios" && (
+            <div className="p-6">
+              <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100 mb-6 flex items-center">
+                    <Trash2 className="h-6 w-6 mr-3 text-red-600 dark:text-red-400" />
+                    Gestión de Usuarios
+                  </h2>
+
+                  {/* Sección de eliminación manual */}
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 mb-6">
+                    <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4">
+                      Eliminación manual de usuarios
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Email del usuario a eliminar:
+                        </label>
+                        <input
+                          type="email"
+                          value={userEmail}
+                          onChange={(e) => setUserEmail(e.target.value)}
+                          placeholder="usuario@ejemplo.com"
+                          className="w-full max-w-md px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleSimulateUserDeletion}
+                          disabled={userDeletionLoading || !userEmail.trim()}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+                        >
+                          {userDeletionLoading ? (
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                          Simular eliminación
+                        </button>
+
+                        {userDeletionResult?.success && (
+                          <button
+                            onClick={handleDeleteUser}
+                            disabled={userDeletionLoading}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:bg-gray-400"
+                          >
+                            {userDeletionLoading ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            Eliminar usuario
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Resultado de la simulación */}
+                    {userDeletionResult && (
+                      <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg border">
+                        {userDeletionResult.success ? (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                              <span className="font-medium text-green-800 dark:text-green-200">
+                                Usuario encontrado: {userDeletionResult.userInfo?.display_name || userDeletionResult.userInfo?.email}
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                                <div>
+                                  <strong>Historias del usuario:</strong> {userDeletionResult.simulation?.stories?.total || 0}
+                                  {userDeletionResult.simulation?.stories?.winners > 0 && (
+                                    <span className="text-red-600 dark:text-red-400 ml-1">
+                                      ({userDeletionResult.simulation.stories.winners} ganadoras)
+                                    </span>
+                                  )}
+                                </div>
+                                <div>
+                                  <strong>Comentarios del usuario:</strong> {userDeletionResult.simulation?.comments || 0}
+                                </div>
+                                <div>
+                                  <strong>Votos dados:</strong> {userDeletionResult.simulation?.votes || 0}
+                                </div>
+                                <div>
+                                  <strong>Badges:</strong> {userDeletionResult.simulation?.badges || 0}
+                                </div>
+                              </div>
+
+                              {userDeletionResult.simulation?.stories?.total > 0 && (
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200">
+                                      ANONIMIZAR
+                                    </span>
+                                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                      {userDeletionResult.simulation.stories.total} historias serán anonimizadas
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                                    Las historias se mantendrán como "[Historia eliminada]" para preservar la integridad de concursos y comentarios de otros usuarios.
+                                  </p>
+                                  
+                                  {userDeletionResult.simulation.stories.titles?.length > 0 && (
+                                    <div className="mt-2">
+                                      <strong className="text-xs">Títulos a anonimizar:</strong>
+                                      <ul className="list-disc list-inside mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                        {userDeletionResult.simulation.stories.titles.map((title, index) => (
+                                          <li key={index}>"{title}"</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200">
+                                    ELIMINAR
+                                  </span>
+                                  <span className="text-sm font-medium text-red-800 dark:text-red-200">
+                                    Datos personales del usuario
+                                  </span>
+                                </div>
+                                <p className="text-xs text-red-700 dark:text-red-300">
+                                  Perfil, comentarios, votos, badges y notificaciones serán eliminados permanentemente.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <X className="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <span className="text-red-600 dark:text-red-400">
+                              Error: {userDeletionResult.error}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-4 text-sm text-red-700 dark:text-red-300">
+                      <p><strong>⚠️ Importante:</strong></p>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Esta acción es <strong>irreversible</strong></li>
+                        <li>Eliminará TODOS los datos del usuario</li>
+                        <li>Usar solo para solicitudes legítimas de eliminación</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

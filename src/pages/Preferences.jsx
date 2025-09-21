@@ -11,7 +11,9 @@ import {
   RefreshCw,
   CheckCircle,
   AlertCircle,
-  Loader
+  Loader,
+  Trash2,
+  Eye
 } from 'lucide-react';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 import { supabase } from '../lib/supabase';
@@ -25,7 +27,9 @@ const Preferences = () => {
     cookieConsent, 
     showCookieBannerAgain,
     resetCookieConsent,
-    openAuthModal 
+    openAuthModal,
+    simulateUserDeletion,
+    deleteUserAccount
   } = useGlobalApp();
 
   // Verificar si el usuario está autenticado
@@ -44,6 +48,13 @@ const Preferences = () => {
   const [loadingEmailPrefs, setLoadingEmailPrefs] = useState(false);
   const [savingEmailPrefs, setSavingEmailPrefs] = useState(false);
   const [emailResult, setEmailResult] = useState(null);
+  
+  // Estados para eliminación de cuenta
+  const [showDeletionModal, setShowDeletionModal] = useState(false);
+  const [deletionStep, setDeletionStep] = useState('simulation'); // 'simulation' | 'confirmation' | 'processing'
+  const [simulationResult, setSimulationResult] = useState(null);
+  const [confirmationText, setConfirmationText] = useState('');
+  const [deletionLoading, setDeletionLoading] = useState(false);
 
   // Cargar preferencias de email desde Supabase
   useEffect(() => {
@@ -102,6 +113,63 @@ const Preferences = () => {
       });
     }
     setSavingEmailPrefs(false);
+  };
+
+  // Funciones para eliminación de cuenta
+  const handleStartDeletion = async () => {
+    setShowDeletionModal(true);
+    setDeletionStep('simulation');
+    setDeletionLoading(true);
+    
+    try {
+      const result = await simulateUserDeletion();
+      setSimulationResult(result);
+    } catch (error) {
+      setSimulationResult({ success: false, error: error.message });
+    }
+    
+    setDeletionLoading(false);
+  };
+
+  const handleConfirmDeletion = async () => {
+    if (confirmationText !== 'ELIMINAR MI CUENTA') {
+      alert('Debes escribir exactamente "ELIMINAR MI CUENTA" para continuar');
+      return;
+    }
+
+    const finalConfirm = window.confirm(
+      '🚨 ÚLTIMA CONFIRMACIÓN: Esto eliminará TODOS tus datos permanentemente y no se puede deshacer. ¿Continuar?'
+    );
+
+    if (!finalConfirm) return;
+
+    setDeletionStep('processing');
+    setDeletionLoading(true);
+
+    try {
+      const result = await deleteUserAccount(null, { dryRun: false });
+      
+      if (result.success) {
+        // Usuario será redirigido automáticamente tras logout
+        alert('Tu cuenta ha sido eliminada exitosamente. Gracias por haber formado parte de Letranido.');
+      } else {
+        alert(`Error al eliminar la cuenta: ${result.error}`);
+        setDeletionStep('confirmation');
+      }
+    } catch (error) {
+      alert(`Error crítico: ${error.message}`);
+      setDeletionStep('confirmation');
+    }
+    
+    setDeletionLoading(false);
+  };
+
+  const resetDeletionModal = () => {
+    setShowDeletionModal(false);
+    setDeletionStep('simulation');
+    setSimulationResult(null);
+    setConfirmationText('');
+    setDeletionLoading(false);
   };
 
   const getCookieStatusText = () => {
@@ -405,40 +473,215 @@ const Preferences = () => {
               </p>
             </div>
             <button 
-              onClick={() => {
-                const subject = encodeURIComponent('Solicitud de Eliminación de Cuenta - Letranido');
-                const body = encodeURIComponent(`Hola,
-
-Solicito la eliminación completa de mi cuenta de Letranido.
-
-Detalles de mi cuenta:
-- Email: ${user?.email}
-- Nombre de usuario: ${user?.display_name || user?.name}
-- ID de usuario: ${user?.id}
-
-Entiendo que esta acción:
-- Es irreversible
-- Eliminará todos mis datos personales
-- Anonimizará mis historias publicadas (para preservar concursos)
-- Eliminará mis votos y comentarios
-
-Razón para eliminar cuenta (opcional):
-[Escribe aquí tu razón]
-
-Confirmo que esta solicitud es voluntaria y que soy el titular de la cuenta.
-
-Saludos,
-${user?.display_name || user?.name}`);
-                
-                window.open(`mailto:admin@letranido.com?subject=${subject}&body=${body}`, '_blank');
-              }}
-              className="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors text-sm font-medium"
+              onClick={handleStartDeletion}
+              disabled={deletionLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors text-sm font-medium disabled:bg-gray-400"
             >
-              Solicitar Eliminación
+              {deletionLoading ? (
+                <Loader className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Eliminar mi cuenta
             </button>
           </div>
         </section>
       </div>
+
+      {/* Modal de Eliminación de Cuenta */}
+      {showDeletionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
+                Eliminar cuenta
+              </h2>
+
+              {deletionStep === 'simulation' && (
+                <div>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Eye className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <h3 className="font-semibold text-blue-800 dark:text-blue-200">
+                        Vista previa de eliminación
+                      </h3>
+                    </div>
+                    <p className="text-blue-700 dark:text-blue-300 text-sm">
+                      Estos son los datos que se eliminarían permanentemente:
+                    </p>
+                  </div>
+
+                  {deletionLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader className="h-6 w-6 animate-spin text-primary-600 dark:text-primary-400" />
+                      <span className="ml-2 text-gray-600 dark:text-gray-400">Analizando tus datos...</span>
+                    </div>
+                  ) : simulationResult ? (
+                    <div className="space-y-4">
+                      {simulationResult.success ? (
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="font-medium">Tus historias:</span> {simulationResult.simulation.stories.total}
+                                {simulationResult.simulation.stories.winners > 0 && (
+                                  <span className="text-red-600 dark:text-red-400 ml-1">
+                                    ({simulationResult.simulation.stories.winners} ganadoras)
+                                  </span>
+                                )}
+                              </div>
+                              <div>
+                                <span className="font-medium">Tus comentarios:</span> {simulationResult.simulation.comments}
+                              </div>
+                              <div>
+                                <span className="font-medium">Tus votos:</span> {simulationResult.simulation.votes}
+                              </div>
+                              <div>
+                                <span className="font-medium">Tus badges:</span> {simulationResult.simulation.badges}
+                              </div>
+                            </div>
+
+                            {simulationResult.simulation.stories.total > 0 && (
+                              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200">
+                                    ANONIMIZAR
+                                  </span>
+                                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                    Tus {simulationResult.simulation.stories.total} historias serán anonimizadas
+                                  </span>
+                                </div>
+                                <p className="text-xs text-yellow-700 dark:text-yellow-300 mb-2">
+                                  Se mantendrán como "[Historia eliminada]" para preservar concursos y comentarios de otros usuarios.
+                                </p>
+                                
+                                {simulationResult.simulation.stories.titles?.length > 0 && (
+                                  <div>
+                                    <strong className="text-xs">Títulos:</strong>
+                                    <ul className="list-disc list-inside mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                      {simulationResult.simulation.stories.titles.map((title, index) => (
+                                        <li key={index}>"{title}"</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200">
+                                  ELIMINAR
+                                </span>
+                                <span className="text-sm font-medium text-red-800 dark:text-red-200">
+                                  Todos tus datos personales
+                                </span>
+                              </div>
+                              <p className="text-xs text-red-700 dark:text-red-300">
+                                Tu perfil, comentarios, votos, badges y notificaciones serán eliminados permanentemente.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                          <p className="text-red-600 dark:text-red-400">
+                            Error: {simulationResult.error}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mt-6">
+                    <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">
+                      ⚠️ Importante:
+                    </h4>
+                    <ul className="text-red-700 dark:text-red-300 text-sm space-y-1">
+                      <li>• Esta acción es <strong>irreversible</strong></li>
+                      <li>• Se eliminarán TODOS tus datos personales</li>
+                      <li>• Tus historias desaparecerán completamente</li>
+                      <li>• No podrás recuperar tu cuenta</li>
+                    </ul>
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={resetDeletionModal}
+                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => setDeletionStep('confirmation')}
+                      disabled={!simulationResult?.success}
+                      className="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:bg-gray-400"
+                    >
+                      Continuar con eliminación
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {deletionStep === 'confirmation' && (
+                <div>
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+                    <h3 className="font-semibold text-red-800 dark:text-red-200 mb-2">
+                      🚨 Confirmación final
+                    </h3>
+                    <p className="text-red-700 dark:text-red-300 text-sm">
+                      Para confirmar que realmente quieres eliminar tu cuenta, escribe exactamente:
+                    </p>
+                    <p className="font-mono font-bold text-red-800 dark:text-red-200 mt-2">
+                      ELIMINAR MI CUENTA
+                    </p>
+                  </div>
+
+                  <div className="mb-6">
+                    <input
+                      type="text"
+                      value={confirmationText}
+                      onChange={(e) => setConfirmationText(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:ring-2 focus:ring-red-500"
+                      placeholder="Escribe la confirmación aquí..."
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setDeletionStep('simulation')}
+                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Volver
+                    </button>
+                    <button
+                      onClick={handleConfirmDeletion}
+                      disabled={confirmationText !== 'ELIMINAR MI CUENTA'}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:bg-gray-400"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Eliminar cuenta permanentemente
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {deletionStep === 'processing' && (
+                <div className="text-center py-8">
+                  <Loader className="h-8 w-8 animate-spin text-red-600 dark:text-red-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Eliminando tu cuenta...
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Por favor espera mientras eliminamos todos tus datos.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Configuración de Cookies */}
       <CookieSettingsModal 

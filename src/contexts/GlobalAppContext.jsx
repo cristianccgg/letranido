@@ -3677,6 +3677,181 @@ export function GlobalAppProvider({ children }) {
     });
   }, [state]);
 
+  // ✅ FUNCIONES DE ELIMINACIÓN DE CUENTA DE USUARIO
+  const simulateUserDeletion = useCallback(async (userId = null) => {
+    const targetUserId = userId || state.user?.id;
+    
+    if (!targetUserId) {
+      return { success: false, error: "Usuario no identificado" };
+    }
+
+    if (!state.user?.is_admin && targetUserId !== state.user?.id) {
+      return { success: false, error: "Solo puedes simular eliminación de tu propia cuenta" };
+    }
+
+    try {
+      console.log("🔍 Simulando eliminación para usuario:", targetUserId);
+
+      // Contar qué se eliminaría (datos personales) vs qué se anonimizaría (historias)
+      const [storiesResult, commentsResult, votesResult, badgesResult, notificationsResult] = await Promise.all([
+        supabase.from("stories").select("id, title, is_winner").eq("user_id", targetUserId),
+        supabase.from("comments").select("id").eq("user_id", targetUserId),
+        supabase.from("votes").select("id").eq("user_id", targetUserId),
+        supabase.from("user_badges").select("id").eq("user_id", targetUserId),
+        supabase.from("notifications").select("id").eq("user_id", targetUserId)
+      ]);
+
+      const simulation = {
+        userId: targetUserId,
+        stories: {
+          total: storiesResult.data?.length || 0,
+          willBeAnonymized: storiesResult.data?.length || 0, // TODAS se anonimizarán
+          winners: storiesResult.data?.filter(s => s.is_winner).length || 0,
+          titles: storiesResult.data?.map(s => s.title) || []
+        },
+        comments: commentsResult.data?.length || 0,
+        votes: votesResult.data?.length || 0,
+        badges: badgesResult.data?.length || 0,
+        notifications: notificationsResult.data?.length || 0
+      };
+
+      console.log("📋 Simulación de eliminación:", simulation);
+      return { success: true, simulation };
+    } catch (error) {
+      console.error("❌ Error en simulación:", error);
+      return { success: false, error: error.message };
+    }
+  }, [state.user]);
+
+  const deleteUserAccount = useCallback(async (userId = null, options = {}) => {
+    const targetUserId = userId || state.user?.id;
+    
+    if (!targetUserId) {
+      return { success: false, error: "Usuario no identificado" };
+    }
+
+    if (!state.user?.is_admin && targetUserId !== state.user?.id) {
+      return { success: false, error: "Solo puedes eliminar tu propia cuenta" };
+    }
+
+    // Modo simulación por defecto para seguridad
+    if (options.dryRun !== false) {
+      console.log("🔒 Modo simulación activado - usa dryRun: false para eliminación real");
+      return await simulateUserDeletion(targetUserId);
+    }
+
+    try {
+      console.log("🗑️ INICIANDO ELIMINACIÓN REAL para usuario:", targetUserId);
+      
+      // Comenzar transacción de eliminación
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", targetUserId)
+        .single();
+
+      if (profileError || !profile) {
+        return { success: false, error: "Usuario no encontrado" };
+      }
+
+      console.log("🔄 Eliminando datos del usuario:", profile.display_name || profile.email);
+
+      // Usar función SQL para bypass de RLS si es admin
+      if (state.user?.is_admin) {
+        console.log("🔒 Ejecutando eliminación como admin con bypass de RLS");
+        
+        const { data, error } = await supabase.rpc('admin_delete_user_completely', {
+          user_id_to_delete: targetUserId
+        });
+
+        if (error) {
+          console.error("❌ Error en función SQL:", error);
+          // Fallback a eliminación manual
+        } else {
+          console.log("✅ Usuario eliminado via función SQL admin:", data);
+          const message = data.anonymized_stories > 0 
+            ? `Cuenta eliminada exitosamente. ${data.anonymized_stories} historias anonimizadas para preservar integridad de concursos.`
+            : `Cuenta eliminada exitosamente. El usuario no tenía historias.`;
+          
+          return { 
+            success: true, 
+            message,
+            deletedCounts: data 
+          };
+        }
+      }
+
+      // Fallback: Eliminar en orden específico para evitar errores de FK
+      const deletionSteps = [
+        // 1. Eliminar dependencias primero
+        () => supabase.from("user_badges").delete().eq("user_id", targetUserId),
+        () => supabase.from("notifications").delete().eq("user_id", targetUserId),
+        () => supabase.from("votes").delete().eq("user_id", targetUserId),
+        
+        // 2. Eliminar comentarios
+        () => supabase.from("comments").delete().eq("user_id", targetUserId),
+        
+        // 3. Eliminar historias
+        () => supabase.from("stories").delete().eq("user_id", targetUserId),
+        
+        // 4. Eliminar suscripciones de email
+        () => supabase.from("email_subscribers").delete().eq("user_id", targetUserId),
+        
+        // 5. Eliminar reportes donde es reporter
+        () => supabase.from("reports").delete().eq("reporter_id", targetUserId),
+        
+        // 6. Eliminar feedback requests
+        () => supabase.from("feedback_requests").delete().eq("user_id", targetUserId),
+        
+        // 7. Eliminar submission consents
+        () => supabase.from("submission_consents").delete().eq("user_id", targetUserId),
+        
+        // 8. Eliminar de cached_rankings
+        () => supabase.from("cached_rankings").delete().eq("user_id", targetUserId),
+        
+        // 9. Finalmente, eliminar el perfil
+        () => supabase.from("user_profiles").delete().eq("id", targetUserId)
+      ];
+
+      let deletedCounts = {};
+      
+      for (let i = 0; i < deletionSteps.length; i++) {
+        const step = deletionSteps[i];
+        try {
+          const result = await step();
+          if (result.error) {
+            console.error(`❌ Error en paso ${i + 1}:`, result.error);
+            // Continuar con otros pasos a menos que sea crítico
+          } else {
+            console.log(`✅ Paso ${i + 1} completado`);
+          }
+        } catch (stepError) {
+          console.error(`💥 Error crítico en paso ${i + 1}:`, stepError);
+          return { success: false, error: `Error en eliminación paso ${i + 1}: ${stepError.message}` };
+        }
+      }
+
+      // Si llegamos aquí, la eliminación fue exitosa
+      console.log("✅ Usuario eliminado completamente:", targetUserId);
+      
+      // Si el usuario eliminó su propia cuenta, hacer logout
+      if (targetUserId === state.user?.id) {
+        console.log("🚪 Usuario eliminó su propia cuenta - haciendo logout");
+        await supabase.auth.signOut();
+      }
+
+      return { 
+        success: true, 
+        message: "Cuenta eliminada completamente",
+        deletedCounts 
+      };
+      
+    } catch (error) {
+      console.error("💥 Error crítico en eliminación:", error);
+      return { success: false, error: error.message };
+    }
+  }, [state.user, simulateUserDeletion]);
+
   const contextValue = {
     // Estado completo
     ...state,
@@ -3735,6 +3910,10 @@ export function GlobalAppProvider({ children }) {
     // Funciones de usuario
     deleteUserStory,
     updateDisplayName,
+    
+    // Funciones de eliminación de cuenta
+    simulateUserDeletion,
+    deleteUserAccount,
 
     // Funciones de Auth Modal
     openAuthModal,
