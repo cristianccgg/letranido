@@ -3765,13 +3765,42 @@ export function GlobalAppProvider({ children }) {
         });
 
         if (error) {
-          console.error("❌ Error en función SQL:", error);
+          console.error("❌ Error en función SQL admin:", error);
           // Fallback a eliminación manual
         } else {
           console.log("✅ Usuario eliminado via función SQL admin:", data);
           const message = data.anonymized_stories > 0 
             ? `Cuenta eliminada exitosamente. ${data.anonymized_stories} historias anonimizadas para preservar integridad de concursos.`
             : `Cuenta eliminada exitosamente. El usuario no tenía historias.`;
+          
+          return { 
+            success: true, 
+            message,
+            deletedCounts: data 
+          };
+        }
+      } else if (targetUserId === state.user?.id) {
+        // Usuario eliminando su propia cuenta - usar función admin temporalmente
+        console.log("🔒 Ejecutando auto-eliminación usando función admin");
+        console.log("🔍 Llamando función con userId:", targetUserId);
+        
+        const { data, error } = await supabase.rpc('admin_delete_user_completely', {
+          user_id_to_delete: targetUserId
+        });
+        
+        console.log("🔍 Respuesta de función:", { data, error });
+
+        if (error) {
+          console.error("❌ Error en función SQL admin:", error);
+          // Fallback a eliminación manual
+        } else {
+          console.log("✅ Usuario auto-eliminado via función SQL admin:", data);
+          const message = data.anonymized_stories > 0 
+            ? `Tu cuenta ha sido eliminada exitosamente. ${data.anonymized_stories} historias fueron eliminadas para proteger tu privacidad.`
+            : `Tu cuenta ha sido eliminada exitosamente. No tenías historias publicadas.`;
+          
+          // Logout inmediato para usuarios auto-eliminados
+          await supabase.auth.signOut();
           
           return { 
             success: true, 
