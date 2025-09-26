@@ -1,6 +1,6 @@
 // components/ui/WelcomeBanner.jsx - Banner informativo de votación activa
 import { useState } from "react";
-import { X, MessageCircle, Sparkles, Trophy } from "lucide-react";
+import { X, MessageCircle, Sparkles, Trophy, Vote } from "lucide-react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "../modals/FeedbackModal";
 
@@ -32,11 +32,21 @@ const WelcomeBanner = () => {
     }
   };
 
+  const scrollToPoll = () => {
+    const pollSection = document.querySelector('[data-poll-section]');
+    if (pollSection) {
+      pollSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
     <>
-      <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -44,10 +54,10 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🏆</span> ¡Los resultados del reto de agosto ya están disponibles! Descubre a los ganadores y la mención de honor.
+                    <span>🗳️</span> ¡Ayuda a elegir el tema del reto de noviembre! Tu opinión cuenta.
                   </span>
                   <span className="sm:hidden ">
-                    🏆 ¡Resultados disponibles! Ve a los ganadores
+                    🗳️ ¡Ayuda a elegir el tema de noviembre!
                   </span>
                 </p>
               </div>
@@ -55,14 +65,14 @@ const WelcomeBanner = () => {
 
             {/* Botones */}
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-4">
-              {/* Botón al Podio */}
+              {/* Botón a la Votación */}
               <button
-                onClick={scrollToPodium}
+                onClick={scrollToPoll}
                 className="inline-flex cursor-pointer items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-white/20 hover:bg-white/30 rounded-full transition-all duration-200 hover:scale-105 backdrop-blur-sm"
               >
-                <Trophy className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Ver Podio</span>
-                <span className="sm:hidden">Podio</span>
+                <Vote className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Ir a Votar</span>
+                <span className="sm:hidden">Votar</span>
               </button>
               
               {/* Botón de Feedback - Comentado temporalmente */}

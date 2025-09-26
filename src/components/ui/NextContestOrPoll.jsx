@@ -144,13 +144,15 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
   // Si hay encuesta activa, mostrar PollPreview
   if (activePoll && activePoll.status === 'active') {
     return (
-      <PollPreview
-        poll={activePoll}
-        onVote={handleVote}
-        userVote={userVote}
-        isAuthenticated={!!user}
-        isLoading={pollLoading}
-      />
+      <div data-poll-section>
+        <PollPreview
+          poll={activePoll}
+          onVote={handleVote}
+          userVote={userVote}
+          isAuthenticated={!!user}
+          isLoading={pollLoading}
+        />
+      </div>
     );
   }
 
