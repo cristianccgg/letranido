@@ -33,7 +33,7 @@ import {
   UserWithTopBadge,
 } from "../components/ui/UserNameWithBadges";
 import KarmaRankingsSidebar from "../components/ui/KarmaRankingsSidebar";
-import NextContestPreview from "../components/ui/NextContestPreview";
+import NextContestOrPoll from "../components/ui/NextContestOrPoll";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
@@ -507,13 +507,12 @@ const LandingPage = () => {
                 />
               )}
 
-              {/* Mantener NextContestPreview solo si NO hay nextContest (para newsletter, etc.) */}
-              {!nextContest && (
-                <NextContestPreview
-                  nextContest={nextContest}
-                  currentContest={currentContest}
-                />
-              )}
+              {/* Mostrar encuesta activa (cuando esté disponible) */}
+              <NextContestOrPoll
+                nextContest={nextContest}
+                currentContest={currentContest}
+                isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
+              />
 
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12 ">

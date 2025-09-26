@@ -24,6 +24,7 @@ import {
   Zap,
   Shield,
   Trash2,
+  Vote,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -34,6 +35,7 @@ import EmailManager from "./EmailManager";
 import MaintenanceControl from "./MaintenanceControl";
 import ModerationDashboard from "./ModerationDashboard";
 import AnalyticsDashboard from "./AnalyticsDashboard";
+import PollAdminPanel from "./PollAdminPanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -168,6 +170,16 @@ const ContestAdminPanel = () => {
     voting_deadline: "",
     prize: "Insignia de Oro + Destacado del mes",
     status: "submission",
+    // Campos para encuesta integrada
+    poll_enabled: false,
+    poll_title: "",
+    poll_description: "",
+    poll_deadline: "",
+    poll_options: [
+      { title: "", description: "", text: "" },
+      { title: "", description: "", text: "" },
+      { title: "", description: "", text: "" }
+    ]
   });
 
   useEffect(() => {
@@ -212,6 +224,11 @@ const ContestAdminPanel = () => {
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
+    // Fecha para encuesta (1 día antes del fin de envíos del concurso actual)
+    const pollEnd = new Date(submissionEnd);
+    pollEnd.setDate(submissionEnd.getDate() - 1); // 1 día antes
+    pollEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+
     setContestForm({
       title: "",
       description: "",
@@ -223,6 +240,16 @@ const ContestAdminPanel = () => {
       voting_deadline: toDateTimeLocal(votingEnd),
       prize: "Insignia de Oro + Destacado del mes",
       status: "submission",
+      // Campos para encuesta integrada
+      poll_enabled: false,
+      poll_title: `Elige el prompt para ${thisMonth}`,
+      poll_description: `Vota por el prompt que más te inspire para el concurso de ${thisMonth.toLowerCase()}. ¡Tu voto cuenta para decidir el tema del próximo reto!`,
+      poll_deadline: toDateTimeLocal(pollEnd),
+      poll_options: [
+        { title: "", description: "", text: "" },
+        { title: "", description: "", text: "" },
+        { title: "", description: "", text: "" }
+      ]
     });
   };
 
@@ -854,6 +881,23 @@ const ContestAdminPanel = () => {
       return;
     }
 
+    // Validaciones adicionales para encuestas
+    if (contestForm.status === "poll") {
+      if (!contestForm.poll_title.trim()) {
+        alert("El título de la encuesta es obligatorio");
+        return;
+      }
+      if (!contestForm.poll_deadline) {
+        alert("La fecha límite de votación es obligatoria");
+        return;
+      }
+      const validOptions = contestForm.poll_options.filter(opt => opt.text.trim());
+      if (validOptions.length < 2) {
+        alert("Debe haber al menos 2 opciones de prompts con texto");
+        return;
+      }
+    }
+
     setCreateLoading(true);
     try {
       // ✅ CORREGIDO: Solo usar columnas que existen en la tabla
@@ -872,24 +916,64 @@ const ContestAdminPanel = () => {
         return colombiaDate.toISOString();
       };
 
-      const contestData = {
-        title: contestForm.title.trim(),
-        description: contestForm.description.trim(),
-        category: contestForm.category,
-        month: contestForm.month,
-        min_words: contestForm.min_words,
-        max_words: contestForm.max_words,
-        submission_deadline: toColombiaISO(contestForm.submission_deadline),
-        voting_deadline: toColombiaISO(contestForm.voting_deadline),
-        prize: contestForm.prize,
-        status: contestForm.status,
-        // created_at y updated_at se manejan automáticamente por la BD
-      };
+      let result;
 
-      const result = await createContest(contestData);
+      if (contestForm.status === "poll") {
+        // Crear concurso con encuesta usando la función de BD integrada
+        const pollOptions = contestForm.poll_options
+          .filter(opt => opt.text.trim())
+          .map(opt => ({
+            title: opt.title.trim() || "Opción sin título",
+            description: opt.description.trim() || "",
+            text: opt.text.trim()
+          }));
+
+        // Llamar función de BD para crear concurso con encuesta
+        const { data, error } = await supabase.rpc('create_contest_with_poll', {
+          contest_title: contestForm.title.trim(),
+          contest_description: contestForm.description.trim(),
+          contest_category: contestForm.category,
+          contest_month: contestForm.month,
+          min_words: contestForm.min_words,
+          max_words: contestForm.max_words,
+          submission_deadline: toColombiaISO(contestForm.submission_deadline),
+          voting_deadline: toColombiaISO(contestForm.voting_deadline),
+          prize: contestForm.prize,
+          poll_title: contestForm.poll_title.trim(),
+          poll_description: contestForm.poll_description.trim(),
+          poll_deadline: toColombiaISO(contestForm.poll_deadline),
+          poll_options: pollOptions
+        });
+
+        if (error) {
+          result = { success: false, error: error.message };
+        } else {
+          result = { success: true, data };
+        }
+      } else {
+        // Crear concurso normal usando función existente
+        const contestData = {
+          title: contestForm.title.trim(),
+          description: contestForm.description.trim(),
+          category: contestForm.category,
+          month: contestForm.month,
+          min_words: contestForm.min_words,
+          max_words: contestForm.max_words,
+          submission_deadline: toColombiaISO(contestForm.submission_deadline),
+          voting_deadline: toColombiaISO(contestForm.voting_deadline),
+          prize: contestForm.prize,
+          status: contestForm.status,
+          // created_at y updated_at se manejan automáticamente por la BD
+        };
+
+        result = await createContest(contestData);
+      }
 
       if (result.success) {
-        alert("¡Concurso creado exitosamente!");
+        const message = contestForm.status === "poll" 
+          ? "¡Concurso con encuesta creado exitosamente!"
+          : "¡Concurso creado exitosamente!";
+        alert(message);
         setShowCreateModal(false);
         resetForm();
         await refreshContests();
@@ -897,6 +981,7 @@ const ContestAdminPanel = () => {
         alert("Error al crear concurso: " + result.error);
       }
     } catch (error) {
+      console.error('Error creating contest:', error);
       alert("Error inesperado: " + error.message);
     } finally {
       setCreateLoading(false);
@@ -1091,6 +1176,7 @@ const ContestAdminPanel = () => {
   ];
 
   const statusOptions = [
+    { value: "poll", label: "Con encuesta previa", color: "purple" },
     { value: "submission", label: "Envíos abiertos", color: "blue" },
     { value: "voting", label: "En votación", color: "green" },
     { value: "results", label: "Finalizado", color: "gray" },
@@ -1136,6 +1222,7 @@ const ContestAdminPanel = () => {
 
   const tabs = [
     { id: "concursos", label: "Concursos", icon: Trophy },
+    { id: "encuestas", label: "Encuestas", icon: Vote },
     { id: "analytics", label: "Analytics", icon: Award },
     { id: "usuarios", label: "Usuarios", icon: Trash2 },
     { id: "moderacion", label: "Moderación", icon: Shield },
@@ -1407,18 +1494,22 @@ const ContestAdminPanel = () => {
                                 {/* Estado del concurso */}
                                 <span
                                   className={`px-2 py-1 rounded text-xs font-medium ${
-                                    contest.status === "submission"
-                                      ? "bg-blue-100 text-blue-700"
-                                      : contest.status === "voting"
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-gray-100 text-gray-700"
+                                    contest.status === "poll"
+                                      ? "bg-purple-100 text-purple-700"
+                                      : contest.status === "submission"
+                                        ? "bg-blue-100 text-blue-700"
+                                        : contest.status === "voting"
+                                          ? "bg-green-100 text-green-700"
+                                          : "bg-gray-100 text-gray-700"
                                   }`}
                                 >
-                                  {contest.status === "submission"
-                                    ? "Envíos"
-                                    : contest.status === "voting"
-                                      ? "Votación"
-                                      : "Finalizado"}
+                                  {contest.status === "poll"
+                                    ? "Con Encuesta"
+                                    : contest.status === "submission"
+                                      ? "Envíos"
+                                      : contest.status === "voting"
+                                        ? "Votación"
+                                        : "Finalizado"}
                                 </span>
 
                                 {/* Mes */}
@@ -1638,6 +1729,11 @@ const ContestAdminPanel = () => {
             </div>
           )}
 
+          {activeTab === "encuestas" && (
+            <div className="p-6">
+              <PollAdminPanel />
+            </div>
+          )}
           {activeTab === "analytics" && (
             <div className="p-6">
               <AnalyticsDashboard />
@@ -2172,12 +2268,14 @@ const ContestAdminPanel = () => {
                     </label>
                     <select
                       value={contestForm.status}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
                         setContestForm({
                           ...contestForm,
-                          status: e.target.value,
+                          status: newStatus,
+                          poll_enabled: newStatus === "poll",
                         })
-                      }
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
                     >
                       {statusOptions.map((option) => (
@@ -2186,8 +2284,191 @@ const ContestAdminPanel = () => {
                         </option>
                       ))}
                     </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Selecciona "Con encuesta previa" para que los usuarios voten por el prompt antes del concurso
+                    </p>
                   </div>
                 </div>
+
+                {/* Campos de encuesta condicionales */}
+                {contestForm.status === "poll" && (
+                  <div className="mt-8 p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Vote className="h-5 w-5 text-purple-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
+                        Configuración de Encuesta
+                      </h3>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                          Título de la encuesta *
+                        </label>
+                        <input
+                          type="text"
+                          required={contestForm.status === "poll"}
+                          value={contestForm.poll_title}
+                          onChange={(e) =>
+                            setContestForm({
+                              ...contestForm,
+                              poll_title: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                          Fecha límite de votación *
+                        </label>
+                        <input
+                          type="datetime-local"
+                          required={contestForm.status === "poll"}
+                          value={contestForm.poll_deadline}
+                          onChange={(e) =>
+                            setContestForm({
+                              ...contestForm,
+                              poll_deadline: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Debe ser antes del inicio de envíos del concurso
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        Descripción de la encuesta
+                      </label>
+                      <textarea
+                        value={contestForm.poll_description}
+                        onChange={(e) =>
+                          setContestForm({
+                            ...contestForm,
+                            poll_description: e.target.value,
+                          })
+                        }
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        Opciones de prompts (mínimo 2)
+                      </label>
+                      {contestForm.poll_options.map((option, index) => (
+                        <div key={index} className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              Opción {index + 1}
+                            </span>
+                            {contestForm.poll_options.length > 2 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOptions = contestForm.poll_options.filter((_, i) => i !== index);
+                                  setContestForm({
+                                    ...contestForm,
+                                    poll_options: newOptions,
+                                  });
+                                }}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                              >
+                                Eliminar
+                              </button>
+                            )}
+                          </div>
+                          
+                          <div className="grid md:grid-cols-2 gap-3 mb-3">
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                Título corto
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Ej: Historia de amor"
+                                value={option.title}
+                                onChange={(e) => {
+                                  const newOptions = [...contestForm.poll_options];
+                                  newOptions[index] = { ...option, title: e.target.value };
+                                  setContestForm({
+                                    ...contestForm,
+                                    poll_options: newOptions,
+                                  });
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                Descripción (opcional)
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Ej: Enfoque romántico con final feliz"
+                                value={option.description}
+                                onChange={(e) => {
+                                  const newOptions = [...contestForm.poll_options];
+                                  newOptions[index] = { ...option, description: e.target.value };
+                                  setContestForm({
+                                    ...contestForm,
+                                    poll_options: newOptions,
+                                  });
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">
+                              Prompt completo *
+                            </label>
+                            <textarea
+                              placeholder="Ej: Escribe una historia sobre dos personas que se conocen en una librería durante una tormenta..."
+                              required={contestForm.status === "poll"}
+                              value={option.text}
+                              onChange={(e) => {
+                                const newOptions = [...contestForm.poll_options];
+                                newOptions[index] = { ...option, text: e.target.value };
+                                setContestForm({
+                                  ...contestForm,
+                                  poll_options: newOptions,
+                                });
+                              }}
+                              rows={2}
+                              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {contestForm.poll_options.length < 5 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setContestForm({
+                              ...contestForm,
+                              poll_options: [
+                                ...contestForm.poll_options,
+                                { title: "", description: "", text: "" }
+                              ],
+                            });
+                          }}
+                          className="mt-2 px-4 py-2 text-sm text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 border border-purple-200"
+                        >
+                          + Agregar otra opción
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4 justify-end mt-6">
                   <button

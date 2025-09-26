@@ -9,6 +9,59 @@ Letranido es una plataforma de retos de escritura donde los usuarios participan 
 - **Hosting**: Vercel
 - **Zona Horaria**: Colombia (UTC-5)
 
+## 📊 Sistema de Encuestas (Nuevo - Sept 2025)
+
+### 🎯 Funcionalidad
+Sistema integrado que permite a la comunidad **votar por prompts** para futuros retos. Las encuestas se convierten automáticamente en concursos cuando termina la votación.
+
+### 🔄 Flujo de Encuestas
+1. **Admin crea encuesta** con múltiples opciones de prompts
+2. **Usuarios votan** por su prompt favorito (1 voto por encuesta)
+3. **Resultados visibles** inmediatamente después de votar
+4. **Conversión automática** a reto cuando expira la encuesta
+5. **El prompt ganador** se convierte en el tema del próximo reto
+
+### 📱 Interfaz de Usuario
+- **Componente expandible** con diseño purple/indigo
+- **Estados visuales claros**: activa, votada, cerrada
+- **Responsive design** optimizado para móvil
+- **Feedback inmediato** al votar
+
+### 🛠️ Componentes Principales
+- `PollPreview.jsx` - Interfaz de votación para usuarios
+- `PollAdminPanel.jsx` - Panel completo de administración  
+- `NextContestOrPoll.jsx` - Lógica para mostrar encuesta o próximo reto
+- `supabase-polls.js` - API de gestión de encuestas
+
+### 🗄️ Base de Datos
+```sql
+-- Nuevas tablas
+polls           -- Encuestas principales
+poll_options    -- Opciones de cada encuesta  
+poll_votes      -- Votos de usuarios
+
+-- Modificaciones
+contests        -- Nuevos campos: poll_enabled, poll_deadline
+```
+
+### 🔒 Seguridad y Reglas
+- **Un voto por encuesta** por usuario autenticado
+- **Cambio de voto permitido** mientras esté activa
+- **RLS (Row Level Security)** para protección de datos
+- **Conversión automática** por triggers de base de datos
+
+### ⚙️ Para Administradores
+- **Crear encuestas** con múltiples opciones
+- **Editar encuestas activas** (título, descripción, fechas)
+- **Ver resultados detallados** con estadísticas
+- **Conversión manual** o automática a retos
+
+### 🎨 Diseño
+- **Tema consistente**: Purple/indigo gradients
+- **Animaciones suaves**: Expansión y hover effects
+- **Estados diferenciados**: Colores para cada estado de encuesta
+- **Iconografía clara**: Vote, Clock, Users, Sparkles
+
 ## 📋 Comandos Principales
 
 ```bash
@@ -45,6 +98,12 @@ npm run env:status   # Ver configuración actual
 ### Lógica de Retos
 - `src/hooks/useContestFinalization.js` - Finalización y generación de resultados
 - `src/components/admin/ContestAdminPanel.jsx` - Panel de administración
+
+### Sistema de Encuestas
+- `src/components/ui/PollPreview.jsx` - Interfaz de votación
+- `src/components/ui/NextContestOrPoll.jsx` - Lógica encuesta/concurso
+- `src/components/admin/PollAdminPanel.jsx` - Panel admin de encuestas
+- `src/lib/supabase-polls.js` - API de gestión de encuestas
 
 ### Funciones Críticas
 - `getContestPhase(contest)` - Determina fase actual por fechas
@@ -117,6 +176,20 @@ npm run env:status   # Ver configuración actual
 - `stories` - Historias con `is_winner`, `winner_position`
 - `votes` - Votos de usuarios (3 max por reto actual)
 - `user_profiles` - Usuarios con `wins_count`
+
+### Tablas de Encuestas (Nuevo)
+- `polls` - Encuestas principales con metadatos
+- `poll_options` - Opciones de cada encuesta con contadores
+- `poll_votes` - Votos individuales de usuarios (1 por encuesta)
+
+### Migraciones Disponibles
+```bash
+# Ubicación: database-scripts/migrations/
+polls_system_migration.sql       # Tablas base del sistema
+polls_rls_policies.sql          # Políticas de seguridad RLS  
+polls_auto_conversion.sql       # Triggers de conversión automática
+contests_poll_integration.sql   # Integración con sistema existente
+```
 
 ### Estados de Reto
 - `status`: `'submission'`, `'voting'`, `'results'` (manual)
