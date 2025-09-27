@@ -49,9 +49,30 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
       if (contestsWithPolls && contestsWithPolls.length > 0) {
         const contestWithPoll = contestsWithPolls[0];
         
-        // Obtener la encuesta asociada al concurso
+        // Obtener la encuesta asociada al concurso usando consulta directa para datos frescos
         const { data: pollData, error: pollError } = await supabase
-          .rpc('get_contest_active_poll', { contest_id: contestWithPoll.id });
+          .from('polls')
+          .select(`
+            id,
+            title,
+            description,
+            voting_deadline,
+            status,
+            total_votes,
+            poll_options (
+              id,
+              option_title,
+              option_description,
+              option_text,
+              vote_count,
+              display_order
+            )
+          `)
+          .eq('contest_id', contestWithPoll.id)
+          .eq('status', 'active')
+          .gt('voting_deadline', new Date().toISOString())
+          .order('created_at', { ascending: false })
+          .limit(1);
 
         if (pollError) {
           throw new Error(pollError.message);
@@ -59,8 +80,8 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
 
         if (pollData && pollData.length > 0) {
           const pollInfo = pollData[0];
-          // Parsear opciones JSON
-          const options = pollInfo.options || [];
+          // Las opciones ya vienen del join, no necesitan parsing
+          const options = pollInfo.poll_options || [];
           
           setActivePoll({
             ...pollInfo,
@@ -109,8 +130,10 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
           created_at: new Date().toISOString() 
         });
         
-        // Recargar encuesta para actualizar contadores
-        await loadActivePoll();
+        // Recargar encuesta para actualizar contadores con un pequeño delay
+        setTimeout(async () => {
+          await loadActivePoll();
+        }, 100);
       }
       
       return result;
