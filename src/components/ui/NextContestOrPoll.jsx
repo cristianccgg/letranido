@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import NextContestPreview from "./NextContestPreview";
 import PollPreview from "./PollPreview";
-import { getUserVoteForPoll, submitPollVote } from "../../lib/supabase-polls";
+import { getUserVoteForPoll, submitPollVote, getActivePoll, getActivePollWithRealCounts } from "../../lib/supabase-polls";
 import { supabase } from "../../lib/supabase";
 
 const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) => {
@@ -33,66 +33,14 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
       setPollLoading(true);
       setPollError(null);
       
-      // Buscar concursos en estado 'poll' (con encuesta activa)
-      const { data: contestsWithPolls, error: contestError } = await supabase
-        .from('contests')
-        .select('id, title, month, status, poll_deadline, poll_enabled')
-        .eq('status', 'poll')
-        .gt('poll_deadline', new Date().toISOString())
-        .order('poll_deadline', { ascending: true })
-        .limit(1);
-
-      if (contestError) {
-        throw new Error(contestError.message);
-      }
-
-      if (contestsWithPolls && contestsWithPolls.length > 0) {
-        const contestWithPoll = contestsWithPolls[0];
-        
-        // Obtener la encuesta asociada al concurso usando consulta directa para datos frescos
-        const { data: pollData, error: pollError } = await supabase
-          .from('polls')
-          .select(`
-            id,
-            title,
-            description,
-            voting_deadline,
-            status,
-            total_votes,
-            poll_options (
-              id,
-              option_title,
-              option_description,
-              option_text,
-              vote_count,
-              display_order
-            )
-          `)
-          .eq('contest_id', contestWithPoll.id)
-          .eq('status', 'active')
-          .gt('voting_deadline', new Date().toISOString())
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (pollError) {
-          throw new Error(pollError.message);
-        }
-
-        if (pollData && pollData.length > 0) {
-          const pollInfo = pollData[0];
-          // Las opciones ya vienen del join, no necesitan parsing
-          const options = pollInfo.poll_options || [];
-          
-          setActivePoll({
-            ...pollInfo,
-            contest_id: contestWithPoll.id,
-            contest_title: contestWithPoll.title,
-            contest_month: contestWithPoll.month,
-            options: options
-          });
-        } else {
-          setActivePoll(null);
-        }
+      // Usar función que cuenta votos en TIEMPO REAL (sin depender de contadores)
+      const pollData = await getActivePollWithRealCounts();
+      
+      if (pollData) {
+        setActivePoll({
+          ...pollData,
+          options: pollData.options || []
+        });
       } else {
         setActivePoll(null);
       }
@@ -124,16 +72,16 @@ const NextContestOrPoll = ({ nextContest, currentContest, isEnabled = false }) =
       const result = await submitPollVote(activePoll.id, optionId, user.id);
       
       if (result.success) {
-        // Actualizar voto local
+        // Actualizar voto local inmediatamente
         setUserVote({ 
           option_id: optionId, 
           created_at: new Date().toISOString() 
         });
         
-        // Recargar encuesta para actualizar contadores con un pequeño delay
-        setTimeout(async () => {
-          await loadActivePoll();
-        }, 100);
+        // Recargar encuesta para actualizar contadores
+        setTimeout(() => {
+          loadActivePoll();
+        }, 500);
       }
       
       return result;

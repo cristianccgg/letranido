@@ -23,6 +23,27 @@ export const getActivePoll = async () => {
 };
 
 /**
+ * Función que obtiene poll activo con conteos reales (sin restricciones RLS)
+ */
+export const getActivePollWithRealCounts = async () => {
+  try {
+    const { data, error } = await supabase
+      .rpc('get_active_poll_with_real_counts');
+
+    if (error) {
+      console.error('Error obteniendo poll con conteos reales:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error en getActivePollWithRealCounts:', error);
+    return null;
+  }
+};
+
+
+/**
  * Obtiene una encuesta específica por ID con sus opciones
  * @param {string} pollId - ID de la encuesta
  * @returns {Object|null} Encuesta con opciones o null
