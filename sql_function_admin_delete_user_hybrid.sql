@@ -40,7 +40,8 @@ BEGIN
   -- Eliminar todos los datos personales del usuario
   DELETE FROM user_badges WHERE user_id = user_id_to_delete;
   DELETE FROM notifications WHERE user_id = user_id_to_delete;
-  DELETE FROM votes WHERE user_id = user_id_to_delete;
+  -- Anonimizar votos (preserva integridad de contadores de likes)
+  UPDATE votes SET user_id = NULL WHERE user_id = user_id_to_delete;
   DELETE FROM email_subscribers WHERE user_id = user_id_to_delete;
   DELETE FROM reports WHERE reporter_id = user_id_to_delete;
   DELETE FROM feedback_requests WHERE user_id = user_id_to_delete;
