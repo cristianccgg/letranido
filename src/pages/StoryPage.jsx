@@ -523,6 +523,41 @@ const StoryPage = () => {
             </div>
           </div>
 
+          {/* Winner Banner - Solo para historias ganadoras de retos finalizados */}
+          {story.is_winner && story.winner_position && (
+            <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 dark:from-yellow-600 dark:via-yellow-700 dark:to-amber-700 p-6 text-center shadow-lg">
+              <div className="flex items-center justify-center gap-3 text-white">
+                {story.winner_position === 1 && (
+                  <>
+                    <Trophy className="h-6 w-6" />
+                    <span className="text-lg font-bold drop-shadow-sm">
+                      🏆 Historia Ganadora del Reto de {story.contest.month}
+                    </span>
+                    <Trophy className="h-6 w-6" />
+                  </>
+                )}
+                {story.winner_position === 2 && (
+                  <>
+                    <Award className="h-6 w-6" />
+                    <span className="text-lg font-bold drop-shadow-sm">
+                      🥈 Segundo Lugar - Reto de {story.contest.month}
+                    </span>
+                    <Award className="h-6 w-6" />
+                  </>
+                )}
+                {story.winner_position === 3 && (
+                  <>
+                    <Star className="h-6 w-6" />
+                    <span className="text-lg font-bold drop-shadow-sm">
+                      🥉 Tercer Lugar - Reto de {story.contest.month}
+                    </span>
+                    <Star className="h-6 w-6" />
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Main Header */}
           <div className="p-8">
             {/* Title */}

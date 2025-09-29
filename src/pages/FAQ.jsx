@@ -491,6 +491,30 @@ const FAQ = () => {
             </p>
           ),
         },
+        {
+          question: "¿Las medallas de ganadores dan ventajas en futuros retos?",
+          answer: (
+            <div className="space-y-3">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                <p className="font-medium text-blue-700 dark:text-blue-300">
+                  🏆 Solo reconocimiento simbólico
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                  Las medallas son el único premio real que ofrecemos en la plataforma.
+                </p>
+              </div>
+              <p>
+                Los ganadores anteriores <strong>no tienen ningún privilegio adicional</strong> más que lucir 
+                su medalla como reconocimiento de su logro. Todos los retos mantienen las mismas 
+                condiciones para todos los participantes.
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                El valor de participar o ganar es precisamente esa visibilidad extra y reconocimiento 
+                dentro de nuestra comunidad de escritores.
+              </p>
+            </div>
+          ),
+        },
       ],
     },
     {
@@ -659,6 +683,28 @@ const FAQ = () => {
               suficiente de lectura. Los ganadores reciben notificaciones especiales
               y sus badges se actualizan inmediatamente.
             </p>
+          ),
+        },
+        {
+          question: "¿En qué orden aparecen las historias para leer?",
+          answer: (
+            <div className="space-y-3">
+              <p>
+                Las historias aparecen en orden <strong>completamente aleatorio</strong> para cada usuario y en cada visita al sitio.
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                <p className="font-medium text-blue-700 dark:text-blue-300">
+                  🔄 Orden diferente para cada usuario
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                  Cada vez que ingresas al sitio, recibes un listado mezclado de forma distinta.
+                </p>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Esto asegura que todas las historias tengan igual oportunidad de aparecer al inicio, en medio o al final, 
+                manteniendo la equidad en el proceso de lectura y votación.
+              </p>
+            </div>
           ),
         },
         {
