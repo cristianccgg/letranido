@@ -514,7 +514,7 @@ const StoryPage = () => {
               </div>
 
               <Link
-                to="/contest/current"
+                to={`/contest/${story.contest_id}`}
                 className="text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white text-sm flex items-center"
               >
                 Ver reto
