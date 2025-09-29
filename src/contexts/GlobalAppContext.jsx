@@ -1155,8 +1155,9 @@ export function GlobalAppProvider({ children }) {
 
       console.log("✅ Historias encontradas:", stories.length);
 
-      // Obtener información de los usuarios
-      const userIds = [...new Set(stories.map((story) => story.user_id))];
+      // Obtener información de los usuarios (filtrar nulls)
+      const userIds = [...new Set(stories.map((story) => story.user_id).filter(id => id !== null))];
+      
       const { data: userProfiles, error: usersError } = await supabase
         .from("user_profiles")
         .select("*")
@@ -1182,6 +1183,7 @@ export function GlobalAppProvider({ children }) {
         const userProfile = userProfiles?.find(
           (profile) => profile.id === story.user_id
         );
+        
 
         return {
           ...story,
@@ -1802,8 +1804,8 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
-        // Obtener información de los usuarios
-        const userIds = [...new Set(stories.map((story) => story.user_id))];
+        // Obtener información de los usuarios (filtrar nulls)
+        const userIds = [...new Set(stories.map((story) => story.user_id).filter(id => id !== null))];
         const { data: userProfiles } = await supabase
           .from("user_profiles")
           .select("*")
