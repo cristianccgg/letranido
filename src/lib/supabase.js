@@ -14,6 +14,18 @@ if (!supabaseAnonKey) {
   throw new Error("VITE_SUPABASE_ANON_KEY is required");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'x-client-info': 'letranido-web'
+    }
+  }
+});
 
 // ✅ REMOVED: Ya no inicializamos aquí para evitar race conditions

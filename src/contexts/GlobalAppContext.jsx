@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 import { supabase } from "../lib/supabase";
 import logger, { devLog } from "../lib/logger";
@@ -443,6 +444,13 @@ export function GlobalAppProvider({ children }) {
   const [state, dispatch] = useReducer(globalAppReducer, initialState);
   const isMounted = useRef(true);
   const initializationInProgress = useRef(false);
+  
+  // ✅ REF PARA ESTADO ACTUAL - Evita recreaciones de useCallback
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  
+  // ✅ FLAG PARA DISTINGUIR REFRESH POR VISIBILITY DE LOGIN REAL
+  const isRefreshingFromVisibility = useRef(false);
 
   useEffect(() => {
     isMounted.current = true;
@@ -450,6 +458,52 @@ export function GlobalAppProvider({ children }) {
       isMounted.current = false;
     };
   }, []);
+
+  // ✅ LISTENER PARA DETECTAR CAMBIO DE PESTAÑA Y RECUPERAR SESIÓN
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && stateRef.current.isAuthenticated) {
+        console.log("👁️ Pestaña visible - verificando sesión después de cambio de pestaña");
+        
+        // Verificar si la sesión sigue siendo válida
+        const sessionResult = await verifyAndRecoverSession();
+        if (!sessionResult.success) {
+          console.warn("⚠️ Sesión perdida después de cambio de pestaña, intentando recargar datos");
+          
+          // Si hay un usuario autenticado pero sin sesión válida, intentar recargar datos críticos
+          if (stateRef.current.user?.id && stateRef.current.currentContest?.id) {
+            console.log("🔄 Recargando datos críticos tras recuperación de sesión");
+            
+            // Recargar historias de galería si estamos en la página del concurso
+            if (window.location.pathname.includes('/contest')) {
+              console.log("📚 Recargando historias de galería tras cambio de pestaña");
+              await loadGalleryStories({ contestId: stateRef.current.currentContest.id });
+            }
+          }
+        } else {
+          console.log("✅ Sesión válida después de cambio de pestaña");
+          
+          // Marcar que vamos a hacer refresh por visibility para evitar recargas innecesarias
+          isRefreshingFromVisibility.current = true;
+          
+          try {
+            console.log("🔄 Haciendo refresh preventivo de sesión");
+            await supabase.auth.refreshSession();
+            console.log("✅ Refresh preventivo completado");
+          } catch (error) {
+            console.warn("⚠️ Error en refresh preventivo:", error);
+            isRefreshingFromVisibility.current = false; // Resetear flag si falla
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []); // Sin dependencias para evitar recreación
 
   // ✅ AUTH LISTENER Y SINCRONIZACIÓN
   useEffect(() => {
@@ -574,43 +628,40 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
-        // ✅ LISTENER PARA DETECTAR CUANDO EL USUARIO REGRESA A LA TAB
+        // ✅ LISTENER SIMPLIFICADO PARA DETECTAR CUANDO EL USUARIO REGRESA A LA TAB
         const handleVisibilityChange = async () => {
-          if (document.visibilityState === 'visible' && state.isAuthenticated) {
-            console.log("👁️ Usuario regresó a la tab, verificando sesión...");
+          // Solo log mínimo para evitar re-renders
+          if (document.visibilityState === 'visible') {
+            console.log("👁️ Usuario regresó a la tab");
             
-            try {
-              const { data: { session }, error } = await supabase.auth.getSession();
-              
-              if (error || !session) {
-                console.warn("⚠️ Sesión perdida al regresar a la tab:", error);
-                // Forzar refresh de la sesión
-                const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-                
-                if (refreshError || !refreshData.session) {
-                  console.error("❌ No se pudo recuperar la sesión, forzando logout");
-                  dispatch({
-                    type: actions.SET_AUTH_STATE,
-                    payload: {
-                      user: null,
-                      isAuthenticated: false,
-                      authLoading: false,
-                      authInitialized: true,
-                    },
-                  });
-                } else {
-                  console.log("✅ Sesión recuperada exitosamente");
+            // Esperar que el navegador se estabilice antes de hacer verificaciones
+            setTimeout(async () => {
+              try {
+                // Solo verificar sesión si está autenticado
+                if (state.isAuthenticated) {
+                  const { data: { session }, error } = await supabase.auth.getSession();
+                  
+                  if (error || !session) {
+                    console.warn("⚠️ Sesión perdida, intentando recuperar...");
+                    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+                    
+                    if (refreshError || !refreshData.session) {
+                      console.error("❌ No se pudo recuperar la sesión");
+                      // NO forzar logout aquí para evitar re-renders
+                    } else {
+                      console.log("✅ Sesión recuperada exitosamente");
+                    }
+                  }
                 }
-              } else {
-                console.log("✅ Sesión válida al regresar a la tab");
+              } catch (error) {
+                console.error("💥 Error verificando sesión:", error);
               }
-            } catch (error) {
-              console.error("💥 Error verificando sesión al regresar:", error);
-            }
+            }, 1000); // Esperar más tiempo para evitar conflictos
           }
         };
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
+        // TEMPORALMENTE DESHABILITADO para debugging
+        // document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // Configurar listener
         const { data: authListener } = supabase.auth.onAuthStateChange(
@@ -655,6 +706,13 @@ export function GlobalAppProvider({ children }) {
                 }
                 
                 // SEGURIDAD: Si estamos en reset-password, NO continuar con autenticación
+                return;
+              }
+              
+              // ✅ VERIFICAR SI ES REFRESH POR VISIBILITY (evitar recargas innecesarias)
+              if (isRefreshingFromVisibility.current) {
+                console.log("✅ SIGNED_IN por refresh de visibility - omitiendo recarga");
+                isRefreshingFromVisibility.current = false; // Resetear flag
                 return;
               }
               
@@ -867,7 +925,7 @@ export function GlobalAppProvider({ children }) {
 
     return () => {
       if (authListener) authListener();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      // document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -1011,11 +1069,27 @@ export function GlobalAppProvider({ children }) {
       if (error || !session) {
         console.warn("⚠️ Sesión inválida, intentando recuperar...", error);
         
-        // Intentar refresh
+        // Si no hay sesión, no intentar operaciones que requieren auth
+        if (!stateRef.current.isAuthenticated || !stateRef.current.user) {
+          console.log("ℹ️ Usuario no autenticado, no intentando recuperar sesión");
+          return { success: false, session: null };
+        }
+        
+        // Intentar refresh solo si el usuario debería estar autenticado
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
         
         if (refreshError || !refreshData.session) {
-          console.error("❌ No se pudo recuperar la sesión");
+          console.error("❌ No se pudo recuperar la sesión, forzando logout");
+          // Forzar logout en el estado
+          dispatch({
+            type: actions.SET_AUTH_STATE,
+            payload: {
+              user: null,
+              isAuthenticated: false,
+              authLoading: false,
+              authInitialized: true,
+            },
+          });
           return { success: false, session: null };
         }
         
@@ -1028,7 +1102,7 @@ export function GlobalAppProvider({ children }) {
       console.error("💥 Error verificando sesión:", error);
       return { success: false, session: null };
     }
-  }, []);
+  }, []); // Sin dependencias - usa stateRef.current para acceso directo
 
   const loadUserStories = useCallback(async (userId) => {
     if (!userId || !isMounted.current) return;
@@ -1443,7 +1517,7 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        const isAuthenticated = !!state.user?.id;
+        const isAuthenticated = !!stateRef.current.user?.id;
         const today = new Date().toISOString().split("T")[0];
         console.log(
           "📊 Registrando vista para historia:",
@@ -1454,7 +1528,7 @@ export function GlobalAppProvider({ children }) {
         );
 
         // Verificar si ya se contó una vista hoy para este usuario/historia
-        const viewKey = `view_${storyId}_${state.user?.id || "anon"}_${today}`;
+        const viewKey = `view_${storyId}_${stateRef.current.user?.id || "anon"}_${today}`;
         const alreadyViewed = localStorage.getItem(viewKey);
 
         console.log("📋 Verificando vista:", {
@@ -1557,11 +1631,11 @@ export function GlobalAppProvider({ children }) {
 
           // Recargar después para sincronizar con BD (como hace toggleLike)
           setTimeout(async () => {
-            if (state.currentContest?.id) {
+            if (stateRef.current.currentContest?.id) {
               console.log(
                 "⏰ Recargando galleryStories para sincronización de vistas"
               );
-              await loadGalleryStories({ contestId: state.currentContest.id });
+              await loadGalleryStories({ contestId: stateRef.current.currentContest.id });
               console.log("✅ GalleryStories recargada - views sincronizadas");
             }
           }, 200);
@@ -1578,19 +1652,19 @@ export function GlobalAppProvider({ children }) {
         return { success: false, error: err.message };
       }
     },
-    [state.user?.id]
+    [] // Sin dependencias - usa stateRef.current
   );
 
   const checkUserLike = useCallback(
     async (storyId) => {
-      if (!state.user || !storyId) {
+      if (!stateRef.current.user || !storyId) {
         console.log("🚫 checkUserLike: Sin usuario o storyId");
         return { success: true, liked: false };
       }
 
       try {
         console.log("🔍 Verificando like:", {
-          userId: state.user.id,
+          userId: stateRef.current.user.id,
           storyId,
         });
 
@@ -1598,7 +1672,7 @@ export function GlobalAppProvider({ children }) {
           .from("votes")
           .select("*")  // Seleccionar todo para debug
           .eq("story_id", storyId)
-          .eq("user_id", state.user.id);
+          .eq("user_id", stateRef.current.user.id);
 
         if (error) {
           console.warn("⚠️ Error checking vote:", error);
@@ -1622,7 +1696,7 @@ export function GlobalAppProvider({ children }) {
         return { success: true, liked: false };
       }
     },
-    [state.user?.id]
+    [] // Sin dependencias - usa stateRef.current
   );
 
   // ✅ NUEVA FUNCIÓN: Obtener conteo de votos del usuario en un reto
@@ -2142,13 +2216,17 @@ export function GlobalAppProvider({ children }) {
       }
 
       // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
+      console.log("🗳️ Iniciando toggleLike para story:", storyId, "user:", state.user?.id);
       const sessionCheck = await verifyAndRecoverSession();
       if (!sessionCheck.success) {
+        console.error("❌ toggleLike: Verificación de sesión falló");
         return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
       }
+      console.log("✅ toggleLike: Sesión verificada correctamente");
 
       try {
         // Verificar si existe el voto
+        console.log("🔍 Verificando voto existente...");
         const { data: existingVote, error: checkError } = await supabase
           .from("votes")
           .select("id")
@@ -2156,7 +2234,18 @@ export function GlobalAppProvider({ children }) {
           .eq("user_id", state.user.id)
           .single();
 
-        if (checkError && checkError.code !== "PGRST116") throw checkError;
+        console.log("🔍 Resultado verificación voto:", {
+          existingVote,
+          error: checkError?.message,
+          errorCode: checkError?.code,
+          errorDetails: checkError?.details,
+          errorHint: checkError?.hint
+        });
+
+        if (checkError && checkError.code !== "PGRST116") {
+          console.error("❌ Error en verificación de voto existente:", checkError);
+          throw checkError;
+        }
 
         let liked;
         let isCurrentContest = false;
@@ -2193,12 +2282,24 @@ export function GlobalAppProvider({ children }) {
 
         if (existingVote) {
           // Remover voto
+          console.log("🗑️ Removiendo voto existente, id:", existingVote.id);
           const { error: deleteError } = await supabase
             .from("votes")
             .delete()
             .eq("id", existingVote.id);
 
-          if (deleteError) throw deleteError;
+          console.log("🗑️ Resultado eliminación voto:", {
+            success: !deleteError,
+            error: deleteError?.message,
+            errorCode: deleteError?.code,
+            errorDetails: deleteError?.details,
+            errorHint: deleteError?.hint
+          });
+
+          if (deleteError) {
+            console.error("❌ Error eliminando voto:", deleteError);
+            throw deleteError;
+          }
           liked = false;
 
           dispatch({
@@ -2226,11 +2327,23 @@ export function GlobalAppProvider({ children }) {
             }
           }
 
+          console.log("➕ Insertando nuevo voto para story:", storyId, "user:", state.user.id);
           const { error: insertError } = await supabase
             .from("votes")
             .insert([{ story_id: storyId, user_id: state.user.id }]);
 
-          if (insertError) throw insertError;
+          console.log("➕ Resultado inserción voto:", {
+            success: !insertError,
+            error: insertError?.message,
+            errorCode: insertError?.code,
+            errorDetails: insertError?.details,
+            errorHint: insertError?.hint
+          });
+
+          if (insertError) {
+            console.error("❌ Error insertando voto:", insertError);
+            throw insertError;
+          }
           liked = true;
 
           dispatch({
@@ -2982,13 +3095,16 @@ export function GlobalAppProvider({ children }) {
       }
 
       // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
+      console.log("💬 Iniciando addComment para story:", storyId, "user:", state.user?.id);
       const sessionCheck = await verifyAndRecoverSession();
       if (!sessionCheck.success) {
+        console.error("❌ addComment: Verificación de sesión falló");
         return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
       }
+      console.log("✅ addComment: Sesión verificada correctamente");
 
       try {
-        console.log("📝 Adding comment to story:", storyId);
+        console.log("📝 Insertando comentario...");
 
         const { data, error } = await supabase
           .from("comments")
@@ -3012,6 +3128,15 @@ export function GlobalAppProvider({ children }) {
         `
           )
           .single();
+
+        console.log("📝 Resultado inserción comentario:", {
+          success: !error,
+          commentId: data?.id,
+          error: error?.message,
+          errorCode: error?.code,
+          errorDetails: error?.details,
+          errorHint: error?.hint
+        });
 
         if (error) {
           console.error("❌ Error adding comment:", error);
@@ -3715,7 +3840,7 @@ export function GlobalAppProvider({ children }) {
         console.error("❌ Error cargando estadísticas globales:", error);
       });
     }
-  }, [state.initialized, state.globalStats.lastUpdated, state.globalStatsLoading, loadGlobalStats]);
+  }, [state.initialized, state.globalStats.lastUpdated, state.globalStatsLoading]); // Removido loadGlobalStats para evitar ciclo
 
   // ✅ RECARGAR ESTADÍSTICAS DE VOTACIÓN CUANDO CURRENTCONTEST ESTÉ DISPONIBLE
   useEffect(() => {
@@ -3727,7 +3852,7 @@ export function GlobalAppProvider({ children }) {
       });
       loadVotingStats(state.user.id);
     }
-  }, [state.user?.id, state.currentContest?.id, state.initialized, loadVotingStats]);
+  }, [state.user?.id, state.currentContest?.id, state.initialized]); // Removido loadVotingStats para evitar ciclo
 
   // 🛡️ FUNCIONES DE SEGURIDAD PARA RESET PASSWORD
   const completePasswordReset = useCallback(() => {
@@ -3760,7 +3885,7 @@ export function GlobalAppProvider({ children }) {
     return false;
   }, []);
 
-  // ✅ FUNCIÓN DE DEBUG
+  // ✅ FUNCIÓN DE DEBUG - Sin dependencias para evitar re-renders
   const debugAuth = useCallback(async () => {
     console.log("🔍 DEBUG: Verificando estado de Supabase...");
     const {
@@ -3769,6 +3894,7 @@ export function GlobalAppProvider({ children }) {
     } = await supabase.auth.getSession();
     console.log("🔍 DEBUG: Sesión actual:", session);
     console.log("🔍 DEBUG: Error de sesión:", error);
+    // Usar state.current para acceder al estado actual sin crear dependencia
     console.log("🔍 DEBUG: Estado local:", {
       isAuthenticated: state.isAuthenticated,
       user: state.user,
@@ -3776,7 +3902,7 @@ export function GlobalAppProvider({ children }) {
       initialized: state.initialized,
       isPasswordResetPending: state.isPasswordResetPending,
     });
-  }, [state]);
+  }, []);  // Sin dependencias - la función de debug accede al state directamente
 
   // ✅ FUNCIONES DE ELIMINACIÓN DE CUENTA DE USUARIO
   const simulateUserDeletion = useCallback(async (userId = null) => {
@@ -3982,6 +4108,23 @@ export function GlobalAppProvider({ children }) {
     }
   }, [state.user, simulateUserDeletion]);
 
+  // ✅ FUNCIONES DE CACHE - Definidas fuera del useMemo para evitar hook violations
+  const invalidateGlobalStats = useCallback(() => {
+    console.log("🔄 Invalidando cache de estadísticas globales");
+    dispatch({ type: actions.INVALIDATE_GLOBAL_STATS });
+  }, [dispatch]);
+
+  const clearFinishedContestsCache = useCallback(() => {
+    console.log("🧹 Limpiando caché de retos finalizados");
+    dispatch({ type: actions.CLEAR_FINISHED_CONTESTS_CACHE });
+  }, [dispatch]);
+  
+  const clearFinishedStoriesCache = useCallback(() => {
+    console.log("🧹 Limpiando caché de historias individuales");
+    dispatch({ type: actions.CLEAR_FINISHED_STORIES_CACHE });
+  }, [dispatch]);
+
+  // ✅ CONTEXT VALUE - Simple sin useMemo para evitar problemas de dependencias
   const contextValue = {
     // Estado completo
     ...state,
@@ -4064,22 +4207,13 @@ export function GlobalAppProvider({ children }) {
 
     // Funciones de estadísticas globales
     loadGlobalStats,
-    invalidateGlobalStats: useCallback(() => {
-      console.log("🔄 Invalidando cache de estadísticas globales");
-      dispatch({ type: actions.INVALIDATE_GLOBAL_STATS });
-    }, [dispatch]),
+    invalidateGlobalStats,
 
     // Cache de retos finalizados
-    clearFinishedContestsCache: useCallback(() => {
-      console.log("🧹 Limpiando caché de retos finalizados");
-      dispatch({ type: actions.CLEAR_FINISHED_CONTESTS_CACHE });
-    }, [dispatch]),
+    clearFinishedContestsCache,
     
     // Cache de historias individuales
-    clearFinishedStoriesCache: useCallback(() => {
-      console.log("🧹 Limpiando caché de historias individuales");
-      dispatch({ type: actions.CLEAR_FINISHED_STORIES_CACHE });
-    }, [dispatch]),
+    clearFinishedStoriesCache,
 
     // Dispatch para casos especiales
     dispatch,
@@ -4087,6 +4221,7 @@ export function GlobalAppProvider({ children }) {
 
   // 🛡️ DETECCIÓN INMEDIATA DE RESET PASSWORD AL CARGAR LA PÁGINA
   console.log("🚀 GlobalAppContext montado - URL:", window.location.href);
+  console.log("🔍 Mount ID:", Date.now(), "- Stack:", new Error().stack?.split('\n')[2]);
   
   useEffect(() => {
     const checkResetPasswordFlow = () => {
@@ -4277,7 +4412,6 @@ const findNextContest = (contests, currentContest) => {
   return null;
 };
 
-
 // ✅ HOOK PRINCIPAL
 export function useGlobalApp() {
   const context = useContext(GlobalAppContext);
@@ -4286,3 +4420,4 @@ export function useGlobalApp() {
   }
   return context;
 }
+
