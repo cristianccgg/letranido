@@ -574,6 +574,44 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
+        // ✅ LISTENER PARA DETECTAR CUANDO EL USUARIO REGRESA A LA TAB
+        const handleVisibilityChange = async () => {
+          if (document.visibilityState === 'visible' && state.isAuthenticated) {
+            console.log("👁️ Usuario regresó a la tab, verificando sesión...");
+            
+            try {
+              const { data: { session }, error } = await supabase.auth.getSession();
+              
+              if (error || !session) {
+                console.warn("⚠️ Sesión perdida al regresar a la tab:", error);
+                // Forzar refresh de la sesión
+                const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+                
+                if (refreshError || !refreshData.session) {
+                  console.error("❌ No se pudo recuperar la sesión, forzando logout");
+                  dispatch({
+                    type: actions.SET_AUTH_STATE,
+                    payload: {
+                      user: null,
+                      isAuthenticated: false,
+                      authLoading: false,
+                      authInitialized: true,
+                    },
+                  });
+                } else {
+                  console.log("✅ Sesión recuperada exitosamente");
+                }
+              } else {
+                console.log("✅ Sesión válida al regresar a la tab");
+              }
+            } catch (error) {
+              console.error("💥 Error verificando sesión al regresar:", error);
+            }
+          }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         // Configurar listener
         const { data: authListener } = supabase.auth.onAuthStateChange(
           async (event, session) => {
@@ -829,6 +867,7 @@ export function GlobalAppProvider({ children }) {
 
     return () => {
       if (authListener) authListener();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -964,11 +1003,48 @@ export function GlobalAppProvider({ children }) {
     }
   }, []);
 
+  // ✅ FUNCIÓN HELPER PARA VERIFICAR Y RECUPERAR SESIÓN
+  const verifyAndRecoverSession = useCallback(async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        console.warn("⚠️ Sesión inválida, intentando recuperar...", error);
+        
+        // Intentar refresh
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError || !refreshData.session) {
+          console.error("❌ No se pudo recuperar la sesión");
+          return { success: false, session: null };
+        }
+        
+        console.log("✅ Sesión recuperada exitosamente");
+        return { success: true, session: refreshData.session };
+      }
+      
+      return { success: true, session };
+    } catch (error) {
+      console.error("💥 Error verificando sesión:", error);
+      return { success: false, session: null };
+    }
+  }, []);
+
   const loadUserStories = useCallback(async (userId) => {
     if (!userId || !isMounted.current) return;
 
     console.log("🔄 loadUserStories iniciando para:", userId);
     dispatch({ type: actions.SET_USER_STORIES_LOADING, payload: true });
+
+    // ✅ VERIFICAR SESIÓN ANTES DE CARGAR DATOS
+    if (state.isAuthenticated) {
+      const sessionCheck = await verifyAndRecoverSession();
+      if (!sessionCheck.success) {
+        console.warn("⚠️ Sesión inválida al cargar userStories, abortando");
+        dispatch({ type: actions.SET_USER_STORIES_LOADING, payload: false });
+        return;
+      }
+    }
 
     try {
       const { data: stories, error } = await supabase
@@ -1022,7 +1098,7 @@ export function GlobalAppProvider({ children }) {
         dispatch({ type: actions.SET_USER_STORIES_LOADING, payload: false });
       }
     }
-  }, []);
+  }, [verifyAndRecoverSession, state.isAuthenticated]);
 
   const loadVotingStats = useCallback(
     async (userId) => {
@@ -1741,6 +1817,16 @@ export function GlobalAppProvider({ children }) {
 
       dispatch({ type: actions.SET_GALLERY_LOADING, payload: true });
 
+      // ✅ VERIFICAR SESIÓN ANTES DE CARGAR DATOS (aunque no requiera auth)
+      // Esto ayuda a detectar problemas de sesión temprano
+      if (state.isAuthenticated) {
+        const sessionCheck = await verifyAndRecoverSession();
+        if (!sessionCheck.success) {
+          console.warn("⚠️ Sesión inválida al cargar galleryStories");
+          // No abortar completamente, pero logear el problema
+        }
+      }
+
       try {
         console.log("🔍 Cargando historias para galería:", filters);
 
@@ -1912,7 +1998,7 @@ export function GlobalAppProvider({ children }) {
         }
       }
     },
-    [state.user?.id]
+    [state.user?.id, verifyAndRecoverSession, state.isAuthenticated]
   );
 
   // ✅ FUNCIONES PÚBLICAS OPTIMIZADAS
@@ -2056,9 +2142,8 @@ export function GlobalAppProvider({ children }) {
       }
 
       // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        console.error("❌ Sesión inválida al intentar votar:", sessionError);
+      const sessionCheck = await verifyAndRecoverSession();
+      if (!sessionCheck.success) {
         return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
       }
 
@@ -2225,6 +2310,7 @@ export function GlobalAppProvider({ children }) {
       state.galleryStories,
       state.currentContest?.id,
       loadGalleryStories,
+      verifyAndRecoverSession,
     ]
   );
 
@@ -2896,9 +2982,8 @@ export function GlobalAppProvider({ children }) {
       }
 
       // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
-        console.error("❌ Sesión inválida al intentar comentar:", sessionError);
+      const sessionCheck = await verifyAndRecoverSession();
+      if (!sessionCheck.success) {
         return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
       }
 
@@ -2940,7 +3025,7 @@ export function GlobalAppProvider({ children }) {
         return { success: false, error: err.message };
       }
     },
-    [state.isAuthenticated, state.user]
+    [state.isAuthenticated, state.user, verifyAndRecoverSession]
   );
 
   const deleteComment = useCallback(
