@@ -10,11 +10,11 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        // Remove console logs in production
-        drop_console: ['log', 'info', 'debug'],
+        // ✅ TEMPORALMENTE DESHABILITADO: Mantener console logs para debugging en producción
+        // drop_console: ['log', 'info', 'debug'],
         drop_debugger: true,
-        // Keep console.error and console.warn for critical issues
-        pure_funcs: ['console.log', 'console.info', 'console.debug']
+        // Keep all console statements for debugging session issues
+        // pure_funcs: ['console.log', 'console.info', 'console.debug']
       }
     },
     // Generate sourcemaps for better debugging

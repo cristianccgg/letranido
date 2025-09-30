@@ -261,7 +261,12 @@ const StoryPage = () => {
         );
       } else {
         console.error("❌ Error voting:", result.error);
-        alert("Error al procesar el voto: " + result.error);
+        // Si es error de sesión, mostrar mensaje específico
+        if (result.error.includes("Sesión expirada")) {
+          alert(result.error);
+        } else {
+          alert("Error al procesar el voto: " + result.error);
+        }
       }
     } catch (err) {
       console.error("💥 Error inesperado al votar:", err);

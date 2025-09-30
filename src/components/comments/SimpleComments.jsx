@@ -154,7 +154,12 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
         setNewComment("");
       } else {
         console.error("Error adding comment:", result.error);
-        alert("Error al enviar el comentario: " + result.error);
+        // Si es error de sesión, mostrar mensaje específico
+        if (result.error.includes("Sesión expirada")) {
+          alert(result.error);
+        } else {
+          alert("Error al enviar el comentario: " + result.error);
+        }
       }
     } catch (error) {
       console.error("Error submitting comment:", error);

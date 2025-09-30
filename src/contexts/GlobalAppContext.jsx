@@ -2055,6 +2055,13 @@ export function GlobalAppProvider({ children }) {
         return { success: false, error: "Debes iniciar sesión para votar" };
       }
 
+      // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        console.error("❌ Sesión inválida al intentar votar:", sessionError);
+        return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
+      }
+
       try {
         // Verificar si existe el voto
         const { data: existingVote, error: checkError } = await supabase
@@ -2886,6 +2893,13 @@ export function GlobalAppProvider({ children }) {
 
       if (!content?.trim()) {
         return { success: false, error: "El comentario no puede estar vacío" };
+      }
+
+      // ✅ VERIFICAR SESIÓN ACTUAL ANTES DE REALIZAR OPERACIÓN
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        console.error("❌ Sesión inválida al intentar comentar:", sessionError);
+        return { success: false, error: "Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente." };
       }
 
       try {
