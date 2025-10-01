@@ -84,9 +84,16 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
             <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-dark-100">
-              Karma de {userName}
-            </h3>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-dark-100">
+                Karma de {userName}
+              </h3>
+              {userKarma.isFromCache && (
+                <p className="text-xs text-gray-500 dark:text-dark-400">
+                  🏆 Actualizado al cerrar retos
+                </p>
+              )}
+            </div>
           </div>
           {userRanking && (
             <div className="flex items-center gap-1 text-xs bg-white dark:bg-dark-700 px-2 py-1 rounded-full">
@@ -113,12 +120,23 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
           </div>
         </div>
 
-        {userKarma.contestWins > 0 && (
+{(userKarma.contestWins > 0 || userKarma.contestFinals > 0) && (
           <div className="mt-3 pt-3 border-t border-primary-200 dark:border-primary-700 flex items-center justify-center gap-1 text-xs">
-            <Crown className="h-3 w-3 text-yellow-500" />
-            <span className="text-gray-700 dark:text-dark-300">
-              {userKarma.contestWins} {userKarma.contestWins === 1 ? 'victoria' : 'victorias'}
-            </span>
+            {userKarma.contestWins > 0 ? (
+              <>
+                <Crown className="h-3 w-3 text-yellow-500" />
+                <span className="text-gray-700 dark:text-dark-300">
+                  {userKarma.contestWins} {userKarma.contestWins === 1 ? 'victoria' : 'victorias'}
+                </span>
+              </>
+            ) : (
+              <>
+                <Medal className="h-3 w-3 text-orange-500" />
+                <span className="text-gray-700 dark:text-dark-300">
+                  {userKarma.contestFinals} {userKarma.contestFinals === 1 ? 'vez finalista' : 'veces finalista'}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -137,10 +155,15 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-                Tu Karma
+                Tu Karma: <span className="text-primary-600 dark:text-primary-400">{userKarma.totalKarma}</span>
               </h3>
               <p className="text-sm text-gray-600 dark:text-dark-300">
                 Puntuación de participación en la comunidad
+                {userKarma.isFromCache && (
+                  <span className="block text-xs text-primary-600 dark:text-primary-400 mt-1">
+                    🏆 Rankings se actualizan al finalizar retos
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -158,37 +181,8 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
         </div>
       </div>
 
-      {/* Estadísticas principales */}
+      {/* Contenido */}
       <div className="p-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="text-center p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 rounded-lg">
-            <div className="font-bold text-2xl text-primary-600 dark:text-primary-400">
-              {userKarma.totalKarma}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-dark-400 mt-1">Karma Total</div>
-          </div>
-
-          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-lg">
-            <div className="font-bold text-2xl text-blue-600 dark:text-blue-400">
-              {userKarma.monthlyKarma}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-dark-400 mt-1">Este Mes</div>
-          </div>
-
-          <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-lg">
-            <div className="font-bold text-2xl text-green-600 dark:text-green-400">
-              {userKarma.totalStories}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-dark-400 mt-1">Historias</div>
-          </div>
-
-          <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-lg">
-            <div className="font-bold text-2xl text-yellow-600 dark:text-yellow-400">
-              {userKarma.contestWins}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-dark-400 mt-1">Victorias</div>
-          </div>
-        </div>
 
         {/* Desglose de actividades */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

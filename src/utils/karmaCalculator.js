@@ -24,6 +24,45 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
   try {
     console.log('🔄 Calculando karma para usuario:', userId);
     
+    // PRIMERO: Intentar obtener desde cache (mismo sistema que KarmaRankingsSidebar)
+    const { data: cachedUser, error: cacheError } = await supabase
+      .from('cached_rankings')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (!cacheError && cachedUser) {
+      console.log('✅ Karma obtenido desde cache para:', cachedUser.user_name);
+      
+      // Obtener ranking del cache
+      const ranking = await getUserRanking(userId, cachedUser.total_karma);
+      
+      return {
+        userId,
+        totalKarma: cachedUser.total_karma,
+        monthlyKarma: 0, // No calculamos karma mensual en cache
+        totalStories: cachedUser.total_stories,
+        contestWins: cachedUser.contest_wins,
+        contestFinals: Math.max(0, cachedUser.contest_finals || 0), // Asegurar que no sea null
+        votesGiven: cachedUser.votes_given,
+        commentsGiven: cachedUser.comments_given,
+        commentsReceived: cachedUser.comments_received,
+        rank: ranking?.position || null,
+        badges: calculateUserBadges({
+          totalStories: cachedUser.total_stories,
+          totalKarma: cachedUser.total_karma,
+          contestWins: cachedUser.contest_wins,
+          contestFinals: cachedUser.contest_finals || 0,
+          commentsGiven: cachedUser.comments_given,
+          votesGiven: cachedUser.votes_given
+        }),
+        isFromCache: true
+      };
+    }
+
+    console.log('📊 Cache no disponible, calculando karma en tiempo real...');
+    
+    // FALLBACK: Calcular en tiempo real si no hay cache
     // Obtener historias del usuario
     const { data: stories, error: storiesError } = await supabase
       .from('stories')
@@ -83,6 +122,16 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
       console.warn('Error loading contests:', contestsError);
     }
 
+    // Obtener TODAS las historias del concurso para comparación de ranking
+    const { data: allContestStories, error: allStoriesError } = await supabase
+      .from('stories')
+      .select('id, user_id, likes_count, contest_id')
+      .not('published_at', 'is', null);
+
+    if (allStoriesError) {
+      console.warn('Error loading all contest stories:', allStoriesError);
+    }
+
     // Calcular karma del usuario
     const userKarma = calculateSingleUserKarma(
       userId, 
@@ -90,6 +139,7 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
       votes || [], 
       comments || [], 
       contests || [], 
+      allContestStories || [],
       globalData
     );
 
@@ -116,7 +166,7 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
 /**
  * Calcula karma para un usuario específico (lógica extraída de KarmaRankingsSidebar)
  */
-const calculateSingleUserKarma = (userId, stories, votes, comments, contests, globalData) => {
+const calculateSingleUserKarma = (userId, stories, votes, comments, contests, allContestStories, globalData) => {
   const { currentContestPhase } = globalData;
   
   const userStats = {
@@ -202,14 +252,16 @@ const calculateSingleUserKarma = (userId, stories, votes, comments, contests, gl
 
     // Detectar ganadores y finalistas
     if (contest?.status === 'results') {
-      const allContestStories = stories.filter(s => s.contest_id === story.contest_id);
-      const sortedByVotes = allContestStories.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+      // Usar TODAS las historias del concurso, no solo las del usuario
+      const contestStories = allContestStories.filter(s => s.contest_id === story.contest_id);
+      const sortedByVotes = contestStories.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
       const position = sortedByVotes.findIndex(s => s.id === story.id) + 1;
       
-      if (position === 1) {
+      // Solo contar victoria si hay múltiples participantes
+      if (contestStories.length > 1 && position === 1) {
         userStats.contestWins++;
         userStats.totalKarma += KARMA_POINTS.CONTEST_WIN;
-      } else if (position <= 3) {
+      } else if (contestStories.length > 3 && position <= 3) {
         userStats.contestFinals++;
         userStats.totalKarma += KARMA_POINTS.CONTEST_FINALIST;
       }
