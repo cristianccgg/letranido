@@ -49,6 +49,18 @@ const Preferences = () => {
   const [savingEmailPrefs, setSavingEmailPrefs] = useState(false);
   const [emailResult, setEmailResult] = useState(null);
   
+  // Estados para privacidad de perfil
+  const [profilePrivacy, setProfilePrivacy] = useState({
+    public_profile: true,
+    show_bio: true,
+    show_location: true,
+    show_website: true,
+    show_stats: true
+  });
+  const [loadingPrivacyPrefs, setLoadingPrivacyPrefs] = useState(false);
+  const [savingPrivacyPrefs, setSavingPrivacyPrefs] = useState(false);
+  const [privacyResult, setPrivacyResult] = useState(null);
+
   // Estados para eliminación de cuenta
   const [showDeletionModal, setShowDeletionModal] = useState(false);
   const [deletionStep, setDeletionStep] = useState('simulation'); // 'simulation' | 'confirmation' | 'processing'
@@ -60,6 +72,7 @@ const Preferences = () => {
   useEffect(() => {
     if (user?.id) {
       loadEmailPreferences();
+      loadPrivacyPreferences();
     }
   }, [user?.id]);
 
@@ -113,6 +126,75 @@ const Preferences = () => {
       });
     }
     setSavingEmailPrefs(false);
+  };
+
+  // Funciones para configuración de privacidad
+  const loadPrivacyPreferences = async () => {
+    if (!user?.id) return;
+    
+    setLoadingPrivacyPrefs(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('public_profile, show_bio, show_location, show_website, show_stats')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setProfilePrivacy({
+          public_profile: data.public_profile ?? true,
+          show_bio: data.show_bio ?? true,
+          show_location: data.show_location ?? true,
+          show_website: data.show_website ?? true,
+          show_stats: data.show_stats ?? true
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando preferencias de privacidad:', error);
+    }
+    setLoadingPrivacyPrefs(false);
+  };
+
+  const handleSavePrivacyPreferences = async () => {
+    setSavingPrivacyPrefs(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          public_profile: profilePrivacy.public_profile,
+          show_bio: profilePrivacy.show_bio,
+          show_location: profilePrivacy.show_location,
+          show_website: profilePrivacy.show_website,
+          show_stats: profilePrivacy.show_stats,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setPrivacyResult({
+        success: true,
+        message: 'Configuración de privacidad guardada exitosamente.'
+      });
+
+      // Limpiar mensaje después de 3 segundos
+      setTimeout(() => setPrivacyResult(null), 3000);
+    } catch (error) {
+      setPrivacyResult({
+        success: false,
+        message: 'Error guardando configuración: ' + error.message
+      });
+    }
+    setSavingPrivacyPrefs(false);
+  };
+
+  const handlePrivacyChange = (key, value) => {
+    setProfilePrivacy(prev => ({
+      ...prev,
+      [key]: value
+    }));
   };
 
   // Funciones para eliminación de cuenta
@@ -456,6 +538,196 @@ const Preferences = () => {
               para más información.
             </p>
           </div>
+        </section>
+
+        {/* Configuración de Privacidad de Perfil */}
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Eye className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            Privacidad del Perfil
+          </h2>
+          
+          {loadingPrivacyPrefs ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader className="h-6 w-6 animate-spin text-primary-600 dark:text-primary-400" />
+              <span className="ml-2 text-gray-600 dark:text-gray-400">Cargando configuración...</span>
+            </div>
+          ) : (
+            <>
+              {privacyResult && (
+                <div className={`mb-4 p-4 rounded-lg ${privacyResult.success ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'}`}>
+                  <div className="flex items-center">
+                    {privacyResult.success ? (
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
+                    )}
+                    <span className={`text-sm ${privacyResult.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
+                      {privacyResult.message}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-6">
+                {/* Perfil Público */}
+                <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900 dark:text-white">
+                      Perfil público
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Permite que otros usuarios vean tu perfil público con tus historias
+                    </p>
+                  </div>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={profilePrivacy.public_profile}
+                      onChange={(e) => handlePrivacyChange('public_profile', e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      profilePrivacy.public_profile ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        profilePrivacy.public_profile ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </div>
+                  </label>
+                </div>
+
+                {/* Opciones dependientes del perfil público */}
+                {profilePrivacy.public_profile && (
+                  <>
+                    {/* Mostrar Biografía */}
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg ml-4">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          Mostrar biografía
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Incluir tu biografía en el perfil público
+                        </p>
+                      </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profilePrivacy.show_bio}
+                          onChange={(e) => handlePrivacyChange('show_bio', e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          profilePrivacy.show_bio ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}>
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            profilePrivacy.show_bio ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Mostrar Ubicación */}
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg ml-4">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          Mostrar ubicación
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Mostrar tu ciudad/país en el perfil público
+                        </p>
+                      </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profilePrivacy.show_location}
+                          onChange={(e) => handlePrivacyChange('show_location', e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          profilePrivacy.show_location ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}>
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            profilePrivacy.show_location ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Mostrar Sitio Web */}
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg ml-4">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          Mostrar sitio web
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Incluir enlace a tu sitio web personal
+                        </p>
+                      </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profilePrivacy.show_website}
+                          onChange={(e) => handlePrivacyChange('show_website', e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          profilePrivacy.show_website ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}>
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            profilePrivacy.show_website ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Mostrar Estadísticas */}
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg ml-4">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          Mostrar estadísticas
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Mostrar número de historias, likes recibidos, etc.
+                        </p>
+                      </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profilePrivacy.show_stats}
+                          onChange={(e) => handlePrivacyChange('show_stats', e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          profilePrivacy.show_stats ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                        }`}>
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            profilePrivacy.show_stats ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </div>
+                      </label>
+                    </div>
+                  </>
+                )}
+
+                {/* Botón de guardar */}
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={handleSavePrivacyPreferences}
+                    disabled={savingPrivacyPrefs}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white rounded-md hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors text-sm font-medium disabled:bg-gray-400"
+                  >
+                    {savingPrivacyPrefs ? (
+                      <Loader className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Guardar configuración
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </section>
 
         {/* Eliminar Cuenta */}
