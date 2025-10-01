@@ -55,6 +55,7 @@ const StoryPage = () => {
     galleryStories,
     userStories,
     currentContest,
+    contests,
 
     // Auth Modal functions
     openAuthModal,
@@ -114,6 +115,24 @@ const StoryPage = () => {
         }
 
         const storyData = storyResult.story;
+        
+        // ✅ VERIFICAR ACCESO SEGÚN FASE DEL CONCURSO
+        if (storyData.contest && storyData.contest_id && contests) {
+          // Buscar el concurso específico de esta historia
+          const storyContest = contests.find(c => c.id === storyData.contest_id);
+          if (storyContest) {
+            const contestPhase = getContestPhase(storyContest);
+            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
+            
+            // Bloquear acceso durante fase de envíos de cualquier concurso
+            if (contestPhase === 'submission') {
+              setError('Esta historia está en concurso activo y no se puede ver durante la fase de envíos.');
+              setStory(null);
+              return;
+            }
+          }
+        }
+        
         setStory(storyData);
         setLikesCount(storyData.likes_count || 0);
 

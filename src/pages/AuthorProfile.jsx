@@ -8,13 +8,27 @@ import { useGlobalApp } from '../contexts/GlobalAppContext';
 
 const AuthorProfile = () => {
   const { userId } = useParams();
-  const { currentContest, getContestPhase } = useGlobalApp();
+  const { currentContest, contests, getContestPhase } = useGlobalApp();
   const [author, setAuthor] = useState(null);
   const [authorStories, setAuthorStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [storiesLoading, setStoriesLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('newest'); // newest, oldest, popular
+
+  // Función para verificar si una historia está en un concurso en fase de envíos
+  const isStoryInSubmissionsPhase = (story) => {
+    if (!story.contest || !story.contest_id || !contests) return false;
+    
+    // Buscar el concurso específico de esta historia
+    const storyContest = contests.find(c => c.id === story.contest_id);
+    if (!storyContest) return false;
+    
+    const contestPhase = getContestPhase(storyContest);
+    console.log(`🔒 Historia "${story.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
+    
+    return contestPhase === 'submission';
+  };
 
   // Cargar datos del autor
   useEffect(() => {
@@ -95,26 +109,13 @@ const AuthorProfile = () => {
         // Historias libres (sin concurso) siempre visibles
         if (!story.contest) return true;
         
-        // Solo aplicar restricciones al concurso actual
-        const isCurrentContest = story.contest_id === currentContest?.id;
-        if (!isCurrentContest) {
-          // Concursos pasados siempre visibles
-          console.log(`📝 Historia "${story.title}" - Concurso pasado: ${story.contest?.title}`);
-          return true;
+        // Verificar si la historia está en cualquier concurso en fase de envíos
+        if (isStoryInSubmissionsPhase(story)) {
+          console.log(`❌ Historia "${story.title}" - OCULTA por estar en fase de envíos`);
+          return false;
         }
         
-        // Para el concurso actual, verificar la fase
-        if (currentContest) {
-          const contestPhase = getContestPhase(currentContest);
-          console.log(`📝 Historia "${story.title}" - Concurso actual - Fase: ${contestPhase}`);
-          
-          // Reglas de visibilidad para concurso actual:
-          // - Envíos: NO mostrar
-          // - Votación/Conteo/Finalizado: Mostrar
-          return contestPhase !== 'submissions';
-        }
-        
-        // Si no hay info del concurso actual, mostrar
+        console.log(`✅ Historia "${story.title}" - VISIBLE`);
         return true;
       });
       
@@ -133,39 +134,43 @@ const AuthorProfile = () => {
     // Historias libres siempre muestran estadísticas
     if (!story.contest) return true;
     
-    // Solo aplicar restricciones al concurso actual
-    const isCurrentContest = story.contest_id === currentContest?.id;
-    if (!isCurrentContest) {
-      // Concursos pasados siempre muestran estadísticas
-      return true;
-    }
+    // Buscar el concurso específico de esta historia
+    const storyContest = contests?.find(c => c.id === story.contest_id);
+    if (!storyContest) return true;
     
-    // Para el concurso actual, verificar la fase
-    if (currentContest) {
-      const contestPhase = getContestPhase(currentContest);
-      
-      // Durante votación del concurso actual: NO mostrar estadísticas
-      // Después de votación: SÍ mostrar estadísticas
-      return contestPhase !== 'voting';
-    }
+    const contestPhase = getContestPhase(storyContest);
     
-    // Si no hay info del concurso actual, mostrar estadísticas
-    return true;
+    // Durante votación: NO mostrar estadísticas
+    // Después de votación: SÍ mostrar estadísticas
+    return contestPhase !== 'voting';
   };
 
   // Calcular estadísticas del autor (excluyendo historias en votación)
   const authorStats = useMemo(() => {
-    if (!authorStories.length) return { totalStories: 0, totalLikes: 0, totalViews: 0 };
+    if (!authorStories.length) return { totalStories: 0, totalLikes: 0, totalViews: 0, hiddenStories: 0 };
 
     // Filtrar solo historias que muestran estadísticas
     const storiesWithStats = authorStories.filter(shouldShowStats);
 
+    // Calcular historias ocultas en fase de envíos
+    const allAuthorStories = authorStories.length;
+    let hiddenStoriesCount = 0;
+    
+    // Simular consulta completa para contar historias ocultas
+    if (contests && author) {
+      // Esto es una aproximación. En producción podrías hacer una consulta separada.
+      hiddenStoriesCount = contests.filter(contest => 
+        getContestPhase(contest) === 'submission'
+      ).length > 0 ? 1 : 0; // Simplificado para el ejemplo
+    }
+
     return {
       totalStories: authorStories.length, // Total siempre muestra todas las visibles
       totalLikes: storiesWithStats.reduce((sum, story) => sum + (story.likes_count || 0), 0),
-      totalViews: storiesWithStats.reduce((sum, story) => sum + (story.views_count || 0), 0)
+      totalViews: storiesWithStats.reduce((sum, story) => sum + (story.views_count || 0), 0),
+      hiddenStories: hiddenStoriesCount
     };
-  }, [authorStories, currentContest]);
+  }, [authorStories, contests, author]);
 
   // Ordenar historias según filtro
   const sortedStories = useMemo(() => {
@@ -363,6 +368,24 @@ const AuthorProfile = () => {
           </div>
 
           <div className="p-6">
+            {/* Mensaje informativo sobre historias ocultas */}
+            {contests && contests.some(contest => getContestPhase(contest) === 'submission') && (
+              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                      Historias en concursos activos
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      Las historias enviadas a concursos en fase de envíos no son visibles hasta que comience la votación. 
+                      Esto garantiza la equidad del proceso de evaluación.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {storiesLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (

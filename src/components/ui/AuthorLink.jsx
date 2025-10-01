@@ -7,13 +7,15 @@ import UserAvatar from './UserAvatar';
  * @param {string} variant - Estilo del enlace ('simple', 'with-avatar', 'card')
  * @param {string} className - Clases CSS adicionales
  * @param {boolean} showAvatar - Mostrar avatar (solo para variant 'with-avatar')
+ * @param {boolean} noLink - Si es true, renderiza solo el texto sin enlace (para evitar <a> anidados)
  */
 const AuthorLink = ({ 
   author, 
   variant = 'simple', 
   className = '', 
   showAvatar = false,
-  avatarSize = 'sm'
+  avatarSize = 'sm',
+  noLink = false
 }) => {
   if (!author || !author.id) {
     return <span className="text-gray-500">Autor desconocido</span>;
@@ -24,6 +26,13 @@ const AuthorLink = ({
 
   // Variante simple - solo texto enlazado
   if (variant === 'simple') {
+    if (noLink) {
+      return (
+        <span className={`text-gray-700 dark:text-gray-300 font-medium ${className}`}>
+          {authorName}
+        </span>
+      );
+    }
     return (
       <Link 
         to={authorUrl}
@@ -37,6 +46,14 @@ const AuthorLink = ({
 
   // Variante con avatar
   if (variant === 'with-avatar') {
+    if (noLink) {
+      return (
+        <div className={`flex items-center gap-2 text-gray-700 dark:text-gray-300 ${className}`}>
+          {showAvatar && <UserAvatar user={author} size={avatarSize} />}
+          <span className="font-medium">{authorName}</span>
+        </div>
+      );
+    }
     return (
       <Link 
         to={authorUrl}

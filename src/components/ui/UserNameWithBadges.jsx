@@ -13,6 +13,7 @@ const UserNameWithBadges = ({
   badgeSize = "xs",
   layout = "horizontal", // horizontal | vertical
   linkToProfile = true, // Nueva prop para habilitar enlaces al perfil
+  noLink = false, // Nueva prop para evitar enlaces anidados
 }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
@@ -41,7 +42,7 @@ const UserNameWithBadges = ({
 
   // Componente de nombre (con o sin enlace)
   const NameComponent = ({ className: nameClassName = "" }) => {
-    if (linkToProfile && (userId || user?.id)) {
+    if (linkToProfile && (userId || user?.id) && !noLink) {
       return (
         <AuthorLink 
           author={authorObject} 
@@ -114,7 +115,7 @@ const UserNameWithBadges = ({
 };
 
 // Componente especializado para mostrar solo el badge más prestigioso
-const UserWithTopBadge = ({ user, userId, userName, className = "", linkToProfile = true }) => {
+const UserWithTopBadge = ({ user, userId, userName, className = "", linkToProfile = true, noLink = false }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
   const displayName = userName || user?.name || user?.display_name || "Usuario";
@@ -143,7 +144,7 @@ const UserWithTopBadge = ({ user, userId, userName, className = "", linkToProfil
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {linkToProfile && (userId || user?.id) ? (
+      {linkToProfile && (userId || user?.id) && !noLink ? (
         <AuthorLink 
           author={authorObject} 
           variant="simple" 
@@ -163,7 +164,7 @@ const UserWithTopBadge = ({ user, userId, userName, className = "", linkToProfil
 };
 
 // Componente para mostrar solo badges de ganador/finalista
-const UserWithWinnerBadges = ({ user, userId, userName, className = "", linkToProfile = true }) => {
+const UserWithWinnerBadges = ({ user, userId, userName, className = "", linkToProfile = true, noLink = false }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
   const displayName = userName || user?.name || user?.display_name || "Usuario";
@@ -184,7 +185,7 @@ const UserWithWinnerBadges = ({ user, userId, userName, className = "", linkToPr
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {linkToProfile && (userId || user?.id) ? (
+      {linkToProfile && (userId || user?.id) && !noLink ? (
         <AuthorLink 
           author={authorObject} 
           variant="simple" 

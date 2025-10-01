@@ -817,6 +817,7 @@ const LandingPage = () => {
                                 userId={lastContestWinners.winners[0].user_id}
                                 userName={lastContestWinners.winners[0].author}
                                 className="font-semibold text-lg"
+                                noLink={true}
                               />
                             </div>
                           </div>
@@ -921,6 +922,7 @@ const LandingPage = () => {
                                         userId={story.user_id}
                                         userName={story.author}
                                         className="font-semibold"
+                                        noLink={true}
                                       />
                                     </div>
                                   </div>
@@ -999,6 +1001,7 @@ const LandingPage = () => {
                                     userId={lastContestWinners.honoraryMention.user_id}
                                     userName={lastContestWinners.honoraryMention.author}
                                     className="font-semibold text-sm"
+                                    noLink={true}
                                   />
                                 </div>
                               </div>
