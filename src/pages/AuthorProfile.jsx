@@ -16,6 +16,12 @@ const AuthorProfile = () => {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('newest'); // newest, oldest, popular
 
+  // Función para limpiar tags HTML del texto
+  const stripHtmlTags = (text) => {
+    if (!text) return '';
+    return text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+  };
+
   // Función para verificar si una historia está en un concurso en fase de envíos
   const isStoryInSubmissionsPhase = (story) => {
     if (!story.contest || !story.contest_id || !contests) return false;
@@ -407,14 +413,15 @@ const AuthorProfile = () => {
             ) : (
               <div className="space-y-6">
                 {sortedStories.map((story) => (
-                  <div key={story.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <Link 
+                    key={story.id} 
+                    to={`/story/${story.id}?from=profile&authorId=${userId}`}
+                    className="block border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md hover:border-primary-300 transition-all cursor-pointer"
+                  >
                     <div className="flex justify-between items-start mb-3">
-                      <Link 
-                        to={`/story/${story.id}`}
-                        className="text-xl font-semibold text-gray-900 dark:text-white hover:text-primary-600 transition-colors"
-                      >
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white hover:text-primary-600 transition-colors">
                         {story.title}
-                      </Link>
+                      </h3>
                       
                       {/* Badge de tipo de historia */}
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -429,19 +436,16 @@ const AuthorProfile = () => {
                     {/* Excerpt */}
                     {story.excerpt && (
                       <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                        {story.excerpt}
+                        {stripHtmlTags(story.excerpt)}
                       </p>
                     )}
                     
                     {/* Información del reto si aplica */}
                     {story.contest && (
                       <div className="mb-3">
-                        <Link 
-                          to={`/contest/${story.contest.id}`}
-                          className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                        >
+                        <span className="text-sm text-purple-600 font-medium">
                           📝 {story.contest.title}
-                        </Link>
+                        </span>
                       </div>
                     )}
                     
@@ -475,7 +479,7 @@ const AuthorProfile = () => {
                         })}
                       </time>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
