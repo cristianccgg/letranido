@@ -55,6 +55,7 @@ const StoryPage = () => {
     galleryStories,
     userStories,
     currentContest,
+    contests,
 
     // Auth Modal functions
     openAuthModal,
