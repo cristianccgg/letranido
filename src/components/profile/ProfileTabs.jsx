@@ -143,15 +143,15 @@ const ProfileTabs = ({ user, votingStats }) => {
   };
 
   const ResumenTab = () => {
-    // Calcular estadísticas en tiempo real desde userStories - excluyendo historias en voting/counting
+    // Calcular estadísticas en tiempo real desde userStories - excluyendo historias en submission/voting/counting
     const { totalLikes, totalViews, recentStory } = useMemo(() => {
-      // Filtrar historias que no están en voting o counting para estadísticas
+      // Filtrar historias que no están en submission, voting o counting para estadísticas
       const storiesForStats = userStories.filter(story => {
         if (!story.contest) return true; // Historias libres siempre incluidas
         const isCurrentContest = story.contest_id === currentContest?.id;
         const contestToCheck = isCurrentContest ? currentContest : story.contest;
         const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-        return contestPhase !== "voting" && contestPhase !== "counting";
+        return contestPhase !== "submission" && contestPhase !== "voting" && contestPhase !== "counting";
       });
       
       const totalLikes = storiesForStats.reduce(
@@ -232,7 +232,18 @@ const ProfileTabs = ({ user, votingStats }) => {
                     }
                   })()
                 }`}>
-                  {recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown'}
+                  {(() => {
+                    const phase = recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown';
+                    const phaseLabels = {
+                      submission: 'Envíos',
+                      voting: 'Votación', 
+                      counting: 'Conteo',
+                      results: 'Resultados',
+                      finalized: 'Finalizado',
+                      unknown: 'Desconocido'
+                    };
+                    return phaseLabels[phase] || phase;
+                  })()}
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
@@ -241,15 +252,21 @@ const ProfileTabs = ({ user, votingStats }) => {
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>{recentStory.word_count || 0} palabras</span>
                 {(() => {
-                  // Ocultar estadísticas durante votación para mantener consistencia
+                  // Ocultar estadísticas durante submission, votación y conteo para mantener consistencia
                   const isCurrentContest = recentStory.contest_id === currentContest?.id;
                   const contestToCheck = isCurrentContest ? currentContest : recentStory.contest;
                   const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+                  const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
 
-                  if (isVotingOrCounting) {
+                  if (isContestActive) {
+                    const statusText = {
+                      submission: "En envíos",
+                      voting: "En votación", 
+                      counting: "Contando votos"
+                    }[contestPhase] || "En concurso";
+                    
                     return <span className="text-yellow-600 dark:text-yellow-400">
-                      {contestPhase === "voting" ? "En votación" : "Contando votos"}
+                      {statusText}
                     </span>;
                   } else {
                     return <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>;
@@ -349,7 +366,18 @@ const ProfileTabs = ({ user, votingStats }) => {
                           }
                         })()
                       }`}>
-                        {story.contest ? getContestPhase(story.contest) : 'unknown'}
+                        {(() => {
+                          const phase = story.contest ? getContestPhase(story.contest) : 'unknown';
+                          const phaseLabels = {
+                            submission: 'Envíos',
+                            voting: 'Votación', 
+                            counting: 'Conteo',
+                            results: 'Resultados',
+                            finalized: 'Finalizado',
+                            unknown: 'Desconocido'
+                          };
+                          return phaseLabels[phase] || phase;
+                        })()}
                       </span>
                     </div>
                   </div>
@@ -358,18 +386,24 @@ const ProfileTabs = ({ user, votingStats }) => {
                     <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-2">
                       <span>{story.word_count || 0} palabras</span>
                       {(() => {
-                        // Ocultar estadísticas durante votación para mantener consistencia
+                        // Ocultar estadísticas durante submission, votación y conteo para mantener consistencia
                         const isCurrentContest = story.contest_id === currentContest?.id;
                         const contestToCheck = isCurrentContest ? currentContest : story.contest;
                         const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                        const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+                        const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
 
-                        if (isVotingOrCounting) {
+                        if (isContestActive) {
+                          const statusText = {
+                            submission: "En envíos",
+                            voting: "En votación", 
+                            counting: "Contando votos"
+                          }[contestPhase] || "En concurso";
+                          
                           return (
                             <>
                               <span>•</span>
                               <span className="text-yellow-600 dark:text-yellow-400">
-                                {contestPhase === "voting" ? "En votación" : "Contando votos"}
+                                {statusText}
                               </span>
                             </>
                           );
@@ -389,7 +423,7 @@ const ProfileTabs = ({ user, votingStats }) => {
                     <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                       {/* Ver historia */}
                       <Link
-                        to={`/story/${story.id}`}
+                        to={`/story/${story.id}?from=profile&authorId=${user?.id}`}
                         className="inline-flex items-center px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
                         title="Ver historia"
                       >
@@ -433,13 +467,13 @@ const ProfileTabs = ({ user, votingStats }) => {
 
   const LogrosTab = () => {
     const { totalLikes, totalViews } = useMemo(() => {
-      // Filtrar historias que no están en voting o counting para estadísticas
+      // Filtrar historias que no están en submission, voting o counting para estadísticas
       const storiesForStats = userStories.filter(story => {
         if (!story.contest) return true; // Historias libres siempre incluidas
         const isCurrentContest = story.contest_id === currentContest?.id;
         const contestToCheck = isCurrentContest ? currentContest : story.contest;
         const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-        return contestPhase !== "voting" && contestPhase !== "counting";
+        return contestPhase !== "submission" && contestPhase !== "voting" && contestPhase !== "counting";
       });
       
       const totalLikes = storiesForStats.reduce(
@@ -689,7 +723,7 @@ const ProfileTabs = ({ user, votingStats }) => {
 
                         <div className="flex items-center gap-2">
                           <Link
-                            to={`/story/${story.id}`}
+                            to={`/story/${story.id}?from=profile&authorId=${user?.id}`}
                             className="inline-flex items-center px-3 py-1 text-sm text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
                           >
                             <Eye className="w-4 h-4 mr-1" />
