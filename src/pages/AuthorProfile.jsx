@@ -63,7 +63,7 @@ const AuthorProfile = () => {
       setStoriesLoading(true);
       console.log('📚 Buscando historias para userId:', authorId);
 
-      // Obtener historias del autor con información completa del concurso
+      // Obtener historias del autor (consulta simplificada sin fechas)
       const { data, error } = await supabase
         .from('stories')
         .select(`
@@ -78,14 +78,7 @@ const AuthorProfile = () => {
           user_id,
           contest_id,
           is_featured,
-          contest:contests(
-            id, 
-            title, 
-            submissions_start, 
-            submissions_end, 
-            voting_start, 
-            voting_end
-          )
+          contest:contests(id, title)
         `)
         .eq('user_id', authorId)
         .order('created_at', { ascending: false });
@@ -102,19 +95,27 @@ const AuthorProfile = () => {
         // Historias libres (sin concurso) siempre visibles
         if (!story.contest) return true;
         
-        // Determinar la fase del concurso
+        // Solo aplicar restricciones al concurso actual
         const isCurrentContest = story.contest_id === currentContest?.id;
-        const contestToCheck = isCurrentContest ? currentContest : story.contest;
+        if (!isCurrentContest) {
+          // Concursos pasados siempre visibles
+          console.log(`📝 Historia "${story.title}" - Concurso pasado: ${story.contest?.title}`);
+          return true;
+        }
         
-        if (!contestToCheck) return true; // Si no hay info del concurso, mostrar
+        // Para el concurso actual, verificar la fase
+        if (currentContest) {
+          const contestPhase = getContestPhase(currentContest);
+          console.log(`📝 Historia "${story.title}" - Concurso actual - Fase: ${contestPhase}`);
+          
+          // Reglas de visibilidad para concurso actual:
+          // - Envíos: NO mostrar
+          // - Votación/Conteo/Finalizado: Mostrar
+          return contestPhase !== 'submissions';
+        }
         
-        const contestPhase = getContestPhase(contestToCheck);
-        console.log(`📝 Historia "${story.title}" - Fase: ${contestPhase}`);
-        
-        // Reglas de visibilidad:
-        // - Envíos: NO mostrar
-        // - Votación/Conteo/Finalizado: Mostrar
-        return contestPhase !== 'submissions';
+        // Si no hay info del concurso actual, mostrar
+        return true;
       });
       
       console.log('👁️ Historias visibles:', visibleStories.length, 'de', data?.length || 0);
@@ -132,17 +133,24 @@ const AuthorProfile = () => {
     // Historias libres siempre muestran estadísticas
     if (!story.contest) return true;
     
-    // Determinar fase del concurso
+    // Solo aplicar restricciones al concurso actual
     const isCurrentContest = story.contest_id === currentContest?.id;
-    const contestToCheck = isCurrentContest ? currentContest : story.contest;
+    if (!isCurrentContest) {
+      // Concursos pasados siempre muestran estadísticas
+      return true;
+    }
     
-    if (!contestToCheck) return true;
+    // Para el concurso actual, verificar la fase
+    if (currentContest) {
+      const contestPhase = getContestPhase(currentContest);
+      
+      // Durante votación del concurso actual: NO mostrar estadísticas
+      // Después de votación: SÍ mostrar estadísticas
+      return contestPhase !== 'voting';
+    }
     
-    const contestPhase = getContestPhase(contestToCheck);
-    
-    // Durante votación: NO mostrar estadísticas
-    // Después de votación: SÍ mostrar estadísticas
-    return contestPhase !== 'voting';
+    // Si no hay info del concurso actual, mostrar estadísticas
+    return true;
   };
 
   // Calcular estadísticas del autor (excluyendo historias en votación)
