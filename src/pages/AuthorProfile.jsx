@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, BookOpen, Heart, Eye, MapPin, Globe, ArrowLeft } from 'lucide-react';
+import { Calendar, BookOpen, Heart, Eye, MapPin, Globe, ArrowLeft, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import UserAvatar from '../components/ui/UserAvatar';
 import SEOHead from '../components/SEO/SEOHead';
+import { useGlobalApp } from '../contexts/GlobalAppContext';
 
 const AuthorProfile = () => {
   const { userId } = useParams();
+  const { currentContest, getContestPhase } = useGlobalApp();
   const [author, setAuthor] = useState(null);
   const [authorStories, setAuthorStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ const AuthorProfile = () => {
       setStoriesLoading(true);
       console.log('📚 Buscando historias para userId:', authorId);
 
-      // Obtener historias del autor (consulta simplificada)
+      // Obtener historias del autor con información completa del concurso
       const { data, error } = await supabase
         .from('stories')
         .select(`
@@ -76,7 +78,14 @@ const AuthorProfile = () => {
           user_id,
           contest_id,
           is_featured,
-          contest:contests(id, title)
+          contest:contests(
+            id, 
+            title, 
+            submissions_start, 
+            submissions_end, 
+            voting_start, 
+            voting_end
+          )
         `)
         .eq('user_id', authorId)
         .order('created_at', { ascending: false });
@@ -87,10 +96,29 @@ const AuthorProfile = () => {
       }
 
       console.log('📚 Historias encontradas:', data?.length || 0);
-      if (data?.length > 0) {
-        console.log('📖 Primera historia:', data[0].title);
-      }
-      setAuthorStories(data || []);
+      
+      // Filtrar historias según reglas de visibilidad por fase de concurso
+      const visibleStories = (data || []).filter(story => {
+        // Historias libres (sin concurso) siempre visibles
+        if (!story.contest) return true;
+        
+        // Determinar la fase del concurso
+        const isCurrentContest = story.contest_id === currentContest?.id;
+        const contestToCheck = isCurrentContest ? currentContest : story.contest;
+        
+        if (!contestToCheck) return true; // Si no hay info del concurso, mostrar
+        
+        const contestPhase = getContestPhase(contestToCheck);
+        console.log(`📝 Historia "${story.title}" - Fase: ${contestPhase}`);
+        
+        // Reglas de visibilidad:
+        // - Envíos: NO mostrar
+        // - Votación/Conteo/Finalizado: Mostrar
+        return contestPhase !== 'submissions';
+      });
+      
+      console.log('👁️ Historias visibles:', visibleStories.length, 'de', data?.length || 0);
+      setAuthorStories(visibleStories);
     } catch (err) {
       console.error('Error cargando historias del autor:', err);
       setAuthorStories([]);
@@ -99,16 +127,37 @@ const AuthorProfile = () => {
     }
   };
 
-  // Calcular estadísticas del autor
+  // Función para determinar si una historia debe mostrar estadísticas
+  const shouldShowStats = (story) => {
+    // Historias libres siempre muestran estadísticas
+    if (!story.contest) return true;
+    
+    // Determinar fase del concurso
+    const isCurrentContest = story.contest_id === currentContest?.id;
+    const contestToCheck = isCurrentContest ? currentContest : story.contest;
+    
+    if (!contestToCheck) return true;
+    
+    const contestPhase = getContestPhase(contestToCheck);
+    
+    // Durante votación: NO mostrar estadísticas
+    // Después de votación: SÍ mostrar estadísticas
+    return contestPhase !== 'voting';
+  };
+
+  // Calcular estadísticas del autor (excluyendo historias en votación)
   const authorStats = useMemo(() => {
     if (!authorStories.length) return { totalStories: 0, totalLikes: 0, totalViews: 0 };
 
+    // Filtrar solo historias que muestran estadísticas
+    const storiesWithStats = authorStories.filter(shouldShowStats);
+
     return {
-      totalStories: authorStories.length,
-      totalLikes: authorStories.reduce((sum, story) => sum + (story.likes_count || 0), 0),
-      totalViews: authorStories.reduce((sum, story) => sum + (story.views_count || 0), 0)
+      totalStories: authorStories.length, // Total siempre muestra todas las visibles
+      totalLikes: storiesWithStats.reduce((sum, story) => sum + (story.likes_count || 0), 0),
+      totalViews: storiesWithStats.reduce((sum, story) => sum + (story.views_count || 0), 0)
     };
-  }, [authorStories]);
+  }, [authorStories, currentContest]);
 
   // Ordenar historias según filtro
   const sortedStories = useMemo(() => {
@@ -368,14 +417,23 @@ const AuthorProfile = () => {
                     {/* Estadísticas y fecha */}
                     <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                       <div className="flex items-center gap-4">
-                        <span className="flex items-center">
-                          <Heart className="w-4 h-4 mr-1" />
-                          {story.likes_count || 0}
-                        </span>
-                        <span className="flex items-center">
-                          <Eye className="w-4 h-4 mr-1" />
-                          {story.views_count || 0}
-                        </span>
+                        {shouldShowStats(story) ? (
+                          <>
+                            <span className="flex items-center">
+                              <Heart className="w-4 h-4 mr-1" />
+                              {story.likes_count || 0}
+                            </span>
+                            <span className="flex items-center">
+                              <Eye className="w-4 h-4 mr-1" />
+                              {story.views_count || 0}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="flex items-center text-orange-600 dark:text-orange-400">
+                            <Lock className="w-4 h-4 mr-1" />
+                            En votación - estadísticas ocultas
+                          </span>
+                        )}
                       </div>
                       
                       <time dateTime={story.created_at}>
