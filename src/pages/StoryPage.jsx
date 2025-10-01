@@ -114,6 +114,24 @@ const StoryPage = () => {
         }
 
         const storyData = storyResult.story;
+        
+        // ✅ VERIFICAR ACCESO SEGÚN FASE DEL CONCURSO
+        if (storyData.contest && storyData.contest_id && contests) {
+          // Buscar el concurso específico de esta historia
+          const storyContest = contests.find(c => c.id === storyData.contest_id);
+          if (storyContest) {
+            const contestPhase = getContestPhase(storyContest);
+            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
+            
+            // Bloquear acceso durante fase de envíos SOLO para usuarios que no son el autor
+            if (contestPhase === 'submission' && storyData.user_id !== user?.id) {
+              setError('Esta historia está en concurso activo y no se puede ver durante la fase de envíos.');
+              setStory(null);
+              return;
+            }
+          }
+        }
+        
         setStory(storyData);
         setLikesCount(storyData.likes_count || 0);
 
@@ -480,10 +498,19 @@ const StoryPage = () => {
             onClick={() => {
               // Navegar inteligentemente según el parámetro 'from' en la URL
               const fromParam = searchParams.get('from');
+              const authorId = searchParams.get('authorId');
               
               if (fromParam === 'historias') {
                 // Si vino desde la página "Leer", volver ahí
                 navigate("/historias");
+              } else if (fromParam === 'profile' && authorId) {
+                // Si vino desde el perfil de un autor, volver al perfil
+                // Si es el propio usuario, ir al perfil privado, sino al público
+                if (authorId === user?.id) {
+                  navigate('/profile'); // Perfil privado
+                } else {
+                  navigate(`/author/${authorId}`); // Perfil público
+                }
               } else if (story?.contest_id) {
                 // Si vino desde un reto específico, ir a ese reto
                 navigate(`/contest/${story.contest_id}`);
@@ -497,7 +524,9 @@ const StoryPage = () => {
             <ChevronLeft className="h-5 w-5 mr-1" />
             {(() => {
               const fromParam = searchParams.get('from');
-              return fromParam === 'historias' ? "Volver a Leer" : "Volver al reto";
+              if (fromParam === 'historias') return "Volver a Leer";
+              if (fromParam === 'profile') return "Volver al perfil";
+              return "Volver al reto";
             })()}
           </button>
 
