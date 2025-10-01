@@ -1686,7 +1686,7 @@ export function GlobalAppProvider({ children }) {
           votesData: data,
           queryParams: {
             story_id: storyId,
-            user_id: state.user.id
+            user_id: stateRef.current.user.id
           }
         });
 
