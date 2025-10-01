@@ -26,6 +26,8 @@ const AuthorProfile = () => {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 Cargando perfil para userId:', userId);
+
       // Obtener perfil del autor
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
@@ -34,6 +36,7 @@ const AuthorProfile = () => {
         .single();
 
       if (profileError) {
+        console.error('❌ Error perfil:', profileError);
         if (profileError.code === 'PGRST116') {
           setError('Autor no encontrado');
         } else {
@@ -42,6 +45,7 @@ const AuthorProfile = () => {
         return;
       }
 
+      console.log('✅ Perfil encontrado:', profile.display_name);
       setAuthor(profile);
       await loadAuthorStories(profile.id);
     } catch (err) {
@@ -55,27 +59,38 @@ const AuthorProfile = () => {
   const loadAuthorStories = async (authorId) => {
     try {
       setStoriesLoading(true);
+      console.log('📚 Buscando historias para userId:', authorId);
 
-      // Obtener historias del autor con estadísticas
+      // Obtener historias del autor (consulta simplificada)
       const { data, error } = await supabase
         .from('stories')
         .select(`
-          *,
-          contest:contests(id, title, phase),
-          votes:votes(count)
+          id,
+          title,
+          content,
+          excerpt,
+          created_at,
+          updated_at,
+          likes_count,
+          views_count,
+          user_id,
+          contest_id,
+          is_featured,
+          contest:contests(id, title, phase)
         `)
         .eq('user_id', authorId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error cargando historias:', error);
+        throw error;
+      }
 
-      // Procesar historias y calcular likes_count
-      const processedStories = (data || []).map(story => ({
-        ...story,
-        likes_count: story.votes?.length || 0
-      }));
-
-      setAuthorStories(processedStories);
+      console.log('📚 Historias encontradas:', data?.length || 0);
+      if (data?.length > 0) {
+        console.log('📖 Primera historia:', data[0].title);
+      }
+      setAuthorStories(data || []);
     } catch (err) {
       console.error('Error cargando historias del autor:', err);
       setAuthorStories([]);
