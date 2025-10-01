@@ -2,6 +2,7 @@
 import React from "react";
 import { useBadgesCache } from "../../hooks/useBadgesCache";
 import Badge from "./Badge";
+import AuthorLink from "./AuthorLink";
 
 const UserNameWithBadges = ({
   user,
@@ -11,11 +12,19 @@ const UserNameWithBadges = ({
   className = "",
   badgeSize = "xs",
   layout = "horizontal", // horizontal | vertical
+  linkToProfile = true, // Nueva prop para habilitar enlaces al perfil
 }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
   // Determinar el nombre a mostrar
   const displayName = userName || user?.name || user?.display_name || "Usuario";
+
+  // Crear objeto de autor para AuthorLink
+  const authorObject = user || { 
+    id: userId, 
+    display_name: displayName,
+    name: displayName 
+  };
 
   // Filtrar badges importantes para mostrar (solo ganadores y logros altos)
   const importantBadges = showAllBadges
@@ -30,13 +39,29 @@ const UserNameWithBadges = ({
         ].includes(badge.id);
       });
 
+  // Componente de nombre (con o sin enlace)
+  const NameComponent = ({ className: nameClassName = "" }) => {
+    if (linkToProfile && (userId || user?.id)) {
+      return (
+        <AuthorLink 
+          author={authorObject} 
+          variant="simple" 
+          className={nameClassName}
+        />
+      );
+    }
+    return (
+      <span className={`font-medium text-gray-900 ${nameClassName}`}>
+        {displayName}
+      </span>
+    );
+  };
+
   if (layout === "vertical") {
     return (
       <div className={`flex flex-col items-center gap-1 ${className}`}>
         {/* Nombre */}
-        <span className="font-medium text-gray-900 text-center">
-          {displayName}
-        </span>
+        <NameComponent className="text-center" />
 
         {/* Badges */}
         {!loading && importantBadges.length > 0 && (
@@ -64,7 +89,7 @@ const UserNameWithBadges = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Nombre */}
-      <span className="font-medium text-gray-900 truncate">{displayName}</span>
+      <NameComponent className="truncate" />
 
       {/* Badges */}
       {!loading && importantBadges.length > 0 && (
@@ -89,10 +114,17 @@ const UserNameWithBadges = ({
 };
 
 // Componente especializado para mostrar solo el badge más prestigioso
-const UserWithTopBadge = ({ user, userId, userName, className = "" }) => {
+const UserWithTopBadge = ({ user, userId, userName, className = "", linkToProfile = true }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
   const displayName = userName || user?.name || user?.display_name || "Usuario";
+
+  // Crear objeto de autor para AuthorLink
+  const authorObject = user || { 
+    id: userId, 
+    display_name: displayName,
+    name: displayName 
+  };
 
   // Orden de prestigio para badges (mayor a menor)
   const prestigeOrder = {
@@ -111,9 +143,17 @@ const UserWithTopBadge = ({ user, userId, userName, className = "" }) => {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="font-medium text-gray-900 dark:text-dark-300 truncate">
-        {displayName}
-      </span>
+      {linkToProfile && (userId || user?.id) ? (
+        <AuthorLink 
+          author={authorObject} 
+          variant="simple" 
+          className="truncate dark:text-dark-300"
+        />
+      ) : (
+        <span className="font-medium text-gray-900 dark:text-dark-300 truncate">
+          {displayName}
+        </span>
+      )}
 
       {!loading && topBadge && (
         <Badge badge={topBadge} size="xs" showDescription={true} />
@@ -123,10 +163,17 @@ const UserWithTopBadge = ({ user, userId, userName, className = "" }) => {
 };
 
 // Componente para mostrar solo badges de ganador/finalista
-const UserWithWinnerBadges = ({ user, userId, userName, className = "" }) => {
+const UserWithWinnerBadges = ({ user, userId, userName, className = "", linkToProfile = true }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
   const displayName = userName || user?.name || user?.display_name || "Usuario";
+
+  // Crear objeto de autor para AuthorLink
+  const authorObject = user || { 
+    id: userId, 
+    display_name: displayName,
+    name: displayName 
+  };
 
   // Solo badges de retos
   const winnerBadges = userBadges.filter((badge) =>
@@ -137,9 +184,17 @@ const UserWithWinnerBadges = ({ user, userId, userName, className = "" }) => {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
-        {displayName}
-      </span>
+      {linkToProfile && (userId || user?.id) ? (
+        <AuthorLink 
+          author={authorObject} 
+          variant="simple" 
+          className="truncate dark:text-gray-100"
+        />
+      ) : (
+        <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
+          {displayName}
+        </span>
+      )}
 
       {!loading && winnerBadges.length > 0 && (
         <div className="flex items-center gap-1">

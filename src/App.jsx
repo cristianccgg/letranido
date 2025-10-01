@@ -53,6 +53,7 @@ const WritePortfolio = lazy(() => import("./pages/WritePortfolio"));
 const FreeStories = lazy(() => import("./pages/FreeStories"));
 const AllStories = lazy(() => import("./pages/AllStories"));
 const Support = lazy(() => import("./pages/Support"));
+const AuthorProfile = lazy(() => import("./pages/AuthorProfile"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -209,6 +210,9 @@ function AppContent() {
             {/* ✅ RUTAS PRINCIPALES - Con canonical URLs */}
             <Route path="/profile" element={<UnifiedProfile />} />
             <Route path="/profile/:userId" element={<UnifiedProfile />} />
+            
+            {/* ✅ RUTAS DE PERFILES PÚBLICOS */}
+            <Route path="/author/:userId" element={<AuthorProfile />} />
 
             {/* Redirects para evitar contenido duplicado */}
             <Route
