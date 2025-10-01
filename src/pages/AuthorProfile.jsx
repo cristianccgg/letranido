@@ -76,7 +76,7 @@ const AuthorProfile = () => {
           user_id,
           contest_id,
           is_featured,
-          contest:contests(id, title, phase)
+          contest:contests(id, title)
         `)
         .eq('user_id', authorId)
         .order('created_at', { ascending: false });
