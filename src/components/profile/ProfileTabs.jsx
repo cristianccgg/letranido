@@ -5,6 +5,7 @@ import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import { usePremiumFeatures } from '../../hooks/usePremiumFeatures';
 import UserBadgesSection from '../ui/UserBadgesSection';
 import AllBadgesSection from '../ui/AllBadgesSection';
+import UserKarmaSection from './UserKarmaSection';
 import { FEATURES } from '../../lib/config';
 import { STORY_CATEGORIES, getCategoryByValue, CATEGORY_COLORS } from '../../lib/portfolio-constants';
 import { supabase } from '../../lib/supabase';
@@ -199,6 +200,13 @@ const ProfileTabs = ({ user, votingStats }) => {
             <div className="text-sm text-gray-600 dark:text-gray-400">Votos Dados</div>
           </div>
         </div>
+
+        {/* Karma del Usuario */}
+        <UserKarmaSection 
+          userId={user?.id} 
+          userName={user?.display_name || user?.name || "Usuario"}
+          compact={false}
+        />
 
         {/* Badges y Logros */}
         <UserBadgesSection

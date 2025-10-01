@@ -4,6 +4,8 @@ import { Calendar, BookOpen, Heart, Eye, MapPin, Globe, ArrowLeft, Lock } from '
 import { supabase } from '../lib/supabase';
 import UserAvatar from '../components/ui/UserAvatar';
 import SEOHead from '../components/SEO/SEOHead';
+import UserKarmaSection from '../components/profile/UserKarmaSection';
+import UserBadgesSection from '../components/ui/UserBadgesSection';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 
 const AuthorProfile = () => {
@@ -327,6 +329,22 @@ const AuthorProfile = () => {
             </div>
             <p className="text-gray-600 dark:text-gray-400">Lecturas totales</p>
           </div>
+        </div>
+
+        {/* Secciones de Karma y Badges */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Karma del usuario */}
+          <UserKarmaSection 
+            userId={userId} 
+            userName={author.display_name || author.name}
+            compact={true}
+          />
+          
+          {/* Badges del usuario */}
+          <UserBadgesSection 
+            userId={userId}
+            userName={author.display_name || author.name}
+          />
         </div>
 
         {/* Sección de historias */}
