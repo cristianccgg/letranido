@@ -484,6 +484,125 @@ Durante 1 semana, vota por el perfil público más completo:
 
 ---
 
+## 🎯 **MEJORAS PENDIENTES PARA EL LANZAMIENTO**
+
+### 🔗 **1. Navegación a Perfiles Públicos (CRÍTICO)**
+**Problema:** Actualmente solo se puede acceder a perfiles públicos clickeando el nombre del autor en una historia.
+
+**Soluciones necesarias:**
+```jsx
+// Opción A: Botón en historias
+<div className="story-card">
+  <h3>{story.title}</h3>
+  <div className="author-section">
+    <AuthorLink userId={story.user_id} variant="with-avatar" />
+    <button className="visit-profile-btn">
+      <User className="w-4 h-4" />
+      Ver perfil
+    </button>
+  </div>
+</div>
+
+// Opción B: Enlaces en rankings sidebar
+<div className="karma-ranking-item">
+  <span>{user.author}</span>
+  <Link to={`/author/${user.userId}`} className="profile-link">
+    👤 Ver perfil
+  </Link>
+</div>
+
+// Opción C: Sección "Autores destacados" en home
+<section className="featured-authors">
+  <h3>✨ Autores Destacados</h3>
+  {topAuthors.map(author => (
+    <AuthorCard key={author.id} author={author} />
+  ))}
+</section>
+```
+
+**Prioridad:** 🔥 **ALTA** - Sin esto, nadie descubrirá los perfiles públicos
+
+### 💰 **2. Sistema de Reconocimiento para Donantes (Ko-fi)**
+**Contexto:** Ya hay 2 donaciones via Ko-fi, necesitamos reconocer a estos supporters.
+
+**Ideas de beneficios:**
+```jsx
+// Badges especiales
+const SUPPORTER_BADGES = {
+  coffee_supporter: {
+    title: "☕ Café Supporter",
+    description: "Apoyó a Letranido con una donación",
+    color: "gold",
+    permanent: true
+  },
+  community_hero: {
+    title: "🦸 Héroe de la Comunidad", 
+    description: "Donante recurrente",
+    color: "platinum",
+    permanent: true
+  }
+};
+
+// Beneficios adicionales
+const SUPPORTER_PERKS = {
+  profile_highlights: "Perfil destacado en 'Supporters'",
+  special_flair: "Flair dorado en comentarios",
+  early_access: "Acceso temprano a nuevas funciones",
+  custom_badge: "Badge personalizado opcional",
+  karma_bonus: "+50 karma bonus una vez"
+};
+```
+
+**Implementación sugerida:**
+1. **Badge automático** "☕ Café Supporter" al detectar donación
+2. **Flair dorado** en nombre de usuario en comentarios/historias
+3. **Sección especial** "Supporters" en home page
+4. **Karma bonus** de +50 puntos una vez
+
+### 📖 **3. Sistema "Marcar como Leída" en Votación**
+**Problema:** Users re-leen las mismas historias porque no recuerdan cuáles ya leyeron.
+
+**Solución:** Sistema de tracking de lectura durante votación
+```jsx
+// Componente de historia en votación
+<div className="voting-story-card">
+  <div className="story-header">
+    <h3>{story.title}</h3>
+    {isRead && <span className="read-badge">✓ Leída</span>}
+  </div>
+  
+  <div className="story-actions">
+    <button onClick={() => markAsRead(story.id)}>
+      {isRead ? "✓ Marcar como no leída" : "👁️ Marcar como leída"}
+    </button>
+    <VoteButtons storyId={story.id} />
+  </div>
+</div>
+
+// Base de datos
+table: user_story_reads {
+  user_id: uuid,
+  story_id: uuid, 
+  contest_id: uuid,
+  read_at: timestamp,
+  marked_manually: boolean
+}
+```
+
+**Funcionalidades:**
+- ✅ Botón "Marcar como leída" en cada historia
+- ✅ Visual badge "✓ Leída" para historias marcadas  
+- ✅ Auto-marcar al votar (opcional)
+- ✅ Filtro "Solo no leídas" en página de votación
+- ✅ Progreso "X de Y historias leídas"
+
+**Beneficios:**
+- 📈 +40% eficiencia en votación
+- 🎯 Mejor experience para votantes activos
+- 📊 Métricas de engagement más precisas
+
+---
+
 ## 🔮 Mejoras Futuras Sugeridas
 
 ### 🎯 Funcionalidades Inmediatas (Corto Plazo)
