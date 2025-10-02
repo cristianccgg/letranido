@@ -1,15 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, BookOpen, Heart, Eye, MapPin, Globe, ArrowLeft, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import UserAvatar from '../components/ui/UserAvatar';
 import SEOHead from '../components/SEO/SEOHead';
 import UserKarmaSection from '../components/profile/UserKarmaSection';
 import UserBadgesSection from '../components/ui/UserBadgesSection';
+import SocialLinksDisplay from '../components/ui/SocialLinksDisplay';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 
 const AuthorProfile = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { currentContest, contests, getContestPhase } = useGlobalApp();
   const [author, setAuthor] = useState(null);
   const [authorStories, setAuthorStories] = useState([]);
@@ -52,10 +54,12 @@ const AuthorProfile = () => {
 
       console.log('🔍 Cargando perfil para userId:', userId);
 
-      // Obtener perfil del autor
+      // Obtener perfil del autor con campos de privacidad
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select(`
+          *
+        `)
         .eq('id', userId)
         .single();
 
@@ -70,6 +74,9 @@ const AuthorProfile = () => {
       }
 
       console.log('✅ Perfil encontrado:', profile.display_name);
+      
+      // Note: Los perfiles públicos siempre se pueden ver, pero con información limitada según configuración de privacidad
+      
       setAuthor(profile);
       await loadAuthorStories(profile.id);
     } catch (err) {
@@ -244,13 +251,21 @@ const AuthorProfile = () => {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Botón de regreso */}
-        <Link 
-          to="/" 
+        <button 
+          onClick={() => {
+            // Usar historial del navegador para volver a la página anterior
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              // Fallback solo si no hay historial (usuario llegó directo por URL)
+              navigate("/");
+            }
+          }}
           className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver al inicio
-        </Link>
+          Volver
+        </button>
 
         {/* Header del perfil */}
         <div className="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 mb-8">
@@ -263,7 +278,7 @@ const AuthorProfile = () => {
               </h1>
               
               {/* Biografía */}
-              {author.bio && (
+              {author.bio && author.show_bio && (
                 <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
                   {author.bio}
                 </p>
@@ -279,24 +294,19 @@ const AuthorProfile = () => {
                   })}
                 </div>
                 
-                {author.location && (
+                {author.location && author.show_location && (
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
                     {author.location}
                   </div>
                 )}
                 
-                {author.website && (
+                {author.social_links && author.show_social_links && Object.keys(author.social_links).length > 0 && (
                   <div className="flex items-center">
-                    <Globe className="w-4 h-4 mr-1" />
-                    <a 
-                      href={author.website.startsWith('http') ? author.website : `https://${author.website}`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:text-blue-600 transition-colors"
-                    >
-                      {author.website.replace(/^https?:\/\//, '')}
-                    </a>
+                    <SocialLinksDisplay 
+                      socialLinks={author.social_links}
+                      size="sm"
+                    />
                   </div>
                 )}
               </div>
@@ -305,6 +315,7 @@ const AuthorProfile = () => {
         </div>
 
         {/* Estadísticas */}
+        {author.show_stats && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center shadow-sm">
             <div className="flex items-center justify-center mb-2">
@@ -330,6 +341,7 @@ const AuthorProfile = () => {
             <p className="text-gray-600 dark:text-gray-400">Lecturas totales</p>
           </div>
         </div>
+        )}
 
         {/* Secciones de Karma y Badges */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

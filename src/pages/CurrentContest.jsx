@@ -29,6 +29,7 @@ import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
+import ProfileButton from "../components/ui/ProfileButton";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";
 import { preloadUsersBadges } from "../hooks/useBadgesCache";
@@ -1279,28 +1280,36 @@ const CurrentContest = () => {
                         >
                           <div className="flex items-center gap-3">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                {/* Avatar */}
-                                <UserAvatar
-                                  user={{
-                                    name: story.author,
-                                    email: `${story.author}@mock.com`,
-                                  }}
-                                  size="md"
-                                />
-                                <UserWithTopBadge
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  {/* Avatar */}
+                                  <UserAvatar
+                                    user={{
+                                      name: story.author,
+                                      email: `${story.author}@mock.com`,
+                                    }}
+                                    size="md"
+                                  />
+                                  <UserWithTopBadge
+                                    userId={story.user_id}
+                                    userName={story.author}
+                                    className="truncate"
+                                  />
+                                  {story.likes_count > 50 && (
+                                    <span
+                                      className="text-sm"
+                                      title="Autor popular"
+                                    >
+                                      ⭐
+                                    </span>
+                                  )}
+                                </div>
+                                <ProfileButton 
                                   userId={story.user_id}
-                                  userName={story.author}
-                                  className="truncate"
+                                  size="xs"
+                                  variant="primary"
+                                  showText={phaseInfo?.phase === "voting"}
                                 />
-                                {story.likes_count > 50 && (
-                                  <span
-                                    className="text-sm"
-                                    title="Autor popular"
-                                  >
-                                    ⭐
-                                  </span>
-                                )}
                               </div>
                               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-dark-400">
                                 <span>{story.authorWins || 0} victorias</span>
@@ -1643,6 +1652,13 @@ const CurrentContest = () => {
                                       className="inline-flex"
                                     />
                                   </span>
+                                  <ProfileButton 
+                                    userId={story.user_id}
+                                    size="xs"
+                                    variant="primary"
+                                    showText={phaseInfo?.phase === "voting"}
+                                    className="ml-1"
+                                  />
                                   <span className="hidden sm:inline">•</span>
                                   <span className="whitespace-nowrap ">
                                     {getReadingTime(story.word_count)}

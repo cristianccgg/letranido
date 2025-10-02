@@ -1,6 +1,6 @@
 // pages/StoryPage.jsx - COMPLETAMENTE REFACTORIZADO
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Heart,
   Eye,
@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
-import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
 import {
   useGoogleAnalytics,
   AnalyticsEvents,
@@ -33,13 +32,13 @@ import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
+import ProfileButton from "../components/ui/ProfileButton";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import SEOHead from "../components/SEO/SEOHead";
 
 const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isDark } = useTheme();
   const { trackEvent } = useGoogleAnalytics();
 
@@ -53,7 +52,6 @@ const StoryPage = () => {
     initialized,
     globalLoading,
     galleryStories,
-    userStories,
     currentContest,
     contests,
 
@@ -85,13 +83,6 @@ const StoryPage = () => {
   const loadingRef = useRef(false);
   const storyContentRef = useRef(null);
 
-  // ✅ READING ANALYTICS
-  const readingAnalytics = useReadingAnalytics(
-    story?.id,
-    story?.title,
-    story?.word_count,
-    story?.contest_id
-  );
 
   // ✅ CARGAR HISTORIA Y DATOS RELACIONADOS
   useEffect(() => {
@@ -497,38 +488,18 @@ const StoryPage = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => {
-              // Navegar inteligentemente según el parámetro 'from' en la URL
-              const fromParam = searchParams.get('from');
-              const authorId = searchParams.get('authorId');
-              
-              if (fromParam === 'historias') {
-                // Si vino desde la página "Leer", volver ahí
-                navigate("/historias");
-              } else if (fromParam === 'profile' && authorId) {
-                // Si vino desde el perfil de un autor, volver al perfil
-                // Si es el propio usuario, ir al perfil privado, sino al público
-                if (authorId === user?.id) {
-                  navigate('/profile'); // Perfil privado
-                } else {
-                  navigate(`/author/${authorId}`); // Perfil público
-                }
-              } else if (story?.contest_id) {
-                // Si vino desde un reto específico, ir a ese reto
-                navigate(`/contest/${story.contest_id}`);
+              // Usar historial del navegador para volver a la página anterior
+              if (window.history.length > 1) {
+                navigate(-1);
               } else {
-                // Fallback: ir al reto actual
-                navigate("/contest/current");
+                // Fallback solo si no hay historial (usuario llegó directo por URL)
+                navigate("/");
               }
             }}
             className="flex items-center text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 transition-colors"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
-            {(() => {
-              const fromParam = searchParams.get('from');
-              if (fromParam === 'historias') return "Volver a Leer";
-              if (fromParam === 'profile') return "Volver al perfil";
-              return "Volver al reto";
-            })()}
+            Volver
           </button>
 
           <div className="flex items-center gap-2">
@@ -601,18 +572,27 @@ const StoryPage = () => {
             </h1>
 
             {/* Author Info */}
-            <div className="flex items-center mb-6">
-              <div className="mr-4">
-                <UserAvatar user={story.author} size="lg" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="mr-4">
+                  <UserAvatar user={story.author} size="lg" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
+                    <UserWithTopBadge
+                      userId={story.user_id}
+                      userName={story.author.name}
+                    />
+                  </h3>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
-                  <UserWithTopBadge
-                    userId={story.user_id}
-                    userName={story.author.name}
-                  />
-                </h3>
-              </div>
+              <ProfileButton 
+                userId={story.user_id} 
+                size="md" 
+                variant="primary" 
+                showText={true} 
+                className="flex-shrink-0"
+              />
             </div>
 
             {/* Story Stats - Debajo del usuario, victorias y votos primero */}

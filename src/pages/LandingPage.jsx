@@ -37,6 +37,7 @@ import NextContestOrPoll from "../components/ui/NextContestOrPoll";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
+import ProfileButton from "../components/ui/ProfileButton";
 import { useBadgesCache } from "../hooks/useBadgesCache";
 import Badge from "../components/ui/Badge";
 import WelcomeBanner from "../components/ui/WelcomeBanner";
@@ -164,7 +165,7 @@ const LandingPage = () => {
             if (likesB !== likesA) {
               return likesB - likesA;
             }
-            
+
             // En caso de empate, por created_at (ascendente - más antigua primero)
             const dateA = new Date(a.created_at);
             const dateB = new Date(b.created_at);
@@ -172,16 +173,27 @@ const LandingPage = () => {
           });
 
           const winners = sortedStories.slice(0, 3);
-          
+
           // Verificar si hay mención de honor (4º lugar con mismos votos que 3º)
           let honoraryMention = null;
           if (sortedStories.length >= 4) {
             const thirdPlace = winners[2];
             const fourthPlace = sortedStories[3];
-            
-            if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
-              honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
-              console.log("🎖️ Mención de Honor detectada en landing:", honoraryMention.title);
+
+            if (
+              thirdPlace &&
+              fourthPlace &&
+              thirdPlace.likes_count === fourthPlace.likes_count
+            ) {
+              honoraryMention = {
+                ...fourthPlace,
+                position: 4,
+                isHonoraryMention: true,
+              };
+              console.log(
+                "🎖️ Mención de Honor detectada en landing:",
+                honoraryMention.title
+              );
             }
           }
 
@@ -259,7 +271,10 @@ const LandingPage = () => {
   // ✅ Contador para el siguiente reto
   const [nextTimeLeft, setNextTimeLeft] = useState("");
   useEffect(() => {
-    if (!nextContest?.submission_deadline || (currentContestPhase !== "voting" && currentContestPhase !== "counting")) {
+    if (
+      !nextContest?.submission_deadline ||
+      (currentContestPhase !== "voting" && currentContestPhase !== "counting")
+    ) {
       setNextTimeLeft("");
       return;
     }
@@ -496,10 +511,16 @@ const LandingPage = () => {
                   contest={nextContest}
                   phase="submission" // El siguiente siempre está en submission
                   timeLeft={
-                    (currentContestPhase === "voting" || currentContestPhase === "counting") ? nextTimeLeft : null
+                    currentContestPhase === "voting" ||
+                    currentContestPhase === "counting"
+                      ? nextTimeLeft
+                      : null
                   } // Contador real cuando esté habilitado
                   isNext={true}
-                  isEnabled={currentContestPhase === "voting" || currentContestPhase === "counting"} // Habilitado durante votación y counting
+                  isEnabled={
+                    currentContestPhase === "voting" ||
+                    currentContestPhase === "counting"
+                  } // Habilitado durante votación y counting
                   onRulesClick={() => {
                     setRulesModalContest(nextContest);
                     setShowRulesModal(true);
@@ -804,22 +825,31 @@ const LandingPage = () => {
                           </h5>
 
                           {/* Autor */}
-                          <div className="flex items-center justify-center gap-3 mb-4">
-                            <UserAvatar
-                              user={{
-                                name: lastContestWinners.winners[0].author,
-                                email: `${lastContestWinners.winners[0].author}@mock.com`,
-                              }}
-                              size="md"
-                            />
-                            <div className="text-center">
-                              <UserWithWinnerBadges
-                                userId={lastContestWinners.winners[0].user_id}
-                                userName={lastContestWinners.winners[0].author}
-                                className="font-semibold text-lg"
-                                noLink={true}
+                          <div className="flex items-center justify-between mb-4 w-80 mx-auto">
+                            <div className="flex items-center gap-3">
+                              <UserAvatar
+                                user={{
+                                  name: lastContestWinners.winners[0].author,
+                                  email: `${lastContestWinners.winners[0].author}@mock.com`,
+                                }}
+                                size="md"
                               />
+                              <div>
+                                <UserWithWinnerBadges
+                                  userId={lastContestWinners.winners[0].user_id}
+                                  userName={
+                                    lastContestWinners.winners[0].author
+                                  }
+                                  className="font-semibold text-lg"
+                                />
+                              </div>
                             </div>
+                            <ProfileButton
+                              userId={lastContestWinners.winners[0].user_id}
+                              size="xs"
+                              variant="primary"
+                              showText={true}
+                            />
                           </div>
 
                           {/* Estadísticas más destacadas */}
@@ -849,13 +879,17 @@ const LandingPage = () => {
                   {lastContestWinners.winners.length > 1 && (
                     <div className="mt-8 pt-6 border-t border-indigo-200 dark:border-dark-600">
                       <h4 className="text-lg font-semibold text-gray-600 dark:text-dark-300 text-center mb-6">
-                        {lastContestWinners.honoraryMention ? "Finalistas y Menciones" : "Finalistas"}
+                        {lastContestWinners.honoraryMention
+                          ? "Finalistas y Menciones"
+                          : "Finalistas"}
                       </h4>
-                      <div className={`grid gap-6 max-w-6xl mx-auto ${
-                        lastContestWinners.honoraryMention 
-                          ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" // 4 tarjetas más compactas
-                          : "grid-cols-1 lg:grid-cols-2" // 2 tarjetas más grandes
-                      }`}>
+                      <div
+                        className={`grid gap-6 max-w-6xl mx-auto ${
+                          lastContestWinners.honoraryMention
+                            ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" // 4 tarjetas más compactas
+                            : "grid-cols-1 lg:grid-cols-2" // 2 tarjetas más grandes
+                        }`}
+                      >
                         {lastContestWinners.winners
                           .slice(1, 3)
                           .map((story, index) => {
@@ -909,22 +943,29 @@ const LandingPage = () => {
                                   </h5>
 
                                   {/* Autor */}
-                                  <div className="flex items-center justify-center gap-3 mb-4">
-                                    <UserAvatar
-                                      user={{
-                                        name: story.author,
-                                        email: `${story.author}@mock.com`,
-                                      }}
-                                      size="md"
-                                    />
-                                    <div className="text-center">
-                                      <UserWithWinnerBadges
-                                        userId={story.user_id}
-                                        userName={story.author}
-                                        className="font-semibold"
-                                        noLink={true}
+                                  <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                      <UserAvatar
+                                        user={{
+                                          name: story.author,
+                                          email: `${story.author}@mock.com`,
+                                        }}
+                                        size="md"
                                       />
+                                      <div>
+                                        <UserWithWinnerBadges
+                                          userId={story.user_id}
+                                          userName={story.author}
+                                          className="font-semibold"
+                                        />
+                                      </div>
                                     </div>
+                                    <ProfileButton
+                                      userId={story.user_id}
+                                      size="xs"
+                                      variant="primary"
+                                      showText={false}
+                                    />
                                   </div>
 
                                   {/* Estadísticas */}
@@ -960,7 +1001,7 @@ const LandingPage = () => {
                               </Link>
                             );
                           })}
-                        
+
                         {/* Tarjeta de Mención de Honor */}
                         {lastContestWinners.honoraryMention && (
                           <Link
@@ -988,22 +1029,38 @@ const LandingPage = () => {
                               </h5>
 
                               {/* Autor */}
-                              <div className="flex items-center justify-center gap-2 mb-4">
-                                <UserAvatar
-                                  user={{
-                                    name: lastContestWinners.honoraryMention.author,
-                                    email: `${lastContestWinners.honoraryMention.author}@mock.com`,
-                                  }}
-                                  size="sm"
-                                />
-                                <div className="text-center">
-                                  <UserWithWinnerBadges
-                                    userId={lastContestWinners.honoraryMention.user_id}
-                                    userName={lastContestWinners.honoraryMention.author}
-                                    className="font-semibold text-sm"
-                                    noLink={true}
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                  <UserAvatar
+                                    user={{
+                                      name: lastContestWinners.honoraryMention
+                                        .author,
+                                      email: `${lastContestWinners.honoraryMention.author}@mock.com`,
+                                    }}
+                                    size="sm"
                                   />
+                                  <div>
+                                    <UserWithWinnerBadges
+                                      userId={
+                                        lastContestWinners.honoraryMention
+                                          .user_id
+                                      }
+                                      userName={
+                                        lastContestWinners.honoraryMention
+                                          .author
+                                      }
+                                      className="font-semibold text-sm"
+                                    />
+                                  </div>
                                 </div>
+                                <ProfileButton
+                                  userId={
+                                    lastContestWinners.honoraryMention.user_id
+                                  }
+                                  size="xs"
+                                  variant="primary"
+                                  showText={false}
+                                />
                               </div>
 
                               {/* Explicación del empate */}
@@ -1011,7 +1068,9 @@ const LandingPage = () => {
                                 <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 shadow-sm">
                                   <Heart className="h-4 w-4" />
                                   <span className="text-sm font-medium">
-                                    {lastContestWinners.honoraryMention.likes_count || 0} votos (= 3º lugar)
+                                    {lastContestWinners.honoraryMention
+                                      .likes_count || 0}{" "}
+                                    votos (= 3º lugar)
                                   </span>
                                 </div>
                               </div>
@@ -1040,9 +1099,10 @@ const LandingPage = () => {
                       ¿Qué quieres hacer ahora?
                     </h3>
                     <p className="text-gray-600 dark:text-dark-300 mb-6">
-                      Explora todas las historias del reto anterior o únete al reto actual
+                      Explora todas las historias del reto anterior o únete al
+                      reto actual
                     </p>
-                    
+
                     {/* Botones lado a lado */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                       {/* Botón Ver listado */}

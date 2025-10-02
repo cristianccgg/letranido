@@ -7,6 +7,7 @@ import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalyt
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
 import { UserWithTopBadge } from "../ui/UserNameWithBadges";
+import ProfileButton from "../ui/ProfileButton";
 
 // Hook para detectar tamaño de pantalla
 const useIsMobile = () => {
@@ -307,6 +308,13 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
                         userId={comment.author_id}
                         userName={comment.author}
                         className="font-medium"
+                      />
+                      <ProfileButton 
+                        userId={comment.author_id}
+                        size="xs"
+                        variant="primary"
+                        showText={false}
+                        className="ml-1"
                       />
                       <span className="text-xs text-gray-500 dark:text-dark-400">
                         {formatTimeAgo(comment.created_at)}

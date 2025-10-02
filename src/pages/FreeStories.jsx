@@ -11,6 +11,7 @@ import { logger } from '../utils/logger';
 import SEOHead from '../components/SEO/SEOHead';
 import UserAvatar from '../components/ui/UserAvatar';
 import { UserWithTopBadge } from '../components/ui/UserNameWithBadges';
+import ProfileButton from '../components/ui/ProfileButton';
 
 const FreeStories = () => {
   const navigate = useNavigate();
@@ -334,18 +335,27 @@ const FreeStories = () => {
                           </div>
                           
                           {/* Autor */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <UserAvatar
-                              user={{
-                                name: story.author,
-                                email: `${story.author}@mock.com`,
-                              }}
-                              size="xs"
-                            />
-                            <UserWithTopBadge
-                              userId={story.user_id}
-                              userName={story.author}
-                              className="text-sm text-gray-600 dark:text-gray-400"
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <UserAvatar
+                                user={{
+                                  name: story.author,
+                                  email: `${story.author}@mock.com`,
+                                }}
+                                size="xs"
+                              />
+                              <UserWithTopBadge
+                                userId={story.user_id}
+                                userName={story.author}
+                                className="text-sm text-gray-600 dark:text-gray-400"
+                              />
+                            </div>
+                            <ProfileButton 
+                              userId={story.user_id} 
+                              size="xs" 
+                              variant="primary" 
+                              showText={false} 
+                              className="flex-shrink-0"
                             />
                           </div>
                         </div>
