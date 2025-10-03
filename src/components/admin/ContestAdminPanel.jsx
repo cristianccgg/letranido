@@ -36,6 +36,7 @@ import MaintenanceControl from "./MaintenanceControl";
 import ModerationDashboard from "./ModerationDashboard";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import PollAdminPanel from "./PollAdminPanel";
+import SocialGenerator from "./SocialGenerator";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1228,6 +1229,7 @@ const ContestAdminPanel = () => {
     { id: "moderacion", label: "Moderación", icon: Shield },
     { id: "mantenimiento", label: "Mantenimiento", icon: Settings },
     { id: "comunicaciones", label: "Comunicaciones", icon: Users },
+    { id: "redes", label: "Redes Sociales", icon: Plus },
   ];
 
   return (
@@ -1917,6 +1919,11 @@ const ContestAdminPanel = () => {
           {activeTab === "comunicaciones" && (
             <div className="p-6">
               <EmailManager />
+            </div>
+          )}
+          {activeTab === "redes" && (
+            <div className="p-6">
+              <SocialGenerator />
             </div>
           )}
         </div>
