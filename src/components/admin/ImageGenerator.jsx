@@ -1,5 +1,6 @@
 // components/admin/ImageGenerator.jsx - Generador de imágenes para posts de redes sociales
 import { useRef, useEffect, useState, useCallback } from "react";
+import logoImage from "../../assets/images/letranido-logo.png";
 
 const ImageGenerator = ({
   post,
@@ -8,6 +9,7 @@ const ImageGenerator = ({
   onImageGenerated,
 }) => {
   const canvasRef = useRef(null);
+  const logoRef = useRef(null);
 
   // Estados para edición de contenido
   const [isEditing, setIsEditing] = useState(false);
@@ -119,6 +121,98 @@ const ImageGenerator = ({
     }
   }, [post, contest, isEditing, extractInitialContent]);
 
+  // Cargar logo como imagen
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      logoRef.current = img;
+      // Regenerar imagen cuando el logo esté listo
+      if (post) {
+        setTimeout(generateImage, 100);
+      }
+    };
+    img.src = logoImage;
+  }, [post]);
+
+  // Función para dibujar elementos creativos decorativos
+  const drawCreativeElements = (ctx, canvas, scale) => {
+    // Guardar el estado del contexto
+    ctx.save();
+
+    // 1. Plumas flotantes sutiles
+    const feathers = [
+      { x: 0.15, y: 0.2, size: 5, rotation: 15, opacity: 0.8 },
+      { x: 0.85, y: 0.3, size: 4, rotation: -25, opacity: 0.6 },
+      { x: 0.1, y: 0.65, size: 2, rotation: 45, opacity: 0.7 },
+      { x: 0.9, y: 0.75, size: 5, rotation: -10, opacity: 0.9 },
+      { x: 0.25, y: 0.85, size: 3, rotation: 30, opacity: 0.4 },
+    ];
+
+    feathers.forEach((feather) => {
+      ctx.save();
+
+      const x = canvas.width * feather.x;
+      const y = canvas.height * feather.y;
+      const size = Math.round(20 * scale * feather.size);
+
+      ctx.translate(x, y);
+      ctx.rotate((feather.rotation * Math.PI) / 180);
+      ctx.globalAlpha = feather.opacity;
+      ctx.fillStyle = "#6366f1";
+      ctx.font = `${size}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.fillText("🪶", 0, 0);
+
+      ctx.restore();
+    });
+
+    // 2. Formas geométricas suaves con gradientes
+    const shapes = [
+      { x: 0.05, y: 0.15, size: 0.12, opacity: 0.08 },
+      { x: 0.92, y: 0.25, size: 0.08, opacity: 0.06 },
+      { x: 0.08, y: 0.55, size: 0.1, opacity: 0.07 },
+      { x: 0.88, y: 0.65, size: 0.15, opacity: 0.09 },
+      { x: 0.15, y: 0.9, size: 0.09, opacity: 0.05 },
+    ];
+
+    shapes.forEach((shape) => {
+      const x = canvas.width * shape.x;
+      const y = canvas.height * shape.y;
+      const radius = canvas.width * shape.size;
+
+      const shapeGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      shapeGradient.addColorStop(0, `rgba(99, 102, 241, ${shape.opacity})`);
+      shapeGradient.addColorStop(1, `rgba(99, 102, 241, 0)`);
+
+      ctx.fillStyle = shapeGradient;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Restaurar el estado del contexto
+    ctx.restore();
+  };
+
+  // Función para dibujar texto con sombra suave
+  const drawTextWithShadow = (
+    ctx,
+    text,
+    x,
+    y,
+    shadowOffset = 2,
+    shadowOpacity = 0.2
+  ) => {
+    // Sombra
+    ctx.save();
+    ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
+    ctx.fillText(text, x + shadowOffset, y + shadowOffset);
+    ctx.restore();
+
+    // Texto principal
+    ctx.fillText(text, x, y);
+  };
+
   // Generar imagen
   const generateImage = () => {
     const canvas = canvasRef.current;
@@ -134,11 +228,11 @@ const ImageGenerator = ({
     // Limpiar canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fondo con gradiente
+    // Fondo con gradiente claro (lila a blanco)
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, "#6366f1"); // Purple
-    gradient.addColorStop(0.5, "#8b5cf6"); // Purple-pink
-    gradient.addColorStop(1, "#ec4899"); // Pink
+    gradient.addColorStop(0, "#e9e3fc"); // Casi blanco
+    gradient.addColorStop(0.5, "#e9e3fc"); // Gris muy claro
+    gradient.addColorStop(1, "#e9e3fc"); // Lila muy claro
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -147,44 +241,56 @@ const ImageGenerator = ({
     const baseSize = 1080;
     const scale = canvas.width / baseSize;
 
-    // Header - Logo y marca
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `bold ${Math.round(48 * scale)}px system-ui, -apple-system, sans-serif`;
-    ctx.textAlign = "left";
+    // Elementos decorativos creativos
+    drawCreativeElements(ctx, canvas, scale);
 
+    // Header - Logo y marca
     const headerY = Math.round(80 * scale);
     const marginX = Math.round(60 * scale);
 
-    // Logo emoji
-    ctx.font = `${Math.round(40 * scale)}px system-ui`;
-    ctx.fillText("🪶", marginX, headerY);
+    // Logo real de Letranido en su color purple original
+    if (logoRef.current) {
+      const logoSize = Math.round(65 * scale); // Más grande para mejor proporción
 
-    // Texto "LETRANIDO"
-    ctx.font = `bold ${Math.round(48 * scale)}px system-ui, -apple-system, sans-serif`;
-    ctx.fillText("LETRANIDO", marginX + Math.round(60 * scale), headerY);
+      // Dibujar logo sin filtros para mantener color purple original
+      ctx.drawImage(
+        logoRef.current,
+        marginX,
+        headerY - logoSize * 0.7,
+        logoSize,
+        logoSize
+      );
+    }
+
+    // Texto "LETRANIDO" con fuente DM Serif Display
+    ctx.fillStyle = "#6366f1"; // Purple como el sitio
+    ctx.font = `bold ${Math.round(48 * scale)}px "DM Serif Display", serif`;
+    ctx.textAlign = "left";
+    drawTextWithShadow(
+      ctx,
+      "LETRANIDO",
+      marginX + Math.round(80 * scale),
+      headerY,
+      Math.round(3 * scale),
+      0.15
+    );
 
     // Línea separadora
-    ctx.strokeStyle = "#ffffff";
+    ctx.strokeStyle = "#6366f1"; // Purple como el sitio
     ctx.lineWidth = Math.round(2 * scale);
     ctx.beginPath();
     ctx.moveTo(marginX, headerY + Math.round(30 * scale));
     ctx.lineTo(canvas.width - marginX, headerY + Math.round(30 * scale));
     ctx.stroke();
 
-    // Emoji del tipo de post - Formato cuadrado unificado
-    const postEmoji = postEmojis[post.type] || "✨";
-    ctx.font = `${Math.round(90 * scale)}px system-ui`;
-    ctx.textAlign = "center";
-
-    const emojiY = Math.round(200 * scale);
-    ctx.fillText(postEmoji, canvas.width / 2, emojiY);
+    // Emoji del tipo de post removido - ya no se muestra por defecto
 
     // Título del post - Ahora usa el contenido personalizable
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#6366f1"; // Gris oscuro para buena legibilidad
     ctx.font = `bold ${Math.round(48 * scale)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "center";
 
-    const titleY = emojiY + Math.round(90 * scale);
+    const titleY = headerY + Math.round(190 * scale);
 
     // Usar el título personalizable o el título original como fallback
     const displayTitle =
@@ -193,7 +299,14 @@ const ImageGenerator = ({
         : editableContent.title ||
           post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, "").trim();
 
-    ctx.fillText(displayTitle, canvas.width / 2, titleY);
+    drawTextWithShadow(
+      ctx,
+      displayTitle,
+      canvas.width / 2,
+      titleY,
+      Math.round(2 * scale),
+      0.12
+    );
 
     // Usar contenido editable si está en modo edición, sino extraer del post
     let postTitle, contestTitle, description, details;
@@ -279,7 +392,7 @@ const ImageGenerator = ({
       return lines;
     };
 
-    const maxWidth = canvas.width - marginX * 2;
+    const maxWidth = canvas.width - marginX * 3; // Más margen para textos más cómodos
 
     // Calcular CTA Y position ANTES de usarlo
     const ctaYPos = canvas.height - Math.round(120 * scale);
@@ -313,11 +426,11 @@ const ImageGenerator = ({
       });
     }
 
-    // 3. Descripción del reto - Sin emojis
+    // 3. Descripción del reto - Sin emojis (agrupada visualmente con el título del reto)
     if (description) {
       // Limpiar emojis de la descripción
       const cleanDescription = description
-        .replace(/[📚🗳️⏰🎯✍️🔥🚨🏆📝📅🔗]/g, "")
+        .replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "")
         .trim();
       const descLines = wrapText(cleanDescription, maxWidth, 24);
       const lineHeight = Math.round(30 * scale);
@@ -325,13 +438,14 @@ const ImageGenerator = ({
         type: "description",
         lines: descLines,
         height: descLines.length * lineHeight,
+        groupWithPrevious: true, // Agrupación visual con título del reto
       });
     }
 
     // 4. Detalles técnicos (palabras, fecha) - Sin emojis
     if (details.length > 0) {
       const cleanDetails = details.map((detail) =>
-        detail.replace(/[📚🗳️⏰🎯✍️🔥🚨🏆📝📅🔗]/g, "").trim()
+        detail.replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "").trim()
       );
       contentItems.push({
         type: "details",
@@ -346,20 +460,21 @@ const ImageGenerator = ({
       0
     );
 
-    // Distribuir espacio uniformemente (justify-content: space-evenly)
+    // Distribuir espacio considerando agrupaciones visuales
     const remainingSpace = availableContentHeight - totalContentHeight;
-    const spacing =
+    const normalSpacing =
       contentItems.length > 1
         ? remainingSpace / (contentItems.length + 1)
         : remainingSpace / 2;
+    const groupSpacing = Math.round(15 * scale); // Espacio reducido entre elementos agrupados
 
     // Posición inicial con espaciado uniforme
-    let currentY = titleY + Math.round(60 * scale) + spacing;
+    let currentY = titleY + Math.round(60 * scale) + normalSpacing;
 
-    // Renderizar cada elemento con espaciado uniforme
-    contentItems.forEach((item, index) => {
+    // Renderizar cada elemento con espaciado adaptativo
+    contentItems.forEach((item) => {
       if (item.type === "secondary-title") {
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#6366f1"; // Gris oscuro
         ctx.font = `bold ${Math.round(36 * scale)}px system-ui, -apple-system, sans-serif`;
         item.lines.forEach((line, lineIndex) => {
           ctx.fillText(
@@ -369,17 +484,20 @@ const ImageGenerator = ({
           );
         });
       } else if (item.type === "contest-title") {
-        ctx.fillStyle = "#f1f5f9";
+        ctx.fillStyle = "#6366f1"; // Purple como el sitio
         ctx.font = `bold ${Math.round(32 * scale)}px system-ui, -apple-system, sans-serif`;
         item.lines.forEach((line, lineIndex) => {
-          ctx.fillText(
+          drawTextWithShadow(
+            ctx,
             line,
             canvas.width / 2,
-            currentY + lineIndex * Math.round(38 * scale)
+            currentY + lineIndex * Math.round(38 * scale),
+            Math.round(1.5 * scale),
+            0.1
           );
         });
       } else if (item.type === "description") {
-        ctx.fillStyle = "#e2e8f0";
+        ctx.fillStyle = "#6366f1"; // Gris medio para buena legibilidad
         ctx.font = `${Math.round(24 * scale)}px system-ui, -apple-system, sans-serif`;
         const lineHeight = Math.round(30 * scale);
         item.lines.forEach((line, lineIndex) => {
@@ -390,7 +508,7 @@ const ImageGenerator = ({
           );
         });
       } else if (item.type === "details") {
-        ctx.fillStyle = "#cbd5e1";
+        ctx.fillStyle = "#6366f1"; // Gris para detalles
         ctx.font = `${Math.round(22 * scale)}px system-ui, -apple-system, sans-serif`;
         item.lines.forEach((line, lineIndex) => {
           ctx.fillText(
@@ -401,14 +519,16 @@ const ImageGenerator = ({
         });
       }
 
-      currentY += item.height + spacing;
+      // Aplicar espaciado adaptativo según si es agrupado o no
+      const nextSpacing = item.groupWithPrevious ? groupSpacing : normalSpacing;
+      currentY += item.height + nextSpacing;
     });
 
     // Call to action
     const ctaY = ctaYPos;
 
     // Línea separadora inferior
-    ctx.strokeStyle = "#ffffff";
+    ctx.strokeStyle = "#6366f1"; // Purple como el sitio
     ctx.lineWidth = Math.round(2 * scale);
     ctx.beginPath();
     ctx.moveTo(marginX, ctaY - Math.round(40 * scale));
@@ -416,10 +536,17 @@ const ImageGenerator = ({
     ctx.stroke();
 
     // Texto del CTA
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#6366f1"; // Purple como el sitio
     ctx.font = `bold ${Math.round(36 * scale)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("letranido.com", canvas.width / 2, ctaY);
+    drawTextWithShadow(
+      ctx,
+      "letranido.com",
+      canvas.width / 2,
+      ctaY,
+      Math.round(2 * scale),
+      0.12
+    );
 
     // Notificar que la imagen está lista
     if (onImageGenerated) {
