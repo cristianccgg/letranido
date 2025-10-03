@@ -229,8 +229,11 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
 
     const maxWidth = canvas.width - (marginX * 2);
     
+    // Calcular CTA Y position ANTES de usarlo
+    const ctaYPos = isSquare ? canvas.height - Math.round(120 * scale) : canvas.height - Math.round(80 * scale);
+    
     // Calcular altura disponible para contenido
-    const availableHeight = ctaY - titleY - Math.round(100 * scale);
+    const availableHeight = ctaYPos - titleY - Math.round(100 * scale);
     
     // Distribución diferente según si es cuadrado (Instagram) o rectangular
     const contentSpacing = isSquare ? Math.round(35 * scale) : Math.round(25 * scale);
@@ -266,7 +269,7 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
       ctx.font = `${Math.round(isSquare ? 24 : 22 * scale)}px system-ui, -apple-system, sans-serif`;
       
       // Calcular cuántas líneas podemos mostrar según el espacio disponible
-      const remainingHeight = ctaY - currentY - Math.round(80 * scale); // Dejar espacio para detalles y CTA
+      const remainingHeight = ctaYPos - currentY - Math.round(80 * scale); // Dejar espacio para detalles y CTA
       const lineHeight = Math.round(30 * scale);
       const maxLines = Math.max(2, Math.floor(remainingHeight / lineHeight) - 2);
       
@@ -291,7 +294,7 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
     }
 
     // Call to action
-    const ctaY = isSquare ? canvas.height - Math.round(120 * scale) : canvas.height - Math.round(80 * scale);
+    const ctaY = ctaYPos;
     
     // Línea separadora inferior
     ctx.strokeStyle = '#ffffff';
