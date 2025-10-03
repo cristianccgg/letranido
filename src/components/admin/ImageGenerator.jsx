@@ -1,7 +1,9 @@
 // components/admin/ImageGenerator.jsx - Generador de imágenes para posts de redes sociales
 import { useRef, useEffect } from 'react';
+import { useGlobalApp } from '../../contexts/GlobalAppContext';
 
 const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
+  const { currentContest, nextContest } = useGlobalApp();
   const canvasRef = useRef(null);
 
   // Configuraciones por plataforma
@@ -94,70 +96,141 @@ const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
     const title = post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, '').trim();
     ctx.fillText(title, canvas.width / 2, titleY);
 
-    // Contenido principal (extracto)
+    // Obtener información del reto actual
+    const contest = currentContest || nextContest;
+    
+    // Contenido principal basado en el tipo de post y reto actual
+    let mainContent = '';
+    let additionalInfo = '';
+    
     ctx.fillStyle = '#f1f5f9';
-    ctx.font = `${Math.round(32 * scale)}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'center';
     
-    // Extraer las primeras líneas del contenido
-    const contentLines = post.content.split('\n').filter(line => line.trim());
-    let mainContent = '';
-    
-    // Buscar una línea significativa (que no sea solo emojis o muy corta)
-    for (const line of contentLines) {
-      // Usar un enfoque más simple para limpiar emojis
-      const cleanLine = line.replace(/[\u{1F000}-\u{1F6FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-      if (cleanLine.length > 20 && cleanLine.length < 80) {
-        mainContent = `"${cleanLine}"`;
+    // Generar contenido específico por tipo de post
+    switch (post.type) {
+      case 'new_contest':
+        if (contest) {
+          mainContent = `"${contest.title}"`;
+          additionalInfo = `${contest.min_words} - ${contest.max_words} palabras`;
+        } else {
+          mainContent = '"¡Nuevo reto de escritura disponible!"';
+        }
         break;
-      }
-    }
-    
-    // Fallback si no encontramos contenido adecuado
-    if (!mainContent) {
-      const fallbacks = {
-        new_contest: '"¡Nuevo reto de escritura disponible!"',
-        tips: '"Consejos para mejorar tu escritura"',
-        motivation: '"¡Es tu momento de brillar!"',
-        reminder: '"Últimos días para participar"',
-        last_call: '"¡Última oportunidad!"',
-        voting_start: '"¡La votación ha comenzado!"',
-        read_stories: '"Descubre historias increíbles"',
-        results: '"¡Ya tenemos ganadores!"'
-      };
-      mainContent = fallbacks[post.type] || '"¡Únete a nuestra comunidad!"';
+        
+      case 'tips':
+        mainContent = '"Mejora tu escritura con estos consejos"';
+        if (contest) {
+          additionalInfo = `Para el reto: "${contest.title}"`;
+        }
+        break;
+        
+      case 'motivation':
+        if (contest) {
+          mainContent = `"¿Ya empezaste tu historia para ${contest.title}?"`;
+        } else {
+          mainContent = '"¡Es tu momento de brillar como escritor!"';
+        }
+        break;
+        
+      case 'reminder':
+        if (contest) {
+          mainContent = '"¡Últimos días para participar!"';
+          const deadline = new Date(contest.submission_deadline);
+          additionalInfo = `Hasta: ${deadline.toLocaleDateString('es-ES')}`;
+        } else {
+          mainContent = '"¡No te quedes sin participar!"';
+        }
+        break;
+        
+      case 'last_call':
+        if (contest) {
+          mainContent = '"¡Última llamada!"';
+          additionalInfo = `"${contest.title}"`;
+        } else {
+          mainContent = '"¡Última oportunidad de participar!"';
+        }
+        break;
+        
+      case 'voting_start':
+        if (contest) {
+          mainContent = '"¡La votación ha comenzado!"';
+          additionalInfo = `Lee y vota las historias de "${contest.title}"`;
+        } else {
+          mainContent = '"¡Hora de votar por las mejores historias!"';
+        }
+        break;
+        
+      case 'read_stories':
+        if (contest) {
+          mainContent = '"¿Ya leíste las historias increíbles?"';
+          additionalInfo = `Del reto: "${contest.title}"`;
+        } else {
+          mainContent = '"Descubre historias increíbles"';
+        }
+        break;
+        
+      case 'results':
+        if (contest) {
+          mainContent = '"¡Ya tenemos ganadores!"';
+          additionalInfo = `Resultados de "${contest.title}"`;
+        } else {
+          mainContent = '"¡Resultados disponibles!"';
+        }
+        break;
+        
+      default:
+        mainContent = '"¡Únete a nuestra comunidad de escritores!"';
     }
 
-    // Dividir texto en líneas si es muy largo
+    // Función para dividir texto en líneas
+    const wrapText = (text, maxWidth, fontSize) => {
+      ctx.font = `${Math.round(fontSize * scale)}px system-ui, -apple-system, sans-serif`;
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+      return lines;
+    };
+
     const maxWidth = canvas.width - (marginX * 2);
-    const words = mainContent.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    ctx.font = `${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
+    let currentY = titleY + Math.round(100 * scale);
     
-    for (const word of words) {
-      const testLine = currentLine + (currentLine ? ' ' : '') + word;
-      const metrics = ctx.measureText(testLine);
-      
-      if (metrics.width > maxWidth && currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    }
-    if (currentLine) lines.push(currentLine);
-
-    // Mostrar máximo 3 líneas
-    const displayLines = lines.slice(0, 3);
-    const lineHeight = Math.round(40 * scale);
-    const startY = titleY + Math.round(100 * scale);
-
-    displayLines.forEach((line, index) => {
-      const y = startY + (index * lineHeight);
-      ctx.fillText(line, canvas.width / 2, y);
+    // Mostrar contenido principal
+    ctx.fillStyle = '#ffffff';
+    const mainLines = wrapText(mainContent, maxWidth, 28);
+    const mainLineHeight = Math.round(36 * scale);
+    
+    mainLines.slice(0, 2).forEach((line, index) => {
+      ctx.font = `${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
+      ctx.fillText(line, canvas.width / 2, currentY + (index * mainLineHeight));
     });
+    
+    currentY += mainLines.slice(0, 2).length * mainLineHeight + Math.round(30 * scale);
+    
+    // Mostrar información adicional si existe
+    if (additionalInfo) {
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = `${Math.round(22 * scale)}px system-ui, -apple-system, sans-serif`;
+      const additionalLines = wrapText(additionalInfo, maxWidth, 22);
+      const additionalLineHeight = Math.round(28 * scale);
+      
+      additionalLines.slice(0, 2).forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, currentY + (index * additionalLineHeight));
+      });
+    }
 
     // Call to action
     const ctaY = isSquare ? canvas.height - Math.round(120 * scale) : canvas.height - Math.round(80 * scale);
