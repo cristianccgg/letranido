@@ -141,20 +141,20 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
     ctx.lineTo(canvas.width - marginX, headerY + Math.round(30 * scale));
     ctx.stroke();
 
-    // Emoji del tipo de post
+    // Emoji del tipo de post - Mejor posicionamiento para formato cuadrado
     const postEmoji = postEmojis[post.type] || '✨';
-    ctx.font = `${Math.round(80 * scale)}px system-ui`;
+    ctx.font = `${Math.round(isSquare ? 90 : 80 * scale)}px system-ui`;
     ctx.textAlign = 'center';
     
-    const emojiY = isSquare ? Math.round(250 * scale) : Math.round(200 * scale);
+    const emojiY = isSquare ? Math.round(200 * scale) : Math.round(180 * scale);
     ctx.fillText(postEmoji, canvas.width / 2, emojiY);
 
     // Título del post
     ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${Math.round(42 * scale)}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold ${Math.round(isSquare ? 48 : 42 * scale)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'center';
     
-    const titleY = emojiY + Math.round(80 * scale);
+    const titleY = emojiY + Math.round(isSquare ? 90 : 80 * scale);
     const title = post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, '').trim();
     ctx.fillText(title, canvas.width / 2, titleY);
 
@@ -228,53 +228,65 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
     };
 
     const maxWidth = canvas.width - (marginX * 2);
-    let currentY = titleY + Math.round(60 * scale);
+    
+    // Calcular altura disponible para contenido
+    const availableHeight = ctaY - titleY - Math.round(100 * scale);
+    
+    // Distribución diferente según si es cuadrado (Instagram) o rectangular
+    const contentSpacing = isSquare ? Math.round(35 * scale) : Math.round(25 * scale);
+    let currentY = titleY + (isSquare ? Math.round(40 * scale) : Math.round(60 * scale));
     
     // 1. Título principal del post (ej: "¡NUEVO RETO DE ESCRITURA!")
     if (postTitle) {
       ctx.fillStyle = '#ffffff';
-      ctx.font = `bold ${Math.round(32 * scale)}px system-ui, -apple-system, sans-serif`;
-      const titleLines = wrapText(postTitle, maxWidth, 32);
+      ctx.font = `bold ${Math.round(isSquare ? 36 : 32 * scale)}px system-ui, -apple-system, sans-serif`;
+      const titleLines = wrapText(postTitle, maxWidth, isSquare ? 36 : 32);
       
       titleLines.slice(0, 2).forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(40 * scale)));
+        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(42 * scale)));
       });
-      currentY += titleLines.slice(0, 2).length * Math.round(40 * scale) + Math.round(25 * scale);
+      currentY += titleLines.slice(0, 2).length * Math.round(42 * scale) + contentSpacing;
     }
     
     // 2. Título del reto (ej: "El último día de...")
     if (contestTitle) {
       ctx.fillStyle = '#f1f5f9';
-      ctx.font = `bold ${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
-      const contestLines = wrapText(contestTitle, maxWidth, 28);
+      ctx.font = `bold ${Math.round(isSquare ? 32 : 28 * scale)}px system-ui, -apple-system, sans-serif`;
+      const contestLines = wrapText(contestTitle, maxWidth, isSquare ? 32 : 28);
       
       contestLines.slice(0, 1).forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(35 * scale)));
+        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(38 * scale)));
       });
-      currentY += contestLines.slice(0, 1).length * Math.round(35 * scale) + Math.round(20 * scale);
+      currentY += contestLines.slice(0, 1).length * Math.round(38 * scale) + contentSpacing;
     }
     
-    // 3. Descripción del reto
+    // 3. Descripción del reto - MEJORADA para mostrar más texto
     if (description) {
       ctx.fillStyle = '#e2e8f0';
-      ctx.font = `${Math.round(22 * scale)}px system-ui, -apple-system, sans-serif`;
-      // Limitar descripción para que no ocupe todo el espacio
-      const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
-      const descLines = wrapText(shortDesc, maxWidth, 22);
+      ctx.font = `${Math.round(isSquare ? 24 : 22 * scale)}px system-ui, -apple-system, sans-serif`;
       
-      descLines.slice(0, 3).forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(28 * scale)));
+      // Calcular cuántas líneas podemos mostrar según el espacio disponible
+      const remainingHeight = ctaY - currentY - Math.round(80 * scale); // Dejar espacio para detalles y CTA
+      const lineHeight = Math.round(30 * scale);
+      const maxLines = Math.max(2, Math.floor(remainingHeight / lineHeight) - 2);
+      
+      // No truncar arbitrariamente, usar el espacio disponible
+      const descLines = wrapText(description, maxWidth, isSquare ? 24 : 22);
+      const linesToShow = Math.min(descLines.length, maxLines);
+      
+      descLines.slice(0, linesToShow).forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, currentY + (index * lineHeight));
       });
-      currentY += descLines.slice(0, 3).length * Math.round(28 * scale) + Math.round(25 * scale);
+      currentY += linesToShow * lineHeight + contentSpacing;
     }
     
     // 4. Detalles técnicos (palabras, fecha)
     if (details.length > 0) {
       ctx.fillStyle = '#cbd5e1';
-      ctx.font = `${Math.round(20 * scale)}px system-ui, -apple-system, sans-serif`;
+      ctx.font = `${Math.round(isSquare ? 22 : 20 * scale)}px system-ui, -apple-system, sans-serif`;
       
       details.slice(0, 2).forEach((detail, index) => {
-        ctx.fillText(detail, canvas.width / 2, currentY + (index * Math.round(26 * scale)));
+        ctx.fillText(detail, canvas.width / 2, currentY + (index * Math.round(28 * scale)));
       });
     }
 
