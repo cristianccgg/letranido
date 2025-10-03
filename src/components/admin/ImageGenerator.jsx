@@ -1,8 +1,17 @@
 // components/admin/ImageGenerator.jsx - Generador de imágenes para posts de redes sociales
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerated }) => {
   const canvasRef = useRef(null);
+  
+  // Estados para edición de contenido
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableContent, setEditableContent] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+    details: ''
+  });
 
   // Configuraciones por plataforma
   const platformConfig = {
@@ -23,6 +32,61 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
     read_stories: '📚',
     results: '🏆'
   };
+
+  // Extraer contenido inicial del post para edición
+  const extractInitialContent = () => {
+    if (!post) return;
+
+    const postLines = post.content.split('\n').filter(line => line.trim());
+    
+    let postTitle = '';
+    let contestTitle = '';
+    let description = '';
+    let details = [];
+    
+    // Extraer contenido usando la misma lógica que generateImage
+    for (let i = 0; i < postLines.length; i++) {
+      const line = postLines[i].trim();
+      
+      if (line.includes('🎯') && line.includes('RETO') && !postTitle) {
+        postTitle = line.replace(/🎯/g, '').trim();
+      }
+      
+      if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
+        contestTitle = line;
+      }
+      
+      if (!line.includes('📝') && !line.includes('📅') && !line.includes('✍️') && 
+          !line.includes('🎯') && !line.includes('🏆') && !line.includes('🔗') &&
+          line.length > 20 && !line.startsWith('"') && !description) {
+        description = line;
+        if (i + 1 < postLines.length) {
+          const nextLine = postLines[i + 1].trim();
+          if (!nextLine.includes('📝') && !nextLine.includes('📅') && nextLine.length > 10) {
+            description += ' ' + nextLine;
+          }
+        }
+      }
+      
+      if ((line.includes('📝') || line.includes('📅')) && !line.includes('letranido.com')) {
+        details.push(line);
+      }
+    }
+
+    setEditableContent({
+      title: postTitle || 'Título personalizable',
+      subtitle: contestTitle || (contest ? `"${contest.title}"` : '"Reto personalizable"'),
+      description: description || 'Descripción personalizable del reto...',
+      details: details.join(' • ') || (contest ? `📝 ${contest.min_words} - ${contest.max_words} palabras` : '📝 Detalles personalizables')
+    });
+  };
+
+  // Inicializar contenido editable cuando cambie el post o contest
+  useEffect(() => {
+    if (post && !isEditing) {
+      extractInitialContent();
+    }
+  }, [post, contest, isEditing]);
 
   // Generar imagen
   const generateImage = () => {
@@ -94,52 +158,50 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
     const title = post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, '').trim();
     ctx.fillText(title, canvas.width / 2, titleY);
 
-    // Extraer contenido directamente del post
-    const postLines = post.content.split('\n').filter(line => line.trim());
+    // Usar contenido editable si está en modo edición, sino extraer del post
+    let postTitle, contestTitle, description, details;
     
-    // Extraer elementos clave del post
-    let postTitle = '';
-    let contestTitle = '';
-    let description = '';
-    let details = [];
-    let callToAction = '';
-    
-    // Buscar elementos específicos en el contenido del post
-    for (let i = 0; i < postLines.length; i++) {
-      const line = postLines[i].trim();
+    if (isEditing && editableContent.title) {
+      // Usar contenido editado
+      postTitle = editableContent.title;
+      contestTitle = editableContent.subtitle;
+      description = editableContent.description;
+      details = editableContent.details ? [editableContent.details] : [];
+    } else {
+      // Extraer contenido del post original
+      const postLines = post.content.split('\n').filter(line => line.trim());
       
-      // Título principal del post (primera línea con emojis de reto)
-      if (line.includes('🎯') && line.includes('RETO') && !postTitle) {
-        postTitle = line.replace(/🎯/g, '').trim();
-      }
+      postTitle = '';
+      contestTitle = '';
+      description = '';
+      details = [];
       
-      // Título del reto (línea entre comillas)
-      if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
-        contestTitle = line;
-      }
-      
-      // Descripción (líneas de texto normal, no emojis ni detalles técnicos)
-      if (!line.includes('📝') && !line.includes('📅') && !line.includes('✍️') && 
-          !line.includes('🎯') && !line.includes('🏆') && !line.includes('🔗') &&
-          line.length > 20 && !line.startsWith('"') && !description) {
-        // Tomar esta línea y posiblemente la siguiente como descripción
-        description = line;
-        if (i + 1 < postLines.length) {
-          const nextLine = postLines[i + 1].trim();
-          if (!nextLine.includes('📝') && !nextLine.includes('📅') && nextLine.length > 10) {
-            description += ' ' + nextLine;
+      for (let i = 0; i < postLines.length; i++) {
+        const line = postLines[i].trim();
+        
+        if (line.includes('🎯') && line.includes('RETO') && !postTitle) {
+          postTitle = line.replace(/🎯/g, '').trim();
+        }
+        
+        if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
+          contestTitle = line;
+        }
+        
+        if (!line.includes('📝') && !line.includes('📅') && !line.includes('✍️') && 
+            !line.includes('🎯') && !line.includes('🏆') && !line.includes('🔗') &&
+            line.length > 20 && !line.startsWith('"') && !description) {
+          description = line;
+          if (i + 1 < postLines.length) {
+            const nextLine = postLines[i + 1].trim();
+            if (!nextLine.includes('📝') && !nextLine.includes('📅') && nextLine.length > 10) {
+              description += ' ' + nextLine;
+            }
           }
         }
-      }
-      
-      // Detalles técnicos (líneas con emojis de datos)
-      if ((line.includes('📝') || line.includes('📅')) && !line.includes('letranido.com')) {
-        details.push(line);
-      }
-      
-      // Call to action
-      if (line.includes('letranido.com') || (line.includes('✍️') && line.includes('Participa'))) {
-        callToAction = line;
+        
+        if ((line.includes('📝') || line.includes('📅')) && !line.includes('letranido.com')) {
+          details.push(line);
+        }
       }
     }
 
@@ -261,6 +323,94 @@ const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerate
 
   return (
     <div className="image-generator">
+      {/* Editor de contenido */}
+      {post && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h6 className="text-sm font-medium text-gray-700">Contenido de la imagen:</h6>
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  // Al guardar, regenerar imagen
+                  setTimeout(generateImage, 100);
+                }
+                setIsEditing(!isEditing);
+              }}
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                isEditing 
+                  ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              }`}
+            >
+              {isEditing ? '💾 Guardar' : '✏️ Editar'}
+            </button>
+          </div>
+          
+          {isEditing ? (
+            <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Título principal:
+                </label>
+                <input
+                  type="text"
+                  value={editableContent.title}
+                  onChange={(e) => setEditableContent(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="ej: ¡NUEVO RETO DE ESCRITURA!"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Título del reto:
+                </label>
+                <input
+                  type="text"
+                  value={editableContent.subtitle}
+                  onChange={(e) => setEditableContent(prev => ({ ...prev, subtitle: e.target.value }))}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder='ej: "El último día de..."'
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Descripción:
+                </label>
+                <textarea
+                  value={editableContent.description}
+                  onChange={(e) => setEditableContent(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  rows="2"
+                  placeholder="Descripción del reto..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Detalles:
+                </label>
+                <input
+                  type="text"
+                  value={editableContent.details}
+                  onChange={(e) => setEditableContent(prev => ({ ...prev, details: e.target.value }))}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="📝 100-500 palabras • 📅 Hasta: 26/9/2025"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-700">
+              <div className="font-medium">{editableContent.title}</div>
+              <div className="text-gray-600">{editableContent.subtitle}</div>
+              <div className="text-xs text-gray-500 mt-1 line-clamp-2">{editableContent.description}</div>
+              <div className="text-xs text-gray-500 mt-1">{editableContent.details}</div>
+            </div>
+          )}
+        </div>
+      )}
+
       <canvas 
         ref={canvasRef}
         style={{ 
