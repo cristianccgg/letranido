@@ -5,13 +5,14 @@ import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import ImageGenerator from './ImageGenerator';
 
 const SocialGenerator = () => {
-  const { currentContest, nextContest } = useGlobalApp();
+  const { currentContest, nextContest, contests } = useGlobalApp();
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState('instagram');
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [showImageFor, setShowImageFor] = useState(null);
   const [generatedImages, setGeneratedImages] = useState({});
+  const [selectedContestOption, setSelectedContestOption] = useState('current');
 
   // Plataformas disponibles
   const platforms = [
@@ -21,11 +22,70 @@ const SocialGenerator = () => {
     { id: 'linkedin', name: 'LinkedIn', icon: Share2, maxChars: 3000, hashtags: true }
   ];
 
+  // Obtener reto seleccionado según la opción
+  const getSelectedContest = () => {
+    switch (selectedContestOption) {
+      case 'current':
+        return currentContest;
+      case 'next':
+        return nextContest;
+      case 'previous':
+        // Buscar el reto más reciente que ya fue finalizado
+        if (contests && contests.length > 0) {
+          const finalized = contests
+            .filter(c => c.finalized_at !== null)
+            .sort((a, b) => new Date(b.finalized_at) - new Date(a.finalized_at));
+          return finalized[0] || null;
+        }
+        return null;
+      default:
+        return currentContest;
+    }
+  };
+
+  // Obtener opciones de reto disponibles
+  const getContestOptions = () => {
+    const options = [];
+    
+    if (currentContest) {
+      options.push({
+        value: 'current',
+        label: `📍 Reto Actual: "${currentContest.title}"`,
+        contest: currentContest
+      });
+    }
+    
+    if (nextContest) {
+      options.push({
+        value: 'next', 
+        label: `⏭️ Próximo Reto: "${nextContest.title}"`,
+        contest: nextContest
+      });
+    }
+    
+    // Agregar reto anterior si existe
+    if (contests && contests.length > 0) {
+      const finalized = contests
+        .filter(c => c.finalized_at !== null)
+        .sort((a, b) => new Date(b.finalized_at) - new Date(a.finalized_at));
+      
+      if (finalized[0]) {
+        options.push({
+          value: 'previous',
+          label: `📚 Reto Anterior: "${finalized[0].title}"`,
+          contest: finalized[0]
+        });
+      }
+    }
+    
+    return options;
+  };
+
   // Generar posts del mes completo
   const generateMonthlyPosts = async () => {
     setLoading(true);
     try {
-      const contest = currentContest || nextContest;
+      const contest = getSelectedContest();
       if (!contest) {
         alert('No hay reto disponible para generar posts');
         return;
@@ -33,6 +93,10 @@ const SocialGenerator = () => {
 
       const posts = await generateContestPosts(contest, selectedPlatform);
       setGeneratedPosts(posts);
+      
+      // Limpiar imágenes generadas al cambiar reto
+      setGeneratedImages({});
+      setShowImageFor(null);
     } catch (error) {
       console.error('Error generando posts:', error);
       alert('Error generando posts: ' + error.message);
@@ -357,6 +421,54 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
         </div>
       </div>
 
+      {/* Selector de Reto */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-3">Selecciona el reto:</h3>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <select
+            value={selectedContestOption}
+            onChange={(e) => {
+              setSelectedContestOption(e.target.value);
+              // Limpiar posts y estados al cambiar reto
+              setGeneratedPosts([]);
+              setGeneratedImages({});
+              setShowImageFor(null);
+            }}
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+          >
+            {getContestOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          
+          {getSelectedContest() && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <div className="text-sm text-blue-800">
+                <strong>Reto seleccionado:</strong> "{getSelectedContest().title}"
+              </div>
+              <div className="text-xs text-blue-600 mt-1">
+                📝 {getSelectedContest().min_words} - {getSelectedContest().max_words} palabras
+                {getSelectedContest().submission_deadline && (
+                  <span className="ml-3">
+                    📅 Hasta: {new Date(getSelectedContest().submission_deadline).toLocaleDateString('es-ES')}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {!getSelectedContest() && (
+            <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
+              <div className="text-sm text-yellow-800">
+                ⚠️ No hay reto disponible para la opción seleccionada
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Selector de Plataforma */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-3">Selecciona la plataforma:</h3>
@@ -479,6 +591,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
                   <ImageGenerator 
                     post={post}
                     platform={selectedPlatform}
+                    contest={getSelectedContest()}
                     onImageGenerated={(imageDataUrl) => handleImageGenerated(post.id, imageDataUrl)}
                   />
                 </div>
@@ -492,20 +605,26 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h4 className="font-semibold text-blue-900 mb-2">💡 Cómo usar:</h4>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>1. Selecciona tu plataforma preferida</li>
-          <li>2. Haz clic en "Generar Posts del Mes"</li>
-          <li>3. Copia cada post con el botón "Copiar"</li>
-          <li>4. Haz clic en "Imagen" para generar la imagen del post</li>
-          <li>5. Descarga la imagen con "Descargar"</li>
-          <li>6. Sube imagen + texto a Buffer/Hootsuite</li>
-          <li>7. Programa las fechas sugeridas</li>
-          <li>8. ¡Relájate y deja que tu contenido trabaje por ti!</li>
+          <li>1. <strong>Selecciona el reto:</strong> Actual, próximo o anterior</li>
+          <li>2. Selecciona tu plataforma preferida</li>
+          <li>3. Haz clic en "Generar Posts del Mes"</li>
+          <li>4. Copia cada post con el botón "Copiar"</li>
+          <li>5. Haz clic en "Imagen" para generar la imagen del post</li>
+          <li>6. Descarga la imagen con "Descargar"</li>
+          <li>7. Sube imagen + texto a Buffer/Hootsuite</li>
+          <li>8. Programa las fechas sugeridas</li>
+          <li>9. ¡Relájate y deja que tu contenido trabaje por ti!</li>
         </ul>
         <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>✨ Nuevo:</strong> Cada post incluye una imagen personalizada con el branding de Letranido,
-            optimizada automáticamente para cada plataforma.
+          <p className="text-sm text-blue-800 mb-2">
+            <strong>✨ Funcionalidades:</strong>
           </p>
+          <ul className="text-xs text-blue-700 space-y-1">
+            <li>• <strong>Selector de reto:</strong> Cambia entre actual, próximo o anterior según tu estrategia</li>
+            <li>• <strong>Imágenes automáticas:</strong> Cada post incluye imagen personalizada con branding</li>
+            <li>• <strong>Contenido inteligente:</strong> Extrae información real del reto seleccionado</li>
+            <li>• <strong>Multi-plataforma:</strong> Optimizado para Instagram, Twitter, Facebook, LinkedIn</li>
+          </ul>
         </div>
       </div>
     </div>

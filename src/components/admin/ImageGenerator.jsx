@@ -1,9 +1,7 @@
 // components/admin/ImageGenerator.jsx - Generador de imágenes para posts de redes sociales
 import { useRef, useEffect } from 'react';
-import { useGlobalApp } from '../../contexts/GlobalAppContext';
 
-const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
-  const { currentContest, nextContest } = useGlobalApp();
+const ImageGenerator = ({ post, platform = 'instagram', contest, onImageGenerated }) => {
   const canvasRef = useRef(null);
 
   // Configuraciones por plataforma
@@ -241,14 +239,14 @@ const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
     }
   };
 
-  // Generar imagen cuando cambie el post o la plataforma
+  // Generar imagen cuando cambie el post, plataforma o contest
   useEffect(() => {
     if (post) {
       // Pequeño delay para asegurar que el canvas esté listo
       setTimeout(generateImage, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post, platform]);
+  }, [post, platform, contest]);
 
   // Función para descargar la imagen
   const downloadImage = () => {
