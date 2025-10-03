@@ -1,7 +1,8 @@
 // components/admin/SocialGenerator.jsx - Generador automático de posts para redes sociales
 import { useState } from 'react';
-import { Share2, Copy, CheckCircle, Calendar, Instagram, Twitter, Facebook, Sparkles } from 'lucide-react';
+import { Share2, Copy, CheckCircle, Calendar, Instagram, Twitter, Facebook, Sparkles, Image, Download } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
+import ImageGenerator from './ImageGenerator';
 
 const SocialGenerator = () => {
   const { currentContest, nextContest } = useGlobalApp();
@@ -9,6 +10,8 @@ const SocialGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState('instagram');
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [showImageFor, setShowImageFor] = useState(null);
+  const [generatedImages, setGeneratedImages] = useState({});
 
   // Plataformas disponibles
   const platforms = [
@@ -318,6 +321,30 @@ El reto "${contest.title}" ya tiene ganadores oficiales.
     }
   };
 
+  // Manejar generación de imagen
+  const handleImageGenerated = (postId, imageDataUrl) => {
+    setGeneratedImages(prev => ({
+      ...prev,
+      [postId]: imageDataUrl
+    }));
+  };
+
+  // Descargar imagen
+  const downloadImage = (post) => {
+    const imageData = generatedImages[post.id];
+    if (!imageData) return;
+
+    const link = document.createElement('a');
+    link.download = `${post.type}-${selectedPlatform}-letranido.png`;
+    link.href = imageData;
+    link.click();
+  };
+
+  // Toggle mostrar/ocultar imagen
+  const toggleImagePreview = (postId) => {
+    setShowImageFor(showImageFor === postId ? null : postId);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="flex items-center gap-3 mb-6">
@@ -391,22 +418,40 @@ El reto "${contest.title}" ya tiene ganadores oficiales.
                   <h4 className="font-semibold text-gray-900">{post.title}</h4>
                   <p className="text-sm text-gray-600">{post.scheduledFor}</p>
                 </div>
-                <button
-                  onClick={() => copyToClipboard(post.content + (post.hashtags ? '\n\n' + post.hashtags : ''), index)}
-                  className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all"
-                >
-                  {copiedIndex === index ? (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      Copiado
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copiar
-                    </>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleImagePreview(post.id)}
+                    className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                  >
+                    <Image className="w-4 h-4" />
+                    {showImageFor === post.id ? 'Ocultar' : 'Imagen'}
+                  </button>
+                  {generatedImages[post.id] && (
+                    <button
+                      onClick={() => downloadImage(post)}
+                      className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all"
+                    >
+                      <Download className="w-4 h-4" />
+                      Descargar
+                    </button>
                   )}
-                </button>
+                  <button
+                    onClick={() => copyToClipboard(post.content + (post.hashtags ? '\n\n' + post.hashtags : ''), index)}
+                    className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all"
+                  >
+                    {copiedIndex === index ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copiar
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               
               <div className="bg-white p-3 rounded border">
@@ -423,6 +468,21 @@ El reto "${contest.title}" ya tiene ganadores oficiales.
               <div className="mt-2 text-xs text-gray-500">
                 Caracteres: {(post.content + (post.hashtags ? '\n\n' + post.hashtags : '')).length}
               </div>
+
+              {/* Generador de imagen */}
+              {showImageFor === post.id && (
+                <div className="mt-4 p-4 bg-white rounded-lg border">
+                  <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Imagen para {platforms.find(p => p.id === selectedPlatform)?.name}
+                  </h5>
+                  <ImageGenerator 
+                    post={post}
+                    platform={selectedPlatform}
+                    onImageGenerated={(imageDataUrl) => handleImageGenerated(post.id, imageDataUrl)}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -434,10 +494,19 @@ El reto "${contest.title}" ya tiene ganadores oficiales.
         <ul className="text-sm text-blue-800 space-y-1">
           <li>1. Selecciona tu plataforma preferida</li>
           <li>2. Haz clic en "Generar Posts del Mes"</li>
-          <li>3. Copia cada post y pégalo en Buffer/Hootsuite</li>
-          <li>4. Programa las fechas sugeridas</li>
-          <li>5. ¡Relájate y deja que tu contenido trabaje por ti!</li>
+          <li>3. Copia cada post con el botón "Copiar"</li>
+          <li>4. Haz clic en "Imagen" para generar la imagen del post</li>
+          <li>5. Descarga la imagen con "Descargar"</li>
+          <li>6. Sube imagen + texto a Buffer/Hootsuite</li>
+          <li>7. Programa las fechas sugeridas</li>
+          <li>8. ¡Relájate y deja que tu contenido trabaje por ti!</li>
         </ul>
+        <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>✨ Nuevo:</strong> Cada post incluye una imagen personalizada con el branding de Letranido,
+            optimizada automáticamente para cada plataforma.
+          </p>
+        </div>
       </div>
     </div>
   );
