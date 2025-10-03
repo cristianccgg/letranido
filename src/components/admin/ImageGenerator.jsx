@@ -96,91 +96,53 @@ const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
     const title = post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, '').trim();
     ctx.fillText(title, canvas.width / 2, titleY);
 
-    // Obtener información del reto actual
-    const contest = currentContest || nextContest;
+    // Extraer contenido directamente del post
+    const postLines = post.content.split('\n').filter(line => line.trim());
     
-    // Contenido principal basado en el tipo de post y reto actual
-    let mainContent = '';
-    let additionalInfo = '';
+    // Extraer elementos clave del post
+    let postTitle = '';
+    let contestTitle = '';
+    let description = '';
+    let details = [];
+    let callToAction = '';
     
-    ctx.fillStyle = '#f1f5f9';
-    ctx.font = `${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
-    ctx.textAlign = 'center';
-    
-    // Generar contenido específico por tipo de post
-    switch (post.type) {
-      case 'new_contest':
-        if (contest) {
-          mainContent = `"${contest.title}"`;
-          additionalInfo = `${contest.min_words} - ${contest.max_words} palabras`;
-        } else {
-          mainContent = '"¡Nuevo reto de escritura disponible!"';
+    // Buscar elementos específicos en el contenido del post
+    for (let i = 0; i < postLines.length; i++) {
+      const line = postLines[i].trim();
+      
+      // Título principal del post (primera línea con emojis de reto)
+      if (line.includes('🎯') && line.includes('RETO') && !postTitle) {
+        postTitle = line.replace(/🎯/g, '').trim();
+      }
+      
+      // Título del reto (línea entre comillas)
+      if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
+        contestTitle = line;
+      }
+      
+      // Descripción (líneas de texto normal, no emojis ni detalles técnicos)
+      if (!line.includes('📝') && !line.includes('📅') && !line.includes('✍️') && 
+          !line.includes('🎯') && !line.includes('🏆') && !line.includes('🔗') &&
+          line.length > 20 && !line.startsWith('"') && !description) {
+        // Tomar esta línea y posiblemente la siguiente como descripción
+        description = line;
+        if (i + 1 < postLines.length) {
+          const nextLine = postLines[i + 1].trim();
+          if (!nextLine.includes('📝') && !nextLine.includes('📅') && nextLine.length > 10) {
+            description += ' ' + nextLine;
+          }
         }
-        break;
-        
-      case 'tips':
-        mainContent = '"Mejora tu escritura con estos consejos"';
-        if (contest) {
-          additionalInfo = `Para el reto: "${contest.title}"`;
-        }
-        break;
-        
-      case 'motivation':
-        if (contest) {
-          mainContent = `"¿Ya empezaste tu historia para ${contest.title}?"`;
-        } else {
-          mainContent = '"¡Es tu momento de brillar como escritor!"';
-        }
-        break;
-        
-      case 'reminder':
-        if (contest) {
-          mainContent = '"¡Últimos días para participar!"';
-          const deadline = new Date(contest.submission_deadline);
-          additionalInfo = `Hasta: ${deadline.toLocaleDateString('es-ES')}`;
-        } else {
-          mainContent = '"¡No te quedes sin participar!"';
-        }
-        break;
-        
-      case 'last_call':
-        if (contest) {
-          mainContent = '"¡Última llamada!"';
-          additionalInfo = `"${contest.title}"`;
-        } else {
-          mainContent = '"¡Última oportunidad de participar!"';
-        }
-        break;
-        
-      case 'voting_start':
-        if (contest) {
-          mainContent = '"¡La votación ha comenzado!"';
-          additionalInfo = `Lee y vota las historias de "${contest.title}"`;
-        } else {
-          mainContent = '"¡Hora de votar por las mejores historias!"';
-        }
-        break;
-        
-      case 'read_stories':
-        if (contest) {
-          mainContent = '"¿Ya leíste las historias increíbles?"';
-          additionalInfo = `Del reto: "${contest.title}"`;
-        } else {
-          mainContent = '"Descubre historias increíbles"';
-        }
-        break;
-        
-      case 'results':
-        if (contest) {
-          mainContent = '"¡Ya tenemos ganadores!"';
-          additionalInfo = `Resultados de "${contest.title}"`;
-        } else {
-          mainContent = '"¡Resultados disponibles!"';
-        }
-        break;
-        
-      default:
-        mainContent = '"¡Únete a nuestra comunidad de escritores!"';
+      }
+      
+      // Detalles técnicos (líneas con emojis de datos)
+      if ((line.includes('📝') || line.includes('📅')) && !line.includes('letranido.com')) {
+        details.push(line);
+      }
+      
+      // Call to action
+      if (line.includes('letranido.com') || (line.includes('✍️') && line.includes('Participa'))) {
+        callToAction = line;
+      }
     }
 
     // Función para dividir texto en líneas
@@ -206,29 +168,53 @@ const ImageGenerator = ({ post, platform = 'instagram', onImageGenerated }) => {
     };
 
     const maxWidth = canvas.width - (marginX * 2);
-    let currentY = titleY + Math.round(100 * scale);
+    let currentY = titleY + Math.round(60 * scale);
     
-    // Mostrar contenido principal
-    ctx.fillStyle = '#ffffff';
-    const mainLines = wrapText(mainContent, maxWidth, 28);
-    const mainLineHeight = Math.round(36 * scale);
+    // 1. Título principal del post (ej: "¡NUEVO RETO DE ESCRITURA!")
+    if (postTitle) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${Math.round(32 * scale)}px system-ui, -apple-system, sans-serif`;
+      const titleLines = wrapText(postTitle, maxWidth, 32);
+      
+      titleLines.slice(0, 2).forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(40 * scale)));
+      });
+      currentY += titleLines.slice(0, 2).length * Math.round(40 * scale) + Math.round(25 * scale);
+    }
     
-    mainLines.slice(0, 2).forEach((line, index) => {
-      ctx.font = `${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
-      ctx.fillText(line, canvas.width / 2, currentY + (index * mainLineHeight));
-    });
+    // 2. Título del reto (ej: "El último día de...")
+    if (contestTitle) {
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = `bold ${Math.round(28 * scale)}px system-ui, -apple-system, sans-serif`;
+      const contestLines = wrapText(contestTitle, maxWidth, 28);
+      
+      contestLines.slice(0, 1).forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(35 * scale)));
+      });
+      currentY += contestLines.slice(0, 1).length * Math.round(35 * scale) + Math.round(20 * scale);
+    }
     
-    currentY += mainLines.slice(0, 2).length * mainLineHeight + Math.round(30 * scale);
-    
-    // Mostrar información adicional si existe
-    if (additionalInfo) {
+    // 3. Descripción del reto
+    if (description) {
       ctx.fillStyle = '#e2e8f0';
       ctx.font = `${Math.round(22 * scale)}px system-ui, -apple-system, sans-serif`;
-      const additionalLines = wrapText(additionalInfo, maxWidth, 22);
-      const additionalLineHeight = Math.round(28 * scale);
+      // Limitar descripción para que no ocupe todo el espacio
+      const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
+      const descLines = wrapText(shortDesc, maxWidth, 22);
       
-      additionalLines.slice(0, 2).forEach((line, index) => {
-        ctx.fillText(line, canvas.width / 2, currentY + (index * additionalLineHeight));
+      descLines.slice(0, 3).forEach((line, index) => {
+        ctx.fillText(line, canvas.width / 2, currentY + (index * Math.round(28 * scale)));
+      });
+      currentY += descLines.slice(0, 3).length * Math.round(28 * scale) + Math.round(25 * scale);
+    }
+    
+    // 4. Detalles técnicos (palabras, fecha)
+    if (details.length > 0) {
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = `${Math.round(20 * scale)}px system-ui, -apple-system, sans-serif`;
+      
+      details.slice(0, 2).forEach((detail, index) => {
+        ctx.fillText(detail, canvas.width / 2, currentY + (index * Math.round(26 * scale)));
       });
     }
 

@@ -139,9 +139,8 @@ ${contest.description}
 
 📝 ${contest.min_words} - ${contest.max_words} palabras
 📅 Envío hasta: ${new Date(contest.submission_deadline).toLocaleDateString('es-ES')}
-🏆 ¡Premios y reconocimiento para los ganadores!
 
-¿Estás listo/a para el desafío? ¡Tu historia puede ser la próxima ganadora!
+¿Estás listo/a para el desafío? ¡Demuestra tu creatividad y únete a nuestra comunidad de escritores!
 
 ✍️ Participa en letranido.com`;
 
@@ -242,7 +241,7 @@ Nuestra increíble comunidad ha creado historias únicas que merecen ser descubi
 📚 Lee las historias
 ❤️ Vota por tus favoritas  
 💬 Deja comentarios constructivos
-🏆 Ayuda a elegir a los ganadores
+✨ Celebra la creatividad de la comunidad
 
 Tu voto cuenta. Cada historia merece una oportunidad.
 
@@ -274,13 +273,14 @@ Cada historia es un mundo nuevo. ¿Cuál será tu favorita?
   const generateResultsPost = (contest, platform) => {
     const baseText = `🏆 ¡RESULTADOS DEL RETO DISPONIBLES!
 
-El reto "${contest.title}" ya tiene ganadores oficiales.
+El reto "${contest.title}" ha concluido y ya puedes ver las historias más destacadas por la comunidad.
 
-🥇 Primer lugar: [Será actualizado en el sitio]
-🥈 Segundo lugar: [Será actualizado en el sitio]  
-🥉 Tercer lugar: [Será actualizado en el sitio]
+✨ Historias más votadas
+📚 Creatividad extraordinaria  
+🎭 Diversidad de enfoques
+💫 Talento de nuestra comunidad
 
-¡Felicidades a todos los participantes! Cada historia aportó algo especial a nuestra comunidad.
+¡Felicidades a todos los participantes! Cada historia aportó algo especial y único.
 
 🎉 Ver resultados completos: letranido.com
 ✍️ ¿Listo para el próximo reto?`;
