@@ -189,15 +189,73 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         const commentUserIds = comments ? comments.map(c => c.user_id) : [];
         const uniqueUserIds = [...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds])];
         
-        const { data: users, error: usersError } = await supabase
-          .from('user_profiles')
-          .select('id, display_name')
-          .in('id', uniqueUserIds);
+        console.log('🔍 Intentando cargar perfiles para IDs:', uniqueUserIds);
+        
+        // Cargar perfiles de usuario públicos
+        let users = [];
+        let usersError = null;
+        
+        // Intentar cargar los perfiles de múltiples formas
+        try {
+          console.log('🔧 Intentando RPC function para perfiles públicos...');
+          // Intentar RPC function para bypass RLS
+          const { data: rpcUsers, error: rpcError } = await supabase
+            .rpc('get_public_user_profiles', { user_ids: uniqueUserIds });
+          
+          if (rpcError) {
+            console.warn('🔧 RPC function no disponible, intentando consulta directa:', rpcError.message);
+            
+            // Fallback 1: Consulta directa simple
+            const { data: directUsers, error: directError } = await supabase
+              .from('user_profiles')
+              .select('id, display_name')
+              .in('id', uniqueUserIds);
+              
+            if (directError) {
+              console.warn('🔧 Consulta directa falló, intentando sin filtro:', directError.message);
+              
+              // Fallback 2: Cargar todos los perfiles públicos (sin filtro)
+              const { data: allUsers, error: allError } = await supabase
+                .from('user_profiles')
+                .select('id, display_name')
+                .not('display_name', 'is', null)
+                .limit(1000);
+                
+              if (allError) {
+                console.error('❌ Todas las consultas fallaron:', allError.message);
+                users = [];
+                usersError = allError;
+              } else {
+                // Filtrar solo los usuarios que necesitamos
+                users = (allUsers || []).filter(user => uniqueUserIds.includes(user.id));
+                console.log('✅ Usando consulta sin filtro, encontrados:', users.length, 'de', uniqueUserIds.length);
+              }
+            } else {
+              users = directUsers || [];
+              console.log('✅ Usando consulta directa');
+            }
+          } else {
+            users = rpcUsers || [];
+            console.log('✅ Usando RPC function para perfiles públicos');
+          }
+        } catch (error) {
+          console.error('❌ Error general cargando perfiles:', error);
+          users = [];
+          usersError = error;
+        }
           
         if (usersError) {
-          console.warn('Error loading user_profiles for sidebar:', usersError);
+          console.error('❌ Error loading user_profiles for sidebar:', usersError);
+          console.error('❌ Error details:', {
+            message: usersError.message,
+            code: usersError.code,
+            details: usersError.details,
+            hint: usersError.hint
+          });
         } else {
           usersData = users || [];
+          console.log('✅ Perfiles cargados exitosamente:', usersData.length, 'de', uniqueUserIds.length, 'solicitados');
+          console.log('📝 Perfiles obtenidos:', usersData);
         }
       }
 
@@ -212,6 +270,12 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           contestsData = contests || [];
         }
       }
+
+      // Debug: verificar datos antes del cálculo
+      console.log('🔍 Debug - Stories:', stories?.length || 0);
+      console.log('🔍 Debug - Votes:', (votes || []).length);
+      console.log('🔍 Debug - Comments:', (comments || []).length);
+      console.log('🔍 Debug - UsersData:', usersData?.length || 0, usersData);
 
       // Calcular karma (versión simplificada)
       const userKarma = calculateUserKarmaCompact(stories, votes || [], comments || [], contestsData, usersData);
@@ -245,6 +309,17 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
       if (!userKarma[userId]) {
         const userProfile = users.find(u => u.id === userId);
         const author = userProfile?.display_name || 'Usuario Anónimo';
+        
+        console.log(`👤 Inicializando usuario ${userId}:`, {
+          perfilEncontrado: !!userProfile,
+          nombre: author,
+          totalPerfiles: users.length
+        });
+        
+        if (!userProfile) {
+          console.warn(`⚠️ No se encontró perfil para usuario ID: ${userId}`);
+          console.log('📋 Perfiles disponibles:', users.map(u => ({ id: u.id, name: u.display_name })));
+        }
         
         userKarma[userId] = {
           userId,

@@ -327,10 +327,10 @@ const ContestAdminPanel = () => {
 
       if (commentsError) console.warn("Error loading comments:", commentsError);
 
-      // Obtener perfiles de usuario
-      const storyUserIds = stories ? stories.map((s) => s.user_id) : [];
-      const voteUserIds = votes ? votes.map((v) => v.user_id) : [];
-      const commentUserIds = comments ? comments.map((c) => c.user_id) : [];
+      // Obtener perfiles de usuario (filtrar valores nulos)
+      const storyUserIds = stories ? stories.map((s) => s.user_id).filter(Boolean) : [];
+      const voteUserIds = votes ? votes.map((v) => v.user_id).filter(Boolean) : [];
+      const commentUserIds = comments ? comments.map((c) => c.user_id).filter(Boolean) : [];
       const uniqueUserIds = [
         ...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds]),
       ];
