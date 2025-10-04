@@ -52,19 +52,62 @@ export const useBadgesCache = (userId) => {
 
       if (error) throw error;
 
-      // Combinar con definiciones
-      const transformedBadges = (data || []).map(userBadge => {
+      // Combinar con definiciones y enriquecer metadata
+      const transformedBadges = await Promise.all((data || []).map(async (userBadge) => {
         const definition = badgeDefinitionsCache.get(userBadge.badge_id);
+        if (!definition) return null;
+        
+        let enhancedMetadata = { ...userBadge.metadata };
+        
+        // Si el badge tiene contest_id, obtener información del reto
+        if (userBadge.metadata?.contest_id) {
+          try {
+            const { data: contestData, error: contestError } = await supabase
+              .from('contests')
+              .select('title, month')
+              .eq('id', userBadge.metadata.contest_id)
+              .single();
+            
+            if (!contestError && contestData) {
+              enhancedMetadata = {
+                ...enhancedMetadata,
+                contest_title: contestData.title,
+                contest_month: contestData.month
+              };
+              
+              // Obtener posición específica si es badge de ganador/finalista
+              if (['contest_winner', 'contest_finalist'].includes(userBadge.badge_id)) {
+                const { data: storyData, error: storyError } = await supabase
+                  .from('stories')
+                  .select('winner_position')
+                  .eq('user_id', userId)
+                  .eq('contest_id', userBadge.metadata.contest_id)
+                  .eq('is_winner', true)
+                  .single();
+                
+                if (!storyError && storyData) {
+                  enhancedMetadata.position = storyData.winner_position;
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Error enriching badge metadata in cache:', error);
+          }
+        }
+        
         return {
           ...definition,
           earned_at: userBadge.earned_at,
-          metadata: userBadge.metadata
+          metadata: enhancedMetadata
         };
-      }).filter(badge => badge.id); // Filtrar badges sin definición
+      }));
+      
+      // Filtrar badges nulos
+      const validBadges = transformedBadges.filter(Boolean);
 
       // Guardar en cache
-      badgesCache.set(userId, transformedBadges);
-      setUserBadges(transformedBadges);
+      badgesCache.set(userId, validBadges);
+      setUserBadges(validBadges);
       
     } catch (err) {
       console.error('Error loading user badges:', err);
@@ -122,22 +165,62 @@ export const preloadUsersBadges = async (userIds) => {
 
     if (error) throw error;
 
-    // Organizar por usuario
+    // Organizar por usuario y enriquecer metadata
     const badgesByUser = {};
-    (data || []).forEach(userBadge => {
+    
+    // Procesar badges y enriquecer metadata
+    await Promise.all((data || []).map(async (userBadge) => {
       if (!badgesByUser[userBadge.user_id]) {
         badgesByUser[userBadge.user_id] = [];
       }
       
       const definition = badgeDefinitionsCache.get(userBadge.badge_id);
-      if (definition) {
-        badgesByUser[userBadge.user_id].push({
-          ...definition,
-          earned_at: userBadge.earned_at,
-          metadata: userBadge.metadata
-        });
+      if (!definition) return;
+      
+      let enhancedMetadata = { ...userBadge.metadata };
+      
+      // Si el badge tiene contest_id, obtener información del reto
+      if (userBadge.metadata?.contest_id) {
+        try {
+          const { data: contestData, error: contestError } = await supabase
+            .from('contests')
+            .select('title, month')
+            .eq('id', userBadge.metadata.contest_id)
+            .single();
+          
+          if (!contestError && contestData) {
+            enhancedMetadata = {
+              ...enhancedMetadata,
+              contest_title: contestData.title,
+              contest_month: contestData.month
+            };
+            
+            // Obtener posición específica si es badge de ganador/finalista
+            if (['contest_winner', 'contest_finalist'].includes(userBadge.badge_id)) {
+              const { data: storyData, error: storyError } = await supabase
+                .from('stories')
+                .select('winner_position')
+                .eq('user_id', userBadge.user_id)
+                .eq('contest_id', userBadge.metadata.contest_id)
+                .eq('is_winner', true)
+                .single();
+              
+              if (!storyError && storyData) {
+                enhancedMetadata.position = storyData.winner_position;
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Error enriching badge metadata in preload:', error);
+        }
       }
-    });
+      
+      badgesByUser[userBadge.user_id].push({
+        ...definition,
+        earned_at: userBadge.earned_at,
+        metadata: enhancedMetadata
+      });
+    }));
 
     // Guardar en cache
     uncachedIds.forEach(userId => {
@@ -154,3 +237,6 @@ export const clearBadgesCache = () => {
   badgesCache.clear();
   badgeDefinitionsCache.clear();
 };
+
+// Auto-limpiar cache al cargar el módulo para aplicar cambios inmediatamente
+clearBadgesCache();
