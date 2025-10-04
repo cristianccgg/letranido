@@ -1458,7 +1458,7 @@ const CurrentContest = () => {
                       >
                         <option value="popular">Más populares</option>
                         <option value="recent">Más recientes</option>
-                        <option value="viewed">Más vistas</option>
+{/* <option value="viewed">Más vistas</option> */}
                         <option value="alphabetical">
                           Alfabético (título)
                         </option>
@@ -1725,8 +1725,8 @@ const CurrentContest = () => {
                                       </span>
                                     </div>
 
-                                    {/* Views compacto */}
-                                    <div
+                                    {/* Views compacto - OCULTO */}
+                                    {/* <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
                                         hasVoted
                                           ? "text-gray-400 dark:text-dark-300"
@@ -1737,7 +1737,7 @@ const CurrentContest = () => {
                                       <span className="truncate">
                                         {story.views_count || 0}
                                       </span>
-                                    </div>
+                                    </div> */}
                                   </>
                                 )}
 
