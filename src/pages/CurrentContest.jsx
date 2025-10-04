@@ -586,7 +586,7 @@ const CurrentContest = () => {
           phase: "counting",
           title: "⏱️ Votación Cerrada",
           description:
-            "La votación ha cerrado automáticamente. Los resultados se publicarán el 4 de octubre.",
+            "La votación ha cerrado automáticamente. Los resultados se publicarán muy pronto.",
           bgColor: "bg-orange-50",
           borderColor: "border-orange-200",
           textColor: "text-orange-800",
@@ -1059,7 +1059,7 @@ const CurrentContest = () => {
                       Próximamente:
                     </span>
                     <span className="text-white/90 ml-1">
-                      Los resultados oficiales se publicarán el 4 de octubre
+                      Los resultados oficiales se publicarán muy pronto
                     </span>
                   </div>
                 </div>

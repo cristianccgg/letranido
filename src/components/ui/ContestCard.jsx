@@ -332,7 +332,7 @@ const ContestCard = ({
                   ? "Envíos cierran en"
                   : phase === "voting"
                     ? "Votación termina en"
-                    : "Resultados 4 de octubre"}
+                    : "Resultados muy pronto"}
               </span>
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </div>
