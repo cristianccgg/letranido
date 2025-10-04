@@ -1,6 +1,6 @@
 // components/ui/WelcomeBanner.jsx - Banner informativo de votación activa
 import { useState } from "react";
-import { X, MessageCircle, Sparkles, Trophy, Vote } from "lucide-react";
+import { X, MessageCircle, Sparkles, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "../modals/FeedbackModal";
 
@@ -32,15 +32,6 @@ const WelcomeBanner = () => {
     }
   };
 
-  const scrollToPoll = () => {
-    const pollSection = document.querySelector('[data-poll-section]');
-    if (pollSection) {
-      pollSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  };
 
   if (!isVisible) return null;
 
@@ -54,10 +45,10 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🗳️</span> ¡Ayuda a elegir el tema del reto de noviembre! Tu opinión cuenta.
+                    <span>🏆</span> ¡Los resultados del reto de octubre ya están! Descubre quiénes ganaron.
                   </span>
                   <span className="sm:hidden ">
-                    🗳️ ¡Ayuda a elegir el tema de noviembre!
+                    🏆 ¡Resultados de octubre listos!
                   </span>
                 </p>
               </div>
@@ -65,14 +56,14 @@ const WelcomeBanner = () => {
 
             {/* Botones */}
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-4">
-              {/* Botón a la Votación */}
+              {/* Botón a los Resultados */}
               <button
-                onClick={scrollToPoll}
+                onClick={scrollToPodium}
                 className="inline-flex cursor-pointer items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-white/20 hover:bg-white/30 rounded-full transition-all duration-200 hover:scale-105 backdrop-blur-sm"
               >
-                <Vote className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Ir a Votar</span>
-                <span className="sm:hidden">Votar</span>
+                <Trophy className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Ver Resultados</span>
+                <span className="sm:hidden">Resultados</span>
               </button>
               
               {/* Botón de Feedback - Comentado temporalmente */}
