@@ -252,6 +252,7 @@ const LandingPage = () => {
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [rulesModalContest, setRulesModalContest] = useState(null);
+  const [nextContestExpanded, setNextContestExpanded] = useState(false);
 
   // Estado para el sidebar de rankings
   const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
@@ -488,23 +489,27 @@ const LandingPage = () => {
                   setRulesModalContest(currentContest);
                   setShowRulesModal(true);
                 }}
+                onExpandNext={() => setNextContestExpanded(true)}
               />
 
               {/* Tarjeta del siguiente reto - igual diseño que actual */}
               {nextContest && (
-                <ContestCard
-                  contest={nextContest}
-                  phase="submission" // El siguiente siempre está en submission
-                  timeLeft={
-                    (currentContestPhase === "voting" || currentContestPhase === "counting") ? nextTimeLeft : null
-                  } // Contador real cuando esté habilitado
-                  isNext={true}
-                  isEnabled={currentContestPhase === "voting" || currentContestPhase === "counting"} // Habilitado durante votación y counting
-                  onRulesClick={() => {
-                    setRulesModalContest(nextContest);
-                    setShowRulesModal(true);
-                  }}
-                />
+                <div data-next-contest>
+                  <ContestCard
+                    contest={nextContest}
+                    phase="submission" // El siguiente siempre está en submission
+                    timeLeft={
+                      (currentContestPhase === "voting" || currentContestPhase === "counting") ? nextTimeLeft : null
+                    } // Contador real cuando esté habilitado
+                    isNext={true}
+                    isEnabled={currentContestPhase === "voting" || currentContestPhase === "counting"} // Habilitado durante votación y counting
+                    forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
+                    onRulesClick={() => {
+                      setRulesModalContest(nextContest);
+                      setShowRulesModal(true);
+                    }}
+                  />
+                </div>
               )}
 
               {/* Mostrar encuesta activa (cuando esté disponible) */}
