@@ -434,7 +434,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
               setGeneratedImages({});
               setShowImageFor(null);
             }}
-            className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
           >
             {getContestOptions().map((option) => (
               <option key={option.value} value={option.value}>
@@ -485,8 +485,16 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
                     : 'border-gray-200 hover:border-purple-300'
                 }`}
               >
-                <Icon className="w-6 h-6 mx-auto mb-1" />
-                <p className="text-sm font-medium">{platform.name}</p>
+                <Icon className={`w-6 h-6 mx-auto mb-1 ${
+                  selectedPlatform === platform.id 
+                    ? 'text-purple-600' 
+                    : 'text-gray-600'
+                }`} />
+                <p className={`text-sm font-medium ${
+                  selectedPlatform === platform.id 
+                    ? 'text-purple-700' 
+                    : 'text-gray-700'
+                }`}>{platform.name}</p>
                 <p className="text-xs text-gray-500">{platform.maxChars} chars</p>
               </button>
             );
@@ -508,7 +516,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
             </div>
           ) : (
             <div className="flex items-center justify-center gap-2">
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-white" />
               Generar Posts del Mes
             </div>
           )}
@@ -519,7 +527,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
       {generatedPosts.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <Calendar className="w-5 h-5 text-gray-700" />
             Posts Generados ({generatedPosts.length})
           </h3>
           
