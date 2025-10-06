@@ -23,15 +23,14 @@ const WelcomeBanner = () => {
   };
 
   const scrollToPodium = () => {
-    const winnersSection = document.getElementById('winners-section');
+    const winnersSection = document.getElementById("winners-section");
     if (winnersSection) {
-      winnersSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      winnersSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
     }
   };
-
 
   if (!isVisible) return null;
 
@@ -45,7 +44,8 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🏆</span> ¡Los resultados del reto de octubre ya están! Descubre quiénes ganaron.
+                    <span>🏆</span> ¡Los resultados del reto de Septiembre ya
+                    están! Descubre quiénes ganaron.
                   </span>
                   <span className="sm:hidden ">
                     🏆 ¡Resultados de octubre listos!
@@ -65,7 +65,7 @@ const WelcomeBanner = () => {
                 <span className="hidden sm:inline">Ver Resultados</span>
                 <span className="sm:hidden">Resultados</span>
               </button>
-              
+
               {/* Botón de Feedback - Comentado temporalmente */}
               {/* <button
                 onClick={openFeedbackModal}
