@@ -42,6 +42,8 @@ import Badge from "../components/ui/Badge";
 import WelcomeBanner from "../components/ui/WelcomeBanner";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
+import ComingSoonModal from "../components/modals/ComingSoonModal";
+import { useComingSoonModal } from "../hooks/useComingSoonModal";
 
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
@@ -124,6 +126,9 @@ const LandingPage = () => {
   // 🆕 ESTADO PARA GANADORES DEL RETO ANTERIOR
   const [lastContestWinners, setLastContestWinners] = useState(null);
   const [loadingWinners, setLoadingWinners] = useState(false);
+
+  // 🎉 MODAL DE COMING SOON
+  const { isOpen: comingSoonOpen, closeModal: closeComingSoon } = useComingSoonModal();
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
@@ -1240,6 +1245,9 @@ const LandingPage = () => {
         isOpen={showRankingsSidebar}
         onClose={() => setShowRankingsSidebar(false)}
       />
+
+      {/* Modal de Coming Soon */}
+      <ComingSoonModal isOpen={comingSoonOpen} onClose={closeComingSoon} />
     </div>
   );
 };

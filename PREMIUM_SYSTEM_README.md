@@ -1,8 +1,17 @@
 # 🚀 SISTEMA PREMIUM LETRANIDO - README
 
+> ⚠️ **ESTADO: DESACTIVADO** (Octubre 2024)
+>
+> Este sistema está **temporalmente desactivado** hasta alcanzar suficiente masa crítica de usuarios.
+> - **Estado actual**: ~100 usuarios, ~70 activos
+> - **Meta para activar**: 500+ usuarios activos
+> - **Ver**: [FEATURE-FLAGS-GUIDE.md](./FEATURE-FLAGS-GUIDE.md) para reactivación
+
+---
+
 ## 📝 RESUMEN GENERAL
 
-Estamos implementando un sistema premium con **2 planes principales** y **feedback profesional pay-per-use** para monetizar la plataforma. El objetivo es llegar a 50-100 usuarios antes de activar los pagos.
+Sistema premium con **2 planes principales** y **feedback profesional pay-per-use** para monetizar la plataforma. El código está completo pero desactivado mediante feature flags.
 
 ---
 
