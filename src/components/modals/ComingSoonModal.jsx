@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { X, Sparkles, BookOpen, CheckCircle, Calendar } from "lucide-react";
+import { X, Sparkles, BookOpen, CheckCircle, Calendar, Heart } from "lucide-react";
 import confetti from "canvas-confetti";
 
 const ComingSoonModal = ({ isOpen, onClose }) => {
   const [show, setShow] = useState(false);
   const [showFeature1, setShowFeature1] = useState(false);
   const [showFeature2, setShowFeature2] = useState(false);
+  const [showFeature3, setShowFeature3] = useState(false);
   const [showDate, setShowDate] = useState(false);
 
   // Función de confetti personalizada
@@ -62,6 +63,9 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
+      // Bloquear scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+
       // Animación secuencial
       const timer1 = setTimeout(() => {
         setShow(true);
@@ -72,18 +76,23 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
       // Reveal progresivo de features
       const timer2 = setTimeout(() => setShowFeature1(true), 800);
       const timer3 = setTimeout(() => setShowFeature2(true), 1200);
-      const timer4 = setTimeout(() => setShowDate(true), 1600);
+      const timer4 = setTimeout(() => setShowFeature3(true), 1600);
+      const timer5 = setTimeout(() => setShowDate(true), 2000);
 
       return () => {
+        // Restaurar scroll del body al cerrar
+        document.body.style.overflow = 'unset';
         clearTimeout(timer1);
         clearTimeout(timer2);
         clearTimeout(timer3);
         clearTimeout(timer4);
+        clearTimeout(timer5);
       };
     } else {
       setShow(false);
       setShowFeature1(false);
       setShowFeature2(false);
+      setShowFeature3(false);
       setShowDate(false);
     }
   }, [isOpen]);
@@ -211,6 +220,34 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
                     <li className="flex items-start gap-2">
                       <span className="text-purple-600 dark:text-purple-400 mt-0.5">→</span>
                       <span>Organiza tu lectura durante votaciones</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 3: Supporters Ko-fi */}
+            <div
+              className={`bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-3 sm:p-4 border border-amber-100 dark:border-amber-800/50 transition-all duration-500 transform ${
+                showFeature3 ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
+              }`}
+            >
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-amber-600 dark:bg-amber-700 rounded-lg flex items-center justify-center">
+                  <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-gray-100 mb-1">
+                    ☕ Reconocimiento para Quienes Nos Apoyan
+                  </h3>
+                  <ul className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 space-y-0.5 sm:space-y-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 dark:text-amber-400 mt-0.5">→</span>
+                      <span>Badge exclusivo y flair dorado</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 dark:text-amber-400 mt-0.5">→</span>
+                      <span>Ayudas a mantener Letranido gratis para todos</span>
                     </li>
                   </ul>
                 </div>
