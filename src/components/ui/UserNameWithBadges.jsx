@@ -91,7 +91,7 @@ const UserNameWithBadges = ({
         <div className="flex items-center gap-1 relative z-10">
           {importantBadges.slice(0, 2).map((badge, index) => (
             <Badge
-              key={badge.id || index}
+              key={`${badge.id}-${badge.earned_at || index}`}
               badge={badge}
               size={badgeSize}
               showDescription={true}
@@ -188,7 +188,7 @@ const UserWithWinnerBadges = ({ user, userId, userName, className = "" }) => {
         <div className="flex items-center gap-1 relative z-10">
           {winnerBadges.map((badge, index) => (
             <Badge
-              key={badge.id || index}
+              key={`${badge.id}-${badge.earned_at || index}`}
               badge={badge}
               size="xs"
               showDescription={true}

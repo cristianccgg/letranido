@@ -1,12 +1,11 @@
 // components/comments/SimpleComments.jsx - ACTUALIZADO PARA CONTEXTO GLOBAL
 import { useState, useEffect } from "react";
-import { MessageSquare, Send, Trash2, Flag, User } from "lucide-react";
+import { MessageSquare, Send, Trash2, Flag } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext"; // ✅ CAMBIADO
-import { useTheme } from "../../contexts/ThemeContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalytics";
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
-import { UserWithTopBadge } from "../ui/UserNameWithBadges";
+import UserCardWithBadges from "../ui/UserCardWithBadges";
 
 // Hook para detectar tamaño de pantalla
 const useIsMobile = () => {
@@ -49,8 +48,6 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
   // ✅ ANALYTICS
   const { trackEvent } = useGoogleAnalytics();
 
-  // Hook para tema
-  const { isDark } = useTheme();
 
   // Placeholders con ejemplos específicos
   const getPlaceholder = () => {
@@ -289,24 +286,22 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
           </div>
         ) : (
           comments.map((comment) => (
-            <div 
-              key={comment.id} 
+            <div
+              key={comment.id}
               id={`comment-${comment.id}`}
               className="bg-gray-50 dark:bg-dark-700 rounded-lg p-4"
             >
               <div className="flex items-start gap-3">
-                <UserAvatar 
-                  user={{ name: comment.author, email: `${comment.author}@mock.com` }} 
-                  size="sm" 
-                />
-
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <UserWithTopBadge 
+                      <UserCardWithBadges
                         userId={comment.author_id}
                         userName={comment.author}
-                        className="font-medium"
+                        avatarSize="sm"
+                        badgeSize="xs"
+                        maxBadges={1}
+                        className="text-sm"
                       />
                       <span className="text-xs text-gray-500 dark:text-dark-400">
                         {formatTimeAgo(comment.created_at)}

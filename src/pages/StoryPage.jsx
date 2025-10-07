@@ -32,7 +32,7 @@ import CommentGuideModal from "../components/modals/CommentGuideModal";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
-import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import SEOHead from "../components/SEO/SEOHead";
 
@@ -602,17 +602,15 @@ const StoryPage = () => {
 
             {/* Author Info */}
             <div className="flex items-center mb-6">
-              <div className="mr-4">
-                <UserAvatar user={story.author} size="lg" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
-                  <UserWithTopBadge
-                    userId={story.user_id}
-                    userName={story.author.name}
-                  />
-                </h3>
-              </div>
+              <UserCardWithBadges
+                userId={story.user_id}
+                userName={story.author.name}
+                userEmail={story.author.email}
+                avatarSize="lg"
+                badgeSize="sm"
+                maxBadges={1}
+                className="text-lg"
+              />
             </div>
 
             {/* Story Stats - Debajo del usuario, victorias y votos primero */}

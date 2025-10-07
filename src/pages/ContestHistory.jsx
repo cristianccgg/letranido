@@ -301,7 +301,7 @@ const ContestHistory = () => {
                             userEmail={`${contest.winner.author}@winner.com`}
                             avatarSize="sm"
                             badgeSize="xs"
-                            maxBadges={2}
+                            maxBadges={1}
                           />
                         </div>
 

@@ -26,6 +26,7 @@ const UserCardWithBadges = ({
   );
 
   // Ordenar badges por importancia (Ko-fi y ganadores primero, luego el resto)
+  // Si tienen la misma prioridad, mostrar el más reciente primero
   const sortedBadges = [...userBadges].sort((a, b) => {
     const priorityOrder = {
       kofi_supporter: 6,
@@ -36,7 +37,17 @@ const UserCardWithBadges = ({
       writer_5: 1,
       first_story: 0,
     };
-    return (priorityOrder[b.id] || -1) - (priorityOrder[a.id] || -1);
+
+    const priorityDiff = (priorityOrder[b.id] || -1) - (priorityOrder[a.id] || -1);
+
+    // Si tienen la misma prioridad, ordenar por fecha más reciente
+    if (priorityDiff === 0) {
+      const dateA = new Date(a.earned_at || a.created_at || 0);
+      const dateB = new Date(b.earned_at || b.created_at || 0);
+      return dateB - dateA; // Más reciente primero
+    }
+
+    return priorityDiff;
   });
 
   const badgesToShow = showAllBadges ? sortedBadges : sortedBadges;
@@ -92,11 +103,6 @@ const UserCardWithBadges = ({
                 showDescription={true}
               />
             ))}
-            {badgesToShow.length > maxBadges && (
-              <span className="text-xs text-gray-500 dark:text-dark-400">
-                +{badgesToShow.length - maxBadges}
-              </span>
-            )}
           </div>
         )}
         </div>
@@ -126,6 +132,7 @@ export const UserCardWithBadgesVertical = ({
   );
 
   // Ordenar badges por importancia (Ko-fi y ganadores primero, luego el resto)
+  // Si tienen la misma prioridad, mostrar el más reciente primero
   const sortedBadges = [...userBadges].sort((a, b) => {
     const priorityOrder = {
       kofi_supporter: 6,
@@ -136,7 +143,17 @@ export const UserCardWithBadgesVertical = ({
       writer_5: 1,
       first_story: 0,
     };
-    return (priorityOrder[b.id] || -1) - (priorityOrder[a.id] || -1);
+
+    const priorityDiff = (priorityOrder[b.id] || -1) - (priorityOrder[a.id] || -1);
+
+    // Si tienen la misma prioridad, ordenar por fecha más reciente
+    if (priorityDiff === 0) {
+      const dateA = new Date(a.earned_at || a.created_at || 0);
+      const dateB = new Date(b.earned_at || b.created_at || 0);
+      return dateB - dateA; // Más reciente primero
+    }
+
+    return priorityDiff;
   });
 
   const badgesToShow = showAllBadges ? sortedBadges : sortedBadges;
@@ -191,11 +208,6 @@ export const UserCardWithBadgesVertical = ({
                 showDescription={true}
               />
             ))}
-            {badgesToShow.length > maxBadges && (
-              <span className="text-xs text-gray-500 dark:text-dark-400">
-                +{badgesToShow.length - maxBadges}
-              </span>
-            )}
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ INSERT INTO public.badge_definitions (id, name, description, icon, color, tier, 
 VALUES (
   'kofi_supporter',
   'Ko-fi Supporter ☕',
-  'Apoya a Letranido con una donación en Ko-fi',
+  'Donante de Letranido',
   'heart',
   '#ec4899',
   3,

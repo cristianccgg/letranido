@@ -28,10 +28,7 @@ import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
-import {
-  UserWithWinnerBadges,
-  UserWithTopBadge,
-} from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import KarmaRankingsSidebar from "../components/ui/KarmaRankingsSidebar";
 import NextContestOrPoll from "../components/ui/NextContestOrPoll";
 import ContestCard from "../components/ui/ContestCard";
@@ -814,21 +811,16 @@ const LandingPage = () => {
                           </h5>
 
                           {/* Autor */}
-                          <div className="flex items-center justify-center gap-3 mb-4">
-                            <UserAvatar
-                              user={{
-                                name: lastContestWinners.winners[0].author,
-                                email: `${lastContestWinners.winners[0].author}@mock.com`,
-                              }}
-                              size="md"
+                          <div className="flex justify-center mb-4">
+                            <UserCardWithBadges
+                              userId={lastContestWinners.winners[0].user_id}
+                              userName={lastContestWinners.winners[0].author}
+                              userEmail={`${lastContestWinners.winners[0].author}@mock.com`}
+                              avatarSize="md"
+                              badgeSize="sm"
+                              maxBadges={1}
+                              className="text-lg font-semibold"
                             />
-                            <div className="text-center">
-                              <UserWithWinnerBadges
-                                userId={lastContestWinners.winners[0].user_id}
-                                userName={lastContestWinners.winners[0].author}
-                                className="font-semibold text-lg"
-                              />
-                            </div>
                           </div>
 
                           {/* Estadísticas más destacadas */}
@@ -918,21 +910,16 @@ const LandingPage = () => {
                                   </h5>
 
                                   {/* Autor */}
-                                  <div className="flex items-center justify-center gap-3 mb-4">
-                                    <UserAvatar
-                                      user={{
-                                        name: story.author,
-                                        email: `${story.author}@mock.com`,
-                                      }}
-                                      size="md"
+                                  <div className="flex justify-center mb-4">
+                                    <UserCardWithBadges
+                                      userId={story.user_id}
+                                      userName={story.author}
+                                      userEmail={`${story.author}@mock.com`}
+                                      avatarSize="md"
+                                      badgeSize="xs"
+                                      maxBadges={1}
+                                      className="font-semibold"
                                     />
-                                    <div className="text-center">
-                                      <UserWithWinnerBadges
-                                        userId={story.user_id}
-                                        userName={story.author}
-                                        className="font-semibold"
-                                      />
-                                    </div>
                                   </div>
 
                                   {/* Estadísticas */}
@@ -996,21 +983,16 @@ const LandingPage = () => {
                               </h5>
 
                               {/* Autor */}
-                              <div className="flex items-center justify-center gap-2 mb-4">
-                                <UserAvatar
-                                  user={{
-                                    name: lastContestWinners.honoraryMention.author,
-                                    email: `${lastContestWinners.honoraryMention.author}@mock.com`,
-                                  }}
-                                  size="sm"
+                              <div className="flex justify-center mb-4">
+                                <UserCardWithBadges
+                                  userId={lastContestWinners.honoraryMention.user_id}
+                                  userName={lastContestWinners.honoraryMention.author}
+                                  userEmail={`${lastContestWinners.honoraryMention.author}@mock.com`}
+                                  avatarSize="sm"
+                                  badgeSize="xs"
+                                  maxBadges={1}
+                                  className="font-semibold text-sm"
                                 />
-                                <div className="text-center">
-                                  <UserWithWinnerBadges
-                                    userId={lastContestWinners.honoraryMention.user_id}
-                                    userName={lastContestWinners.honoraryMention.author}
-                                    className="font-semibold text-sm"
-                                  />
-                                </div>
                               </div>
 
                               {/* Explicación del empate */}
