@@ -674,42 +674,69 @@ src/pages/
 
 **Prioridad:** 🔥 **ALTA** - Sin esto, nadie descubrirá los perfiles públicos
 
-### 💰 **2. Sistema de Reconocimiento para Donantes (Ko-fi)**
-**Contexto:** Ya hay 2 donaciones via Ko-fi, necesitamos reconocer a estos supporters.
+### 💰 **2. Sistema de Reconocimiento para Donantes (Ko-fi)** ✅ **[IMPLEMENTADO]**
 
-**Ideas de beneficios:**
+**Status**: ✅ **COMPLETADO** (7 octubre 2024)
+**Commits**: `b7a0204 badges kofi`, `25bc32a Badges listos`
+
+#### **Características Implementadas:**
+
 ```jsx
-// Badges especiales
-const SUPPORTER_BADGES = {
-  coffee_supporter: {
-    title: "☕ Café Supporter",
-    description: "Apoyó a Letranido con una donación",
-    color: "gold",
-    permanent: true
-  },
-  community_hero: {
-    title: "🦸 Héroe de la Comunidad", 
-    description: "Donante recurrente",
-    color: "platinum",
-    permanent: true
-  }
-};
+// Badge Ko-fi Supporter
+{
+  id: "kofi_supporter",
+  title: "☕ Ko-fi Supporter",
+  description: "Apoya a Letranido en Ko-fi",
+  emoji: "☕",
+  color: "linear-gradient(135deg, #FF5E5B 0%, #FF9068 100%)",
+  category: "special"
+}
+```
 
-// Beneficios adicionales
-const SUPPORTER_PERKS = {
-  profile_highlights: "Perfil destacado en 'Supporters'",
-  special_flair: "Flair dorado en comentarios",
-  early_access: "Acceso temprano a nuevas funciones",
-  custom_badge: "Badge personalizado opcional",
-  karma_bonus: "+50 karma bonus una vez"
+#### **Visual distintivo: Borde Gradiente Animado**
+```jsx
+// UserNameWithBadges.jsx - Border glow para Ko-fi supporters
+className={
+  isKofiSupporter
+    ? "relative px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-400 via-rose-400 to-amber-400 p-[2px]"
+    : ""
+}
+
+// Animación en Tailwind config
+keyframes: {
+  'border-glow': {
+    '0%, 100%': { backgroundPosition: '0% 50%' },
+    '50%': { backgroundPosition: '100% 50%' }
+  }
+}
+```
+
+#### **Prioridad en Rankings:**
+```jsx
+// Máxima prioridad en orden de badges
+const prestigeOrder = {
+  kofi_supporter: 6,           // ⭐ MÁXIMA PRIORIDAD
+  contest_winner_veteran: 5,   // Ganador múltiple
+  contest_winner: 4,           // Ganador
+  contest_finalist: 3,         // Finalista
+  writer_15: 2,               // Veterano
+  // ...
 };
 ```
 
-**Implementación sugerida:**
-1. **Badge automático** "☕ Café Supporter" al detectar donación
-2. **Flair dorado** en nombre de usuario en comentarios/historias
-3. **Sección especial** "Supporters" en home page
-4. **Karma bonus** de +50 puntos una vez
+#### **Ubicaciones Visibles:**
+- ✅ Nombres de usuarios en historias (borde gradiente animado)
+- ✅ Comentarios (highlight especial)
+- ✅ Rankings sidebar (badge visible)
+- ✅ Perfiles públicos (badge destacado)
+- ✅ Landing page (reconocimiento especial)
+
+#### **Asignación Manual:**
+- Actualización directa en tabla `user_profiles`
+- Campo: `is_kofi_supporter: true`
+- Badge se otorga automáticamente vía `useBadgesCache`
+
+**Resultado**: Reconocimiento visual premium para supporters en toda la plataforma
 
 ### 📖 **3. Sistema "Marcar como Leída" en Votación**
 **Problema:** Users re-leen las mismas historias porque no recuerdan cuáles ya leyeron.
