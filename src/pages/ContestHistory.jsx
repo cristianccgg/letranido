@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
@@ -292,12 +293,15 @@ const ContestHistory = () => {
                           {contest.winner.title}
                         </h3>
 
-                        <div className="text-sm text-gray-600 dark:text-dark-300 mb-3">
-                          por{" "}
-                          <UserWithWinnerBadges
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-500 dark:text-dark-400 mb-1">por</div>
+                          <UserCardWithBadges
                             userId={contest.winner.user_id}
                             userName={contest.winner.author}
-                            className="inline-flex"
+                            userEmail={`${contest.winner.author}@winner.com`}
+                            avatarSize="sm"
+                            badgeSize="xs"
+                            maxBadges={2}
                           />
                         </div>
 

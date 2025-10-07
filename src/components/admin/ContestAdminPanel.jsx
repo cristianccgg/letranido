@@ -25,6 +25,7 @@ import {
   Shield,
   Trash2,
   Vote,
+  Heart,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -37,6 +38,7 @@ import ModerationDashboard from "./ModerationDashboard";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import PollAdminPanel from "./PollAdminPanel";
 import SocialGenerator from "./SocialGenerator";
+import KofiBadgePanel from "./KofiBadgePanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1225,6 +1227,7 @@ const ContestAdminPanel = () => {
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "encuestas", label: "Encuestas", icon: Vote },
     { id: "analytics", label: "Analytics", icon: Award },
+    { id: "kofi", label: "Ko-fi Badges", icon: Heart },
     { id: "usuarios", label: "Usuarios", icon: Trash2 },
     { id: "moderacion", label: "Moderación", icon: Shield },
     { id: "mantenimiento", label: "Mantenimiento", icon: Settings },
@@ -1924,6 +1927,12 @@ const ContestAdminPanel = () => {
           {activeTab === "redes" && (
             <div className="p-6">
               <SocialGenerator />
+            </div>
+          )}
+
+          {activeTab === "kofi" && (
+            <div className="p-6">
+              <KofiBadgePanel />
             </div>
           )}
         </div>

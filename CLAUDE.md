@@ -66,12 +66,40 @@ src/
 - `user_profiles` - Perfiles con estadísticas
 - `polls`, `poll_options`, `poll_votes` - Sistema de encuestas
 
+## Trabajo en Progreso
+
+### 🚧 Rama Pendiente: `feature/public-author-profiles`
+- **Estado**: Rama creada, sin merge a main
+- **Contenido**: Sistema de perfiles públicos de autores
+- **Implementación**: Planificada para próximos días
+- **Nota**: Ya existe `AuthorProfile.jsx` pero será mejorado
+
+### 📢 Comunicación de Nuevas Features (Oct 2024)
+
+#### Banner de Resultados - `WelcomeBanner.jsx`
+- **Propósito**: Anunciar resultados de retos mensuales
+- **Características**: Dismissible, scroll a ganadores, responsive
+- **Ubicación**: Landing page
+- **Persistencia**: Reaparece al refrescar (no usa localStorage)
+
+#### Modal "Coming Soon" - `ComingSoonModal.jsx`
+- **Propósito**: Anunciar próximas funcionalidades pedidas por la comunidad
+- **Características avanzadas**:
+  - Animaciones con confetti (canvas-confetti)
+  - Reveal progresivo de features con delays
+  - Bloqueo de scroll cuando está abierto
+- **Features anunciadas**:
+  1. **Perfiles Públicos**: Bio, redes, portfolio, seguir autores
+  2. **Marcar como Leído**: Organizar lectura durante votaciones
+  3. **Ko-fi Supporters**: Badge exclusivo para quienes apoyan
+- **UX**: Confetti explosion al abrir + mini confetti al cerrar
+
 ## Flujos de Trabajo Típicos
 
 ### Desarrollo
 ```bash
 npm run dev:local    # BD local
-npm run dev:prod     # BD producción  
+npm run dev:prod     # BD producción
 npm run lint         # Verificar código
 npm run build        # Build producción
 ```

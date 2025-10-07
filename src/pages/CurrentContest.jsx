@@ -28,6 +28,7 @@ import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";
@@ -1280,18 +1281,15 @@ const CurrentContest = () => {
                           <div className="flex items-center gap-3">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                {/* Avatar */}
-                                <UserAvatar
-                                  user={{
-                                    name: story.author,
-                                    email: `${story.author}@mock.com`,
-                                  }}
-                                  size="md"
-                                />
-                                <UserWithTopBadge
+                                {/* User Card con borde premium para Ko-fi supporters */}
+                                <UserCardWithBadges
                                   userId={story.user_id}
                                   userName={story.author}
-                                  className="truncate"
+                                  userEmail={`${story.author}@mock.com`}
+                                  avatarSize="md"
+                                  badgeSize="xs"
+                                  maxBadges={1}
+                                  className="flex-1 min-w-0"
                                 />
                                 {story.likes_count > 50 && (
                                   <span
@@ -1629,20 +1627,15 @@ const CurrentContest = () => {
                                       : "text-gray-500 dark:text-dark-400"
                                   }`}
                                 >
-                                  <UserAvatar
-                                    user={{
-                                      name: story.author,
-                                      email: `${story.author}@mock.com`,
-                                    }}
-                                    size="xs"
+                                  <UserCardWithBadges
+                                    userId={story.user_id}
+                                    userName={story.author}
+                                    userEmail={`${story.author}@mock.com`}
+                                    avatarSize="xs"
+                                    badgeSize="xs"
+                                    maxBadges={1}
+                                    className="flex-shrink-0"
                                   />
-                                  <span className="truncate max-w-32 md:max-w-none">
-                                    <UserWithTopBadge
-                                      userId={story.user_id}
-                                      userName={story.author}
-                                      className="inline-flex"
-                                    />
-                                  </span>
                                   <span className="hidden sm:inline">•</span>
                                   <span className="whitespace-nowrap ">
                                     {getReadingTime(story.word_count)}

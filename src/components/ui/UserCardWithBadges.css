@@ -1,0 +1,101 @@
+/* Animaciones para Ko-fi Supporter Card */
+
+@keyframes shimmer-border {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+@keyframes shimmer-slide {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Contenedor con borde animado */
+.kofi-supporter-card {
+  position: relative;
+  padding: 2px;
+  background: linear-gradient(90deg, #f472b6, #fb7185, #fbbf24, #f472b6);
+  background-size: 300% 100%;
+  border-radius: 0.5rem;
+  animation: shimmer-border 3s linear infinite;
+}
+
+/* Fondo interno */
+.kofi-supporter-card-inner {
+  background: white;
+  border-radius: 0.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.dark .kofi-supporter-card-inner {
+  background: rgb(31, 41, 55);
+}
+
+/* Shimmer overlay */
+.kofi-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer-slide 2s ease-in-out infinite;
+  transform: skewX(-20deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Destellos en las esquinas */
+.kofi-sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #fbbf24 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.kofi-sparkle-tl {
+  top: 2px;
+  left: 2px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.kofi-sparkle-tr {
+  top: 2px;
+  right: 2px;
+  animation: sparkle 2s ease-in-out infinite 0.5s;
+}
+
+.kofi-sparkle-bl {
+  bottom: 2px;
+  left: 2px;
+  animation: sparkle 2s ease-in-out infinite 1s;
+}
+
+.kofi-sparkle-br {
+  bottom: 2px;
+  right: 2px;
+  animation: sparkle 2s ease-in-out infinite 1.5s;
+}
