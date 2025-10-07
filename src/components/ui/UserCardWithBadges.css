@@ -58,11 +58,16 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   animation: shimmer-slide 2s ease-in-out infinite;
   transform: skewX(-20deg);
   pointer-events: none;
   z-index: 2;
+  mix-blend-mode: soft-light;
+}
+
+.dark .kofi-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
 }
 
 /* Destellos en las esquinas */
