@@ -34,6 +34,15 @@
 - **Roles**: Admin panel para moderación
 - **Privacy**: Configuraciones de privacidad para perfiles
 
+### 📖 Sistema de Historias Leídas (Oct 2024)
+- **Tracking automático**: Se marca como leída tras 15 segundos en la historia
+- **Badge visual**: "📖 Leída" en centro de tarjeta (clickeable para desmarcar)
+- **Ordenamiento inteligente**: No leídas primero, leídas al final (en fase votación)
+- **Progreso unificado**: Banner con votos + contador de lectura
+- **Distribución equitativa**: Mejora las oportunidades de todas las historias
+- **Tabla BD**: `user_story_reads` con funciones SQL optimizadas
+- **Hook**: `useReadStories.js` para gestión completa del sistema
+
 ## Arquitectura del Código
 
 ### Estructura de Carpetas Clave

@@ -22,6 +22,7 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
+import { useReadStories } from "../hooks/useReadStories";
 import {
   useGoogleAnalytics,
   AnalyticsEvents,
@@ -93,6 +94,9 @@ const StoryPage = () => {
     story?.contest_id
   );
 
+  // ✅ READ STORIES TRACKING (para sistema de "historias leídas")
+  const { markAsRead } = useReadStories(story?.contest_id, user?.id);
+
   // ✅ CARGAR HISTORIA Y DATOS RELACIONADOS
   useEffect(() => {
     const loadStoryData = async () => {
@@ -121,9 +125,11 @@ const StoryPage = () => {
           // Buscar el concurso específico de esta historia
           const storyContest = contests.find(c => c.id === storyData.contest_id);
           if (storyContest) {
-            const contestPhase = getContestPhase(storyContest);
-            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
-            
+            // ✅ MODO DEV: Forzar fase de votación para permitir acceso
+            const DEV_FORCE_VOTING = import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === 'true';
+            const contestPhase = DEV_FORCE_VOTING ? 'voting' : getContestPhase(storyContest);
+            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}${DEV_FORCE_VOTING ? ' (MODO DEV)' : ''}`);
+
             // Bloquear acceso durante fase de envíos SOLO para usuarios que no son el autor
             if (contestPhase === 'submission' && storyData.user_id !== user?.id) {
               setError('Esta historia está en concurso activo y no se puede ver durante la fase de envíos.');
@@ -239,6 +245,29 @@ const StoryPage = () => {
       }
     }
   }, [galleryStories, story?.id, story?.views_count]);
+
+  // ✅ TRACKING AUTOMÁTICO DE LECTURA (después de 15 segundos)
+  useEffect(() => {
+    // Solo trackear si:
+    // 1. Hay usuario autenticado
+    // 2. Hay historia cargada
+    // 3. La historia pertenece a un concurso
+    // 4. El usuario NO es el autor (no trackear sus propias historias)
+    if (!user?.id || !story?.id || !story?.contest_id || story?.user_id === user?.id) {
+      return;
+    }
+
+    // Timer de 15 segundos para marcar como leída automáticamente
+    const readTimer = setTimeout(async () => {
+      console.log('📖 Marcando historia como leída (tracking automático - 15s)');
+      await markAsRead(story.id, false); // false = no manual
+    }, 15000); // 15 segundos
+
+    // Cleanup: cancelar timer si el usuario sale antes de 15s
+    return () => {
+      clearTimeout(readTimer);
+    };
+  }, [user?.id, story?.id, story?.contest_id, story?.user_id, markAsRead]);
 
   // ✅ HANDLE VOTE
   const handleVote = async () => {
