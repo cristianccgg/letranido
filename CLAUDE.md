@@ -17,7 +17,7 @@
 - **Votación**: 3 votos máximo por usuario en reto actual
 - **Finalización**: Manual por admin genera ganadores y badges
 
-### 📊 Sistema de Encuestas (Reciente - Sept 2025)
+### 📊 Sistema de Encuestas (Sept 2025)
 - **Funcionalidad**: Votación comunitaria por prompts para futuros retos
 - **Conversión automática**: Encuesta → reto cuando expira
 - **1 voto por encuesta** por usuario autenticado
@@ -25,16 +25,25 @@
 
 ### 🎖️ Sistema de Badges y Karma
 - **Badges automáticos**: Ganadores, finalistas, veteranos
+- **Ko-fi Supporter Badge**: Badge especial con gradiente rosado y shimmer dorado
 - **Karma system**: Rankings dinámicos de la comunidad
 - **Perfiles públicos**: Con métricas y logros de usuarios
 
-### 👥 Sistema de Usuarios
+### 👥 Sistema de Perfiles Públicos (Oct 2024 - ✅ EN PRODUCCIÓN)
 - **Autenticación**: Supabase Auth
-- **Perfiles**: Públicos con estadísticas, badges, karma
-- **Roles**: Admin panel para moderación
-- **Privacy**: Configuraciones de privacidad para perfiles
+- **Perfiles públicos completos**:
+  - Biografía, país, redes sociales, sitio web
+  - Todas las historias del usuario visibles
+  - Estadísticas, badges, karma
+  - **Privacy controls**: Toggle para ocultar perfil completo
+- **ProfileButton**: Botón morado con icono de usuario
+  - Integrado en `UserCardWithBadges`
+  - Aparece automáticamente junto a cada nombre de usuario
+  - Presente en: Landing, CurrentContest, StoryPage, ContestHistory, FreeStories
+- **Ruta**: `/author/:userId`
+- **Componentes**: `AuthorProfile.jsx`, `ProfileButton.jsx`, `SocialLinksEditor.jsx`
 
-### 📖 Sistema de Historias Leídas (Oct 2024)
+### 📖 Sistema de Historias Leídas (Oct 2024 - ✅ EN PRODUCCIÓN)
 - **Tracking automático**: Se marca como leída tras 15 segundos en la historia
 - **Badge visual**: "📖 Leída" en centro de tarjeta (clickeable para desmarcar)
 - **Ordenamiento inteligente**: No leídas primero, leídas al final (en fase votación)
@@ -52,10 +61,13 @@ src/
 ├── pages/
 │   ├── CurrentContest.jsx           # Página del reto actual
 │   ├── LandingPage.jsx             # Landing con ganadores
-│   └── AuthorProfile.jsx           # Perfiles públicos
+│   └── AuthorProfile.jsx           # Perfiles públicos ✅
 ├── components/
 │   ├── admin/                      # Paneles de administración
 │   ├── ui/                        # Componentes reutilizables
+│   │   ├── ProfileButton.jsx      # Botón de perfil inline ✅
+│   │   ├── SocialLinksEditor.jsx  # Editor de redes sociales ✅
+│   │   └── UserCardWithBadges.jsx # Con ProfileButton integrado ✅
 │   └── voting/                    # Sistema de votación
 ├── hooks/                         # Custom hooks
 └── lib/                          # Utilidades y configuración
@@ -63,7 +75,7 @@ src/
 
 ### Funciones Críticas
 - `getContestPhase(contest)` - Determina fase actual por fechas
-- `findCurrentContest(contests)` - Selecciona reto activo  
+- `findCurrentContest(contests)` - Selecciona reto activo
 - `finalizeContest(contestId)` - Genera resultados y ganadores
 - `canVoteInStory(storyId)` - Valida permisos de votación
 
@@ -72,41 +84,51 @@ src/
 - `contests` - Retos con fechas límite y estados
 - `stories` - Historias con flags de ganadores
 - `votes` - Sistema de votación limitado
-- `user_profiles` - Perfiles con estadísticas
+- `user_profiles` - Perfiles con estadísticas, biografía, país, redes sociales
+  - Columnas nuevas: `bio`, `country`, `social_links` (JSON), `profile_is_public`
 - `polls`, `poll_options`, `poll_votes` - Sistema de encuestas
+- `user_story_reads` - Tracking de historias leídas ✅
 
-## Trabajo en Progreso
+## Comunicación de Features
 
-### 🚧 Rama Pendiente: `feature/public-author-profiles`
-- **Estado**: Rama creada, sin merge a main
-- **Contenido**: Sistema de perfiles públicos de autores
-- **Implementación**: Planificada para próximos días
-- **Nota**: Ya existe `AuthorProfile.jsx` pero será mejorado
+### 📢 Modal de Anuncios - `FeatureAnnouncementModal.jsx` (✅ ACTIVO)
+- **Propósito**: Anunciar features YA DISPONIBLES
+- **Título**: "¡Novedades!"
+- **Características**:
+  - Modal compacto optimizado para mobile
+  - Aparece automáticamente 1.5s después de cargar Landing
+  - Se muestra UNA VEZ por usuario (localStorage: `feature_announcement_perfiles_{userId}`)
+- **Features anunciadas**:
+  1. **✨ Perfiles Públicos**: "Crea tu perfil con biografía, país y redes sociales. Todas tus historias visibles en un solo lugar."
+  2. **📖 Lectura Rastreada**: "Marca automáticamente historias como leídas"
+  3. **☕ Badge Ko-fi Supporter**: Icono ❤️ con gradiente rosado (from-pink-400 via-rose-500 to-red-500)
+- **CTA**: "Completar mi perfil" → Link a `/profile`
+- **Ubicación**: `LandingPage.jsx` (reemplazó a ComingSoonModal)
 
-### 📢 Comunicación de Nuevas Features (Oct 2024)
-
-#### Banner de Resultados - `WelcomeBanner.jsx`
+### Banner de Resultados - `WelcomeBanner.jsx`
 - **Propósito**: Anunciar resultados de retos mensuales
 - **Características**: Dismissible, scroll a ganadores, responsive
 - **Ubicación**: Landing page
 - **Persistencia**: Reaparece al refrescar (no usa localStorage)
 
-#### Modal "Coming Soon" - `ComingSoonModal.jsx`
-- **Propósito**: Anunciar próximas funcionalidades pedidas por la comunidad
-- **Características avanzadas**:
-  - Animaciones con confetti (canvas-confetti)
-  - Reveal progresivo de features con delays
-  - Bloqueo de scroll cuando está abierto
-- **Features anunciadas**:
-  1. **Perfiles Públicos**: Bio, redes, portfolio, seguir autores
-  2. **Marcar como Leído**: Organizar lectura durante votaciones
-  3. **Ko-fi Supporters**: Badge exclusivo para quienes apoyan
-- **UX**: Confetti explosion al abrir + mini confetti al cerrar
+## Privacidad y Legal
+
+### 📋 Política de Privacidad (✅ ACTUALIZADA Oct 2024)
+- **Sección 1.2**: Información de Perfil Público (Opcional)
+  - Biografía, país, redes sociales, sitio web
+  - TODO es opcional y controlado por el usuario
+  - Email NUNCA se muestra públicamente
+- **Sección 3.1**: Información Públicamente Visible
+  - Énfasis en control del usuario
+  - Opción de ocultar perfil completo
+  - GDPR compliant
+- **Ubicación**: `/privacy`
 
 ## Flujos de Trabajo Típicos
 
 ### Desarrollo
 ```bash
+npm run dev          # Desarrollo (usa .env.local)
 npm run dev:local    # BD local
 npm run dev:prod     # BD producción
 npm run lint         # Verificar código
@@ -146,12 +168,20 @@ npm run build        # Build producción
 - **Conversión automática** por triggers
 - **1 voto por encuesta**, cambio permitido
 
+### ⚠️ Features Premium
+- **DESACTIVADAS**: Código existe pero no está público
+- Flags: `PREMIUM_PLANS`, `PREMIUM_EDITOR`, `PORTFOLIO_STORIES` (todos `false`)
+- Rutas existen (`/planes`) pero no están enlazadas en navegación
+- Menciones en `/support` son correctas (transparencia futura)
+
 ## Comandos Frecuentes
 ```bash
 npm run lint                 # Siempre verificar antes de commits
-npm run env:status          # Ver configuración BD actual
-npm run dev:local           # Desarrollo local
-git status                  # Estado del repo
+npm run build                # Verificar que compile
+npm run dev                  # Desarrollo local
+git status                   # Estado del repo
+git checkout main            # Cambiar a main
+git pull origin main         # Actualizar main
 ```
 
 ## Patterns de Código
@@ -159,13 +189,44 @@ git status                  # Estado del repo
 - **Custom hooks**: Para lógica reutilizable específica
 - **Componentes UI**: Reutilizables en `/ui`
 - **Supabase calls**: Centralizados en `/lib`
+- **ProfileButton**: Integrado en `UserCardWithBadges` para aparecer automáticamente
 
 ## Configuración Crítica
 - **Variables env**: Switching automático local/prod
 - **RLS policies**: Seguridad estricta en BD
 - **Edge functions**: Para emails (Supabase)
 - **Vercel deployment**: Build automático desde main
+- **Feature flags**: Controlados en `src/lib/config.js`
+
+## Últimos Cambios (Oct 2024)
+
+### ✅ Completado y en Producción:
+1. **Sistema de Perfiles Públicos**
+   - Biografía, país, redes sociales, sitio web
+   - Privacy controls completos
+   - ProfileButton integrado en UserCardWithBadges
+   - Política de privacidad actualizada
+
+2. **Sistema de Historias Leídas**
+   - Tracking automático tras 15 segundos
+   - Badge visual y ordenamiento inteligente
+   - Tabla BD optimizada
+
+3. **Ko-fi Supporter Badge**
+   - Badge especial con gradiente rosado
+   - Shimmer effect dorado
+   - Visible en toda la plataforma
+
+4. **Modal de Anuncios**
+   - FeatureAnnouncementModal optimizado para mobile
+   - Reemplazó ComingSoonModal
+   - Aparece automáticamente a usuarios logueados
+
+### 📝 Rama de Respaldo
+- `backup-antes-merge-20251024` - Backup antes del merge a main
 
 ---
 
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
+
+**Última actualización**: Octubre 24, 2024 - Post-lanzamiento de Perfiles Públicos
