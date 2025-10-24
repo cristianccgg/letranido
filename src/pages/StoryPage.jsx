@@ -34,6 +34,7 @@ import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
 import UserCardWithBadges from "../components/ui/UserCardWithBadges";
+import ProfileButton from "../components/ui/ProfileButton";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import SEOHead from "../components/SEO/SEOHead";
 
@@ -630,7 +631,7 @@ const StoryPage = () => {
             </h1>
 
             {/* Author Info */}
-            <div className="flex items-center mb-6">
+            <div className="flex items-center justify-between mb-6">
               <UserCardWithBadges
                 userId={story.user_id}
                 userName={story.author.name}
@@ -640,6 +641,7 @@ const StoryPage = () => {
                 maxBadges={1}
                 className="text-lg"
               />
+              <ProfileButton userId={story.user_id} variant="outline" size="sm" />
             </div>
 
             {/* Story Stats - Debajo del usuario, victorias y votos primero */}

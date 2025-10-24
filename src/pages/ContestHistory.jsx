@@ -15,6 +15,7 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import UserCardWithBadges from "../components/ui/UserCardWithBadges";
+import ProfileButton from "../components/ui/ProfileButton";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
@@ -295,14 +296,17 @@ const ContestHistory = () => {
 
                         <div className="mb-3">
                           <div className="text-xs text-gray-500 dark:text-dark-400 mb-1">por</div>
-                          <UserCardWithBadges
-                            userId={contest.winner.user_id}
-                            userName={contest.winner.author}
-                            userEmail={`${contest.winner.author}@winner.com`}
-                            avatarSize="sm"
-                            badgeSize="xs"
-                            maxBadges={1}
-                          />
+                          <div className="flex items-center justify-between gap-2">
+                            <UserCardWithBadges
+                              userId={contest.winner.user_id}
+                              userName={contest.winner.author}
+                              userEmail={`${contest.winner.author}@winner.com`}
+                              avatarSize="sm"
+                              badgeSize="xs"
+                              maxBadges={1}
+                            />
+                            <ProfileButton userId={contest.winner.user_id} variant="subtle" size="xs" />
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between">
