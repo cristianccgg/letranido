@@ -1,6 +1,6 @@
 // pages/StoryPage.jsx - COMPLETAMENTE REFACTORIZADO
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   Heart,
   Eye,
@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useReadingAnalytics } from "../hooks/useReadingAnalytics";
+import { useReadStories } from "../hooks/useReadStories";
 import {
   useGoogleAnalytics,
   AnalyticsEvents,
@@ -31,14 +33,14 @@ import CommentGuideModal from "../components/modals/CommentGuideModal";
 import EnhancedVoteButton from "../components/voting/EnhancedVoteButton";
 import VoteCounter from "../components/voting/VoteCounter";
 import UserAvatar from "../components/ui/UserAvatar";
-import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
-import ProfileButton from "../components/ui/ProfileButton";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import SEOHead from "../components/SEO/SEOHead";
 
 const StoryPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isDark } = useTheme();
   const { trackEvent } = useGoogleAnalytics();
 
@@ -52,6 +54,7 @@ const StoryPage = () => {
     initialized,
     globalLoading,
     galleryStories,
+    userStories,
     currentContest,
     contests,
 
@@ -83,6 +86,16 @@ const StoryPage = () => {
   const loadingRef = useRef(false);
   const storyContentRef = useRef(null);
 
+  // ✅ READING ANALYTICS
+  const readingAnalytics = useReadingAnalytics(
+    story?.id,
+    story?.title,
+    story?.word_count,
+    story?.contest_id
+  );
+
+  // ✅ READ STORIES TRACKING (para sistema de "historias leídas")
+  const { markAsRead } = useReadStories(story?.contest_id, user?.id);
 
   // ✅ CARGAR HISTORIA Y DATOS RELACIONADOS
   useEffect(() => {
@@ -112,9 +125,11 @@ const StoryPage = () => {
           // Buscar el concurso específico de esta historia
           const storyContest = contests.find(c => c.id === storyData.contest_id);
           if (storyContest) {
-            const contestPhase = getContestPhase(storyContest);
-            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
-            
+            // ✅ MODO DEV: Forzar fase de votación para permitir acceso
+            const DEV_FORCE_VOTING = import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === 'true';
+            const contestPhase = DEV_FORCE_VOTING ? 'voting' : getContestPhase(storyContest);
+            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}${DEV_FORCE_VOTING ? ' (MODO DEV)' : ''}`);
+
             // Bloquear acceso durante fase de envíos SOLO para usuarios que no son el autor
             if (contestPhase === 'submission' && storyData.user_id !== user?.id) {
               setError('Esta historia está en concurso activo y no se puede ver durante la fase de envíos.');
@@ -230,6 +245,29 @@ const StoryPage = () => {
       }
     }
   }, [galleryStories, story?.id, story?.views_count]);
+
+  // ✅ TRACKING AUTOMÁTICO DE LECTURA (después de 15 segundos)
+  useEffect(() => {
+    // Solo trackear si:
+    // 1. Hay usuario autenticado
+    // 2. Hay historia cargada
+    // 3. La historia pertenece a un concurso
+    // 4. El usuario NO es el autor (no trackear sus propias historias)
+    if (!user?.id || !story?.id || !story?.contest_id || story?.user_id === user?.id) {
+      return;
+    }
+
+    // Timer de 15 segundos para marcar como leída automáticamente
+    const readTimer = setTimeout(async () => {
+      console.log('📖 Marcando historia como leída (tracking automático - 15s)');
+      await markAsRead(story.id, false); // false = no manual
+    }, 15000); // 15 segundos
+
+    // Cleanup: cancelar timer si el usuario sale antes de 15s
+    return () => {
+      clearTimeout(readTimer);
+    };
+  }, [user?.id, story?.id, story?.contest_id, story?.user_id, markAsRead]);
 
   // ✅ HANDLE VOTE
   const handleVote = async () => {
@@ -488,18 +526,38 @@ const StoryPage = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => {
-              // Usar historial del navegador para volver a la página anterior
-              if (window.history.length > 1) {
-                navigate(-1);
+              // Navegar inteligentemente según el parámetro 'from' en la URL
+              const fromParam = searchParams.get('from');
+              const authorId = searchParams.get('authorId');
+              
+              if (fromParam === 'historias') {
+                // Si vino desde la página "Leer", volver ahí
+                navigate("/historias");
+              } else if (fromParam === 'profile' && authorId) {
+                // Si vino desde el perfil de un autor, volver al perfil
+                // Si es el propio usuario, ir al perfil privado, sino al público
+                if (authorId === user?.id) {
+                  navigate('/profile'); // Perfil privado
+                } else {
+                  navigate(`/author/${authorId}`); // Perfil público
+                }
+              } else if (story?.contest_id) {
+                // Si vino desde un reto específico, ir a ese reto
+                navigate(`/contest/${story.contest_id}`);
               } else {
-                // Fallback solo si no hay historial (usuario llegó directo por URL)
-                navigate("/");
+                // Fallback: ir al reto actual
+                navigate("/contest/current");
               }
             }}
             className="flex items-center text-gray-600 dark:text-dark-300 hover:text-gray-900 dark:hover:text-dark-100 transition-colors"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
-            Volver
+            {(() => {
+              const fromParam = searchParams.get('from');
+              if (fromParam === 'historias') return "Volver a Leer";
+              if (fromParam === 'profile') return "Volver al perfil";
+              return "Volver al reto";
+            })()}
           </button>
 
           <div className="flex items-center gap-2">
@@ -572,26 +630,15 @@ const StoryPage = () => {
             </h1>
 
             {/* Author Info */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <div className="mr-4">
-                  <UserAvatar user={story.author} size="lg" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-dark-100 text-lg">
-                    <UserWithTopBadge
-                      userId={story.user_id}
-                      userName={story.author.name}
-                    />
-                  </h3>
-                </div>
-              </div>
-              <ProfileButton 
-                userId={story.user_id} 
-                size="md" 
-                variant="primary" 
-                showText={true} 
-                className="flex-shrink-0"
+            <div className="flex items-center mb-6">
+              <UserCardWithBadges
+                userId={story.user_id}
+                userName={story.author.name}
+                userEmail={story.author.email}
+                avatarSize="lg"
+                badgeSize="sm"
+                maxBadges={1}
+                className="text-lg"
               />
             </div>
 

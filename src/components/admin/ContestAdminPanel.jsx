@@ -25,6 +25,7 @@ import {
   Shield,
   Trash2,
   Vote,
+  Heart,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -36,6 +37,8 @@ import MaintenanceControl from "./MaintenanceControl";
 import ModerationDashboard from "./ModerationDashboard";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import PollAdminPanel from "./PollAdminPanel";
+import SocialGenerator from "./SocialGenerator";
+import KofiBadgePanel from "./KofiBadgePanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -326,10 +329,10 @@ const ContestAdminPanel = () => {
 
       if (commentsError) console.warn("Error loading comments:", commentsError);
 
-      // Obtener perfiles de usuario
-      const storyUserIds = stories ? stories.map((s) => s.user_id) : [];
-      const voteUserIds = votes ? votes.map((v) => v.user_id) : [];
-      const commentUserIds = comments ? comments.map((c) => c.user_id) : [];
+      // Obtener perfiles de usuario (filtrar valores nulos)
+      const storyUserIds = stories ? stories.map((s) => s.user_id).filter(Boolean) : [];
+      const voteUserIds = votes ? votes.map((v) => v.user_id).filter(Boolean) : [];
+      const commentUserIds = comments ? comments.map((c) => c.user_id).filter(Boolean) : [];
       const uniqueUserIds = [
         ...new Set([...storyUserIds, ...voteUserIds, ...commentUserIds]),
       ];
@@ -1224,10 +1227,12 @@ const ContestAdminPanel = () => {
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "encuestas", label: "Encuestas", icon: Vote },
     { id: "analytics", label: "Analytics", icon: Award },
+    { id: "kofi", label: "Ko-fi Badges", icon: Heart },
     { id: "usuarios", label: "Usuarios", icon: Trash2 },
     { id: "moderacion", label: "Moderación", icon: Shield },
     { id: "mantenimiento", label: "Mantenimiento", icon: Settings },
     { id: "comunicaciones", label: "Comunicaciones", icon: Users },
+    { id: "redes", label: "Redes Sociales", icon: Plus },
   ];
 
   return (
@@ -1917,6 +1922,17 @@ const ContestAdminPanel = () => {
           {activeTab === "comunicaciones" && (
             <div className="p-6">
               <EmailManager />
+            </div>
+          )}
+          {activeTab === "redes" && (
+            <div className="p-6">
+              <SocialGenerator />
+            </div>
+          )}
+
+          {activeTab === "kofi" && (
+            <div className="p-6">
+              <KofiBadgePanel />
             </div>
           )}
         </div>

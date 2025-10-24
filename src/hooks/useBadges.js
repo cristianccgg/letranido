@@ -59,11 +59,51 @@ export const useBadges = (userId) => {
 
       if (error) throw error;
 
-      // Transformar datos para facilitar el uso
-      const transformedBadges = (data || []).map((item) => ({
-        ...item.badge_definitions,
-        earned_at: item.earned_at,
-        metadata: item.metadata,
+      // Transformar datos y enriquecer con información del reto
+      const transformedBadges = await Promise.all((data || []).map(async (item) => {
+        let enhancedMetadata = { ...item.metadata };
+        
+        // Si el badge tiene contest_id, obtener información del reto
+        if (item.metadata?.contest_id) {
+          try {
+            const { data: contestData, error: contestError } = await supabase
+              .from('contests')
+              .select('title, month')
+              .eq('id', item.metadata.contest_id)
+              .single();
+            
+            if (!contestError && contestData) {
+              enhancedMetadata = {
+                ...enhancedMetadata,
+                contest_title: contestData.title,
+                contest_month: contestData.month
+              };
+              
+              // Obtener posición específica si es badge de ganador/finalista
+              if (['contest_winner', 'contest_finalist'].includes(item.badge_id)) {
+                const { data: storyData, error: storyError } = await supabase
+                  .from('stories')
+                  .select('winner_position')
+                  .eq('user_id', userId)
+                  .eq('contest_id', item.metadata.contest_id)
+                  .eq('is_winner', true)
+                  .single();
+                
+                if (!storyError && storyData) {
+                  enhancedMetadata.position = storyData.winner_position;
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Error enriching badge metadata:', error);
+          }
+        }
+        
+        return {
+          ...item.badge_definitions,
+          earned_at: item.earned_at,
+          metadata: enhancedMetadata,
+        };
       }));
 
       setUserBadges(transformedBadges);

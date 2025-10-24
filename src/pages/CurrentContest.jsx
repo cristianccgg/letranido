@@ -19,17 +19,19 @@ import {
   AlertCircle,
   Loader,
   BookOpen,
+  BookCheck,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { useGlobalToast } from "../hooks/useGlobalToast";
+import { useReadStories } from "../hooks/useReadStories";
 import SEOHead from "../components/SEO/SEOHead";
 import AuthModal from "../components/forms/AuthModal";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
-import ProfileButton from "../components/ui/ProfileButton";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";
 import { preloadUsersBadges } from "../hooks/useBadgesCache";
@@ -93,6 +95,16 @@ const CurrentContest = () => {
   // Hook para celebraciones de ganadores
   const { celebration, closeCelebration } = useWinnerCelebration();
 
+  // ✅ SISTEMA DE HISTORIAS LEÍDAS
+  const { readStories, readStats, toggleRead, isStoryRead } = useReadStories(
+    contest?.id,
+    user?.id
+  );
+
+  // ✅ MODO DESARROLLO: Forzar fase de votación para testing
+  const DEV_FORCE_VOTING =
+    import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === "true";
+
   // ✅ DETERMINAR QUE CONCURSO MOSTRAR (Memoizado para evitar re-renders)
   const contestToLoad = useMemo(() => {
     // Si hay ID en la URL, SIEMPRE usar ese ID específico
@@ -122,8 +134,8 @@ const CurrentContest = () => {
           "¡Historia Enviada!",
           "Guardada exitosamente en el concurso",
           storyTitle,
-          { 
-            showDonation: true // Mostrar sección de donación
+          {
+            showDonation: true, // Mostrar sección de donación
           }
         );
 
@@ -449,7 +461,7 @@ const CurrentContest = () => {
           if (likesB !== likesA) {
             return likesB - likesA;
           }
-          
+
           // En caso de empate, por created_at (ascendente - más antigua primero)
           const dateA = new Date(a.created_at);
           const dateB = new Date(b.created_at);
@@ -463,8 +475,43 @@ const CurrentContest = () => {
         return filtered.sort((a, b) => a.title.localeCompare(b.title));
       case "author":
         return filtered.sort((a, b) => a.author.localeCompare(b.author));
-      case "random":
+      case "random": {
+        // ✅ ORDENAMIENTO INTELIGENTE en fase de votación
+        // Calcular fase directamente para evitar dependencia circular
+        const currentPhase = contest
+          ? DEV_FORCE_VOTING
+            ? "voting"
+            : getContestPhase(contest)
+          : null;
+
+        if (currentPhase === "voting" && isAuthenticated && readStories) {
+          // Separar historias en leídas y no leídas
+          const unreadStories = filtered.filter(
+            (story) => !isStoryRead(story.id)
+          );
+          const readStoriesList = filtered.filter((story) =>
+            isStoryRead(story.id)
+          );
+
+          // Randomizar cada grupo por separado
+          const randomizedUnread = getRandomizedStories(
+            unreadStories,
+            contest?.id,
+            searchTerm + "_unread"
+          );
+          const randomizedRead = getRandomizedStories(
+            readStoriesList,
+            contest?.id,
+            searchTerm + "_read"
+          );
+
+          // Mostrar no leídas primero, luego leídas
+          return [...randomizedUnread, ...randomizedRead];
+        }
+
+        // Orden random normal si no está en votación
         return getRandomizedStories(filtered, contest?.id, searchTerm);
+      }
       case "recent":
         return filtered.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -476,9 +523,14 @@ const CurrentContest = () => {
     galleryStories,
     searchTerm,
     sortBy,
-    contest?.id,
+    contest,
     getRandomizedStories,
     voteTimestamp, // Forzar re-cálculo cuando cambian los votos
+    DEV_FORCE_VOTING,
+    getContestPhase,
+    isAuthenticated,
+    readStories,
+    isStoryRead,
   ]);
 
   // ✅ GENERAR DATOS PARA COMPARTIR HISTORIA ESPECÍFICA
@@ -500,7 +552,8 @@ const CurrentContest = () => {
   const getPhaseInfo = useCallback(() => {
     if (!contest) return null;
 
-    const phase = getContestPhase(contest);
+    // ✅ MODO DEV: Forzar fase de votación si está activado
+    const phase = DEV_FORCE_VOTING ? "voting" : getContestPhase(contest);
     const now = new Date();
 
     // 🔧 CORREGIDO: Lógica mejorada para determinar tipo de reto
@@ -628,13 +681,23 @@ const CurrentContest = () => {
           showStories: false,
         };
     }
-  }, [contest, currentContest?.id, nextContest?.id, getContestPhase]);
+  }, [
+    contest,
+    currentContest?.id,
+    nextContest?.id,
+    getContestPhase,
+    DEV_FORCE_VOTING,
+  ]);
 
   const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
 
   // ✅ DETECCIÓN DE MENCIÓN DE HONOR - Solo en fase "results"
   useEffect(() => {
-    if (phaseInfo?.phase === "results" && sortBy === "popular" && galleryStories.length >= 4) {
+    if (
+      phaseInfo?.phase === "results" &&
+      sortBy === "popular" &&
+      galleryStories.length >= 4
+    ) {
       const sortedStories = [...galleryStories].sort((a, b) => {
         // Primero por likes_count (descendente)
         const likesA = a.likes_count || 0;
@@ -642,19 +705,30 @@ const CurrentContest = () => {
         if (likesB !== likesA) {
           return likesB - likesA;
         }
-        
+
         // En caso de empate, por created_at (ascendente - más antigua primero)
         const dateA = new Date(a.created_at);
         const dateB = new Date(b.created_at);
         return dateA - dateB;
       });
-      
+
       const thirdPlace = sortedStories[2];
       const fourthPlace = sortedStories[3];
-      
-      if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
-        setHonoraryMention({ ...fourthPlace, position: 4, isHonoraryMention: true });
-        console.log("🎖️ Mención de Honor detectada en CurrentContest:", fourthPlace.title);
+
+      if (
+        thirdPlace &&
+        fourthPlace &&
+        thirdPlace.likes_count === fourthPlace.likes_count
+      ) {
+        setHonoraryMention({
+          ...fourthPlace,
+          position: 4,
+          isHonoraryMention: true,
+        });
+        console.log(
+          "🎖️ Mención de Honor detectada en CurrentContest:",
+          fourthPlace.title
+        );
       } else {
         setHonoraryMention(null);
       }
@@ -1081,11 +1155,9 @@ const CurrentContest = () => {
 
             <div className="text-center lg:text-right flex-shrink-0">
               <div className="bg-white/20 rounded-lg px-6 py-4">
-                <span className="text-2xl font-bold text-white block">
-                  🏆
-                </span>
+                <span className="text-2xl font-bold text-white block">🏆</span>
                 <div className="text-white/90 text-sm mt-1">
-                  Resultados muy pronto
+                  Resultados el 4 de octubre
                 </div>
               </div>
             </div>
@@ -1093,7 +1165,7 @@ const CurrentContest = () => {
         </div>
       )}
 
-      {/* Contador de votos prominente - Solo durante votación */}
+      {/* Banner Unificado: Votos + Progreso de Lectura - Solo durante votación */}
       {phaseInfo?.phase === "voting" && isAuthenticated && (
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-blue-200 dark:border-blue-600 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
           {/* Elementos decorativos */}
@@ -1101,9 +1173,12 @@ const CurrentContest = () => {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-200/20 to-blue-200/20 rounded-full translate-y-12 -translate-x-12"></div>
 
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-              {/* Indicadores visuales de votos */}
-              <div className="flex items-center gap-3">
+            {/* Grid de 2 columnas en desktop, stack en móvil */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              {/* Columna 1: Contador de Votos */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                {/* Indicadores visuales de votos */}
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 3 }).map((_, index) => (
                     <div
@@ -1124,58 +1199,90 @@ const CurrentContest = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Texto de votos */}
+                <div className="text-center sm:text-left flex-1">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-base font-bold text-gray-900 dark:text-dark-100">
+                      Votos:{" "}
+                      <span
+                        className={`text-xl font-extrabold ${
+                          votingStats.currentContestVotes >= 3
+                            ? "text-red-600 dark:text-red-400"
+                            : votingStats.currentContestVotes >= 2
+                              ? "text-yellow-600 dark:text-yellow-400"
+                              : "text-blue-600 dark:text-blue-400"
+                        }`}
+                      >
+                        {votingStats.currentContestVotes}/3
+                      </span>
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {votingStats.currentContestVotes >= 3
+                      ? "✓ Todos los votos usados"
+                      : `${3 - votingStats.currentContestVotes} ${3 - votingStats.currentContestVotes === 1 ? 'voto restante' : 'votos restantes'}`
+                    }
+                  </div>
+                </div>
               </div>
 
-              {/* Texto principal */}
-              <div className="text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <span className="text-lg font-bold text-gray-900 dark:text-dark-100">
-                    Has usado{" "}
-                    <span
-                      className={`text-2xl font-extrabold ${
-                        votingStats.currentContestVotes >= 3
-                          ? "text-red-600 dark:text-red-400"
-                          : votingStats.currentContestVotes >= 2
-                            ? "text-yellow-600 dark:text-yellow-400"
-                            : "text-blue-600 dark:text-blue-400"
-                      }`}
-                    >
-                      {votingStats.currentContestVotes}/3
-                    </span>{" "}
-                    votos
-                  </span>
-                </div>
-
-                <div
-                  className={`font-medium transition-all duration-300 ${
-                    votingStats.currentContestVotes >= 3
-                      ? "text-green-600 dark:text-green-400"
-                      : votingStats.currentContestVotes === 2
-                        ? "text-orange-600 dark:text-orange-400 animate-pulse"
-                        : "text-blue-600 dark:text-blue-400"
-                  }`}
-                >
-                  {votingStats.currentContestVotes >= 3 ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🎉</span>
-                      <span>¡Todos los votos usados!</span>
-                    </div>
-                  ) : votingStats.currentContestVotes === 2 ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg animate-bounce">⚠️</span>
-                      <span>¡Te queda 1 voto! Úsalo sabiamente</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">👀</span>
-                      <span>
-                        Te quedan {3 - votingStats.currentContestVotes} votos •
-                        ¡Sigue leyendo!
+              {/* Columna 2: Progreso de Lectura (solo si hay datos) */}
+              {readStats.total > 0 && (
+                <div className="flex items-center gap-4 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-600 pt-4 lg:pt-0 lg:pl-6">
+                  {/* Círculo de progreso */}
+                  <div className="relative w-16 h-16 flex-shrink-0">
+                    <svg className="w-16 h-16 transform -rotate-90">
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="currentColor"
+                        strokeWidth="5"
+                        fill="transparent"
+                        className="text-gray-200 dark:text-gray-700"
+                      />
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="currentColor"
+                        strokeWidth="5"
+                        fill="transparent"
+                        strokeDasharray={`${2 * Math.PI * 28}`}
+                        strokeDashoffset={`${2 * Math.PI * 28 * (1 - readStats.percentage / 100)}`}
+                        className="text-blue-600 dark:text-blue-400 transition-all duration-500"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {Math.round(readStats.percentage)}%
                       </span>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Texto de progreso */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-base font-bold text-gray-900 dark:text-gray-100">
+                        Progreso de Lectura
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {readStats.read} de {readStats.total} historias
+                      {readStats.unread > 0 && (
+                        <span className="ml-1">
+                          · <span className="text-orange-600 dark:text-orange-400 font-semibold">
+                            {readStats.unread}
+                          </span> pendientes
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1280,36 +1387,25 @@ const CurrentContest = () => {
                         >
                           <div className="flex items-center gap-3">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  {/* Avatar */}
-                                  <UserAvatar
-                                    user={{
-                                      name: story.author,
-                                      email: `${story.author}@mock.com`,
-                                    }}
-                                    size="md"
-                                  />
-                                  <UserWithTopBadge
-                                    userId={story.user_id}
-                                    userName={story.author}
-                                    className="truncate"
-                                  />
-                                  {story.likes_count > 50 && (
-                                    <span
-                                      className="text-sm"
-                                      title="Autor popular"
-                                    >
-                                      ⭐
-                                    </span>
-                                  )}
-                                </div>
-                                <ProfileButton 
+                              <div className="flex items-center gap-2 mb-1">
+                                {/* User Card con borde premium para Ko-fi supporters */}
+                                <UserCardWithBadges
                                   userId={story.user_id}
-                                  size="xs"
-                                  variant="primary"
-                                  showText={phaseInfo?.phase === "voting"}
+                                  userName={story.author}
+                                  userEmail={`${story.author}@mock.com`}
+                                  avatarSize="md"
+                                  badgeSize="xs"
+                                  maxBadges={1}
+                                  className="flex-1 min-w-0"
                                 />
+                                {story.likes_count > 50 && (
+                                  <span
+                                    className="text-sm"
+                                    title="Autor popular"
+                                  >
+                                    ⭐
+                                  </span>
+                                )}
                               </div>
                               <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-dark-400">
                                 <span>{story.authorWins || 0} victorias</span>
@@ -1349,22 +1445,27 @@ const CurrentContest = () => {
           {phaseInfo.showStories && (
             <div className="space-y-6">
               {/* Banner informativo para Mención de Honor */}
-              {honoraryMention && sortBy === "popular" && phaseInfo?.phase === "results" && (
-                <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
-                  <div className="flex items-start gap-3">
-                    <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
-                        🎖️ Mención de Honor Otorgada
-                      </h3>
-                      <p className="text-sm text-blue-700 dark:text-blue-400">
-                        Una historia adicional ha recibido una <strong>Mención de Honor</strong> por empatar en votos con el 3º lugar. 
-                        El criterio de desempate utilizado fue la fecha de envío, reconociendo el mérito de ambas historias.
-                      </p>
+              {honoraryMention &&
+                sortBy === "popular" &&
+                phaseInfo?.phase === "results" && (
+                  <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
+                    <div className="flex items-start gap-3">
+                      <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                          🎖️ Mención de Honor Otorgada
+                        </h3>
+                        <p className="text-sm text-blue-700 dark:text-blue-400">
+                          Una historia adicional ha recibido una{" "}
+                          <strong>Mención de Honor</strong> por empatar en votos
+                          con el 3º lugar. El criterio de desempate utilizado
+                          fue la fecha de envío, reconociendo el mérito de ambas
+                          historias.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Header de historias */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1467,7 +1568,7 @@ const CurrentContest = () => {
                       >
                         <option value="popular">Más populares</option>
                         <option value="recent">Más recientes</option>
-                        <option value="viewed">Más vistas</option>
+                        {/* <option value="viewed">Más vistas</option> */}
                         <option value="alphabetical">
                           Alfabético (título)
                         </option>
@@ -1563,13 +1664,28 @@ const CurrentContest = () => {
                               (vote) => vote.storyId === story.id
                             ));
 
+                        // Verificar si el usuario ya leyó esta historia
+                        const hasRead = isStoryRead(story.id);
+
+                        // Handler para marcar/desmarcar como leída
+                        const handleToggleRead = async (e) => {
+                          e.stopPropagation(); // Prevenir navegación
+                          if (!isAuthenticated) {
+                            openAuthModal("login");
+                            return;
+                          }
+                          await toggleRead(story.id);
+                        };
+
                         return (
                           <div
                             key={story.id}
                             className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
                               hasVoted
                                 ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90 dark:bg-dark-700/80 dark:border-dark-500 hover:dark:border-purple-400"
-                                : "bg-white/95 border-indigo-100 hover:border-purple-200 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
+                                : hasRead && phaseInfo?.phase === 'voting'
+                                  ? "bg-blue-50/40 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
+                                  : "bg-white/95 border-indigo-100 hover:border-purple-200 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
                             }`}
                             onClick={() => navigate(`/story/${story.id}`)}
                           >
@@ -1599,23 +1715,37 @@ const CurrentContest = () => {
                                         </div>
                                       )}
                                       {/* Mención de Honor - 4º lugar con empate */}
-                                      {honoraryMention && story.id === honoraryMention.id && (
-                                        <div className="flex items-center text-blue-600 dark:text-blue-400 text-sm">
-                                          <Award className="h-4 w-4 mr-1" />
-                                          <span className="font-bold">🎖️ Mención de Honor</span>
-                                          <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                                            (= 3º lugar)
-                                          </span>
-                                        </div>
-                                      )}
+                                      {honoraryMention &&
+                                        story.id === honoraryMention.id && (
+                                          <div className="flex items-center text-blue-600 dark:text-blue-400 text-sm">
+                                            <Award className="h-4 w-4 mr-1" />
+                                            <span className="font-bold">
+                                              🎖️ Mención de Honor
+                                            </span>
+                                            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                                              (= 3º lugar)
+                                            </span>
+                                          </div>
+                                        )}
                                     </div>
                                   )}
 
-                                {/* Badge sutil para historias votadas - centrado */}
-                                {hasVoted && (
-                                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 bg-gray-400/90 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm">
-                                    <Heart className="h-4 w-4 fill-current" />
-                                    <span>Tu voto</span>
+                                {/* Badge central - Votada Y/O Leída */}
+                                {(hasVoted || (hasRead && phaseInfo?.phase === 'voting')) && (
+                                  <div
+                                    className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm transition-all ${
+                                      hasVoted
+                                        ? 'bg-gray-400/90 text-white'
+                                        : 'bg-blue-500/90 text-white hover:bg-blue-600/90 cursor-pointer'
+                                    }`}
+                                    onClick={hasVoted ? undefined : handleToggleRead}
+                                    title={hasVoted ? undefined : 'Click para desmarcar como leída'}
+                                  >
+                                    {hasVoted && <Heart className="h-4 w-4 fill-current" />}
+                                    {!hasVoted && hasRead && <BookCheck className="h-4 w-4" />}
+                                    <span>
+                                      {hasVoted && hasRead ? 'Votada • Leída' : hasVoted ? 'Tu voto' : 'Leída'}
+                                    </span>
                                   </div>
                                 )}
 
@@ -1638,26 +1768,14 @@ const CurrentContest = () => {
                                       : "text-gray-500 dark:text-dark-400"
                                   }`}
                                 >
-                                  <UserAvatar
-                                    user={{
-                                      name: story.author,
-                                      email: `${story.author}@mock.com`,
-                                    }}
-                                    size="xs"
-                                  />
-                                  <span className="truncate max-w-32 md:max-w-none">
-                                    <UserWithTopBadge
-                                      userId={story.user_id}
-                                      userName={story.author}
-                                      className="inline-flex"
-                                    />
-                                  </span>
-                                  <ProfileButton 
+                                  <UserCardWithBadges
                                     userId={story.user_id}
-                                    size="xs"
-                                    variant="primary"
-                                    showText={phaseInfo?.phase === "voting"}
-                                    className="ml-1"
+                                    userName={story.author}
+                                    userEmail={`${story.author}@mock.com`}
+                                    avatarSize="xs"
+                                    badgeSize="xs"
+                                    maxBadges={1}
+                                    className="flex-shrink-0"
                                   />
                                   <span className="hidden sm:inline">•</span>
                                   <span className="whitespace-nowrap ">
@@ -1686,7 +1804,7 @@ const CurrentContest = () => {
                                 </div>
                               </div>
 
-                              {/* Botones de acción - Stack en móvil */}
+                              {/* Botones de acción - Limpio y simple */}
                               <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
                                 <a
                                   href={`/story/${story.id}`}
@@ -1696,6 +1814,7 @@ const CurrentContest = () => {
                                   <BookOpen className="h-3 w-3 mr-1" />
                                   Leer
                                 </a>
+
                                 {getStoryShareData(story) && (
                                   <div onClick={(e) => e.stopPropagation()}>
                                     <SocialShareDropdown
@@ -1741,8 +1860,8 @@ const CurrentContest = () => {
                                       </span>
                                     </div>
 
-                                    {/* Views compacto */}
-                                    <div
+                                    {/* Views compacto - OCULTO */}
+                                    {/* <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
                                         hasVoted
                                           ? "text-gray-400 dark:text-dark-300"
@@ -1753,7 +1872,7 @@ const CurrentContest = () => {
                                       <span className="truncate">
                                         {story.views_count || 0}
                                       </span>
-                                    </div>
+                                    </div> */}
                                   </>
                                 )}
 

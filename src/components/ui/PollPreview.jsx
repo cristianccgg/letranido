@@ -120,13 +120,15 @@ const PollPreview = ({
       {/* Contenedor principal con animación */}
       <div
         className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 border-2 border-purple-100 shadow-lg transition-all duration-700 ease-out ${
-          isExpanded ? "max-h-[48rem] opacity-100" : "max-h-20 opacity-90"
+          isExpanded ? "max-h-[48rem] opacity-100" : "max-h-32 opacity-95"
         }`}
       >
         {/* Botón de expansión */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-4 flex items-center cursor-pointer justify-between hover:bg-white/20 transition-all duration-300 group"
+          className={`w-full flex items-center cursor-pointer justify-between hover:bg-white/20 transition-all duration-300 group ${
+            isExpanded ? "p-4" : "p-6"
+          }`}
         >
           <div className="flex items-center gap-3">
             {/* Icono animado */}
@@ -140,10 +142,14 @@ const PollPreview = ({
 
             {/* Texto principal */}
             <div className="text-left">
-              <span className="text-sm font-medium text-purple-600 block">
+              <span className={`font-medium text-purple-600 block ${
+                isExpanded ? "text-sm" : "text-base"
+              }`}>
                 Vota por el prompt
               </span>
-              <span className="text-lg font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">
+              <span className={`font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-300 ${
+                isExpanded ? "text-lg" : "text-xl"
+              }`}>
                 Reto de Noviembre
               </span>
             </div>

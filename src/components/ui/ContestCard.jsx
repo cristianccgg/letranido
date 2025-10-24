@@ -10,11 +10,16 @@ const ContestCard = ({
   isNext = false,
   isEnabled = true, // ✅ Nuevo prop para habilitar/deshabilitar botones
   onRulesClick,
+  onExpandNext, // ✅ Nuevo prop para expandir next contest
+  forceExpanded = false, // ✅ Prop para forzar expansión externa
 }) => {
   if (!contest) return null;
 
   // Estado para expansión (solo para siguiente reto)
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Usar forceExpanded si se proporciona, o el estado interno
+  const shouldExpand = forceExpanded || isExpanded;
 
   // Determinar el tipo de botones según la fase
   const getButtons = () => {
@@ -115,10 +120,25 @@ const ContestCard = ({
               Ver Historias
             </Link>
             <button
-              onClick={onRulesClick}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gray-50 dark:bg-dark-800 border-2 border-gray-200 dark:border-dark-600 text-gray-700 dark:text-dark-300 font-medium hover:border-gray-300 dark:hover:border-dark-500 hover:bg-gray-100 dark:hover:bg-dark-700 transition-all duration-300 flex-1"
+              onClick={() => {
+                // Expandir el next contest si existe la función
+                if (onExpandNext) {
+                  onExpandNext();
+                }
+                // Hacer scroll al contenedor
+                setTimeout(() => {
+                  const nextContestSection = document.querySelector('[data-next-contest]');
+                  if (nextContestSection) {
+                    nextContestSection.scrollIntoView({ 
+                      behavior: "smooth",
+                      block: "center" // ✅ Centrar en lugar de ir al borde superior
+                    });
+                  }
+                }, 100); // Pequeño delay para que se expanda primero
+              }}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium hover:from-indigo-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all duration-300 flex-1"
             >
-              Ver Reglas
+              Ver Próximo Reto
             </button>
           </div>
         );
@@ -160,7 +180,7 @@ const ContestCard = ({
       <div className="bg-white/95 ring-1 ring-accent-500 dark:bg-dark-800/95 backdrop-blur-md border-2 border-indigo-200 dark:border-dark-600 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-500 overflow-hidden">
         {/* Header siempre visible - clickeable para expandir/contraer */}
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => setIsExpanded(!shouldExpand)}
           className="w-full p-6 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-dark-700/50 transition-all duration-300 group text-left cursor-pointer"
         >
           <div className="flex-1">
@@ -200,7 +220,7 @@ const ContestCard = ({
           <div className="ml-4 flex-shrink-0">
             <ChevronDown
               className={`h-6 w-6 text-gray-400 group-hover:text-gray-600 transition-all duration-300 ${
-                isExpanded ? "rotate-180" : ""
+                shouldExpand ? "rotate-180" : ""
               }`}
             />
           </div>
@@ -209,7 +229,7 @@ const ContestCard = ({
         {/* Contenido expandible */}
         <div
           className={`transition-all duration-500 overflow-hidden ${
-            isExpanded ? "opacity-100 max-h-[600px]" : "opacity-0 max-h-0"
+            shouldExpand ? "opacity-100 max-h-[600px]" : "opacity-0 max-h-0"
           }`}
         >
           <div className="px-6 pb-6 space-y-6">
@@ -312,7 +332,7 @@ const ContestCard = ({
                   ? "Envíos cierran en"
                   : phase === "voting"
                     ? "Votación termina en"
-                    : "Resultados 4 de septiembre"}
+                    : "Resultados muy pronto"}
               </span>
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
             </div>

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
-import ProfileButton from "../components/ui/ProfileButton";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import SEOHead from "../components/SEO/SEOHead";
 
 const ContestHistory = () => {
@@ -293,21 +293,15 @@ const ContestHistory = () => {
                           {contest.winner.title}
                         </h3>
 
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-sm text-gray-600 dark:text-dark-300">
-                            por{" "}
-                            <UserWithWinnerBadges
-                              userId={contest.winner.user_id}
-                              userName={contest.winner.author}
-                              className="inline-flex"
-                            />
-                          </div>
-                          <ProfileButton 
-                            userId={contest.winner.user_id} 
-                            size="xs" 
-                            variant="primary" 
-                            showText={false} 
-                            className="flex-shrink-0"
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-500 dark:text-dark-400 mb-1">por</div>
+                          <UserCardWithBadges
+                            userId={contest.winner.user_id}
+                            userName={contest.winner.author}
+                            userEmail={`${contest.winner.author}@winner.com`}
+                            avatarSize="sm"
+                            badgeSize="xs"
+                            maxBadges={1}
                           />
                         </div>
 

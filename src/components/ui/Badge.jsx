@@ -1,5 +1,5 @@
 // components/ui/Badge.jsx - Sistema de badges con diseños CSS/SVG profesionales
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 
 const Badge = ({
@@ -113,6 +113,43 @@ const Badge = ({
         <circle cx="12" cy="9" r="2" fill="currentColor" />
       </svg>
     ),
+    heart: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          opacity="0.3"
+        />
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+    coffee: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <path
+          d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"
+          opacity="0.2"
+        />
+        <path
+          d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 2v2M10 2v2M14 2v2"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
   };
 
   // Colores predefinidos según el tier y tipo
@@ -159,6 +196,12 @@ const Badge = ({
       border: "border-red-300",
       glow: "shadow-red-500/60",
       text: "text-red-800",
+    },
+    kofi_supporter: {
+      bg: "from-pink-400 via-rose-500 to-red-500",
+      border: "border-pink-300",
+      glow: "shadow-pink-500/70",
+      text: "text-pink-900",
     },
   };
 
@@ -239,18 +282,43 @@ const Badge = ({
       {/* Tooltip renderizado como portal */}
       {showTooltip && showDescription && createPortal(
         <div 
-          className="fixed px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl whitespace-nowrap z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full"
+          className="fixed px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full max-w-xs"
           style={{
             left: `${tooltipPosition.x}px`,
             top: `${tooltipPosition.y}px`
           }}
         >
           <div className="font-semibold">{badge.name}</div>
-          {badge.description && (
+          
+          {/* Información específica del reto si está disponible */}
+          {badge.metadata?.contest_title && (
+            <div className="text-xs text-blue-300 mt-1 font-medium">
+              📖 {badge.metadata.contest_title}
+            </div>
+          )}
+          
+          {badge.metadata?.contest_month && (
+            <div className="text-xs text-gray-300">
+              📅 {badge.metadata.contest_month}
+            </div>
+          )}
+          
+          {badge.metadata?.position && (
+            <div className="text-xs text-yellow-300 font-medium">
+              🏆 {badge.metadata.position === 1 ? '1er lugar' : 
+                  badge.metadata.position === 2 ? '2do lugar' : 
+                  badge.metadata.position === 3 ? '3er lugar' : 
+                  `${badge.metadata.position}º lugar`}
+            </div>
+          )}
+          
+          {/* Descripción genérica si no hay información del reto */}
+          {badge.description && !badge.metadata?.contest_title && (
             <div className="text-xs text-gray-300 mt-1">
               {badge.description}
             </div>
           )}
+          
           {/* Flecha del tooltip */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
         </div>,
@@ -281,10 +349,10 @@ const BadgeGrid = ({ badges, maxVisible = 4, size = "md", className = "" }) => {
       {hiddenCount > 0 && (
         <div
           className={`
-          ${sizes[size]?.container || "w-16 h-16"} 
+          ${sizeClasses.container || "w-16 h-16"} 
           bg-gray-200 border-2 border-gray-300 rounded-full 
           flex items-center justify-center text-gray-600 font-semibold
-          ${sizes[size]?.text || "text-base"}
+          ${sizeClasses.text || "text-base"}
         `}
         >
           +{hiddenCount}

@@ -42,11 +42,16 @@ export const APP_CONFIG = {
 
 // Feature flags para desarrollo gradual
 export const FEATURES = {
-  PREMIUM_PLANS: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM === 'true',
-  PORTFOLIO_STORIES: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PORTFOLIO === 'true',
+  // 🚫 PREMIUM FEATURES - Desactivadas temporalmente (Octubre 2024)
+  // Se reactivarán cuando haya suficiente masa crítica de usuarios
+  // Para reactivar: cambiar false a import.meta.env.DEV
+  PREMIUM_PLANS: import.meta.env.VITE_ENABLE_PREMIUM === 'true', // Desactivado
+  PORTFOLIO_STORIES: import.meta.env.VITE_ENABLE_PORTFOLIO === 'true', // Desactivado
+  PREMIUM_EDITOR: import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true', // Desactivado
+  BETA_ROUTES: import.meta.env.VITE_BETA_ROUTES === 'true', // Desactivado
+
+  // ✅ FEATURES ACTIVAS
   FEEDBACK_SYSTEM: import.meta.env.VITE_ENABLE_FEEDBACK === 'true',
-  PREMIUM_EDITOR: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true',
-  BETA_ROUTES: import.meta.env.DEV || import.meta.env.VITE_BETA_ROUTES === 'true',
 
   // Feature announcements - Activa/desactiva los anuncios de nuevas features
   SHOW_FEATURE_ANNOUNCEMENT: import.meta.env.VITE_SHOW_FEATURE_ANNOUNCEMENT === 'true',

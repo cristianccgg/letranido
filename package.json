@@ -5,21 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:local": "node scripts/switch-env.js local && vite",
-    "dev:prod": "node scripts/switch-env.js prod && vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "env": "node scripts/switch-env.js",
-    "env:local": "node scripts/switch-env.js local",
-    "env:prod": "node scripts/switch-env.js prod",
-    "env:status": "node scripts/switch-env.js status"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.50.3",
     "@tailwindcss/vite": "^4.1.11",
     "@vercel/analytics": "^1.5.0",
+    "canvas-confetti": "^1.9.3",
     "lucide-react": "^0.525.0",
     "quill": "^2.0.3",
     "react": "^19.1.0",

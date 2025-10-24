@@ -28,22 +28,20 @@ import SEOHead from "../components/SEO/SEOHead";
 import ContestActionButton from "../components/ui/ContestActionButton";
 import ContestRulesModal from "../components/forms/ContestRulesModal";
 import UserAvatar from "../components/ui/UserAvatar";
-import {
-  UserWithWinnerBadges,
-  UserWithTopBadge,
-} from "../components/ui/UserNameWithBadges";
+import UserCardWithBadges from "../components/ui/UserCardWithBadges";
 import KarmaRankingsSidebar from "../components/ui/KarmaRankingsSidebar";
 import NextContestOrPoll from "../components/ui/NextContestOrPoll";
 import ContestCard from "../components/ui/ContestCard";
 import NewsletterSignup from "../components/ui/NewsletterSignup";
 import AnimatedCounter from "../components/ui/AnimatedCounter";
-import ProfileButton from "../components/ui/ProfileButton";
 import { useBadgesCache } from "../hooks/useBadgesCache";
 import Badge from "../components/ui/Badge";
 import WelcomeBanner from "../components/ui/WelcomeBanner";
 import FeatureAnnouncementModal from "../components/modals/FeatureAnnouncementModal";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
+import ComingSoonModal from "../components/modals/ComingSoonModal";
+import { useComingSoonModal } from "../hooks/useComingSoonModal";
 
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
@@ -127,6 +125,10 @@ const LandingPage = () => {
   // 🆕 ESTADO PARA GANADORES DEL RETO ANTERIOR
   const [lastContestWinners, setLastContestWinners] = useState(null);
   const [loadingWinners, setLoadingWinners] = useState(false);
+
+  // 🎉 MODAL DE COMING SOON
+  const { isOpen: comingSoonOpen, closeModal: closeComingSoon } =
+    useComingSoonModal();
 
   // 🆕 ESTADO PARA FEATURE ANNOUNCEMENT MODAL
   const [showFeatureModal, setShowFeatureModal] = useState(false);
@@ -280,6 +282,7 @@ const LandingPage = () => {
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [rulesModalContest, setRulesModalContest] = useState(null);
+  const [nextContestExpanded, setNextContestExpanded] = useState(false);
 
   // Estado para el sidebar de rankings
   const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
@@ -519,29 +522,33 @@ const LandingPage = () => {
                   setRulesModalContest(currentContest);
                   setShowRulesModal(true);
                 }}
+                onExpandNext={() => setNextContestExpanded(true)}
               />
 
               {/* Tarjeta del siguiente reto - igual diseño que actual */}
               {nextContest && (
-                <ContestCard
-                  contest={nextContest}
-                  phase="submission" // El siguiente siempre está en submission
-                  timeLeft={
-                    currentContestPhase === "voting" ||
-                    currentContestPhase === "counting"
-                      ? nextTimeLeft
-                      : null
-                  } // Contador real cuando esté habilitado
-                  isNext={true}
-                  isEnabled={
-                    currentContestPhase === "voting" ||
-                    currentContestPhase === "counting"
-                  } // Habilitado durante votación y counting
-                  onRulesClick={() => {
-                    setRulesModalContest(nextContest);
-                    setShowRulesModal(true);
-                  }}
-                />
+                <div data-next-contest>
+                  <ContestCard
+                    contest={nextContest}
+                    phase="submission" // El siguiente siempre está en submission
+                    timeLeft={
+                      currentContestPhase === "voting" ||
+                      currentContestPhase === "counting"
+                        ? nextTimeLeft
+                        : null
+                    } // Contador real cuando esté habilitado
+                    isNext={true}
+                    isEnabled={
+                      currentContestPhase === "voting" ||
+                      currentContestPhase === "counting"
+                    } // Habilitado durante votación y counting
+                    forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
+                    onRulesClick={() => {
+                      setRulesModalContest(nextContest);
+                      setShowRulesModal(true);
+                    }}
+                  />
+                </div>
               )}
 
               {/* Mostrar encuesta activa (cuando esté disponible) */}
@@ -841,30 +848,15 @@ const LandingPage = () => {
                           </h5>
 
                           {/* Autor */}
-                          <div className="flex items-center justify-center gap-2 mb-4 w-80 mx-auto">
-                            <div className="flex items-center gap-3">
-                              <UserAvatar
-                                user={{
-                                  name: lastContestWinners.winners[0].author,
-                                  email: `${lastContestWinners.winners[0].author}@mock.com`,
-                                }}
-                                size="md"
-                              />
-                              <div>
-                                <UserWithWinnerBadges
-                                  userId={lastContestWinners.winners[0].user_id}
-                                  userName={
-                                    lastContestWinners.winners[0].author
-                                  }
-                                  className="font-semibold text-lg"
-                                />
-                              </div>
-                            </div>
-                            <ProfileButton
+                          <div className="flex justify-center mb-4">
+                            <UserCardWithBadges
                               userId={lastContestWinners.winners[0].user_id}
-                              size="xs"
-                              variant="primary"
-                              showText={true}
+                              userName={lastContestWinners.winners[0].author}
+                              userEmail={`${lastContestWinners.winners[0].author}@mock.com`}
+                              avatarSize="md"
+                              badgeSize="sm"
+                              maxBadges={1}
+                              className="text-lg font-semibold"
                             />
                           </div>
 
@@ -959,28 +951,15 @@ const LandingPage = () => {
                                   </h5>
 
                                   {/* Autor */}
-                                  <div className="flex items-center justify-center gap-2 mb-4">
-                                    <div className="flex items-center gap-3">
-                                      <UserAvatar
-                                        user={{
-                                          name: story.author,
-                                          email: `${story.author}@mock.com`,
-                                        }}
-                                        size="md"
-                                      />
-                                      <div>
-                                        <UserWithWinnerBadges
-                                          userId={story.user_id}
-                                          userName={story.author}
-                                          className="font-semibold"
-                                        />
-                                      </div>
-                                    </div>
-                                    <ProfileButton
+                                  <div className="flex justify-center mb-4">
+                                    <UserCardWithBadges
                                       userId={story.user_id}
-                                      size="xs"
-                                      variant="primary"
-                                      showText={false}
+                                      userName={story.author}
+                                      userEmail={`${story.author}@mock.com`}
+                                      avatarSize="md"
+                                      badgeSize="xs"
+                                      maxBadges={1}
+                                      className="font-semibold"
                                     />
                                   </div>
 
@@ -1045,37 +1024,19 @@ const LandingPage = () => {
                               </h5>
 
                               {/* Autor */}
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                  <UserAvatar
-                                    user={{
-                                      name: lastContestWinners.honoraryMention
-                                        .author,
-                                      email: `${lastContestWinners.honoraryMention.author}@mock.com`,
-                                    }}
-                                    size="sm"
-                                  />
-                                  <div>
-                                    <UserWithWinnerBadges
-                                      userId={
-                                        lastContestWinners.honoraryMention
-                                          .user_id
-                                      }
-                                      userName={
-                                        lastContestWinners.honoraryMention
-                                          .author
-                                      }
-                                      className="font-semibold text-sm"
-                                    />
-                                  </div>
-                                </div>
-                                <ProfileButton
+                              <div className="flex justify-center mb-4">
+                                <UserCardWithBadges
                                   userId={
                                     lastContestWinners.honoraryMention.user_id
                                   }
-                                  size="xs"
-                                  variant="primary"
-                                  showText={false}
+                                  userName={
+                                    lastContestWinners.honoraryMention.author
+                                  }
+                                  userEmail={`${lastContestWinners.honoraryMention.author}@mock.com`}
+                                  avatarSize="sm"
+                                  badgeSize="xs"
+                                  maxBadges={1}
+                                  className="font-semibold text-sm"
                                 />
                               </div>
 
@@ -1314,6 +1275,9 @@ const LandingPage = () => {
         isOpen={showRankingsSidebar}
         onClose={() => setShowRankingsSidebar(false)}
       />
+
+      {/* Modal de Coming Soon */}
+      <ComingSoonModal isOpen={comingSoonOpen} onClose={closeComingSoon} />
 
       {/* Modal de anuncio de nuevas features */}
       <FeatureAnnouncementModal

@@ -1,6 +1,6 @@
 // components/ui/WelcomeBanner.jsx - Banner informativo de nuevas features
 import { useState } from "react";
-import { X, MessageCircle, Sparkles, Trophy, Vote, UserCircle } from "lucide-react";
+import { X, MessageCircle, Sparkles, Trophy, UserCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "../modals/FeedbackModal";
 
@@ -23,21 +23,11 @@ const WelcomeBanner = () => {
   };
 
   const scrollToPodium = () => {
-    const winnersSection = document.getElementById('winners-section');
+    const winnersSection = document.getElementById("winners-section");
     if (winnersSection) {
-      winnersSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  };
-
-  const scrollToPoll = () => {
-    const pollSection = document.querySelector('[data-poll-section]');
-    if (pollSection) {
-      pollSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      winnersSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
     }
   };
@@ -74,7 +64,7 @@ const WelcomeBanner = () => {
                 <span className="hidden sm:inline">Ver Mi Perfil</span>
                 <span className="sm:hidden">Perfil</span>
               </Link>
-              
+
               {/* Botón de Feedback - Comentado temporalmente */}
               {/* <button
                 onClick={openFeedbackModal}
