@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, UserCircle, BookCheck, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import Badge from "../ui/Badge";
 
 /**
  * Modal que anuncia nuevas features a los usuarios existentes
@@ -97,24 +96,17 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-          {/* Feature 3: Ko-fi Supporter Badge - con badge REAL */}
+          {/* Feature 3: Ko-fi Supporter Badge - PREVIEW VISUAL */}
           <div className="flex gap-3">
-            <div className="flex-shrink-0 flex items-center">
-              <Badge
-                badge={{
-                  id: "kofi_supporter",
-                  name: "Ko-fi Supporter",
-                  description: "Apoya a Letranido en Ko-fi",
-                  icon: "❤️",
-                  rarity: "legendary"
-                }}
-                size="sm"
-                showDescription={false}
-              />
+            <div className="flex-shrink-0">
+              {/* Badge visual - solo icono con gradiente rosado */}
+              <div className="bg-gradient-to-r from-pink-400 via-rose-500 to-red-500 p-2 rounded-lg shadow-md shadow-pink-500/50 border border-pink-300">
+                <span className="text-lg">❤️</span>
+              </div>
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                ☕ Badge Exclusivo
+                ☕ Badge Ko-fi Supporter
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                 Reconocimiento especial para quienes apoyan en Ko-fi
