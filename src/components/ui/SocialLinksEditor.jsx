@@ -1,12 +1,11 @@
 import {
   Instagram,
-  Twitter,
   Linkedin,
   Youtube,
-  Music,
   Globe,
   Facebook,
 } from "lucide-react";
+import { FaTiktok, FaXTwitter } from "react-icons/fa6";
 
 const SocialLinksEditor = ({ value = {}, onChange, disabled = false }) => {
   const socialPlatforms = [
@@ -28,11 +27,11 @@ const SocialLinksEditor = ({ value = {}, onChange, disabled = false }) => {
     },
     {
       key: "twitter",
-      label: "Twitter/X",
-      icon: Twitter,
+      label: "X (Twitter)",
+      icon: FaXTwitter,
       placeholder: "@usuario",
       prefix: "https://twitter.com/",
-      color: "text-blue-500",
+      color: "text-gray-900 dark:text-white",
     },
     {
       key: "linkedin",
@@ -53,7 +52,7 @@ const SocialLinksEditor = ({ value = {}, onChange, disabled = false }) => {
     {
       key: "tiktok",
       label: "TikTok",
-      icon: Music,
+      icon: FaTiktok,
       placeholder: "@usuario",
       prefix: "https://tiktok.com/",
       color: "text-gray-900 dark:text-white",

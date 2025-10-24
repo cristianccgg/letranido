@@ -1,13 +1,12 @@
 import {
   Instagram,
-  Twitter,
   Linkedin,
   Youtube,
-  Music,
   Globe,
   Facebook,
   ExternalLink,
 } from "lucide-react";
+import { FaTiktok, FaXTwitter } from "react-icons/fa6";
 
 const SocialLinksDisplay = ({
   socialLinks = {},
@@ -30,11 +29,11 @@ const SocialLinksDisplay = ({
       bgColor: "hover:bg-pink-50 dark:hover:bg-pink-900/20",
     },
     twitter: {
-      label: "Twitter/X",
-      icon: Twitter,
+      label: "X (Twitter)",
+      icon: FaXTwitter,
       prefix: "https://twitter.com/",
-      color: "text-blue-500 hover:text-blue-600",
-      bgColor: "hover:bg-blue-50 dark:hover:bg-blue-900/20",
+      color: "text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300",
+      bgColor: "hover:bg-gray-50 dark:hover:bg-gray-700",
     },
     linkedin: {
       label: "LinkedIn",
@@ -52,7 +51,7 @@ const SocialLinksDisplay = ({
     },
     tiktok: {
       label: "TikTok",
-      icon: Music,
+      icon: FaTiktok,
       prefix: "https://tiktok.com/",
       color:
         "text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300",

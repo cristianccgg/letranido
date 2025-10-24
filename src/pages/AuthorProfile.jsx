@@ -365,7 +365,7 @@ const AuthorProfile = () => {
                 {author.social_links &&
                   author.show_social_links &&
                   Object.keys(author.social_links).length > 0 && (
-                    <div className="flex items-center mt-5 justify-center sm:justify-start">
+                    <div className="flex items-center mt-5 justify-center sm:justify-start [&_a]:!text-white [&_a]:!border-white/30 [&_a:hover]:!border-white/50 [&_a:hover]:!bg-white/10 [&_a]:shadow-sm [&_svg]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                       <SocialLinksDisplay
                         socialLinks={author.social_links}
                         size="sm"
