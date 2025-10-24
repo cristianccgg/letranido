@@ -105,7 +105,7 @@ const SocialLinksEditor = ({ value = {}, onChange, disabled = false }) => {
               </div>
               {platform.key !== "website" && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Solo tu nombre de usuario
+                  Solo tu nombre de usuario (sin https:// ni {platform.prefix.replace('https://', '')})
                 </p>
               )}
             </div>
