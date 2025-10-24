@@ -52,6 +52,9 @@ export const FEATURES = {
 
   // ✅ FEATURES ACTIVAS
   FEEDBACK_SYSTEM: import.meta.env.VITE_ENABLE_FEEDBACK === 'true',
+
+  // Feature announcements - Activa/desactiva los anuncios de nuevas features
+  SHOW_FEATURE_ANNOUNCEMENT: import.meta.env.VITE_SHOW_FEATURE_ANNOUNCEMENT === 'true',
 };
 
 // URLs importantes

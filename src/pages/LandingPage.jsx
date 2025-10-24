@@ -37,6 +37,7 @@ import AnimatedCounter from "../components/ui/AnimatedCounter";
 import { useBadgesCache } from "../hooks/useBadgesCache";
 import Badge from "../components/ui/Badge";
 import WelcomeBanner from "../components/ui/WelcomeBanner";
+import FeatureAnnouncementModal from "../components/modals/FeatureAnnouncementModal";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
 import ComingSoonModal from "../components/modals/ComingSoonModal";
@@ -90,6 +91,7 @@ const LandingPage = () => {
     getStoriesByContest,
     // App state
     initialized,
+    user,
     globalLoading,
     // Global stats
     globalStats,
@@ -127,6 +129,20 @@ const LandingPage = () => {
   // 🎉 MODAL DE COMING SOON
   const { isOpen: comingSoonOpen, closeModal: closeComingSoon } =
     useComingSoonModal();
+
+  // 🆕 ESTADO PARA FEATURE ANNOUNCEMENT MODAL
+  const [showFeatureModal, setShowFeatureModal] = useState(false);
+
+  // 🆕 Mostrar modal de anuncio de features si está habilitado y el usuario está logueado
+  useEffect(() => {
+    if (FEATURES.SHOW_FEATURE_ANNOUNCEMENT && user && initialized) {
+      // Pequeño delay para que el usuario vea la página primero
+      const timer = setTimeout(() => {
+        setShowFeatureModal(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, initialized]);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
@@ -1262,6 +1278,13 @@ const LandingPage = () => {
 
       {/* Modal de Coming Soon */}
       <ComingSoonModal isOpen={comingSoonOpen} onClose={closeComingSoon} />
+
+      {/* Modal de anuncio de nuevas features */}
+      <FeatureAnnouncementModal
+        isOpen={showFeatureModal}
+        onClose={() => setShowFeatureModal(false)}
+        userId={user?.id}
+      />
     </div>
   );
 };

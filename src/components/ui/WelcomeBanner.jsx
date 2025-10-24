@@ -1,6 +1,6 @@
-// components/ui/WelcomeBanner.jsx - Banner informativo de votación activa
+// components/ui/WelcomeBanner.jsx - Banner informativo de nuevas features
 import { useState } from "react";
-import { X, MessageCircle, Sparkles, Trophy } from "lucide-react";
+import { X, MessageCircle, Sparkles, Trophy, UserCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "../modals/FeedbackModal";
 
@@ -44,11 +44,10 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>🏆</span> ¡Los resultados del reto de Septiembre ya
-                    están! Descubre quiénes ganaron.
+                    <span>✨</span> ¡Nuevas features! Perfiles públicos y sistema de lectura mejorado.
                   </span>
                   <span className="sm:hidden ">
-                    🏆 ¡Resultados de octubre listos!
+                    ✨ ¡Nuevas features disponibles!
                   </span>
                 </p>
               </div>
@@ -56,15 +55,15 @@ const WelcomeBanner = () => {
 
             {/* Botones */}
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-4">
-              {/* Botón a los Resultados */}
-              <button
-                onClick={scrollToPodium}
+              {/* Botón al Perfil */}
+              <Link
+                to="/profile"
                 className="inline-flex cursor-pointer items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-white/20 hover:bg-white/30 rounded-full transition-all duration-200 hover:scale-105 backdrop-blur-sm"
               >
-                <Trophy className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Ver Resultados</span>
-                <span className="sm:hidden">Resultados</span>
-              </button>
+                <UserCircle className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Ver Mi Perfil</span>
+                <span className="sm:hidden">Perfil</span>
+              </Link>
 
               {/* Botón de Feedback - Comentado temporalmente */}
               {/* <button

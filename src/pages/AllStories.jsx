@@ -18,6 +18,7 @@ import {
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import { UserWithWinnerBadges } from "../components/ui/UserNameWithBadges";
 import UserAvatar from "../components/ui/UserAvatar";
+import ProfileButton from "../components/ui/ProfileButton";
 import SEOHead from "../components/SEO/SEOHead";
 import { supabase } from "../lib/supabase";
 import { getCategoryName } from "../lib/storyCategories";
@@ -512,17 +513,26 @@ const AllStories = () => {
                             {story.title}
                           </h3>
                           
-                          <div className="flex items-center gap-2 mb-2">
-                            <UserAvatar
-                              user={{
-                                name: story.author,
-                                email: `${story.author}@mock.com`,
-                              }}
-                              size="xs"
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <UserAvatar
+                                user={{
+                                  name: story.author,
+                                  email: `${story.author}@mock.com`,
+                                }}
+                                size="xs"
+                              />
+                              <span className="text-sm font-medium text-gray-700 dark:text-dark-200">
+                                por {story.author}
+                              </span>
+                            </div>
+                            <ProfileButton 
+                              userId={story.user_id} 
+                              size="xs" 
+                              variant="primary" 
+                              showText={false} 
+                              className="flex-shrink-0"
                             />
-                            <span className="text-sm font-medium text-gray-700 dark:text-dark-200">
-                              por {story.author}
-                            </span>
                           </div>
                         </div>
                         
@@ -631,16 +641,25 @@ const AllStories = () => {
                             ) : null}
                           </div>
                           
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-600 dark:text-dark-300">
-                              por {story.author}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-dark-400">
-                              • {story.contest_month}
-                            </span>
-                            <span className="px-2 py-1 bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-dark-300 text-xs rounded">
-                              {getCategoryName(story.story_category || story.contest_category)}
-                            </span>
+                          <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-sm text-gray-600 dark:text-dark-300">
+                                por {story.author}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-dark-400">
+                                • {story.contest_month}
+                              </span>
+                              <span className="px-2 py-1 bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-dark-300 text-xs rounded">
+                                {getCategoryName(story.story_category || story.contest_category)}
+                              </span>
+                            </div>
+                            <ProfileButton 
+                              userId={story.user_id} 
+                              size="xs" 
+                              variant="primary" 
+                              showText={false} 
+                              className="flex-shrink-0 ml-2"
+                            />
                           </div>
                         </div>
                         

@@ -72,11 +72,11 @@ const PrivacyPolicy = () => {
           <ul className="list-disc pl-6 mb-4">
             <li>
               <strong>Email:</strong> Para autenticación y comunicaciones
-              importantes
+              importantes (nunca se muestra públicamente)
             </li>
             <li>
               <strong>Nombre de usuario:</strong> Para identificarte en la
-              plataforma
+              plataforma (visible públicamente)
             </li>
             <li>
               <strong>Contraseña:</strong> Encriptada, nunca almacenamos texto
@@ -88,7 +88,43 @@ const PrivacyPolicy = () => {
           </ul>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            1.2 Contenido Creado
+            1.2 Información de Perfil Público (Opcional)
+          </h3>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 dark:text-blue-200 mb-2">
+              <strong>Tú decides qué compartir:</strong> Puedes agregar información
+              opcional a tu perfil público de autor:
+            </p>
+            <ul className="list-disc pl-6 text-blue-800 dark:text-blue-200">
+              <li>
+                <strong>Biografía:</strong> Una descripción sobre ti y tu trabajo
+                literario
+              </li>
+              <li>
+                <strong>País:</strong> Tu país de origen (opcional)
+              </li>
+              <li>
+                <strong>Redes sociales:</strong> Enlaces a tus perfiles en redes
+                (Twitter, Instagram, etc.)
+              </li>
+              <li>
+                <strong>Sitio web personal:</strong> URL de tu blog o página
+                personal
+              </li>
+              <li>
+                <strong>Configuración de privacidad:</strong> Puedes ocultar tu
+                perfil público en cualquier momento
+              </li>
+            </ul>
+            <p className="text-blue-700 dark:text-blue-200 text-sm mt-2">
+              <strong>Control total:</strong> Esta información es completamente
+              opcional y puedes editarla o eliminarla cuando quieras. Tu email
+              NUNCA se mostrará en tu perfil público.
+            </p>
+          </div>
+
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            1.3 Contenido Creado
           </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
@@ -107,7 +143,7 @@ const PrivacyPolicy = () => {
           </ul>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            1.3 Consentimientos Legales
+            1.4 Consentimientos Legales
           </h3>
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-4">
             <p className="text-blue-800 dark:text-blue-200 mb-2">
@@ -136,7 +172,7 @@ const PrivacyPolicy = () => {
           </div>
 
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            1.4 Información Técnica Mínima
+            1.5 Información Técnica Mínima
           </h3>
           <ul className="list-disc pl-6 mb-4">
             <li>
@@ -224,10 +260,26 @@ const PrivacyPolicy = () => {
             </li>
             <li>
               Estadísticas de participación (número de historias, votos
-              recibidos)
+              recibidos, badges ganados)
             </li>
             <li>Fecha de unión a la plataforma</li>
+            <li>
+              <strong>Información de perfil público (solo si tú la agregas):</strong>{" "}
+              biografía, país, redes sociales, sitio web. Tienes control total
+              para editar u ocultar tu perfil en cualquier momento.
+            </li>
           </ul>
+
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4 mb-4">
+            <p className="text-green-800 dark:text-green-200 text-sm">
+              <strong>💡 Importante sobre perfiles públicos:</strong> Toda la
+              información de tu perfil público (biografía, redes, país) es
+              completamente opcional. Solo se muestra lo que tú decidas compartir.
+              Puedes dejar tu perfil vacío, completarlo parcialmente, o llenarlo
+              completamente. También puedes ocultarlo por completo usando la
+              configuración de privacidad.
+            </p>
+          </div>
 
           <h3 className="text-lg font-semibold mb-2 text-red-700 dark:text-red-400">
             3.2 NUNCA Compartimos

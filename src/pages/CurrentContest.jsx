@@ -31,6 +31,7 @@ import ContestActionButton from "../components/ui/ContestActionButton";
 import UserAvatar from "../components/ui/UserAvatar";
 import { UserWithTopBadge } from "../components/ui/UserNameWithBadges";
 import UserCardWithBadges from "../components/ui/UserCardWithBadges";
+import ProfileButton from "../components/ui/ProfileButton";
 import SocialShareDropdown from "../components/ui/SocialShareDropdown";
 import WinnerCelebration from "../components/ui/WinnerCelebration";
 import useWinnerCelebration from "../hooks/useWinnerCelebration";

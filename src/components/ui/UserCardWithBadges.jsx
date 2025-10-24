@@ -2,6 +2,7 @@
 import { useBadgesCache } from "../../hooks/useBadgesCache";
 import UserAvatar from "./UserAvatar";
 import Badge from "./Badge";
+import ProfileButton from "./ProfileButton";
 import "./UserCardWithBadges.css";
 
 const UserCardWithBadges = ({
@@ -105,6 +106,14 @@ const UserCardWithBadges = ({
             ))}
           </div>
         )}
+
+        {/* Profile Button - inline, solo icono */}
+        <ProfileButton
+          userId={userId}
+          variant="primary"
+          size="xs"
+          showText={false}
+        />
         </div>
       </div>
     </div>
@@ -192,10 +201,18 @@ export const UserCardWithBadgesVertical = ({
         />
       </div>
 
-        {/* Nombre */}
-        <span className="font-medium text-gray-900 dark:text-dark-300 text-center relative z-10">
-          {displayName}
-        </span>
+        {/* Nombre con Profile Button */}
+        <div className="flex items-center gap-2 relative z-10">
+          <span className="font-medium text-gray-900 dark:text-dark-300 text-center">
+            {displayName}
+          </span>
+          <ProfileButton
+            userId={userId}
+            variant="primary"
+            size="xs"
+            showText={false}
+          />
+        </div>
 
         {/* Badges */}
         {!loading && badgesToShow.length > 0 && (

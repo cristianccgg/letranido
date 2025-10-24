@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Loader,
   Trash2,
-  Eye
 } from 'lucide-react';
 import { useGlobalApp } from '../contexts/GlobalAppContext';
 import { supabase } from '../lib/supabase';
@@ -49,6 +48,7 @@ const Preferences = () => {
   const [savingEmailPrefs, setSavingEmailPrefs] = useState(false);
   const [emailResult, setEmailResult] = useState(null);
   
+
   // Estados para eliminación de cuenta
   const [showDeletionModal, setShowDeletionModal] = useState(false);
   const [deletionStep, setDeletionStep] = useState('simulation'); // 'simulation' | 'confirmation' | 'processing'
@@ -114,6 +114,7 @@ const Preferences = () => {
     }
     setSavingEmailPrefs(false);
   };
+
 
   // Funciones para eliminación de cuenta
   const handleStartDeletion = async () => {
@@ -253,7 +254,7 @@ const Preferences = () => {
           </div>
 
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            Para cambiar tu nombre de usuario o email, ve a tu perfil.
+            Para cambiar tu nombre de usuario, email o configuración de privacidad, ve a tu perfil.
           </div>
         </section>
 
@@ -457,6 +458,7 @@ const Preferences = () => {
             </p>
           </div>
         </section>
+
 
         {/* Eliminar Cuenta */}
         <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">

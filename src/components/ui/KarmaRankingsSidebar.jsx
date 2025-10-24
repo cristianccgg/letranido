@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { X, Trophy, Zap, ChevronRight, PenTool, MessageCircle, MessageSquare, Heart, Vote, Crown, Medal } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
@@ -420,7 +421,10 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     };
 
     return (
-      <div className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-dark-700 rounded-lg transition-colors duration-200">
+      <Link 
+        to={`/author/${user.userId}`}
+        className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-dark-700 rounded-lg transition-colors duration-200 group cursor-pointer"
+      >
         {/* Posición con medalla */}
         <div className={`
           w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0
@@ -435,12 +439,16 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         {/* Info del usuario - más limpia */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-900 dark:text-dark-100 text-sm truncate">
-              {user.author}
-            </span>
-            {user.contestWins > 0 && (
-              <Trophy className="h-3 w-3 text-primary-500 dark:text-primary-400 flex-shrink-0 ml-1" />
-            )}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-semibold text-gray-900 dark:text-dark-100 text-sm truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                {user.author}
+              </span>
+              {user.contestWins > 0 && (
+                <Trophy className="h-3 w-3 text-primary-500 dark:text-primary-400 flex-shrink-0" />
+              )}
+            </div>
+            {/* Indicador visual de que es clickeable */}
+            <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200" />
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-dark-400 mt-1">
             <div className="flex items-center gap-1">
@@ -459,7 +467,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
             </span>
           </div>
         </div>
-      </div>
+      </Link>
     );
   };
 
