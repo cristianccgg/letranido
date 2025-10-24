@@ -11,7 +11,6 @@ import { logger } from '../utils/logger';
 import SEOHead from '../components/SEO/SEOHead';
 import UserAvatar from '../components/ui/UserAvatar';
 import UserCardWithBadges from '../components/ui/UserCardWithBadges';
-import ProfileButton from '../components/ui/ProfileButton';
 
 const FreeStories = () => {
   const navigate = useNavigate();
@@ -335,7 +334,7 @@ const FreeStories = () => {
                           </div>
                           
                           {/* Autor */}
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="mb-2">
                             <UserCardWithBadges
                               userId={story.user_id}
                               userName={story.author}
@@ -344,7 +343,6 @@ const FreeStories = () => {
                               maxBadges={1}
                               className="text-sm"
                             />
-                            <ProfileButton userId={story.user_id} variant="subtle" size="xs" />
                           </div>
                         </div>
                       </div>
