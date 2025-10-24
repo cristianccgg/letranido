@@ -9,6 +9,7 @@ import PrivacyToggleSwitch from "../components/ui/PrivacyToggleSwitch";
 import CountrySelector from "../components/ui/CountrySelector";
 import SocialLinksEditor from "../components/ui/SocialLinksEditor";
 import SocialLinksDisplay from "../components/ui/SocialLinksDisplay";
+import ProfileCompletionPrompt from "../components/ui/ProfileCompletionPrompt";
 import { FEATURES } from "../lib/config";
 
 const UnifiedProfile = () => {
@@ -303,6 +304,7 @@ const UnifiedProfile = () => {
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
                   <button
                     onClick={handleStartEditProfile}
+                    data-edit-profile-button
                     className="inline-flex cursor-pointer items-center text-sm text-white hover:text-white font-medium bg-white/10 hover:bg-white/20 rounded-lg px-4 py-2 transition-colors"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -455,6 +457,11 @@ const UnifiedProfile = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Profile Completion Prompt - Solo si no está editando */}
+        {!isEditingProfile && (
+          <ProfileCompletionPrompt user={user} />
         )}
 
         {/* Profile Tabs - Carga bajo demanda */}

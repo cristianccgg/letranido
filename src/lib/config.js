@@ -47,6 +47,9 @@ export const FEATURES = {
   FEEDBACK_SYSTEM: import.meta.env.VITE_ENABLE_FEEDBACK === 'true',
   PREMIUM_EDITOR: import.meta.env.DEV || import.meta.env.VITE_ENABLE_PREMIUM_EDITOR === 'true',
   BETA_ROUTES: import.meta.env.DEV || import.meta.env.VITE_BETA_ROUTES === 'true',
+
+  // Feature announcements - Activa/desactiva los anuncios de nuevas features
+  SHOW_FEATURE_ANNOUNCEMENT: import.meta.env.VITE_SHOW_FEATURE_ANNOUNCEMENT === 'true',
 };
 
 // URLs importantes
