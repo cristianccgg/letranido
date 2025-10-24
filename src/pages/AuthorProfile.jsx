@@ -1,13 +1,22 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, BookOpen, Heart, Eye, MapPin, Globe, ArrowLeft, Lock } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import UserAvatar from '../components/ui/UserAvatar';
-import SEOHead from '../components/SEO/SEOHead';
-import UserKarmaSection from '../components/profile/UserKarmaSection';
-import UserBadgesSection from '../components/ui/UserBadgesSection';
-import SocialLinksDisplay from '../components/ui/SocialLinksDisplay';
-import { useGlobalApp } from '../contexts/GlobalAppContext';
+import { useState, useEffect, useMemo } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  BookOpen,
+  Heart,
+  Eye,
+  MapPin,
+  Globe,
+  ArrowLeft,
+  Lock,
+} from "lucide-react";
+import { supabase } from "../lib/supabase";
+import UserAvatar from "../components/ui/UserAvatar";
+import SEOHead from "../components/SEO/SEOHead";
+import UserKarmaSection from "../components/profile/UserKarmaSection";
+import UserBadgesSection from "../components/ui/UserBadgesSection";
+import SocialLinksDisplay from "../components/ui/SocialLinksDisplay";
+import { useGlobalApp } from "../contexts/GlobalAppContext";
 
 const AuthorProfile = () => {
   const { userId } = useParams();
@@ -18,26 +27,31 @@ const AuthorProfile = () => {
   const [loading, setLoading] = useState(true);
   const [storiesLoading, setStoriesLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState('newest'); // newest, oldest, popular
+  const [sortBy, setSortBy] = useState("newest"); // newest, oldest, popular
 
   // Función para limpiar tags HTML del texto
   const stripHtmlTags = (text) => {
-    if (!text) return '';
-    return text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    if (!text) return "";
+    return text
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim();
   };
 
   // Función para verificar si una historia está en un concurso en fase de envíos
   const isStoryInSubmissionsPhase = (story) => {
     if (!story.contest || !story.contest_id || !contests) return false;
-    
+
     // Buscar el concurso específico de esta historia
-    const storyContest = contests.find(c => c.id === story.contest_id);
+    const storyContest = contests.find((c) => c.id === story.contest_id);
     if (!storyContest) return false;
-    
+
     const contestPhase = getContestPhase(storyContest);
-    console.log(`🔒 Historia "${story.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`);
-    
-    return contestPhase === 'submission';
+    console.log(
+      `🔒 Historia "${story.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}`
+    );
+
+    return contestPhase === "submission";
   };
 
   // Cargar datos del autor
@@ -52,36 +66,38 @@ const AuthorProfile = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Cargando perfil para userId:', userId);
+      console.log("🔍 Cargando perfil para userId:", userId);
 
       // Obtener perfil del autor con campos de privacidad
       const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select(`
+        .from("user_profiles")
+        .select(
+          `
           *
-        `)
-        .eq('id', userId)
+        `
+        )
+        .eq("id", userId)
         .single();
 
       if (profileError) {
-        console.error('❌ Error perfil:', profileError);
-        if (profileError.code === 'PGRST116') {
-          setError('Autor no encontrado');
+        console.error("❌ Error perfil:", profileError);
+        if (profileError.code === "PGRST116") {
+          setError("Autor no encontrado");
         } else {
           throw profileError;
         }
         return;
       }
 
-      console.log('✅ Perfil encontrado:', profile.display_name);
-      
+      console.log("✅ Perfil encontrado:", profile.display_name);
+
       // Note: Los perfiles públicos siempre se pueden ver, pero con información limitada según configuración de privacidad
-      
+
       setAuthor(profile);
       await loadAuthorStories(profile.id);
     } catch (err) {
-      console.error('Error cargando perfil del autor:', err);
-      setError('Error al cargar el perfil del autor');
+      console.error("Error cargando perfil del autor:", err);
+      setError("Error al cargar el perfil del autor");
     } finally {
       setLoading(false);
     }
@@ -90,12 +106,13 @@ const AuthorProfile = () => {
   const loadAuthorStories = async (authorId) => {
     try {
       setStoriesLoading(true);
-      console.log('📚 Buscando historias para userId:', authorId);
+      console.log("📚 Buscando historias para userId:", authorId);
 
       // Obtener historias del autor (consulta simplificada sin fechas)
       const { data, error } = await supabase
-        .from('stories')
-        .select(`
+        .from("stories")
+        .select(
+          `
           id,
           title,
           content,
@@ -108,36 +125,44 @@ const AuthorProfile = () => {
           contest_id,
           is_featured,
           contest:contests(id, title)
-        `)
-        .eq('user_id', authorId)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .eq("user_id", authorId)
+        .order("created_at", { ascending: false });
 
       if (error) {
-        console.error('❌ Error cargando historias:', error);
+        console.error("❌ Error cargando historias:", error);
         throw error;
       }
 
-      console.log('📚 Historias encontradas:', data?.length || 0);
-      
+      console.log("📚 Historias encontradas:", data?.length || 0);
+
       // Filtrar historias según reglas de visibilidad por fase de concurso
-      const visibleStories = (data || []).filter(story => {
+      const visibleStories = (data || []).filter((story) => {
         // Historias libres (sin concurso) siempre visibles
         if (!story.contest) return true;
-        
+
         // Verificar si la historia está en cualquier concurso en fase de envíos
         if (isStoryInSubmissionsPhase(story)) {
-          console.log(`❌ Historia "${story.title}" - OCULTA por estar en fase de envíos`);
+          console.log(
+            `❌ Historia "${story.title}" - OCULTA por estar en fase de envíos`
+          );
           return false;
         }
-        
+
         console.log(`✅ Historia "${story.title}" - VISIBLE`);
         return true;
       });
-      
-      console.log('👁️ Historias visibles:', visibleStories.length, 'de', data?.length || 0);
+
+      console.log(
+        "👁️ Historias visibles:",
+        visibleStories.length,
+        "de",
+        data?.length || 0
+      );
       setAuthorStories(visibleStories);
     } catch (err) {
-      console.error('Error cargando historias del autor:', err);
+      console.error("Error cargando historias del autor:", err);
       setAuthorStories([]);
     } finally {
       setStoriesLoading(false);
@@ -148,21 +173,27 @@ const AuthorProfile = () => {
   const shouldShowStats = (story) => {
     // Historias libres siempre muestran estadísticas
     if (!story.contest) return true;
-    
+
     // Buscar el concurso específico de esta historia
-    const storyContest = contests?.find(c => c.id === story.contest_id);
+    const storyContest = contests?.find((c) => c.id === story.contest_id);
     if (!storyContest) return true;
-    
+
     const contestPhase = getContestPhase(storyContest);
-    
+
     // Durante votación: NO mostrar estadísticas
     // Después de votación: SÍ mostrar estadísticas
-    return contestPhase !== 'voting';
+    return contestPhase !== "voting";
   };
 
   // Calcular estadísticas del autor (excluyendo historias en votación)
   const authorStats = useMemo(() => {
-    if (!authorStories.length) return { totalStories: 0, totalLikes: 0, totalViews: 0, hiddenStories: 0 };
+    if (!authorStories.length)
+      return {
+        totalStories: 0,
+        totalLikes: 0,
+        totalViews: 0,
+        hiddenStories: 0,
+      };
 
     // Filtrar solo historias que muestran estadísticas
     const storiesWithStats = authorStories.filter(shouldShowStats);
@@ -170,35 +201,49 @@ const AuthorProfile = () => {
     // Calcular historias ocultas en fase de envíos
     const allAuthorStories = authorStories.length;
     let hiddenStoriesCount = 0;
-    
+
     // Simular consulta completa para contar historias ocultas
     if (contests && author) {
       // Esto es una aproximación. En producción podrías hacer una consulta separada.
-      hiddenStoriesCount = contests.filter(contest => 
-        getContestPhase(contest) === 'submission'
-      ).length > 0 ? 1 : 0; // Simplificado para el ejemplo
+      hiddenStoriesCount =
+        contests.filter((contest) => getContestPhase(contest) === "submission")
+          .length > 0
+          ? 1
+          : 0; // Simplificado para el ejemplo
     }
 
     return {
       totalStories: authorStories.length, // Total siempre muestra todas las visibles
-      totalLikes: storiesWithStats.reduce((sum, story) => sum + (story.likes_count || 0), 0),
-      totalViews: storiesWithStats.reduce((sum, story) => sum + (story.views_count || 0), 0),
-      hiddenStories: hiddenStoriesCount
+      totalLikes: storiesWithStats.reduce(
+        (sum, story) => sum + (story.likes_count || 0),
+        0
+      ),
+      totalViews: storiesWithStats.reduce(
+        (sum, story) => sum + (story.views_count || 0),
+        0
+      ),
+      hiddenStories: hiddenStoriesCount,
     };
   }, [authorStories, contests, author]);
 
   // Ordenar historias según filtro
   const sortedStories = useMemo(() => {
     const stories = [...authorStories];
-    
+
     switch (sortBy) {
-      case 'oldest':
-        return stories.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-      case 'popular':
-        return stories.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
-      case 'newest':
+      case "oldest":
+        return stories.sort(
+          (a, b) => new Date(a.created_at) - new Date(b.created_at)
+        );
+      case "popular":
+        return stories.sort(
+          (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
+        );
+      case "newest":
       default:
-        return stories.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return stories.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
     }
   }, [authorStories, sortBy]);
 
@@ -208,12 +253,12 @@ const AuthorProfile = () => {
         <div className="animate-pulse">
           <div className="h-48 bg-gray-200 rounded-lg mb-6"></div>
           <div className="grid grid-cols-3 gap-4 mb-6">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
             ))}
           </div>
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
             ))}
           </div>
@@ -242,7 +287,7 @@ const AuthorProfile = () => {
       <SEOHead
         title={`${author.display_name || author.name} - Perfil de Autor`}
         description={
-          author.bio || 
+          author.bio ||
           `Descubre las historias de ${author.display_name || author.name} en Letranido. ${authorStats.totalStories} historias publicadas con ${authorStats.totalLikes} likes recibidos.`
         }
         keywords={`${author.display_name}, autor, escritor, historias, letranido`}
@@ -251,7 +296,7 @@ const AuthorProfile = () => {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Botón de regreso */}
-        <button 
+        <button
           onClick={() => {
             // Usar historial del navegador para volver a la página anterior
             if (window.history.length > 1) {
@@ -261,143 +306,179 @@ const AuthorProfile = () => {
               navigate("/");
             }
           }}
-          className="inline-flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+          className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Volver
         </button>
 
-        {/* Header del perfil */}
-        <div className="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 mb-8">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <UserAvatar user={author} size="2xl" />
-            
-            <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {author.display_name || author.name}
-              </h1>
-              
-              {/* Biografía */}
-              {author.bio && author.show_bio && (
-                <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-                  {author.bio}
-                </p>
-              )}
-              
-              {/* Información adicional */}
-              <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  Miembro desde {new Date(author.created_at).toLocaleDateString('es-ES', { 
-                    year: 'numeric', 
-                    month: 'long' 
-                  })}
+        {/* Header del perfil - Contenido sobre gradiente */}
+        <div className="relative mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 rounded-2xl shadow-lg overflow-hidden">
+          {/* Patrón decorativo sutil */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.3),transparent)]"></div>
+          </div>
+
+          {/* Contenido del perfil */}
+          <div className="relative px-6 sm:px-8 py-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+              {/* Avatar */}
+              <div className="flex justify-center sm:justify-start flex-shrink-0">
+                <div className="ring-4 ring-white/30 rounded-full">
+                  <UserAvatar user={author} size="2xl" />
                 </div>
-                
-                {author.location && author.show_location && (
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {author.location}
-                  </div>
+              </div>
+
+              {/* Información del autor */}
+              <div className="flex-1 text-center sm:text-left">
+                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  {author.display_name || author.name}
+                </h1>
+
+                {/* Biografía */}
+                {author.bio && author.show_bio && (
+                  <p className="text-white/90 mb-4 leading-relaxed max-w-2xl mx-auto sm:mx-0">
+                    {author.bio}
+                  </p>
                 )}
-                
-                {author.social_links && author.show_social_links && Object.keys(author.social_links).length > 0 && (
-                  <div className="flex items-center">
-                    <SocialLinksDisplay 
-                      socialLinks={author.social_links}
-                      size="sm"
-                    />
+
+                {/* Información adicional */}
+                <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-white/80">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      Miembro desde{" "}
+                      {new Date(author.created_at).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "short",
+                      })}
+                    </span>
                   </div>
-                )}
+
+                  {author.location && author.show_location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4" />
+                      <span>{author.location}</span>
+                    </div>
+                  )}
+                </div>
+                {author.social_links &&
+                  author.show_social_links &&
+                  Object.keys(author.social_links).length > 0 && (
+                    <div className="flex items-center mt-5 justify-center sm:justify-start">
+                      <SocialLinksDisplay
+                        socialLinks={author.social_links}
+                        size="sm"
+                      />
+                    </div>
+                  )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Estadísticas */}
+        {/* Estadísticas - Diseño compacto y elegante */}
         {author.show_stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center shadow-sm">
-            <div className="flex items-center justify-center mb-2">
-              <BookOpen className="w-6 h-6 text-blue-600 mr-2" />
-              <span className="text-2xl font-bold text-blue-600">{authorStats.totalStories}</span>
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 sm:p-6 text-center border border-blue-200 dark:border-blue-800/30 hover:shadow-md transition-shadow">
+              <div className="flex flex-col items-center gap-1 sm:gap-2">
+                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-300">
+                  {authorStats.totalStories}
+                </span>
+                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium">
+                  Historias
+                </p>
+              </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-400">Historias publicadas</p>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center shadow-sm">
-            <div className="flex items-center justify-center mb-2">
-              <Heart className="w-6 h-6 text-red-500 mr-2" />
-              <span className="text-2xl font-bold text-red-500">{authorStats.totalLikes}</span>
+
+            <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-4 sm:p-6 text-center border border-red-200 dark:border-red-800/30 hover:shadow-md transition-shadow">
+              <div className="flex flex-col items-center gap-1 sm:gap-2">
+                <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-red-700 dark:text-red-300">
+                  {authorStats.totalLikes}
+                </span>
+                <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium">
+                  Likes
+                </p>
+              </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-400">Likes recibidos</p>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center shadow-sm">
-            <div className="flex items-center justify-center mb-2">
-              <Eye className="w-6 h-6 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-green-600">{authorStats.totalViews}</span>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 sm:p-6 text-center border border-green-200 dark:border-green-800/30 hover:shadow-md transition-shadow">
+              <div className="flex flex-col items-center gap-1 sm:gap-2">
+                <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
+                <span className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-300">
+                  {authorStats.totalViews}
+                </span>
+                <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
+                  Lecturas
+                </p>
+              </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-400">Lecturas totales</p>
           </div>
-        </div>
         )}
 
         {/* Secciones de Karma y Badges */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Karma del usuario */}
-          <UserKarmaSection 
-            userId={userId} 
+          <UserKarmaSection
+            userId={userId}
             userName={author.display_name || author.name}
             compact={true}
           />
-          
+
           {/* Badges del usuario */}
-          <UserBadgesSection 
+          <UserBadgesSection
             userId={userId}
             userName={author.display_name || author.name}
           />
         </div>
 
-        {/* Sección de historias */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        {/* Sección de historias - Diseño mejorado */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Historias ({authorStats.totalStories})
-              </h2>
-              
-              {/* Filtros de ordenamiento */}
+              <div className="flex items-center gap-3">
+                <BookOpen className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Historias
+                  <span className="ml-2 text-lg font-normal text-gray-500 dark:text-gray-400">
+                    ({authorStats.totalStories})
+                  </span>
+                </h2>
+              </div>
+
+              {/* Filtros de ordenamiento - Mejorados */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => setSortBy('newest')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                    sortBy === 'newest' 
-                      ? 'bg-primary-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  onClick={() => setSortBy("newest")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    sortBy === "newest"
+                      ? "bg-primary-600 text-white shadow-md"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
-                  Más recientes
+                  Recientes
                 </button>
                 <button
-                  onClick={() => setSortBy('popular')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                    sortBy === 'popular' 
-                      ? 'bg-primary-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  onClick={() => setSortBy("popular")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    sortBy === "popular"
+                      ? "bg-primary-600 text-white shadow-md"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
-                  Más populares
+                  Populares
                 </button>
                 <button
-                  onClick={() => setSortBy('oldest')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                    sortBy === 'oldest' 
-                      ? 'bg-primary-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  onClick={() => setSortBy("oldest")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    sortBy === "oldest"
+                      ? "bg-primary-600 text-white shadow-md"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
-                  Más antiguas
+                  Antiguas
                 </button>
               </div>
             </div>
@@ -405,26 +486,30 @@ const AuthorProfile = () => {
 
           <div className="p-6">
             {/* Mensaje informativo sobre historias ocultas */}
-            {contests && contests.some(contest => getContestPhase(contest) === 'submission') && (
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                      Historias en concursos activos
-                    </h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Las historias enviadas a concursos en fase de envíos no son visibles hasta que comience la votación. 
-                      Esto garantiza la equidad del proceso de evaluación.
-                    </p>
+            {contests &&
+              contests.some(
+                (contest) => getContestPhase(contest) === "submission"
+              ) && (
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                        Historias en concursos activos
+                      </h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Las historias enviadas a concursos en fase de envíos no
+                        son visibles hasta que comience la votación. Esto
+                        garantiza la equidad del proceso de evaluación.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {storiesLoading ? (
               <div className="space-y-4">
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3].map((i) => (
                   <div key={i} className="animate-pulse">
                     <div className="h-32 bg-gray-200 rounded-lg"></div>
                   </div>
@@ -437,76 +522,89 @@ const AuthorProfile = () => {
                   Sin historias aún
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {author.display_name || author.name} aún no ha publicado ninguna historia.
+                  {author.display_name || author.name} aún no ha publicado
+                  ninguna historia.
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {sortedStories.map((story) => (
-                  <Link 
-                    key={story.id} 
+                  <Link
+                    key={story.id}
                     to={`/story/${story.id}?from=profile&authorId=${userId}`}
-                    className="block border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-md hover:border-primary-300 transition-all cursor-pointer"
+                    className="group block border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800/50 hover:bg-gradient-to-br hover:from-primary-50/50 hover:to-accent-50/50 dark:hover:from-primary-900/10 dark:hover:to-accent-900/10"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white hover:text-primary-600 transition-colors">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors pr-3">
                         {story.title}
                       </h3>
-                      
-                      {/* Badge de tipo de historia */}
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        story.contest 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {story.contest ? 'Reto' : 'Historia libre'}
+
+                      {/* Badge de tipo de historia - Mejorado */}
+                      <span
+                        className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${
+                          story.contest
+                            ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 dark:from-purple-900/40 dark:to-purple-800/40 dark:text-purple-300"
+                            : "bg-gradient-to-r from-green-100 to-green-200 text-green-800 dark:from-green-900/40 dark:to-green-800/40 dark:text-green-300"
+                        }`}
+                      >
+                        {story.contest ? "🏆 Reto" : "✍️ Libre"}
                       </span>
                     </div>
-                    
+
                     {/* Excerpt */}
                     {story.excerpt && (
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                      <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
                         {stripHtmlTags(story.excerpt)}
                       </p>
                     )}
-                    
+
                     {/* Información del reto si aplica */}
                     {story.contest && (
                       <div className="mb-3">
-                        <span className="text-sm text-purple-600 font-medium">
+                        <span className="inline-flex items-center gap-1 text-sm text-purple-700 dark:text-purple-400 font-medium bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-lg">
                           📝 {story.contest.title}
                         </span>
                       </div>
                     )}
-                    
+
                     {/* Estadísticas y fecha */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-4">
                         {shouldShowStats(story) ? (
                           <>
-                            <span className="flex items-center">
-                              <Heart className="w-4 h-4 mr-1" />
-                              {story.likes_count || 0}
+                            <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                              <Heart className="w-4 h-4 text-red-500" />
+                              <span className="font-medium">
+                                {story.likes_count || 0}
+                              </span>
                             </span>
-                            <span className="flex items-center">
-                              <Eye className="w-4 h-4 mr-1" />
-                              {story.views_count || 0}
+                            <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                              <Eye className="w-4 h-4 text-green-600" />
+                              <span className="font-medium">
+                                {story.views_count || 0}
+                              </span>
                             </span>
                           </>
                         ) : (
-                          <span className="flex items-center text-orange-600 dark:text-orange-400">
-                            <Lock className="w-4 h-4 mr-1" />
-                            En votación - estadísticas ocultas
+                          <span className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 font-medium">
+                            <Lock className="w-4 h-4" />
+                            En votación
                           </span>
                         )}
                       </div>
-                      
-                      <time dateTime={story.created_at}>
-                        {new Date(story.created_at).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+
+                      <time
+                        dateTime={story.created_at}
+                        className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm"
+                      >
+                        {new Date(story.created_at).toLocaleDateString(
+                          "es-ES",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </time>
                     </div>
                   </Link>

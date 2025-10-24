@@ -1,11 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
-import {
-  Edit3,
-  Save,
-  X,
-  Mail,
-} from "lucide-react";
+import { Edit3, Save, X, Mail, Eye, Calendar, MapPin } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import UserAvatar from "../components/ui/UserAvatar";
 import ProfileTabs from "../components/profile/ProfileTabs";
@@ -40,14 +35,14 @@ const UnifiedProfile = () => {
     social_links: user?.social_links || {},
     show_bio: user?.show_bio ?? true,
     show_location: user?.show_location ?? true,
-    show_social_links: user?.show_social_links ?? true
+    show_social_links: user?.show_social_links ?? true,
   });
   const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
 
   // ✅ Cargar historias del usuario al entrar al perfil (solo una vez por usuario)
   useEffect(() => {
     if (user?.id && userStories.length === 0 && !userStoriesLoading) {
-      console.log('📚 Cargando datos del usuario al entrar al perfil...');
+      console.log("📚 Cargando datos del usuario al entrar al perfil...");
       refreshUserData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,7 +105,7 @@ const UnifiedProfile = () => {
       social_links: user?.social_links || {},
       show_bio: user?.show_bio ?? true,
       show_location: user?.show_location ?? true,
-      show_social_links: user?.show_social_links ?? true
+      show_social_links: user?.show_social_links ?? true,
     });
     setIsEditingProfile(true);
   };
@@ -122,7 +117,7 @@ const UnifiedProfile = () => {
       social_links: user?.social_links || {},
       show_bio: user?.show_bio ?? true,
       show_location: user?.show_location ?? true,
-      show_social_links: user?.show_social_links ?? true
+      show_social_links: user?.show_social_links ?? true,
     });
     setIsEditingProfile(false);
   };
@@ -131,9 +126,9 @@ const UnifiedProfile = () => {
     setProfileUpdateLoading(true);
     try {
       const { supabase } = await import("../lib/supabase");
-      
+
       const { error } = await supabase
-        .from('user_profiles')
+        .from("user_profiles")
         .update({
           bio: editedProfile.bio?.trim() || null,
           location: editedProfile.location?.trim() || null,
@@ -141,12 +136,12 @@ const UnifiedProfile = () => {
           show_bio: editedProfile.show_bio,
           show_location: editedProfile.show_location,
           show_social_links: editedProfile.show_social_links,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
         alert("❌ Error al actualizar el perfil: " + error.message);
         return;
       }
@@ -161,7 +156,6 @@ const UnifiedProfile = () => {
       setProfileUpdateLoading(false);
     }
   };
-
 
   const showLoading = userStoriesLoading && user;
 
@@ -190,339 +184,281 @@ const UnifiedProfile = () => {
         canonicalUrl="https://letranido.com/profile"
       />
       <div className="max-w-6xl mx-auto space-y-8 px-4">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-dark-800/95 dark:to-dark-800/95 rounded-lg p-4 sm:p-8">
-          {!isEditingProfile ? (
-            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-              <div className="flex-shrink-0 mx-auto sm:mx-0">
-                <UserAvatar user={user} size="xl" />
+        {/* Profile Header - Estilo con gradiente */}
+        <div className="relative bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 rounded-2xl shadow-lg overflow-hidden">
+          {/* Patrón decorativo sutil */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.3),transparent)]"></div>
+          </div>
+
+          <div className="relative px-6 sm:px-8 py-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+              {/* Avatar */}
+              <div className="flex justify-center sm:justify-start flex-shrink-0">
+                <div className="ring-4 ring-white/30 rounded-full">
+                  <UserAvatar user={user} size="xl" />
+                </div>
               </div>
 
-              <div className="flex-1 w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                  {!isEditingName ? (
-                    <div className="flex items-center justify-center sm:justify-start gap-3">
-                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-100">
-                        {user?.name || user?.display_name}
-                      </h1>
+              {/* Información del usuario */}
+              <div className="flex-1 text-center sm:text-left">
+                {!isEditingName ? (
+                  <div className="flex justify-center sm:justify-start items-center gap-2 sm:gap-3 mb-3">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-white">
+                      {user?.name || user?.display_name}
+                    </h1>
+                    <button
+                      onClick={handleStartEditName}
+                      className="p-2 cursor-pointer text-white/80 hover:text-white hover:bg-white/10 transition-colors rounded-lg  w-fit"
+                      title="Editar nombre"
+                    >
+                      <Edit3 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full mb-3">
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="text-xl sm:text-3xl font-bold text-gray-900 bg-white border border-white/30 rounded-lg px-3 py-2 flex-1 text-center sm:text-left focus:ring-2 focus:ring-white focus:border-white outline-none"
+                      placeholder="Tu nombre de escritor"
+                      disabled={nameUpdateLoading}
+                    />
+                    <div className="flex gap-2 justify-center sm:justify-start">
                       <button
-                        onClick={handleStartEditName}
-                        className="p-2 text-gray-500 dark:text-dark-300 hover:text-gray-700 transition-colors rounded-lg hover:bg-white/50"
-                        title="Editar nombre"
+                        onClick={handleSaveDisplayName}
+                        disabled={nameUpdateLoading}
+                        className="p-2 text-white hover:bg-white/20 disabled:opacity-50 transition-colors rounded-lg bg-white/10"
+                        title="Guardar"
                       >
-                        <Edit3 className="h-5 w-5" />
+                        <Save className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={handleCancelEditName}
+                        disabled={nameUpdateLoading}
+                        className="p-2 text-white/80 hover:text-white hover:bg-white/10 disabled:opacity-50 transition-colors rounded-lg"
+                        title="Cancelar"
+                      >
+                        <X className="h-5 w-5" />
                       </button>
                     </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                      <input
-                        type="text"
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        className="text-xl sm:text-3xl font-bold text-gray-900 bg-white/80 border border-gray-300 rounded-lg px-3 py-2 flex-1 text-center sm:text-left focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                        placeholder="Tu nombre de escritor"
-                        disabled={nameUpdateLoading}
-                      />
-                      <div className="flex gap-2 justify-center sm:justify-start">
-                        <button
-                          onClick={handleSaveDisplayName}
-                          disabled={nameUpdateLoading}
-                          className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                          title="Guardar"
-                        >
-                          <Save className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={handleCancelEditName}
-                          disabled={nameUpdateLoading}
-                          className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                          title="Cancelar"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Mensaje informativo cuando está editando */}
-                {isEditingName && (
-                  <div className="text-sm text-gray-600 mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
-                    💡 Este nombre aparecerá en todas tus historias y comentarios
                   </div>
                 )}
 
-                <div className="text-gray-600 dark:text-dark-300 text-sm space-y-1 mb-3">
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                {/* Mensaje informativo cuando está editando */}
+                {isEditingName && (
+                  <div className="text-sm text-white/90 mb-3 bg-white/10 border border-white/20 rounded-lg p-3">
+                    💡 Este nombre aparecerá en todas tus historias y
+                    comentarios
+                  </div>
+                )}
+
+                {/* Email e información adicional */}
+                <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-white/80 mb-4">
+                  <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
                     <span>{user?.email}</span>
                   </div>
-                </div>
-
-                <div className="text-sm text-gray-500 mb-4 text-center sm:text-left">
-                  Miembro desde{" "}
-                  {new Date(user?.created_at || Date.now()).toLocaleDateString(
-                    "es-ES",
-                    {
-                      year: "numeric",
-                      month: "long",
-                    }
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      Miembro desde{" "}
+                      {new Date(
+                        user?.created_at || Date.now()
+                      ).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Profile Info Display */}
-                <div className="space-y-2 text-sm text-gray-600 dark:text-dark-300 mb-4">
-                  {user?.bio && (
-                    <p className="text-gray-700 dark:text-dark-200">{user.bio}</p>
+                {user?.bio && (
+                  <p className="text-white/90 mb-4 leading-relaxed">
+                    {user.bio}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-white/80 mb-4">
+                  {user?.location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4" />
+                      <span>{user.location}</span>
+                    </div>
                   )}
-                  
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                    {user?.location && (
-                      <div className="flex items-center gap-1">
-                        <span>📍 {user.location}</span>
-                      </div>
-                    )}
-                    {user?.social_links && Object.keys(user.social_links).length > 0 && (
+                  {user?.social_links &&
+                    Object.keys(user.social_links).length > 0 && (
                       <div className="flex items-center">
-                        <SocialLinksDisplay 
+                        <SocialLinksDisplay
                           socialLinks={user.social_links}
                           size="sm"
                         />
                       </div>
                     )}
-                  </div>
                 </div>
 
-                {/* Botón de editar perfil */}
-                <button
-                  onClick={handleStartEditProfile}
-                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                >
-                  <Edit3 className="w-4 h-4 mr-1" />
-                  {user?.bio || user?.location || (user?.social_links && Object.keys(user.social_links).length > 0) ? 'Editar perfil' : 'Completar perfil'}
-                </button>
+                {/* Botones de perfil público */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <button
+                    onClick={handleStartEditProfile}
+                    className="inline-flex cursor-pointer items-center text-sm text-white hover:text-white font-medium bg-white/10 hover:bg-white/20 rounded-lg px-4 py-2 transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4 mr-2" />
+                    {user?.bio ||
+                    user?.location ||
+                    (user?.social_links &&
+                      Object.keys(user.social_links).length > 0)
+                      ? "Editar perfil público"
+                      : "Completar perfil público"}
+                  </button>
+                  <Link
+                    to={`/author/${user.id}`}
+                    className="inline-flex cursor-pointer items-center text-sm text-white/90 hover:text-white font-medium border border-white/30 hover:border-white/50 rounded-lg px-4 py-2 hover:bg-white/10 transition-colors"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver perfil público
+                  </Link>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-              <div className="flex-shrink-0 mx-auto sm:mx-0">
-                <UserAvatar user={user} size="xl" />
-              </div>
-
-              <div className="flex-1 w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                  {!isEditingName ? (
-                    <div className="flex items-center justify-center sm:justify-start gap-3">
-                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-100">
-                        {user?.name || user?.display_name}
-                      </h1>
-                      <button
-                        onClick={handleStartEditName}
-                        className="p-2 text-gray-500 dark:text-dark-300 hover:text-gray-700 transition-colors rounded-lg hover:bg-white/50"
-                        title="Editar nombre"
-                      >
-                        <Edit3 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                      <input
-                        type="text"
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        className="text-xl sm:text-3xl font-bold text-gray-900 bg-white/80 border border-gray-300 rounded-lg px-3 py-2 flex-1 text-center sm:text-left focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                        placeholder="Tu nombre de escritor"
-                        disabled={nameUpdateLoading}
-                      />
-                      <div className="flex gap-2 justify-center sm:justify-start">
-                        <button
-                          onClick={handleSaveDisplayName}
-                          disabled={nameUpdateLoading}
-                          className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                          title="Guardar"
-                        >
-                          <Save className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={handleCancelEditName}
-                          disabled={nameUpdateLoading}
-                          className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
-                          title="Cancelar"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Mensaje informativo cuando está editando */}
-                {isEditingName && (
-                  <div className="text-sm text-gray-600 mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2">
-                    💡 Este nombre aparecerá en todas tus historias y comentarios
-                  </div>
-                )}
-
-                <div className="text-gray-600 dark:text-dark-300 text-sm space-y-1 mb-3">
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <Mail className="h-4 w-4" />
-                    <span>{user?.email}</span>
-                  </div>
-                </div>
-
-                <div className="text-sm text-gray-500 mb-4 text-center sm:text-left">
-                  Miembro desde{" "}
-                  {new Date(user?.created_at || Date.now()).toLocaleDateString(
-                    "es-ES",
-                    {
-                      year: "numeric",
-                      month: "long",
-                    }
-                  )}
-                </div>
-
-                {/* Profile Info Display */}
-                <div className="space-y-2 text-sm text-gray-600 dark:text-dark-300 mb-4">
-                  {user?.bio && (
-                    <p className="text-gray-700 dark:text-dark-200">{user.bio}</p>
-                  )}
-                  
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                    {user?.location && (
-                      <div className="flex items-center gap-1">
-                        <span>📍 {user.location}</span>
-                      </div>
-                    )}
-                    {user?.social_links && Object.keys(user.social_links).length > 0 && (
-                      <div className="flex items-center">
-                        <SocialLinksDisplay 
-                          socialLinks={user.social_links}
-                          size="sm"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Botón de editar perfil */}
-                <button
-                  onClick={handleStartEditProfile}
-                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                >
-                  <Edit3 className="w-4 h-4 mr-1" />
-                  {user?.bio || user?.location || (user?.social_links && Object.keys(user.social_links).length > 0) ? 'Editar perfil' : 'Completar perfil'}
-                </button>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Profile Edit Section */}
+        {/* Profile Edit Section - Diseño mejorado */}
         {isEditingProfile && (
-          <div className="bg-white/80 dark:bg-dark-700/80 rounded-lg p-4 space-y-4">
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="font-medium text-gray-900 dark:text-white">Editar perfil</h4>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-primary-600" />
+                Editar perfil público
+              </h4>
               <div className="flex gap-2">
                 <button
                   onClick={handleSaveProfile}
                   disabled={profileUpdateLoading}
-                  className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                  className="cursor-pointer flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 transition-colors rounded-lg px-4 py-2 font-medium"
                   title="Guardar"
                 >
+                  Guardar
                   <Save className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCancelEditProfile}
                   disabled={profileUpdateLoading}
-                  className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors rounded-lg hover:bg-white/50"
+                  className="text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors rounded-lg px-4 py-2 font-medium"
                   title="Cancelar"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            
-            {/* Bio */}
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
-              <PrivacyToggleSwitch
-                value={editedProfile.show_bio}
-                onChange={(show) => setEditedProfile(prev => ({ ...prev, show_bio: show }))}
-                disabled={profileUpdateLoading}
-                label="Biografía"
-                description="Mostrar tu biografía en el perfil público"
-              />
-              <textarea
-                value={editedProfile.bio}
-                onChange={(e) => setEditedProfile(prev => ({ ...prev, bio: e.target.value }))}
-                placeholder="Cuéntanos sobre ti como escritor..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
-                rows={3}
-                disabled={profileUpdateLoading}
-              />
-              {!editedProfile.show_bio && (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  🔒 Solo tú puedes ver esta información
-                </div>
-              )}
-            </div>
-            
-            {/* Location */}
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
-              <PrivacyToggleSwitch
-                value={editedProfile.show_location}
-                onChange={(show) => setEditedProfile(prev => ({ ...prev, show_location: show }))}
-                disabled={profileUpdateLoading}
-                label="País"
-                description="Mostrar tu país en el perfil público"
-              />
-              <CountrySelector
-                value={editedProfile.location}
-                onChange={(country) => setEditedProfile(prev => ({ ...prev, location: country }))}
-                disabled={profileUpdateLoading}
-                placeholder="Buscar tu país..."
-              />
-              {!editedProfile.show_location && (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  🔒 Solo tú puedes ver esta información
-                </div>
-              )}
-              <div className="text-xs text-gray-400">
-                💡 Esto nos ayuda a entender mejor a nuestra comunidad global
+            <div className="p-6 space-y-4">
+              <div className="text-sm text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-3">
+                💡 Usa los controles de privacidad para elegir qué información
+                mostrar en tu perfil público
               </div>
-            </div>
-            
-            {/* Social Links */}
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
-              <PrivacyToggleSwitch
-                value={editedProfile.show_social_links}
-                onChange={(show) => setEditedProfile(prev => ({ ...prev, show_social_links: show }))}
-                disabled={profileUpdateLoading}
-                label="Redes sociales"
-                description="Mostrar enlaces a tus redes sociales y sitio web"
-              />
-              <SocialLinksEditor
-                value={editedProfile.social_links}
-                onChange={(links) => setEditedProfile(prev => ({ ...prev, social_links: links }))}
-                disabled={profileUpdateLoading}
-              />
-              {!editedProfile.show_social_links && (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  🔒 Solo tú puedes ver esta información
+
+              {/* Bio */}
+              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
+                <PrivacyToggleSwitch
+                  value={editedProfile.show_bio}
+                  onChange={(show) =>
+                    setEditedProfile((prev) => ({ ...prev, show_bio: show }))
+                  }
+                  disabled={profileUpdateLoading}
+                  label="Biografía"
+                  description="Mostrar tu biografía en el perfil público"
+                />
+                <textarea
+                  value={editedProfile.bio}
+                  onChange={(e) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      bio: e.target.value,
+                    }))
+                  }
+                  placeholder="Cuéntanos sobre ti como escritor..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                  rows={3}
+                  disabled={profileUpdateLoading}
+                />
+                {!editedProfile.show_bio && (
+                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                    🔒 Solo tú puedes ver esta información
+                  </div>
+                )}
+              </div>
+
+              {/* Location */}
+              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
+                <PrivacyToggleSwitch
+                  value={editedProfile.show_location}
+                  onChange={(show) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      show_location: show,
+                    }))
+                  }
+                  disabled={profileUpdateLoading}
+                  label="País"
+                  description="Mostrar tu país en el perfil público"
+                />
+                <CountrySelector
+                  value={editedProfile.location}
+                  onChange={(country) =>
+                    setEditedProfile((prev) => ({ ...prev, location: country }))
+                  }
+                  disabled={profileUpdateLoading}
+                  placeholder="Buscar tu país..."
+                />
+                {!editedProfile.show_location && (
+                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                    🔒 Solo tú puedes ver esta información
+                  </div>
+                )}
+                <div className="text-xs text-gray-400">
+                  💡 Esto nos ayuda a entender mejor a nuestra comunidad global
                 </div>
-              )}
-            </div>
-            
-            <div className="text-xs text-gray-500 bg-blue-50 border border-blue-200 rounded-lg p-2">
-              💡 Usa los controles de privacidad para elegir qué información mostrar en tu perfil público
+              </div>
+
+              {/* Social Links */}
+              <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
+                <PrivacyToggleSwitch
+                  value={editedProfile.show_social_links}
+                  onChange={(show) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      show_social_links: show,
+                    }))
+                  }
+                  disabled={profileUpdateLoading}
+                  label="Redes sociales"
+                  description="Mostrar enlaces a tus redes sociales y sitio web"
+                />
+                <SocialLinksEditor
+                  value={editedProfile.social_links}
+                  onChange={(links) =>
+                    setEditedProfile((prev) => ({
+                      ...prev,
+                      social_links: links,
+                    }))
+                  }
+                  disabled={profileUpdateLoading}
+                />
+                {!editedProfile.show_social_links && (
+                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                    🔒 Solo tú puedes ver esta información
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {/* Profile Tabs - Carga bajo demanda */}
-        <ProfileTabs 
-          user={user} 
-          votingStats={votingStats}
-        />
+        <ProfileTabs user={user} votingStats={votingStats} />
       </div>
     </>
   );
