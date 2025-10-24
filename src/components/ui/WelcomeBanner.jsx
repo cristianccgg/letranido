@@ -44,10 +44,12 @@ const WelcomeBanner = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-base font-medium">
                   <span className="hidden sm:flex">
-                    <span>✨</span> ¡Nuevas features! Perfiles públicos y sistema de lectura mejorado.
+                    <span>✨</span> ¡Nuevas características! Perfiles públicos,
+                    sistema de lectura mejorado, badge especial y + ranking para
+                    quienes nos apoyan.
                   </span>
                   <span className="sm:hidden ">
-                    ✨ ¡Nuevas features disponibles!
+                    ✨ ¡Nuevas características disponibles!
                   </span>
                 </p>
               </div>
