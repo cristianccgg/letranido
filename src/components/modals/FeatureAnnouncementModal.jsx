@@ -48,7 +48,7 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold">
-                ¡Nuevas Features!
+                ¡Novedades!
               </h2>
               <p className="text-white/90 text-xs">
                 Mejoras pensadas para ti
@@ -71,7 +71,7 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
                 ✨ Perfiles Públicos
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Crea tu perfil con biografía, país y redes sociales
+                Crea tu perfil con biografía, país y redes sociales. Todas tus historias visibles en un solo lugar.
               </p>
             </div>
           </div>
@@ -99,16 +99,16 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
 
           {/* Feature 3: Ko-fi Supporter Badge - con badge REAL */}
           <div className="flex gap-3">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex items-center">
               <Badge
                 badge={{
                   id: "kofi_supporter",
                   name: "Ko-fi Supporter",
                   description: "Apoya a Letranido en Ko-fi",
-                  icon: "☕",
+                  icon: "❤️",
                   rarity: "legendary"
                 }}
-                size="md"
+                size="sm"
                 showDescription={false}
               />
             </div>
