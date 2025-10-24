@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, UserCircle, BookCheck, Sparkles, ArrowRight } from "lucide-react";
+import { X, UserCircle, BookCheck, Sparkles, ArrowRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /**
@@ -122,6 +122,49 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
                   <span>Filtra historias leídas/no leídas</span>
                 </li>
               </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+          {/* Feature 3: Ko-fi Supporter Badge */}
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
+                <Heart className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                ☕ Badge Exclusivo para Supporters
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-3">
+                ¿Nos apoyas en Ko-fi? Ahora recibes un badge especial con flair
+                dorado que te distingue en toda la plataforma.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-0.5">✓</span>
+                  <span>Badge "Ko-fi Supporter" con efecto shimmer dorado</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-0.5">✓</span>
+                  <span>Borde especial en tu nombre y avatar</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-0.5">✓</span>
+                  <span>Reconocimiento visible en toda la comunidad</span>
+                </li>
+              </ul>
+
+              {/* Preview del badge */}
+              <div className="mt-3 p-3 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                <div className="flex items-center gap-2 text-xs text-amber-800 dark:text-amber-300">
+                  <Heart className="w-4 h-4 fill-current" />
+                  <span className="font-semibold">Ko-fi Supporter</span>
+                  <span className="ml-auto text-amber-600 dark:text-amber-400">✨</span>
+                </div>
+              </div>
             </div>
           </div>
 
