@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { X, UserCircle, BookCheck, Sparkles, ArrowRight, Heart } from "lucide-react";
+import { X, UserCircle, BookCheck, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import Badge from "../ui/Badge";
 
 /**
  * Modal que anuncia nuevas features a los usuarios existentes
@@ -30,176 +31,119 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header con gradiente */}
-        <div className="relative bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 p-6 sm:p-8 text-white rounded-t-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        {/* Header con gradiente - más compacto */}
+        <div className="relative bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 p-4 sm:p-5 text-white rounded-t-2xl">
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+            className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-full transition-colors"
             aria-label="Cerrar"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 p-3 rounded-full">
-              <Sparkles className="w-8 h-8" />
+          <div className="flex items-center gap-2">
+            <div className="bg-white/20 p-2 rounded-full">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold">
+              <h2 className="text-xl sm:text-2xl font-bold">
                 ¡Nuevas Features!
               </h2>
-              <p className="text-white/90 text-sm">
+              <p className="text-white/90 text-xs">
                 Mejoras pensadas para ti
               </p>
             </div>
           </div>
         </div>
 
-        {/* Contenido */}
-        <div className="p-6 sm:p-8 space-y-6">
+        {/* Contenido - más compacto */}
+        <div className="p-4 sm:p-5 space-y-4">
           {/* Feature 1: Perfiles Públicos */}
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="bg-primary-100 dark:bg-primary-900/30 p-3 rounded-xl">
-                <UserCircle className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+              <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-lg">
+                <UserCircle className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Perfiles Públicos de Autor
+              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                ✨ Perfiles Públicos
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-3">
-                Ahora puedes crear tu perfil de autor con biografía, país y
-                redes sociales. Los lectores podrán conocerte mejor y seguir tu
-                trabajo.
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Crea tu perfil con biografía, país y redes sociales
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary-500 mt-0.5">✓</span>
-                  <span>Agrega tu biografía y cuéntanos sobre ti</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary-500 mt-0.5">✓</span>
-                  <span>Comparte tus redes sociales y sitio web</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary-500 mt-0.5">✓</span>
-                  <span>Control total de privacidad sobre tu información</span>
-                </li>
-              </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
           {/* Feature 2: Historias Leídas */}
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl">
-                <BookCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                <BookCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Sistema de Lectura Mejorado
+              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                📖 Lectura Rastreada
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-3">
-                Marca las historias como leídas y lleva un seguimiento de tu
-                progreso durante la votación.
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Marca automáticamente historias como leídas
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
-                  <span>Marca historias como leídas automáticamente</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
-                  <span>Ve tu progreso de lectura en el concurso</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
-                  <span>Filtra historias leídas/no leídas</span>
-                </li>
-              </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-          {/* Feature 3: Ko-fi Supporter Badge */}
-          <div className="flex gap-4">
+          {/* Feature 3: Ko-fi Supporter Badge - con badge REAL */}
+          <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
-                <Heart className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-              </div>
+              <Badge
+                badge={{
+                  id: "kofi_supporter",
+                  name: "Ko-fi Supporter",
+                  description: "Apoya a Letranido en Ko-fi",
+                  icon: "☕",
+                  rarity: "legendary"
+                }}
+                size="md"
+                showDescription={false}
+              />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                ☕ Badge Exclusivo para Supporters
+              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                ☕ Badge Exclusivo
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-3">
-                ¿Nos apoyas en Ko-fi? Ahora recibes un badge especial con flair
-                dorado que te distingue en toda la plataforma.
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Reconocimiento especial para quienes apoyan en Ko-fi
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">✓</span>
-                  <span>Badge "Ko-fi Supporter" con efecto shimmer dorado</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">✓</span>
-                  <span>Borde especial en tu nombre y avatar</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5">✓</span>
-                  <span>Reconocimiento visible en toda la comunidad</span>
-                </li>
-              </ul>
-
-              {/* Preview del badge */}
-              <div className="mt-3 p-3 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <div className="flex items-center gap-2 text-xs text-amber-800 dark:text-amber-300">
-                  <Heart className="w-4 h-4 fill-current" />
-                  <span className="font-semibold">Ko-fi Supporter</span>
-                  <span className="ml-auto text-amber-600 dark:text-amber-400">✨</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* CTA Section */}
-          <div className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl p-6 border border-primary-200 dark:border-primary-800">
-            <h4 className="font-bold text-gray-900 dark:text-white mb-3">
-              ¡Completa tu perfil ahora!
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              Con el próximo reto entrando en fase de votación, es el momento
-              perfecto para que los lectores te conozcan mejor.
+          {/* CTA Section - más compacto */}
+          <div className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-lg p-4 border border-primary-200 dark:border-primary-800 mt-4">
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 text-center">
+              Es el momento perfecto para que los lectores te conozcan mejor
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-2">
               <Link
                 to="/profile"
                 onClick={handleClose}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="inline-flex cursor-pointer items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Completar mi perfil
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3 h-3" />
               </Link>
               <button
                 onClick={handleClose}
-                className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
               >
-                Recordarme después
+                Cerrar
               </button>
             </div>
           </div>
-
-          {/* Footer note */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Este mensaje solo se mostrará una vez. Puedes editar tu perfil en
-            cualquier momento desde tu panel de usuario.
-          </p>
         </div>
       </div>
     </div>
