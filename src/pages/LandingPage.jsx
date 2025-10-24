@@ -40,8 +40,6 @@ import WelcomeBanner from "../components/ui/WelcomeBanner";
 import FeatureAnnouncementModal from "../components/modals/FeatureAnnouncementModal";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
-import ComingSoonModal from "../components/modals/ComingSoonModal";
-import { useComingSoonModal } from "../hooks/useComingSoonModal";
 
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
@@ -126,16 +124,12 @@ const LandingPage = () => {
   const [lastContestWinners, setLastContestWinners] = useState(null);
   const [loadingWinners, setLoadingWinners] = useState(false);
 
-  // 🎉 MODAL DE COMING SOON
-  const { isOpen: comingSoonOpen, closeModal: closeComingSoon } =
-    useComingSoonModal();
-
   // 🆕 ESTADO PARA FEATURE ANNOUNCEMENT MODAL
   const [showFeatureModal, setShowFeatureModal] = useState(false);
 
-  // 🆕 Mostrar modal de anuncio de features si está habilitado y el usuario está logueado
+  // 🆕 Mostrar modal de anuncio de features automáticamente a usuarios logueados
   useEffect(() => {
-    if (FEATURES.SHOW_FEATURE_ANNOUNCEMENT && user && initialized) {
+    if (user && initialized) {
       // Pequeño delay para que el usuario vea la página primero
       const timer = setTimeout(() => {
         setShowFeatureModal(true);
@@ -1275,9 +1269,6 @@ const LandingPage = () => {
         isOpen={showRankingsSidebar}
         onClose={() => setShowRankingsSidebar(false)}
       />
-
-      {/* Modal de Coming Soon */}
-      <ComingSoonModal isOpen={comingSoonOpen} onClose={closeComingSoon} />
 
       {/* Modal de anuncio de nuevas features */}
       <FeatureAnnouncementModal
