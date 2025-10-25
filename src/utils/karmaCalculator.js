@@ -11,7 +11,8 @@ export const KARMA_POINTS = {
   CONTEST_WIN: 75,
   CONTEST_FINALIST: 30,
   VOTE_GIVEN: 1,
-  CONSECUTIVE_MONTHS: 10
+  CONSECUTIVE_MONTHS: 10,
+  KOFI_SUPPORTER: 50 // Karma permanente por Ko-fi donation
 };
 
 /**
@@ -33,13 +34,13 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
 
     if (!cacheError && cachedUser) {
       console.log('✅ Karma obtenido desde cache para:', cachedUser.user_name);
-      
+
       // Obtener ranking del cache
       const ranking = await getUserRanking(userId, cachedUser.total_karma);
-      
+
       return {
         userId,
-        totalKarma: cachedUser.total_karma,
+        totalKarma: cachedUser.total_karma, // Ya incluye bonus_karma del último recalculo
         monthlyKarma: 0, // No calculamos karma mensual en cache
         totalStories: cachedUser.total_stories,
         contestWins: cachedUser.contest_wins,
@@ -134,14 +135,26 @@ export const calculateUserKarma = async (userId, globalData = {}) => {
 
     // Calcular karma del usuario
     const userKarma = calculateSingleUserKarma(
-      userId, 
-      stories || [], 
-      votes || [], 
-      comments || [], 
-      contests || [], 
+      userId,
+      stories || [],
+      votes || [],
+      comments || [],
+      contests || [],
       allContestStories || [],
       globalData
     );
+
+    // 🎖️ AGREGAR BONUS KARMA (Ko-fi supporters, eventos especiales, etc.)
+    const { data: userProfile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('bonus_karma')
+      .eq('id', userId)
+      .single();
+
+    if (!profileError && userProfile?.bonus_karma) {
+      console.log(`🎖️ Bonus karma encontrado: +${userProfile.bonus_karma} puntos`);
+      userKarma.totalKarma += userProfile.bonus_karma;
+    }
 
     return userKarma;
 

@@ -341,7 +341,7 @@ const ContestAdminPanel = () => {
       if (uniqueUserIds.length > 0) {
         const { data: usersData, error: usersError } = await supabase
           .from("user_profiles")
-          .select("id, display_name")
+          .select("id, display_name, bonus_karma")
           .in("id", uniqueUserIds);
 
         if (usersError) {
@@ -525,6 +525,15 @@ const ContestAdminPanel = () => {
         } else if (position <= 3) {
           userStats.totalKarma += KARMA_POINTS.CONTEST_FINALIST;
         }
+      }
+    });
+
+    // 🎖️ AGREGAR BONUS KARMA (Ko-fi supporters, eventos especiales, etc.)
+    users.forEach((user) => {
+      if (user.bonus_karma && user.bonus_karma > 0) {
+        initializeUser(user.id);
+        userKarma[user.id].totalKarma += user.bonus_karma;
+        console.log(`🎖️ Bonus karma agregado para ${user.display_name}: +${user.bonus_karma}`);
       }
     });
 
