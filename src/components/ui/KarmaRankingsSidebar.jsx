@@ -72,7 +72,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
       if (cachedRankings && cachedRankings.length > 0) {
         console.log('✅ Rankings cargados desde cache:', cachedRankings.length, 'usuarios');
-        
+
         // Obtener metadata de la última actualización
         const { data: metadata, error: metadataError } = await supabase
           .from('ranking_metadata')
@@ -86,7 +86,21 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           setLastUpdated(metadata.last_updated);
           console.log('📅 Última actualización:', metadata.last_updated);
         }
-        
+
+        // 🎖️ Cargar badges de Ko-fi supporters
+        const userIds = cachedRankings.map(r => r.user_id);
+        const { data: badges, error: badgesError } = await supabase
+          .from('user_badges')
+          .select('user_id, badge_id')
+          .in('user_id', userIds)
+          .eq('badge_id', 'kofi_supporter');
+
+        if (badgesError) {
+          console.warn('Error loading badges:', badgesError);
+        }
+
+        const supporterIds = new Set(badges?.map(b => b.user_id) || []);
+
         // Convertir formato de cache a formato del sidebar
         const formattedRankings = cachedRankings.map(ranking => ({
           userId: ranking.user_id,
@@ -97,7 +111,8 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           votesGiven: ranking.votes_given,
           commentsGiven: ranking.comments_given,
           commentsReceived: ranking.comments_received,
-          monthlyKarma: 0 // No calculamos karma mensual en cache por ahora
+          monthlyKarma: 0, // No calculamos karma mensual en cache por ahora
+          isKofiSupporter: supporterIds.has(ranking.user_id) // 🎖️ Flag de supporter
         }));
 
         // Establecer todos los usuarios y mostrar los primeros
@@ -260,10 +275,28 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
       // Calcular karma (versión simplificada)
       const userKarma = calculateUserKarmaCompact(stories, votes || [], comments || [], contestsData, usersData);
-      
+
+      // 🎖️ Cargar badges de Ko-fi supporters
+      const userIds = Object.keys(userKarma);
+      const { data: badges, error: badgesError } = await supabase
+        .from('user_badges')
+        .select('user_id, badge_id')
+        .in('user_id', userIds)
+        .eq('badge_id', 'kofi_supporter');
+
+      if (badgesError) {
+        console.warn('Error loading badges:', badgesError);
+      }
+
+      const supporterIds = new Set(badges?.map(b => b.user_id) || []);
+
       // Ranking completo ordenado por karma
       const completeRanking = Object.values(userKarma)
         .filter(user => user.totalKarma > 0) // Cualquier karma, no solo historias
+        .map(user => ({
+          ...user,
+          isKofiSupporter: supporterIds.has(user.userId) // 🎖️ Flag de supporter
+        }))
         .sort((a, b) => b.totalKarma - a.totalKarma);
 
       // Establecer todos los usuarios y mostrar los primeros
@@ -421,16 +454,24 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     };
 
     return (
-      <Link 
+      <Link
         to={`/author/${user.userId}`}
-        className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-dark-700 rounded-lg transition-colors duration-200 group cursor-pointer"
+        className={`
+          flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group cursor-pointer
+          ${user.isKofiSupporter
+            ? 'bg-gradient-to-r from-pink-50/50 via-rose-50/30 to-red-50/50 dark:from-pink-900/10 dark:via-rose-900/10 dark:to-red-900/10 border border-pink-200/50 dark:border-pink-800/30 hover:border-pink-300 dark:hover:border-pink-700 hover:shadow-md'
+            : 'hover:bg-gray-50 dark:hover:bg-dark-700'
+          }
+        `}
       >
         {/* Posición con medalla */}
         <div className={`
           w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0
-          ${position <= 3 
-            ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg' 
-            : 'bg-gray-200 dark:bg-dark-600 text-gray-700 dark:text-dark-300'
+          ${position <= 3
+            ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg'
+            : user.isKofiSupporter
+              ? 'bg-gradient-to-r from-pink-400 via-rose-500 to-red-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-dark-600 text-gray-700 dark:text-dark-300'
           }
         `}>
           {getMedalIcon(position)}
@@ -440,26 +481,38 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-semibold text-gray-900 dark:text-dark-100 text-sm truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+              <span className={`
+                font-semibold text-sm truncate transition-colors
+                ${user.isKofiSupporter
+                  ? 'text-pink-700 dark:text-pink-300 group-hover:text-pink-800 dark:group-hover:text-pink-200'
+                  : 'text-gray-900 dark:text-dark-100 group-hover:text-primary-600 dark:group-hover:text-primary-400'
+                }
+              `}>
                 {user.author}
               </span>
+              {user.isKofiSupporter && (
+                <span className="text-xs">❤️</span>
+              )}
               {user.contestWins > 0 && (
                 <Trophy className="h-3 w-3 text-primary-500 dark:text-primary-400 flex-shrink-0" />
               )}
             </div>
             {/* Indicador visual de que es clickeable */}
-            <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200" />
+            <ChevronRight className={`
+              w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-200
+              ${user.isKofiSupporter ? 'text-pink-500' : 'text-gray-400 group-hover:text-primary-500'}
+            `} />
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-dark-400 mt-1">
             <div className="flex items-center gap-1">
-              <Zap className="h-3 w-3 text-primary-500 dark:text-primary-400" />
-              <span className="font-bold text-primary-600 dark:text-primary-400">
+              <Zap className={`h-3 w-3 ${user.isKofiSupporter ? 'text-pink-500 dark:text-pink-400' : 'text-primary-500 dark:text-primary-400'}`} />
+              <span className={`font-bold ${user.isKofiSupporter ? 'text-pink-600 dark:text-pink-400' : 'text-primary-600 dark:text-primary-400'}`}>
                 {user.totalKarma}
               </span>
             </div>
             <span>
-              {user.totalStories > 0 
-                ? `${user.totalStories} historias` 
+              {user.totalStories > 0
+                ? `${user.totalStories} historias`
                 : user.commentsGiven > 0
                   ? `${user.commentsGiven} comentarios`
                   : `${user.votesGiven || 0} votos`
@@ -645,6 +698,11 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                   <div className="flex items-center gap-2">
                     <Medal className="h-3 w-3" />
                     <span>Ser finalista: <strong>+30</strong></span>
+                  </div>
+                  {/* Ko-fi Supporter */}
+                  <div className="flex items-center gap-2 pt-2 mt-2 border-t border-primary-200 dark:border-primary-700">
+                    <span className="text-xs">❤️</span>
+                    <span className="text-pink-700 dark:text-pink-300">Apoyar en Ko-fi: <strong>+50</strong></span>
                   </div>
                 </div>
               </div>
