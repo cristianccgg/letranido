@@ -16,6 +16,7 @@ import SEOHead from "../components/SEO/SEOHead";
 import UserKarmaSection from "../components/profile/UserKarmaSection";
 import UserBadgesSection from "../components/ui/UserBadgesSection";
 import SocialLinksDisplay from "../components/ui/SocialLinksDisplay";
+import ExpandableBio from "../components/ui/ExpandableBio";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 
 const AuthorProfile = () => {
@@ -337,9 +338,13 @@ const AuthorProfile = () => {
 
                 {/* Biografía */}
                 {author.bio && author.show_bio && (
-                  <p className="text-white/90 mb-4 leading-relaxed max-w-2xl mx-auto sm:mx-0">
-                    {author.bio}
-                  </p>
+                  <div className="mb-4 max-w-3xl mx-auto sm:mx-0">
+                    <ExpandableBio
+                      bio={author.bio}
+                      maxLength={200}
+                      className="text-white/90 leading-relaxed"
+                    />
+                  </div>
                 )}
 
                 {/* Información adicional */}

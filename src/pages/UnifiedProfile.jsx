@@ -373,19 +373,28 @@ const UnifiedProfile = () => {
                   label="Biografía"
                   description="Mostrar tu biografía en el perfil público"
                 />
-                <textarea
-                  value={editedProfile.bio}
-                  onChange={(e) =>
-                    setEditedProfile((prev) => ({
-                      ...prev,
-                      bio: e.target.value,
-                    }))
-                  }
-                  placeholder="Cuéntanos sobre ti como escritor..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
-                  rows={3}
-                  disabled={profileUpdateLoading}
-                />
+                <div className="relative">
+                  <textarea
+                    value={editedProfile.bio}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length <= 350) {
+                        setEditedProfile((prev) => ({
+                          ...prev,
+                          bio: value,
+                        }));
+                      }
+                    }}
+                    placeholder="Cuéntanos sobre ti como escritor..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                    rows={3}
+                    disabled={profileUpdateLoading}
+                    maxLength={350}
+                  />
+                  <div className={`text-xs mt-1 ${editedProfile.bio.length >= 350 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {editedProfile.bio.length}/350 caracteres
+                  </div>
+                </div>
                 {!editedProfile.show_bio && (
                   <div className="text-xs text-gray-500 flex items-center gap-1">
                     🔒 Solo tú puedes ver esta información
