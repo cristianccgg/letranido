@@ -24,7 +24,7 @@ BEGIN
     s.id as story_id,
     s.title as story_title,
     COALESCE(up.display_name, up.email) as author_name,
-    s.author_id,
+    s.user_id as author_id,
     COALESCE(reads.count, 0) as read_count,
     COALESCE(votes.count, 0) as vote_count,
     CASE
@@ -33,7 +33,7 @@ BEGIN
       ELSE 0
     END as read_to_vote_ratio
   FROM stories s
-  LEFT JOIN user_profiles up ON s.author_id = up.id
+  LEFT JOIN user_profiles up ON s.user_id = up.id
   LEFT JOIN (
     SELECT story_id, COUNT(*) as count
     FROM user_story_reads
