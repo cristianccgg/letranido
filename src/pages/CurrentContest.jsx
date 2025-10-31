@@ -157,6 +157,18 @@ const CurrentContest = () => {
     location.pathname,
   ]);
 
+  // ✅ RECARGAR DATOS DE USUARIO CUANDO SE AUTENTICA
+  useEffect(() => {
+    if (isAuthenticated && user?.id && initialized) {
+      // Delay pequeño para asegurar que el contexto global haya cargado todo
+      const timer = setTimeout(() => {
+        refreshUserData();
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, user?.id, initialized, refreshUserData]);
+
   // ✅ UTILITY FUNCTIONS
   const getReadingTime = (wordCount) => {
     const wordsPerMinute = 200;

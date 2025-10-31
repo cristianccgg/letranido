@@ -54,6 +54,68 @@ export default function ReadingMetricsPanel({ contestId }) {
 
       if (distError) throw distError;
       setDistribution(distData || []);
+
+      // 📊 CONSOLE LOGS PARA ANÁLISIS
+      console.log('=== MÉTRICAS DE LECTURA ===');
+      console.log('📈 RESUMEN ESTADÍSTICO:', summaryData?.[0]);
+      console.log('📊 DISTRIBUCIÓN:', distData);
+      console.log('📖 TOP 5 HISTORIAS MÁS LEÍDAS:', storiesData?.slice(0, 5));
+      console.log('📖 TOP 5 HISTORIAS MENOS LEÍDAS:', storiesData?.slice(-5));
+
+      // Análisis de vistas vs lecturas
+      if (storiesData && storiesData.length > 0) {
+        const viewStats = storiesData.map(s => s.view_count);
+        const maxViews = Math.max(...viewStats);
+        const minViews = Math.min(...viewStats);
+        const avgViews = viewStats.reduce((a, b) => a + b, 0) / viewStats.length;
+
+        console.log('\n👀 ANÁLISIS DE VISTAS (views_count):');
+        console.log(`Min vistas: ${minViews}, Max vistas: ${maxViews}, Promedio: ${avgViews.toFixed(1)}`);
+        console.log(`Diferencia máx-mín: ${maxViews - minViews} vistas`);
+
+        if (maxViews - minViews > 20) {
+          console.log('⚠️ Las VISTAS están desbalanceadas (sistema antiguo)');
+        } else {
+          console.log('✅ Las vistas también están balanceadas');
+        }
+
+        // Top 5 con más vistas
+        const sortedByViews = [...storiesData].sort((a, b) => b.view_count - a.view_count);
+        console.log('👀 TOP 5 con más VISTAS:', sortedByViews.slice(0, 5).map(s => ({
+          title: s.story_title,
+          views: s.view_count,
+          reads: s.read_count,
+          conversion: `${s.read_to_view_ratio}%`
+        })));
+      }
+
+      // Análisis automático
+      const summary = summaryData?.[0];
+      if (summary) {
+        const cv = summary.coefficient_of_variation;
+        console.log('\n🎯 ANÁLISIS DE EQUIDAD:');
+        console.log(`Coeficiente de Variación: ${cv}%`);
+        if (cv < 30) console.log('✅ EXCELENTE - Distribución muy equitativa');
+        else if (cv < 50) console.log('🔵 BUENO - Distribución aceptable');
+        else if (cv < 70) console.log('🟡 REGULAR - Necesita atención');
+        else console.log('🔴 MALO - Distribución muy desigual');
+
+        console.log(`\nProporción sin lecturas: ${summary.stories_never_read}/${summary.total_stories} (${((summary.stories_never_read / summary.total_stories) * 100).toFixed(1)}%)`);
+
+        if (summary.stories_never_read > 0) {
+          console.log('⚠️ ALERTA: Hay historias que NO están siendo vistas');
+        } else {
+          console.log('✅ Todas las historias han sido vistas al menos una vez');
+        }
+
+        const avgMedianDiff = Math.abs(summary.avg_reads_per_story - summary.median_reads);
+        if (avgMedianDiff < 3) {
+          console.log('✅ Promedio y mediana están cerca - Distribución balanceada');
+        } else {
+          console.log('⚠️ Promedio y mediana están separados - Posible desbalance');
+        }
+      }
+      console.log('===========================\n');
     } catch (err) {
       console.error('Error loading reading metrics:', err);
       setError(err.message);
@@ -297,13 +359,16 @@ export default function ReadingMetricsPanel({ contestId }) {
                     Autor
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vistas
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Lecturas
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Votos
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ratio
+                    Conv.
                   </th>
                 </tr>
               </thead>
@@ -321,6 +386,11 @@ export default function ReadingMetricsPanel({ contestId }) {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-sm text-gray-500">
+                        {story.view_count}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getReadCountColor(
                           story.read_count,
@@ -336,8 +406,8 @@ export default function ReadingMetricsPanel({ contestId }) {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className="text-sm text-gray-600">
-                        {story.read_to_vote_ratio}%
+                      <span className="text-sm text-gray-600" title={`${story.read_to_vote_ratio}% lect→voto | ${story.read_to_view_ratio}% vista→lect`}>
+                        {story.read_to_view_ratio}%
                       </span>
                     </td>
                   </tr>

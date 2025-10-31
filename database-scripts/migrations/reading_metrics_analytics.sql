@@ -4,6 +4,12 @@
 -- Propósito: Funciones para analizar distribución de lecturas en retos
 -- ============================================================================
 
+-- 0. Eliminar funciones existentes si existen (para permitir cambios en signature)
+-- ============================================================================
+DROP FUNCTION IF EXISTS get_contest_reading_metrics(UUID);
+DROP FUNCTION IF EXISTS get_contest_reading_summary(UUID);
+DROP FUNCTION IF EXISTS get_reading_distribution(UUID);
+
 -- 1. Función para obtener métricas de lectura por historia en un concurso
 -- ============================================================================
 CREATE OR REPLACE FUNCTION get_contest_reading_metrics(
@@ -15,8 +21,10 @@ RETURNS TABLE (
   author_name TEXT,
   author_id UUID,
   read_count BIGINT,
+  view_count BIGINT,
   vote_count BIGINT,
-  read_to_vote_ratio NUMERIC
+  read_to_vote_ratio NUMERIC,
+  read_to_view_ratio NUMERIC
 ) AS $$
 BEGIN
   RETURN QUERY
@@ -26,12 +34,18 @@ BEGIN
     COALESCE(up.display_name, up.email) as author_name,
     s.user_id as author_id,
     COALESCE(reads.count, 0) as read_count,
+    COALESCE(s.views_count, 0)::BIGINT as view_count,
     COALESCE(votes.count, 0) as vote_count,
     CASE
       WHEN COALESCE(reads.count, 0) > 0
       THEN ROUND((COALESCE(votes.count, 0)::NUMERIC / reads.count::NUMERIC) * 100, 1)
       ELSE 0
-    END as read_to_vote_ratio
+    END as read_to_vote_ratio,
+    CASE
+      WHEN COALESCE(s.views_count, 0) > 0
+      THEN ROUND((COALESCE(reads.count, 0)::NUMERIC / s.views_count::NUMERIC) * 100, 1)
+      ELSE 0
+    END as read_to_view_ratio
   FROM stories s
   LEFT JOIN user_profiles up ON s.user_id = up.id
   LEFT JOIN (
