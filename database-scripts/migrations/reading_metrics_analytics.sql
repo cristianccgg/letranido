@@ -35,18 +35,18 @@ BEGIN
   FROM stories s
   LEFT JOIN user_profiles up ON s.user_id = up.id
   LEFT JOIN (
-    SELECT story_id, COUNT(*) as count
-    FROM user_story_reads
-    WHERE contest_id = p_contest_id
-    GROUP BY story_id
+    SELECT usr.story_id, COUNT(*) as count
+    FROM user_story_reads usr
+    WHERE usr.contest_id = p_contest_id
+    GROUP BY usr.story_id
   ) reads ON s.id = reads.story_id
   LEFT JOIN (
-    SELECT story_id, COUNT(*) as count
-    FROM votes
-    WHERE story_id IN (
-      SELECT id FROM stories WHERE contest_id = p_contest_id
+    SELECT v.story_id, COUNT(*) as count
+    FROM votes v
+    WHERE v.story_id IN (
+      SELECT s2.id FROM stories s2 WHERE s2.contest_id = p_contest_id
     )
-    GROUP BY story_id
+    GROUP BY v.story_id
   ) votes ON s.id = votes.story_id
   WHERE s.contest_id = p_contest_id
     AND s.status = 'published'
@@ -78,7 +78,7 @@ BEGIN
       s.id,
       COALESCE(COUNT(usr.id), 0) as read_count
     FROM stories s
-    LEFT JOIN user_story_reads usr ON s.id = usr.story_id
+    LEFT JOIN user_story_reads usr ON s.id = usr.story_id AND usr.contest_id = p_contest_id
     WHERE s.contest_id = p_contest_id
       AND s.status = 'published'
     GROUP BY s.id
@@ -128,7 +128,7 @@ BEGIN
       s.id,
       COALESCE(COUNT(usr.id), 0) as read_count
     FROM stories s
-    LEFT JOIN user_story_reads usr ON s.id = usr.story_id
+    LEFT JOIN user_story_reads usr ON s.id = usr.story_id AND usr.contest_id = p_contest_id
     WHERE s.contest_id = p_contest_id
       AND s.status = 'published'
     GROUP BY s.id
