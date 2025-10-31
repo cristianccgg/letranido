@@ -91,14 +91,14 @@ BEGIN
   SELECT
     COUNT(*)::BIGINT as total_stories,
     SUM(read_count)::BIGINT as total_reads,
-    ROUND(AVG(read_count), 1) as avg_reads_per_story,
-    ROUND(percentiles.median_val, 1) as median_reads,
+    ROUND(AVG(read_count)::NUMERIC, 1) as avg_reads_per_story,
+    ROUND(percentiles.median_val::NUMERIC, 1) as median_reads,
     MIN(read_count)::BIGINT as min_reads,
     MAX(read_count)::BIGINT as max_reads,
-    ROUND(STDDEV(read_count), 1) as stddev_reads,
+    ROUND(STDDEV(read_count)::NUMERIC, 1) as stddev_reads,
     CASE
       WHEN AVG(read_count) > 0
-      THEN ROUND((STDDEV(read_count) / AVG(read_count)) * 100, 1)
+      THEN ROUND(((STDDEV(read_count) / AVG(read_count)) * 100)::NUMERIC, 1)
       ELSE 0
     END as coefficient_of_variation,
     COUNT(CASE WHEN read_count = 0 THEN 1 END)::BIGINT as stories_never_read,
