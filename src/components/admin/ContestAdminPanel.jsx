@@ -26,6 +26,7 @@ import {
   Trash2,
   Vote,
   Heart,
+  BookOpen,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -39,6 +40,7 @@ import AnalyticsDashboard from "./AnalyticsDashboard";
 import PollAdminPanel from "./PollAdminPanel";
 import SocialGenerator from "./SocialGenerator";
 import KofiBadgePanel from "./KofiBadgePanel";
+import ReadingMetricsPanel from "./ReadingMetricsPanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -61,6 +63,7 @@ const ContestAdminPanel = () => {
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
   const [rankingLoading, setRankingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("concursos");
+  const [metricsContestId, setMetricsContestId] = useState(null); // ID del concurso para métricas de lectura
 
   // Función para determinar si un concurso es de prueba
   const isTestContest = (contest) => {
@@ -1236,6 +1239,7 @@ const ContestAdminPanel = () => {
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "encuestas", label: "Encuestas", icon: Vote },
     { id: "analytics", label: "Analytics", icon: Award },
+    { id: "lecturas", label: "Métricas de Lectura", icon: BookOpen },
     { id: "kofi", label: "Ko-fi Badges", icon: Heart },
     { id: "usuarios", label: "Usuarios", icon: Trash2 },
     { id: "moderacion", label: "Moderación", icon: Shield },
@@ -1942,6 +1946,29 @@ const ContestAdminPanel = () => {
           {activeTab === "kofi" && (
             <div className="p-6">
               <KofiBadgePanel />
+            </div>
+          )}
+
+          {activeTab === "lecturas" && (
+            <div className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-dark-300 mb-2">
+                  Seleccionar Concurso
+                </label>
+                <select
+                  value={metricsContestId || ''}
+                  onChange={(e) => setMetricsContestId(e.target.value || null)}
+                  className="w-full max-w-md px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-700 text-gray-900 dark:text-dark-100"
+                >
+                  <option value="">Selecciona un concurso...</option>
+                  {sortContestsByPriority(contests).map((contest) => (
+                    <option key={contest.id} value={contest.id}>
+                      {contest.title} {contest.finalized_at ? '(Finalizado)' : '(Activo)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <ReadingMetricsPanel contestId={metricsContestId} />
             </div>
           )}
         </div>
