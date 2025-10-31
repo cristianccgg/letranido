@@ -49,7 +49,7 @@ BEGIN
     GROUP BY v.story_id
   ) votes ON s.id = votes.story_id
   WHERE s.contest_id = p_contest_id
-    AND s.status = 'published'
+    AND s.published_at IS NOT NULL
   ORDER BY read_count DESC, story_title ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -80,7 +80,7 @@ BEGIN
     FROM stories s
     LEFT JOIN user_story_reads usr ON s.id = usr.story_id AND usr.contest_id = p_contest_id
     WHERE s.contest_id = p_contest_id
-      AND s.status = 'published'
+      AND s.published_at IS NOT NULL
     GROUP BY s.id
   ),
   percentiles AS (
@@ -130,7 +130,7 @@ BEGIN
     FROM stories s
     LEFT JOIN user_story_reads usr ON s.id = usr.story_id AND usr.contest_id = p_contest_id
     WHERE s.contest_id = p_contest_id
-      AND s.status = 'published'
+      AND s.published_at IS NOT NULL
     GROUP BY s.id
   )
   SELECT
