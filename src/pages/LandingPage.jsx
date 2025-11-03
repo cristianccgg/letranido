@@ -817,64 +817,66 @@ const LandingPage = () => {
                   {/* Ganador - mismo ancho que finalistas pero destacado */}
                   <div className="mb-8 flex justify-center">
                     <div className="w-full max-w-lg">
-                      <Link
-                        to={`/story/${lastContestWinners.winners[0].id}`}
-                        className="group block"
-                      >
-                        <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300 hover:shadow-xl hover:scale-105 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
-                          {/* Badge de ganador más prominente */}
-                          <div className="absolute -top-3 left-6">
-                            <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
-                              🏆 GANADOR
-                            </div>
-                          </div>
-
-                          {/* Corona más grande y llamativa */}
-                          <div className="text-center mb-4 mt-6">
-                            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
-                              <span className="text-5xl">👑</span>
-                            </div>
-                          </div>
-
-                          {/* Título */}
-                          <h5 className="text-xl font-bold text-gray-900 dark:text-dark-100 mb-4 text-center group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                            "{lastContestWinners.winners[0].title}"
-                          </h5>
-
-                          {/* Autor */}
-                          <div className="flex justify-center mb-4">
-                            <UserCardWithBadges
-                              userId={lastContestWinners.winners[0].user_id}
-                              userName={lastContestWinners.winners[0].author}
-                              userEmail={`${lastContestWinners.winners[0].author}@mock.com`}
-                              avatarSize="md"
-                              badgeSize="sm"
-                              maxBadges={1}
-                              className="text-lg font-semibold"
-                              disableProfileLink={true}
-                            />
-                          </div>
-
-                          {/* Estadísticas más destacadas */}
-                          <div className="text-center mb-4">
-                            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
-                              <Heart className="h-5 w-5" />
-                              <span className="font-bold text-lg">
-                                {lastContestWinners.winners[0].likes_count || 0}{" "}
-                                votos
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Call to action */}
-                          <div className="text-center">
-                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50">
-                              <BookOpen className="h-5 w-5" />
-                              <span>Leer historia ganadora</span>
-                            </div>
+                      <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
+                        {/* Badge de ganador más prominente */}
+                        <div className="absolute -top-3 left-6">
+                          <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
+                            🏆 GANADOR
                           </div>
                         </div>
-                      </Link>
+
+                        {/* Corona más grande y llamativa */}
+                        <div className="text-center mb-4 mt-6">
+                          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
+                            <span className="text-5xl">👑</span>
+                          </div>
+                        </div>
+
+                        {/* Título - clickeable */}
+                        <Link
+                          to={`/story/${lastContestWinners.winners[0].id}`}
+                          className="block mb-4"
+                        >
+                          <h5 className="text-xl font-bold text-gray-900 dark:text-dark-100 text-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors line-clamp-2">
+                            "{lastContestWinners.winners[0].title}"
+                          </h5>
+                        </Link>
+
+                        {/* Autor - con ProfileButton funcional */}
+                        <div className="flex justify-center mb-4">
+                          <UserCardWithBadges
+                            userId={lastContestWinners.winners[0].user_id}
+                            userName={lastContestWinners.winners[0].author}
+                            userEmail={`${lastContestWinners.winners[0].author}@mock.com`}
+                            avatarSize="md"
+                            badgeSize="sm"
+                            maxBadges={1}
+                            className="text-lg font-semibold"
+                          />
+                        </div>
+
+                        {/* Estadísticas más destacadas */}
+                        <div className="text-center mb-4">
+                          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
+                            <Heart className="h-5 w-5" />
+                            <span className="font-bold text-lg">
+                              {lastContestWinners.winners[0].likes_count || 0}{" "}
+                              votos
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Call to action - Link separado */}
+                        <div className="text-center">
+                          <Link
+                            to={`/story/${lastContestWinners.winners[0].id}`}
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
+                          >
+                            <BookOpen className="h-5 w-5" />
+                            <span>Leer historia ganadora</span>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -900,168 +902,170 @@ const LandingPage = () => {
                             const isSecond = position === 2;
 
                             return (
-                              <Link
+                              <div
                                 key={story.id}
-                                to={`/story/${story.id}`}
-                                className="group block h-full"
+                                className={`relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col ${
+                                  isSecond
+                                    ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
+                                    : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
+                                }`}
                               >
-                                <div
-                                  className={`relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 h-full flex flex-col ${
-                                    isSecond
-                                      ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
-                                      : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500 hover:border-indigo-400 dark:hover:border-indigo-400"
-                                  }`}
-                                >
-                                  {/* Badge de posición */}
-                                  <div className="absolute -top-3 left-6">
-                                    <div
-                                      className={`px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg ${
-                                        isSecond
-                                          ? "bg-gradient-to-r from-indigo-500 to-purple-600"
-                                          : "bg-gradient-to-r from-indigo-500 to-purple-600"
-                                      }`}
-                                    >
-                                      {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
-                                    </div>
-                                  </div>
-
-                                  {/* Medalla grande */}
-                                  <div className="text-center mb-4 mt-4">
-                                    <div
-                                      className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${
-                                        isSecond
-                                          ? "bg-gradient-to-br from-indigo-400 to-purple-500"
-                                          : "bg-gradient-to-br from-indigo-400 to-purple-500"
-                                      }`}
-                                    >
-                                      <span className="text-4xl">
-                                        {isSecond ? "🥈" : "🥉"}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Título de la historia */}
-                                  <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 mb-3 text-center group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                                    "{story.title}"
-                                  </h5>
-
-                                  {/* Autor */}
-                                  <div className="flex justify-center mb-4">
-                                    <UserCardWithBadges
-                                      userId={story.user_id}
-                                      userName={story.author}
-                                      userEmail={`${story.author}@mock.com`}
-                                      avatarSize="md"
-                                      badgeSize="xs"
-                                      maxBadges={1}
-                                      className="font-semibold"
-                                      disableProfileLink={true}
-                                    />
-                                  </div>
-
-                                  {/* Estadísticas */}
-                                  <div className="text-center mb-4">
-                                    <div
-                                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
-                                        isSecond
-                                          ? "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
-                                          : "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
-                                      }`}
-                                    >
-                                      <Heart className="h-4 w-4" />
-                                      <span className="font-bold">
-                                        {story.likes_count || 0} votos
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Call to action */}
-                                  <div className="text-center mt-auto">
-                                    <div
-                                      className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
-                                        isSecond
-                                          ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-                                          : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-                                      }`}
-                                    >
-                                      <BookOpen className="h-4 w-4" />
-                                      <span>Leer historia</span>
-                                    </div>
+                                {/* Badge de posición */}
+                                <div className="absolute -top-3 left-6">
+                                  <div
+                                    className={`px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg ${
+                                      isSecond
+                                        ? "bg-gradient-to-r from-indigo-500 to-purple-600"
+                                        : "bg-gradient-to-r from-indigo-500 to-purple-600"
+                                    }`}
+                                  >
+                                    {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
                                   </div>
                                 </div>
-                              </Link>
+
+                                {/* Medalla grande */}
+                                <div className="text-center mb-4 mt-4">
+                                  <div
+                                    className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${
+                                      isSecond
+                                        ? "bg-gradient-to-br from-indigo-400 to-purple-500"
+                                        : "bg-gradient-to-br from-indigo-400 to-purple-500"
+                                    }`}
+                                  >
+                                    <span className="text-4xl">
+                                      {isSecond ? "🥈" : "🥉"}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Título de la historia - clickeable */}
+                                <Link
+                                  to={`/story/${story.id}`}
+                                  className="block mb-3"
+                                >
+                                  <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 text-center hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors line-clamp-2">
+                                    "{story.title}"
+                                  </h5>
+                                </Link>
+
+                                {/* Autor - con ProfileButton funcional */}
+                                <div className="flex justify-center mb-4">
+                                  <UserCardWithBadges
+                                    userId={story.user_id}
+                                    userName={story.author}
+                                    userEmail={`${story.author}@mock.com`}
+                                    avatarSize="md"
+                                    badgeSize="xs"
+                                    maxBadges={1}
+                                    className="font-semibold"
+                                  />
+                                </div>
+
+                                {/* Estadísticas */}
+                                <div className="text-center mb-4">
+                                  <div
+                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
+                                      isSecond
+                                        ? "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
+                                        : "bg-indigo-100 dark:bg-dark-700 border-indigo-300 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300"
+                                    }`}
+                                  >
+                                    <Heart className="h-4 w-4" />
+                                    <span className="font-bold">
+                                      {story.likes_count || 0} votos
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Call to action - Link separado */}
+                                <div className="text-center mt-auto">
+                                  <Link
+                                    to={`/story/${story.id}`}
+                                    className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
+                                      isSecond
+                                        ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                        : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                    }`}
+                                  >
+                                    <BookOpen className="h-4 w-4" />
+                                    <span>Leer historia</span>
+                                  </Link>
+                                </div>
+                              </div>
                             );
                           })}
 
                         {/* Tarjeta de Mención de Honor */}
                         {lastContestWinners.honoraryMention && (
-                          <Link
-                            to={`/story/${lastContestWinners.honoraryMention.id}`}
-                            className="group block h-full"
-                          >
-                            <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:scale-105 h-full flex flex-col bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500 hover:border-blue-400 dark:hover:border-blue-400">
-                              {/* Badge de mención de honor */}
-                              <div className="absolute -top-3 left-6">
-                                <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-gradient-to-r from-blue-500 to-sky-600">
-                                  🎖️ MENCIÓN DE HONOR
-                                </div>
-                              </div>
-
-                              {/* Medalla */}
-                              <div className="text-center mb-4 mt-4">
-                                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-400 to-sky-500">
-                                  <span className="text-4xl">🎖️</span>
-                                </div>
-                              </div>
-
-                              {/* Título de la historia */}
-                              <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 mb-3 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                                "{lastContestWinners.honoraryMention.title}"
-                              </h5>
-
-                              {/* Autor */}
-                              <div className="flex justify-center mb-4">
-                                <UserCardWithBadges
-                                  userId={
-                                    lastContestWinners.honoraryMention.user_id
-                                  }
-                                  userName={
-                                    lastContestWinners.honoraryMention.author
-                                  }
-                                  userEmail={`${lastContestWinners.honoraryMention.author}@mock.com`}
-                                  avatarSize="sm"
-                                  badgeSize="xs"
-                                  maxBadges={1}
-                                  className="font-semibold text-sm"
-                                  disableProfileLink={true}
-                                />
-                              </div>
-
-                              {/* Explicación del empate */}
-                              <div className="text-center mb-4">
-                                <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 shadow-sm">
-                                  <Heart className="h-4 w-4" />
-                                  <span className="text-sm font-medium">
-                                    {lastContestWinners.honoraryMention
-                                      .likes_count || 0}{" "}
-                                    votos (= 3º lugar)
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="text-center text-xs text-blue-600 dark:text-blue-400 mb-4">
-                                Criterio de desempate: fecha de envío
-                              </div>
-
-                              {/* Call to action */}
-                              <div className="text-center mt-auto">
-                                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md">
-                                  <BookOpen className="h-4 w-4" />
-                                  <span>Leer historia</span>
-                                </div>
+                          <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500">
+                            {/* Badge de mención de honor */}
+                            <div className="absolute -top-3 left-6">
+                              <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-gradient-to-r from-blue-500 to-sky-600">
+                                🎖️ MENCIÓN DE HONOR
                               </div>
                             </div>
-                          </Link>
+
+                            {/* Medalla */}
+                            <div className="text-center mb-4 mt-4">
+                              <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-400 to-sky-500">
+                                <span className="text-4xl">🎖️</span>
+                              </div>
+                            </div>
+
+                            {/* Título de la historia - clickeable */}
+                            <Link
+                              to={`/story/${lastContestWinners.honoraryMention.id}`}
+                              className="block mb-3"
+                            >
+                              <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 text-center hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
+                                "{lastContestWinners.honoraryMention.title}"
+                              </h5>
+                            </Link>
+
+                            {/* Autor - con ProfileButton funcional */}
+                            <div className="flex justify-center mb-4">
+                              <UserCardWithBadges
+                                userId={
+                                  lastContestWinners.honoraryMention.user_id
+                                }
+                                userName={
+                                  lastContestWinners.honoraryMention.author
+                                }
+                                userEmail={`${lastContestWinners.honoraryMention.author}@mock.com`}
+                                avatarSize="sm"
+                                badgeSize="xs"
+                                maxBadges={1}
+                                className="font-semibold text-sm"
+                              />
+                            </div>
+
+                            {/* Explicación del empate */}
+                            <div className="text-center mb-4">
+                              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 shadow-sm">
+                                <Heart className="h-4 w-4" />
+                                <span className="text-sm font-medium">
+                                  {lastContestWinners.honoraryMention
+                                    .likes_count || 0}{" "}
+                                  votos (= 3º lugar)
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="text-center text-xs text-blue-600 dark:text-blue-400 mb-4">
+                              Criterio de desempate: fecha de envío
+                            </div>
+
+                            {/* Call to action - Link separado */}
+                            <div className="text-center mt-auto">
+                              <Link
+                                to={`/story/${lastContestWinners.honoraryMention.id}`}
+                                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md"
+                              >
+                                <BookOpen className="h-4 w-4" />
+                                <span>Leer historia</span>
+                              </Link>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
