@@ -181,12 +181,12 @@ const AuthorProfile = () => {
 
     const contestPhase = getContestPhase(storyContest);
 
-    // Durante votación: NO mostrar estadísticas
-    // Después de votación: SÍ mostrar estadísticas
-    return contestPhase !== "voting";
+    // Durante votación y counting: NO mostrar estadísticas
+    // Solo mostrar después de que el admin cierre manualmente el concurso (results)
+    return contestPhase !== "voting" && contestPhase !== "counting";
   };
 
-  // Calcular estadísticas del autor (excluyendo historias en votación)
+  // Calcular estadísticas del autor (excluyendo historias en votación y counting)
   const authorStats = useMemo(() => {
     if (!authorStories.length)
       return {

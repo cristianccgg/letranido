@@ -851,6 +851,7 @@ const LandingPage = () => {
                               badgeSize="sm"
                               maxBadges={1}
                               className="text-lg font-semibold"
+                              disableProfileLink={true}
                             />
                           </div>
 
@@ -954,6 +955,7 @@ const LandingPage = () => {
                                       badgeSize="xs"
                                       maxBadges={1}
                                       className="font-semibold"
+                                      disableProfileLink={true}
                                     />
                                   </div>
 
@@ -1031,6 +1033,7 @@ const LandingPage = () => {
                                   badgeSize="xs"
                                   maxBadges={1}
                                   className="font-semibold text-sm"
+                                  disableProfileLink={true}
                                 />
                               </div>
 

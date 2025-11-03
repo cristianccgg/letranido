@@ -15,6 +15,7 @@ const UserCardWithBadges = ({
   maxBadges = 2,
   showAllBadges = false,
   className = "",
+  disableProfileLink = false, // Nueva prop para deshabilitar ProfileButton cuando está dentro de otro Link
 }) => {
   const { userBadges, loading } = useBadgesCache(userId);
 
@@ -108,12 +109,14 @@ const UserCardWithBadges = ({
         )}
 
         {/* Profile Button - inline, solo icono */}
-        <ProfileButton
-          userId={userId}
-          variant="primary"
-          size="xs"
-          showText={false}
-        />
+        {!disableProfileLink && (
+          <ProfileButton
+            userId={userId}
+            variant="primary"
+            size="xs"
+            showText={false}
+          />
+        )}
         </div>
       </div>
     </div>

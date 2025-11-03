@@ -87,6 +87,9 @@ const CurrentContest = () => {
   const [timeLeft, setTimeLeft] = useState("");
   const [honoraryMention, setHonoraryMention] = useState(null);
 
+  // Estado para forzar re-render cuando cambia la fase automáticamente
+  const [phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
+
   // Estado para forzar re-render cuando cambian los votos
   const [voteTimestamp, setVoteTimestamp] = useState(Date.now());
 
@@ -702,7 +705,7 @@ const CurrentContest = () => {
     DEV_FORCE_VOTING,
   ]);
 
-  const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo]);
+  const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo, phaseCheckTimestamp]);
 
   // ✅ DETECCIÓN DE MENCIÓN DE HONOR - Solo en fase "results"
   useEffect(() => {
@@ -839,6 +842,44 @@ const CurrentContest = () => {
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
+  }, [contest, getContestPhase]);
+
+  // ✅ DETECCIÓN AUTOMÁTICA DE CAMBIO DE FASE
+  // Programa un timeout para el momento exacto del deadline para forzar actualización
+  useEffect(() => {
+    if (!contest) return;
+
+    const phase = getContestPhase(contest);
+    const now = new Date();
+    let deadline;
+
+    // Determinar el próximo deadline según la fase actual
+    if (phase === "submission") {
+      deadline = new Date(contest.submission_deadline);
+    } else if (phase === "voting") {
+      deadline = new Date(contest.voting_deadline);
+    } else {
+      // Ya está en counting o results, no hay más deadlines automáticos
+      return;
+    }
+
+    const timeUntilDeadline = deadline - now;
+
+    // Si el deadline ya pasó, forzar actualización inmediata
+    if (timeUntilDeadline <= 0) {
+      console.log("🔄 Deadline alcanzado, forzando actualización de fase");
+      setPhaseCheckTimestamp(Date.now());
+      return;
+    }
+
+    // Programar timeout para el deadline + 2 segundos de buffer
+    console.log(`⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`);
+    const timeout = setTimeout(() => {
+      console.log("🔄 Deadline alcanzado, actualizando fase automáticamente");
+      setPhaseCheckTimestamp(Date.now());
+    }, timeUntilDeadline + 2000); // +2s de buffer
+
+    return () => clearTimeout(timeout);
   }, [contest, getContestPhase]);
 
   // ✅ LOADING STATES
