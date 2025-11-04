@@ -782,7 +782,7 @@ const LandingPage = () => {
           <div className="max-w-6xl mx-auto px-4 relative">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
-                Ganadores de {lastContestWinners.contest.month}
+                Historias Destacadas de {lastContestWinners.contest.month}
               </h2>
               <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
                 "{lastContestWinners.contest.title}"
@@ -803,14 +803,13 @@ const LandingPage = () => {
                   <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full font-bold text-sm shadow-lg mb-4">
                       <Sparkles className="h-4 w-4" />
-                      Historia Ganadora de {lastContestWinners.contest.month}
+                      Historia Más Votada de {lastContestWinners.contest.month}
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-dark-100 mb-2">
-                      ¡Conoce al ganador que conquistó a la comunidad!
+                      ¡La historia que más resonó con la comunidad!
                     </h2>
                     <p className="text-gray-600 dark:text-dark-300 text-lg">
-                      Su historia brilló entre todas las demás y se llevó el
-                      reconocimiento de los lectores
+                      Esta historia brilló entre todas y capturó los corazones de los lectores
                     </p>
                   </div>
 
@@ -818,10 +817,10 @@ const LandingPage = () => {
                   <div className="mb-8 flex justify-center">
                     <div className="w-full max-w-lg">
                       <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
-                        {/* Badge de ganador más prominente */}
+                        {/* Badge destacado */}
                         <div className="absolute -top-3 left-6">
                           <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
-                            🏆 GANADOR
+                            🏆 1ER LUGAR
                           </div>
                         </div>
 
@@ -873,7 +872,7 @@ const LandingPage = () => {
                             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
                           >
                             <BookOpen className="h-5 w-5" />
-                            <span>Leer historia ganadora</span>
+                            <span>Leer historia destacada</span>
                           </Link>
                         </div>
                       </div>
