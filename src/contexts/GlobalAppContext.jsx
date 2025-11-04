@@ -1964,6 +1964,31 @@ export function GlobalAppProvider({ children }) {
           });
         }
 
+        // 🆕 CARGAR CONTEO DE LECTURAS si includeReadCount está activado
+        let readCounts = {};
+        if (filters.includeReadCount && filters.contestId) {
+          console.log("📖 Cargando conteo de lecturas...");
+          try {
+            const { data: readMetrics, error: readError } = await supabase.rpc(
+              'get_contest_reading_metrics',
+              { p_contest_id: filters.contestId }
+            );
+
+            if (!readError && readMetrics) {
+              // Crear un map de story_id -> read_count para fácil acceso
+              readCounts = readMetrics.reduce((acc, metric) => {
+                acc[metric.story_id] = metric.read_count || 0;
+                return acc;
+              }, {});
+              console.log(`✅ Lecturas cargadas para ${Object.keys(readCounts).length} historias`);
+            } else if (readError) {
+              console.error("⚠️ Error cargando conteo de lecturas:", readError);
+            }
+          } catch (err) {
+            console.error("❌ Error en get_contest_reading_metrics:", err);
+          }
+        }
+
         // Obtener información de los usuarios (filtrar nulls)
         const userIds = [...new Set(stories.map((story) => story.user_id).filter(id => id !== null))];
         const { data: userProfiles } = await supabase
@@ -1995,6 +2020,7 @@ export function GlobalAppProvider({ children }) {
             likes_count: story.likes_count || 0,
             views_count: story.views_count || 0,
             word_count: story.word_count || 0,
+            reads_count: readCounts[story.id] || 0, // 🆕 Conteo de lecturas
             // Campos calculados
             excerpt: story.content
               ? story.content.substring(0, 300) + "..."

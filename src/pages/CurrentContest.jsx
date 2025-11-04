@@ -232,10 +232,12 @@ const CurrentContest = () => {
         // ✅ OPTIMIZACIÓN: Durante votación ciega, no cargar likes_count ni views_count
         const contestPhase = getContestPhase(contestData);
         const isBlindVoting = contestPhase === "voting";
+        const isResults = contestPhase === "results";
 
         await loadGalleryStories({
           contestId: contestData.id,
           blindVoting: isBlindVoting,
+          includeReadCount: isResults, // 🆕 Cargar lecturas solo en fase de resultados
         });
       } catch (err) {
         console.error("💥 Error general cargando reto:", err);
@@ -301,6 +303,7 @@ const CurrentContest = () => {
           ? loadGalleryStories({
               contestId: contest.id,
               blindVoting: phaseInfo?.phase === "voting",
+              includeReadCount: phaseInfo?.phase === "results", // 🆕 Cargar lecturas solo en resultados
             })
           : Promise.resolve(),
       ]);
@@ -1927,19 +1930,19 @@ const CurrentContest = () => {
                                       </span>
                                     </div>
 
-                                    {/* Views compacto - OCULTO */}
-                                    {/* <div
+                                    {/* 📖 Lecturas - Solo en fase de resultados */}
+                                    <div
                                       className={`flex items-center gap-1 text-sm min-w-0 ${
                                         hasVoted
                                           ? "text-gray-400 dark:text-dark-300"
-                                          : "text-gray-500 dark:text-dark-400"
+                                          : "text-blue-600 dark:text-blue-400"
                                       }`}
                                     >
-                                      <Eye className="h-3 w-3 flex-shrink-0" />
+                                      <BookOpen className="h-3 w-3 flex-shrink-0" />
                                       <span className="truncate">
-                                        {story.views_count || 0}
+                                        {story.reads_count || 0}
                                       </span>
-                                    </div> */}
+                                    </div>
                                   </>
                                 )}
 
