@@ -701,7 +701,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+              className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
             >
               <X className="h-5 w-5 text-gray-500 dark:text-dark-400" />
             </button>
