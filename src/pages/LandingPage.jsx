@@ -883,11 +883,15 @@ const LandingPage = () => {
                   {/* Podium completo con protagonismo equilibrado */}
                   {lastContestWinners.winners.length > 1 && (
                     <div className="mt-8 pt-6 border-t border-indigo-200 dark:border-dark-600">
-                      <h4 className="text-lg font-semibold text-gray-600 dark:text-dark-300 text-center mb-6">
+                      <h4 className="text-lg font-semibold text-gray-600 dark:text-dark-300 text-center mb-2">
                         {lastContestWinners.honoraryMention
                           ? "Finalistas y Menciones"
                           : "Finalistas"}
                       </h4>
+                      {/* Nota sobre criterio de desempate */}
+                      <p className="text-xs text-gray-500 dark:text-dark-400 text-center mb-6 max-w-2xl mx-auto">
+                        Las posiciones se determinan por número de votos. En caso de empate, se prioriza la historia enviada primero.
+                      </p>
                       <div
                         className={`grid gap-6 max-w-6xl mx-auto ${
                           lastContestWinners.honoraryMention

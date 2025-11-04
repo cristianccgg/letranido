@@ -182,6 +182,7 @@ export const useContestFinalization = () => {
               .eq("id", winner.user_id)
               .single();
               
+            // Badge de veterano: 2+ victorias (según documentación pública)
             if (!getUpdatedUserError && updatedUser.wins_count >= 2) {
               const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
                 target_user_id: winner.user_id,
@@ -193,6 +194,21 @@ export const useContestFinalization = () => {
                 console.error(`Error asignando badge veteran a usuario ${winner.user_id}:`, veteranBadgeError);
               } else {
                 console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${updatedUser.wins_count} victorias)`);
+              }
+            }
+
+            // 🆕 Badge de leyenda: 5+ victorias
+            if (!getUpdatedUserError && updatedUser.wins_count >= 5) {
+              const { error: legendBadgeError } = await supabase.rpc('award_specific_badge', {
+                target_user_id: winner.user_id,
+                badge_type: 'contest_winner_legend',
+                contest_id: contestId
+              });
+
+              if (legendBadgeError) {
+                console.error(`Error asignando badge leyenda a usuario ${winner.user_id}:`, legendBadgeError);
+              } else {
+                console.log(`👑 Badge leyenda asignado a ${winner.user_profiles?.display_name} (${updatedUser.wins_count} victorias)`);
               }
             }
           }
