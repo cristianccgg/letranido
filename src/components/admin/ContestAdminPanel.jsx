@@ -528,8 +528,8 @@ const ContestAdminPanel = () => {
         (s) => s.id === comment.story_id
       )?.user_id;
 
-      // Karma para quien da el comentario
-      if (commentAuthorId) {
+      // Karma para quien da el comentario (solo si NO es auto-comentario)
+      if (commentAuthorId && commentAuthorId !== storyAuthorId) {
         initializeUser(commentAuthorId);
         userKarma[commentAuthorId].commentsGiven++;
         userKarma[commentAuthorId].totalKarma += KARMA_POINTS.COMMENT_GIVEN;

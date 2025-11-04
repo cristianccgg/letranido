@@ -214,9 +214,9 @@ const calculateSingleUserKarma = (userId, stories, votes, comments, contests, al
   comments.forEach(comment => {
     const commentAuthorId = comment.user_id;
     const storyAuthorId = stories.find(s => s.id === comment.story_id)?.user_id;
-    
-    // Karma para quien da el comentario
-    if (commentAuthorId === userId) {
+
+    // Karma para quien da el comentario (solo si NO es auto-comentario)
+    if (commentAuthorId === userId && commentAuthorId !== storyAuthorId) {
       userStats.commentsGiven++;
       userStats.totalKarma += KARMA_POINTS.COMMENT_GIVEN;
 
@@ -224,7 +224,7 @@ const calculateSingleUserKarma = (userId, stories, votes, comments, contests, al
       const commentDate = new Date(comment.created_at);
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
-      
+
       if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
         userStats.monthlyKarma += KARMA_POINTS.COMMENT_GIVEN;
       }
