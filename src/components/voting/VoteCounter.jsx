@@ -4,13 +4,16 @@ import { Heart, AlertTriangle } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
 const VoteCounter = ({ contestId, className = "" }) => {
-  const { user, isAuthenticated, getUserVoteCount, currentContest } = useGlobalApp();
+  const { user, isAuthenticated, getUserVoteCount, currentContest, getContestPhase } = useGlobalApp();
   const [votesUsed, setVotesUsed] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // Solo mostrar para el concurso actual
   const isCurrentContest = contestId === currentContest?.id;
   const maxVotes = 3;
+
+  // ✅ Determinar fase del concurso
+  const contestPhase = currentContest ? getContestPhase(currentContest) : null;
 
   useEffect(() => {
     const loadVoteCount = async () => {
@@ -47,8 +50,9 @@ const VoteCounter = ({ contestId, className = "" }) => {
     };
   }, [isAuthenticated, user?.id, contestId, isCurrentContest, getUserVoteCount]);
 
-  // No mostrar si no es el concurso actual o si no está autenticado
-  if (!isAuthenticated || !isCurrentContest) {
+  // ✅ Solo mostrar durante fase de VOTING
+  // No mostrar si no es el concurso actual, si no está autenticado, o si NO está en voting
+  if (!isAuthenticated || !isCurrentContest || contestPhase !== "voting") {
     return null;
   }
 

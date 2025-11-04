@@ -705,7 +705,10 @@ const CurrentContest = () => {
     DEV_FORCE_VOTING,
   ]);
 
-  const phaseInfo = useMemo(() => getPhaseInfo(), [getPhaseInfo, phaseCheckTimestamp]);
+  const phaseInfo = useMemo(
+    () => getPhaseInfo(),
+    [getPhaseInfo, phaseCheckTimestamp]
+  );
 
   // ✅ DETECCIÓN DE MENCIÓN DE HONOR - Solo en fase "results"
   useEffect(() => {
@@ -873,7 +876,9 @@ const CurrentContest = () => {
     }
 
     // Programar timeout para el deadline + 2 segundos de buffer
-    console.log(`⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`);
+    console.log(
+      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`
+    );
     const timeout = setTimeout(() => {
       console.log("🔄 Deadline alcanzado, actualizando fase automáticamente");
       setPhaseCheckTimestamp(Date.now());
@@ -1206,15 +1211,6 @@ const CurrentContest = () => {
                 </div>
               </div>
             </div>
-
-            <div className="text-center lg:text-right flex-shrink-0">
-              <div className="bg-white/20 rounded-lg px-6 py-4">
-                <span className="text-2xl font-bold text-white block">🏆</span>
-                <div className="text-white/90 text-sm mt-1">
-                  Resultados el 4 de octubre
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -1229,7 +1225,6 @@ const CurrentContest = () => {
           <div className="relative z-10">
             {/* Grid de 2 columnas en desktop, stack en móvil */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
               {/* Columna 1: Contador de Votos */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                 {/* Indicadores visuales de votos */}
@@ -1275,8 +1270,7 @@ const CurrentContest = () => {
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {votingStats.currentContestVotes >= 3
                       ? "✓ Todos los votos usados"
-                      : `${3 - votingStats.currentContestVotes} ${3 - votingStats.currentContestVotes === 1 ? 'voto restante' : 'votos restantes'}`
-                    }
+                      : `${3 - votingStats.currentContestVotes} ${3 - votingStats.currentContestVotes === 1 ? "voto restante" : "votos restantes"}`}
                   </div>
                 </div>
               </div>
@@ -1328,9 +1322,11 @@ const CurrentContest = () => {
                       {readStats.read} de {readStats.total} historias
                       {readStats.unread > 0 && (
                         <span className="ml-1">
-                          · <span className="text-orange-600 dark:text-orange-400 font-semibold">
+                          ·{" "}
+                          <span className="text-orange-600 dark:text-orange-400 font-semibold">
                             {readStats.unread}
-                          </span> pendientes
+                          </span>{" "}
+                          pendientes
                         </span>
                       )}
                     </p>
@@ -1737,7 +1733,7 @@ const CurrentContest = () => {
                             className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
                               hasVoted
                                 ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90 dark:bg-dark-700/80 dark:border-dark-500 hover:dark:border-purple-400"
-                                : hasRead && phaseInfo?.phase === 'voting'
+                                : hasRead && phaseInfo?.phase === "voting"
                                   ? "bg-blue-50/40 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
                                   : "bg-white/95 border-indigo-100 hover:border-purple-200 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
                             }`}
@@ -1785,20 +1781,36 @@ const CurrentContest = () => {
                                   )}
 
                                 {/* Badge central - Votada Y/O Leída */}
-                                {(hasVoted || (hasRead && phaseInfo?.phase === 'voting')) && (
+                                {(hasVoted ||
+                                  (hasRead &&
+                                    phaseInfo?.phase === "voting")) && (
                                   <div
                                     className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm transition-all ${
                                       hasVoted
-                                        ? 'bg-gray-400/90 text-white'
-                                        : 'bg-blue-500/90 text-white hover:bg-blue-600/90 cursor-pointer'
+                                        ? "bg-gray-400/90 text-white"
+                                        : "bg-blue-500/90 text-white hover:bg-blue-600/90 cursor-pointer"
                                     }`}
-                                    onClick={hasVoted ? undefined : handleToggleRead}
-                                    title={hasVoted ? undefined : 'Click para desmarcar como leída'}
+                                    onClick={
+                                      hasVoted ? undefined : handleToggleRead
+                                    }
+                                    title={
+                                      hasVoted
+                                        ? undefined
+                                        : "Click para desmarcar como leída"
+                                    }
                                   >
-                                    {hasVoted && <Heart className="h-4 w-4 fill-current" />}
-                                    {!hasVoted && hasRead && <BookCheck className="h-4 w-4" />}
+                                    {hasVoted && (
+                                      <Heart className="h-4 w-4 fill-current" />
+                                    )}
+                                    {!hasVoted && hasRead && (
+                                      <BookCheck className="h-4 w-4" />
+                                    )}
                                     <span>
-                                      {hasVoted && hasRead ? 'Votada • Leída' : hasVoted ? 'Tu voto' : 'Leída'}
+                                      {hasVoted && hasRead
+                                        ? "Votada • Leída"
+                                        : hasVoted
+                                          ? "Tu voto"
+                                          : "Leída"}
                                     </span>
                                   </div>
                                 )}
