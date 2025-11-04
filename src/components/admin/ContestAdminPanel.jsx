@@ -286,7 +286,19 @@ const ContestAdminPanel = () => {
       console.log("📊 RPC completado:", rpcResult);
 
       // 2. Ahora calcular los rankings usando la lógica del sidebar
-      // Obtener historias
+
+      // 🔒 IMPORTANTE: Primero obtener solo retos finalizados para evitar contar karma de retos en curso
+      const { data: finalizedContests, error: contestsError } = await supabase
+        .from("contests")
+        .select("id")
+        .eq("status", "results");
+
+      if (contestsError) throw contestsError;
+
+      const finalizedContestIds = finalizedContests.map(c => c.id);
+      console.log("📊 Retos finalizados encontrados:", finalizedContestIds.length);
+
+      // Obtener SOLO historias de retos finalizados (no retos en submission o voting)
       const { data: stories, error: storiesError } = await supabase
         .from("stories")
         .select(
@@ -298,39 +310,73 @@ const ContestAdminPanel = () => {
           published_at
         `
         )
-        .not("published_at", "is", null);
+        .not("published_at", "is", null)
+        .in("contest_id", finalizedContestIds); // 🔒 FILTRO CRÍTICO: Solo retos finalizados
 
       if (storiesError) throw storiesError;
+      console.log("📊 Historias de retos finalizados:", stories?.length || 0);
 
-      // Obtener votos usando función RPC si está disponible
+      // 🔒 Obtener IDs de historias finalizadas para filtrar votos y comentarios
+      const finalizedStoryIds = stories ? stories.map(s => s.id) : [];
+      console.log("🔍 IDs de historias finalizadas:", finalizedStoryIds.length);
+
+      // Obtener SOLO votos de historias de retos finalizados
       let votes = [];
-      try {
-        const { data: rpcVotes, error: rpcVotesError } = await supabase.rpc(
-          "get_all_votes_for_rankings"
-        );
+      if (finalizedStoryIds.length > 0) {
+        console.log("🔍 Buscando votos para", finalizedStoryIds.length, "historias finalizadas...");
 
-        if (rpcVotesError) {
-          console.warn("RPC votes function not available, using direct query");
-          const { data: directVotes } = await supabase
-            .from("votes")
-            .select("user_id, created_at");
-          votes = directVotes || [];
-        } else {
-          votes = rpcVotes || [];
+        // Intentar primero con RPC function (bypasea RLS)
+        try {
+          const { data: rpcVotes, error: rpcError } = await supabase
+            .rpc('get_votes_by_story_ids', { story_ids: finalizedStoryIds });
+
+          if (rpcError) {
+            console.warn("⚠️ RPC function no disponible, intentando consulta directa:", rpcError.message);
+
+            // Fallback: Consulta directa (puede estar limitada por RLS)
+            const { data: votesData, error: votesError } = await supabase
+              .from("votes")
+              .select("user_id, created_at, story_id")
+              .in("story_id", finalizedStoryIds);
+
+            if (votesError) {
+              console.error("❌ Error loading votes (RLS puede estar bloqueando):", votesError);
+              console.log("💡 Sugerencia: Crear función RPC 'get_votes_by_story_ids' para bypasear RLS");
+              votes = [];
+            } else {
+              votes = votesData || [];
+              console.log("✅ Votos cargados con consulta directa:", votes.length);
+            }
+          } else {
+            votes = rpcVotes || [];
+            console.log("✅ Votos cargados con RPC:", votes.length);
+          }
+        } catch (error) {
+          console.error("❌ Error general al cargar votos:", error);
+          votes = [];
         }
-      } catch {
-        console.warn("Error getting votes, continuing without votes data");
-        votes = [];
+      } else {
+        console.warn("⚠️ No hay historias finalizadas para buscar votos");
       }
+      console.log("📊 Total votos de retos finalizados:", votes.length);
 
-      // Obtener comentarios
-      const { data: comments, error: commentsError } = await supabase
-        .from("comments")
-        .select("user_id, story_id, created_at")
-        .not("user_id", "is", null)
-        .not("story_id", "is", null);
+      // Obtener SOLO comentarios de historias de retos finalizados
+      let comments = [];
+      if (finalizedStoryIds.length > 0) {
+        const { data: commentsData, error: commentsError } = await supabase
+          .from("comments")
+          .select("user_id, story_id, created_at")
+          .not("user_id", "is", null)
+          .not("story_id", "is", null)
+          .in("story_id", finalizedStoryIds); // 🔒 Solo comentarios de retos finalizados
 
-      if (commentsError) console.warn("Error loading comments:", commentsError);
+        if (commentsError) {
+          console.warn("Error loading comments:", commentsError);
+        } else {
+          comments = commentsData || [];
+        }
+      }
+      console.log("📊 Comentarios de retos finalizados:", comments.length);
 
       // Obtener perfiles de usuario (filtrar valores nulos)
       const storyUserIds = stories ? stories.map((s) => s.user_id).filter(Boolean) : [];
@@ -354,12 +400,13 @@ const ContestAdminPanel = () => {
         }
       }
 
-      // Obtener concursos
-      const { data: contestsData, error: contestsError } = await supabase
+      // Obtener información completa de concursos finalizados
+      const { data: contestsData, error: contestsErrorDetail } = await supabase
         .from("contests")
-        .select("id, title, month, status, finalized_at, voting_deadline");
+        .select("id, title, month, status, finalized_at, voting_deadline")
+        .eq("status", "results"); // 🔒 Solo retos finalizados
 
-      if (contestsError) console.warn("Error loading contests:", contestsError);
+      if (contestsErrorDetail) console.warn("Error loading contests:", contestsErrorDetail);
 
       // Calcular karma usando la misma lógica que el sidebar
       const userKarma = calculateUserKarmaForCache(
@@ -414,7 +461,12 @@ const ContestAdminPanel = () => {
 
       console.log("✅ Rankings recalculados exitosamente");
       alert(
-        `✅ Rankings actualizados exitosamente!\n${rankingArray.length} usuarios procesados.`
+        `✅ Rankings actualizados exitosamente!\n\n` +
+        `📊 ${rankingArray.length} usuarios procesados\n` +
+        `📚 ${stories?.length || 0} historias de retos finalizados\n` +
+        `🗳️ ${votes.length} votos contados\n` +
+        `💬 ${comments.length} comentarios contados\n\n` +
+        `🔒 Solo se contó karma de retos con status "results"`
       );
     } catch (error) {
       console.error("❌ Error recalculando rankings:", error);
