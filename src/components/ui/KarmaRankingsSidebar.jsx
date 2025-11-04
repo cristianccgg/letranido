@@ -42,24 +42,24 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     if (isOpen) {
       loadCompactRankings();
       // 📱 Bloquear scroll del body cuando el sidebar está abierto (mobile fix)
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.top = '0';
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.body.style.top = "0";
     } else {
       // Restaurar scroll cuando se cierra
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.top = "";
     }
 
     // Cleanup al desmontar
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.top = "";
     };
   }, [isOpen, currentContestPhase]);
 
@@ -690,10 +690,10 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Overlay - Click afuera cierra el sidebar */}
+      {/* Overlay - Click afuera cierra el sidebar (solo mobile) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -734,7 +734,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         {/* Content - scroll solo en esta área */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain"
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {loading ? (
             <div className="p-6 text-center">
@@ -871,13 +871,13 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                   <div className="flex items-center gap-2">
                     <Heart className="h-3 w-3" />
                     <span>
-                      Recibir like: <strong>+2</strong>
+                      Recibir voto: <strong>+2</strong>
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Vote className="h-3 w-3" />
                     <span>
-                      Votar: <strong>+1</strong>
+                      Dar voto: <strong>+1</strong>
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
