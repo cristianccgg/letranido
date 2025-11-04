@@ -41,7 +41,26 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       loadCompactRankings();
+      // 📱 Bloquear scroll del body cuando el sidebar está abierto (mobile fix)
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = '0';
+    } else {
+      // Restaurar scroll cuando se cierra
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
     }
+
+    // Cleanup al desmontar
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+    };
   }, [isOpen, currentContestPhase]);
 
   // Función para cargar más usuarios
@@ -671,10 +690,10 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay - Click afuera cierra el sidebar */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={onClose}
         />
       )}
@@ -686,16 +705,17 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         border-r border-gray-200 dark:border-dark-600
+        flex flex-col overflow-hidden
       `}
       >
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-dark-600 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20">
-          <div className="flex items-center justify-between mb-3">
+        {/* Header - compacto en mobile */}
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-dark-600 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 flex-shrink-0">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg">
                 <Trophy className="h-5 w-5 text-white" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-dark-100">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-dark-100">
                 Karma Rankings
               </h2>
             </div>
@@ -706,15 +726,15 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
               <X className="h-5 w-5 text-gray-500 dark:text-dark-400" />
             </button>
           </div>
-          <p className="text-sm text-gray-600 dark:text-dark-300">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-300">
             Los escritores que más contribuyen a la comunidad
           </p>
         </div>
 
-        {/* Content */}
+        {/* Content - scroll solo en esta área */}
         <div
-          className="flex-1 overflow-y-auto"
-          style={{ maxHeight: "calc(100vh - 200px)" }}
+          className="flex-1 overflow-y-auto overscroll-contain"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {loading ? (
             <div className="p-6 text-center">
