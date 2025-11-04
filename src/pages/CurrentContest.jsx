@@ -1359,6 +1359,7 @@ const CurrentContest = () => {
                 </p>
 
                 <ContestActionButton
+                  contestId={contest.id}
                   variant="primary"
                   size="default"
                   showDescription={false}

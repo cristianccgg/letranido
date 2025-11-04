@@ -23,7 +23,7 @@ const ContestActionButton = ({
   customText,
   disabled = false,
   forceWhiteStyle = false, // ✅ NUEVO: Para forzar estilo blanco en footer
-  contestId = null, // ✅ NUEVO: ID del reto específico 
+  contestId = null, // ✅ NUEVO: ID del reto específico
   forcedPhase = null, // ✅ NUEVO: Forzar una fase específica
 }) => {
   // ✅ TODO DESDE EL CONTEXTO GLOBAL UNIFICADO
@@ -35,6 +35,7 @@ const ContestActionButton = ({
     contests, // ✅ Para poder encontrar contest específico
     userStories, // ✅ Podemos usar directamente las historias del usuario
     userStoriesLoading,
+    getContestPhase, // ✅ NUEVO: Para calcular fase del contest específico
   } = useGlobalApp(); // ✅ Cambiado de useAuthStore + useAppState
 
   const [hasUserParticipated, setHasUserParticipated] = useState(false);
@@ -43,10 +44,12 @@ const ContestActionButton = ({
 
   // ✅ Determinar el reto y fase a usar
   const targetContestId = contestId || currentContest?.id;
-  const targetPhase = forcedPhase || currentContestPhase;
-  const targetContest = contestId 
-    ? contests.find(c => c.id === contestId) || currentContest
+  const targetContest = contestId
+    ? contests.find((c) => c.id === contestId) || currentContest
     : currentContest;
+
+  // ✅ CORREGIDO: Calcular la fase del contest específico, no usar currentContestPhase
+  const targetPhase = forcedPhase || (targetContest ? getContestPhase(targetContest) : currentContestPhase);
 
   // ✅ Verificar participación usando los datos ya cargados del contexto (OPTIMIZADO)
   useEffect(() => {
