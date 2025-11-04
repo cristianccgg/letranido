@@ -16,6 +16,12 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 
+// 💾 Cache en localStorage para rankings (persiste entre sesiones)
+// Los rankings se actualizan manualmente ~1 vez al mes después de cerrar retos
+// Usamos el timestamp de last_updated de BD como "versión" del cache
+const CACHE_KEY = 'letranido_rankings_cache';
+const CACHE_VERSION_KEY = 'letranido_rankings_version';
+
 // Sistema de karma adaptado para Letranido (mismo que KarmaRankings.jsx)
 const KARMA_POINTS = {
   STORY_PUBLISHED: 15,
@@ -63,6 +69,29 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     };
   }, [isOpen, currentContestPhase]);
 
+  // 🖱️ Cerrar al hacer click fuera del sidebar (desktop)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event) => {
+      // Verificar si el click fue fuera del sidebar
+      const sidebar = document.getElementById('karma-sidebar');
+      if (sidebar && !sidebar.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    // Agregar listener después de un pequeño delay para evitar que se cierre inmediatamente
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   // Función para cargar más usuarios
   const loadMoreUsers = () => {
     if (loadingMore || displayedUsers.length >= allUsers.length) return;
@@ -89,115 +118,98 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
   const loadCompactRankings = async () => {
     setLoading(true);
     try {
-      console.log("🔄 Cargando rankings desde cache...");
+      // 1️⃣ Verificar versión actual en BD (solo metadata, query muy rápida)
+      const { data: metadata } = await supabase
+        .from("ranking_metadata")
+        .select("last_updated")
+        .eq("updated_by_admin", true)
+        .order("last_updated", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      // Intentar cargar desde cache primero
-      const { data: cachedRankings, error: cacheError } = await supabase
-        .from("cached_rankings")
-        .select("*")
-        .order("position", { ascending: true });
+      const currentVersion = metadata?.last_updated;
 
-      if (cacheError) {
-        console.warn(
-          "⚠️ Error cargando rankings cached, fallback a cálculo en tiempo real:",
-          cacheError
-        );
+      // 2️⃣ Verificar cache en localStorage
+      const cachedVersion = localStorage.getItem(CACHE_VERSION_KEY);
+      const cachedData = localStorage.getItem(CACHE_KEY);
+
+      // 3️⃣ Si la versión coincide y hay datos, usar cache (SIN llamadas a BD)
+      if (currentVersion && cachedVersion === currentVersion && cachedData) {
+        console.log("⚡ Usando cache localStorage (versión válida, sin llamadas a BD)");
+        const parsed = JSON.parse(cachedData);
+        setAllUsers(parsed.users);
+        setDisplayedUsers(parsed.users.slice(0, USERS_PER_BATCH));
+        setLastUpdated(currentVersion);
+        setIsUsingCache(true);
+        setLoading(false);
+        return;
+      }
+
+      // 4️⃣ Cache inválido o no existe: cargar desde BD
+      console.log("🔄 Cache inválido o inexistente, cargando desde BD...");
+
+      // 🚀 Queries en paralelo
+      const [rankingsResult, badgesResult] = await Promise.all([
+        // Rankings
+        supabase
+          .from("cached_rankings")
+          .select("*")
+          .order("position", { ascending: true }),
+
+        // Ko-fi badges
+        supabase
+          .from("user_badges")
+          .select("user_id")
+          .eq("badge_id", "kofi_supporter")
+      ]);
+
+      const { data: cachedRankings, error: cacheError } = rankingsResult;
+
+      // Fallback si hay error
+      if (cacheError || !cachedRankings || cachedRankings.length === 0) {
+        console.warn("⚠️ Error o cache vacío, usando fallback");
         await loadRealTimeRankings();
         return;
       }
 
-      if (cachedRankings && cachedRankings.length > 0) {
-        console.log(
-          "✅ Rankings cargados desde cache:",
-          cachedRankings.length,
-          "usuarios"
-        );
+      console.log("✅ Datos cargados desde BD:", cachedRankings.length, "usuarios");
 
-        // Obtener metadata de la última actualización
-        const { data: metadata, error: metadataError } = await supabase
-          .from("ranking_metadata")
-          .select("last_updated, contest_period, total_users")
-          .eq("updated_by_admin", true)
-          .order("last_updated", { ascending: false })
-          .limit(1)
-          .single();
+      // Ko-fi supporters
+      const supporterIds = new Set(
+        (badgesResult.data || []).map((b) => b.user_id)
+      );
 
-        if (!metadataError && metadata) {
-          setLastUpdated(metadata.last_updated);
-          console.log("📅 Última actualización:", metadata.last_updated);
-        }
+      // Formatear rankings
+      const formattedRankings = cachedRankings.map((ranking) => ({
+        userId: ranking.user_id,
+        author: ranking.user_name,
+        totalKarma: ranking.total_karma,
+        totalStories: ranking.total_stories,
+        contestWins: ranking.contest_wins,
+        votesGiven: ranking.votes_given,
+        commentsGiven: ranking.comments_given,
+        commentsReceived: ranking.comments_received,
+        monthlyKarma: 0,
+        isKofiSupporter: supporterIds.has(ranking.user_id),
+      }));
 
-        // 🎖️ Cargar badges de Ko-fi supporters
-        // Filtrar IDs válidos (no null, no undefined, no strings "null")
-        const userIds = cachedRankings
-          .map((r) => r.user_id)
-          .filter((id) => id && id !== "null" && id !== "undefined");
-
-        console.log(
-          "🔍 Cargando badges para",
-          userIds.length,
-          "usuarios válidos del ranking"
-        );
-
-        let badges = [];
-        let badgesError = null;
-
-        if (userIds.length > 0) {
-          const result = await supabase
-            .from("user_badges")
-            .select("user_id, badge_id")
-            .in("user_id", userIds)
-            .eq("badge_id", "kofi_supporter");
-
-          badges = result.data;
-          badgesError = result.error;
-        }
-
-        if (badgesError) {
-          console.warn("❌ Error loading badges:", badgesError);
-        } else {
-          console.log(
-            "✅ Ko-fi supporters encontrados:",
-            badges?.length || 0,
-            badges
-          );
-        }
-
-        const supporterIds = new Set(badges?.map((b) => b.user_id) || []);
-
-        // Convertir formato de cache a formato del sidebar
-        const formattedRankings = cachedRankings.map((ranking) => ({
-          userId: ranking.user_id,
-          author: ranking.user_name,
-          totalKarma: ranking.total_karma,
-          totalStories: ranking.total_stories,
-          contestWins: ranking.contest_wins,
-          votesGiven: ranking.votes_given,
-          commentsGiven: ranking.comments_given,
-          commentsReceived: ranking.comments_received,
-          monthlyKarma: 0, // No calculamos karma mensual en cache por ahora
-          isKofiSupporter: supporterIds.has(ranking.user_id), // 🎖️ Flag de supporter
-        }));
-
-        console.log(
-          "👥 Usuarios con supporter flag:",
-          formattedRankings
-            .filter((u) => u.isKofiSupporter)
-            .map((u) => u.author)
-        );
-
-        // Establecer todos los usuarios y mostrar los primeros
-        setAllUsers(formattedRankings);
-        setDisplayedUsers(formattedRankings.slice(0, USERS_PER_BATCH));
-        setIsUsingCache(true);
-      } else {
-        console.log("📊 No hay rankings cached, calculando en tiempo real...");
-        setIsUsingCache(false);
-        await loadRealTimeRankings();
+      // 5️⃣ Guardar en localStorage con nueva versión
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ users: formattedRankings }));
+        localStorage.setItem(CACHE_VERSION_KEY, currentVersion || 'v1');
+        console.log("💾 Cache guardado en localStorage (versión:", currentVersion || 'v1', ")");
+      } catch (e) {
+        console.warn("⚠️ No se pudo guardar en localStorage:", e);
       }
+
+      // Establecer datos
+      setAllUsers(formattedRankings);
+      setDisplayedUsers(formattedRankings.slice(0, USERS_PER_BATCH));
+      setLastUpdated(currentVersion);
+      setIsUsingCache(true);
+
     } catch (error) {
       console.error("❌ Error loading rankings:", error);
-      // Fallback a cálculo en tiempo real
       await loadRealTimeRankings();
     } finally {
       setLoading(false);
@@ -700,6 +712,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <div
+        id="karma-sidebar"
         className={`
         fixed left-0 top-0 h-full w-80 bg-white dark:bg-dark-800 shadow-2xl z-50
         transform transition-transform duration-300 ease-in-out
