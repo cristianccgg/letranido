@@ -463,9 +463,9 @@ serve(async (req) => {
     const totalSent = results.reduce((sum, result) => sum + (result.id ? 1 : 0), 0);
     console.log(`✅ Todos los lotes enviados. Total: ${totalSent} emails`);
 
-    // Log email send to database
+    // Log email send to database (sin fallar si hay error)
     try {
-      await supabaseClient.from("email_logs").insert({
+      const logResult = await supabaseClient.from("email_logs").insert({
         email_type: emailType,
         contest_id: contest?.id || null,
         recipient_count: finalRecipients.length,
@@ -473,35 +473,45 @@ serve(async (req) => {
         sent_at: new Date().toISOString(),
         subject: emailData.subject,
       });
-    } catch (logError) {
-      console.error("⚠️ Error logging to database (email still sent):", logError);
+
+      if (logResult.error) {
+        console.error("⚠️ Error logging to database (email still sent):", logResult.error);
+      } else {
+        console.log("✅ Email log guardado exitosamente");
+      }
+    } catch (logError: any) {
+      console.error("⚠️ Error logging to database (email still sent):", logError?.message || logError);
       // No fallar la función si el logging falla
     }
 
+    // Preparar respuesta exitosa
+    const responseData = {
+      success: true,
+      sent: finalRecipients.length,
+      mode: isTestMode ? "test" : "production",
+      data: { batches: batches.length, results: results },
+      ...(batchInfo && { batchInfo: batchInfo })
+    };
+
+    console.log("📤 Enviando respuesta exitosa:", responseData);
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        sent: finalRecipients.length,
-        mode: isTestMode ? "test" : "production",
-        data: { batches: batches.length, results: results },
-        
-        // Información adicional del lote si aplica
-        ...(batchInfo && {
-          batchInfo: batchInfo
-        })
-      }),
+      JSON.stringify(responseData),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
     );
-  } catch (error) {
-    console.error("❌ Error:", error);
-    console.error("❌ Error stack:", error.stack);
+  } catch (error: any) {
+    console.error("❌ Error crítico en función:", error);
+    console.error("❌ Error message:", error?.message);
+    console.error("❌ Error stack:", error?.stack);
+
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: error?.message || "Error desconocido",
+        errorType: error?.name || "UnknownError",
         details: "Error en función de email",
       }),
       {

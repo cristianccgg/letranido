@@ -26,6 +26,7 @@ const ImageGenerator = ({
     facebook: { width: 1080, height: 1080 },
     twitter: { width: 1080, height: 1080 },
     linkedin: { width: 1080, height: 1080 },
+    universal: { width: 1080, height: 1080 }, // Formato universal para todas las redes
   };
 
   // Mapeo de emojis por tipo de post
@@ -462,7 +463,12 @@ const ImageGenerator = ({
     const contentItems = [];
 
     // 1. Título secundario del post (extraído del contenido) - Opcional
-    if (postTitle && postTitle !== displayTitle) {
+    // Para new_contest, NO mostrar el postTitle si es redundante con el título principal
+    const shouldShowPostTitle = postTitle &&
+                                 postTitle !== displayTitle &&
+                                 post.type !== 'new_contest';
+
+    if (shouldShowPostTitle) {
       const titleLines = wrapText(postTitle, maxWidth, 36);
       contentItems.push({
         type: "secondary-title",

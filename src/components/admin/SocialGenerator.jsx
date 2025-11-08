@@ -1,6 +1,6 @@
 // components/admin/SocialGenerator.jsx - Generador automático de posts para redes sociales
 import { useState } from 'react';
-import { Share2, Copy, CheckCircle, Calendar, Instagram, Twitter, Facebook, Sparkles, Image, Download } from 'lucide-react';
+import { Share2, Copy, CheckCircle, Calendar, Sparkles, Image, Download } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import ImageGenerator from './ImageGenerator';
 
@@ -8,19 +8,10 @@ const SocialGenerator = () => {
   const { currentContest, nextContest, contests } = useGlobalApp();
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedPlatform, setSelectedPlatform] = useState('instagram');
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [showImageFor, setShowImageFor] = useState(null);
   const [generatedImages, setGeneratedImages] = useState({});
   const [selectedContestOption, setSelectedContestOption] = useState('current');
-
-  // Plataformas disponibles
-  const platforms = [
-    { id: 'instagram', name: 'Instagram', icon: Instagram, maxChars: 2200, hashtags: true },
-    { id: 'twitter', name: 'Twitter/X', icon: Twitter, maxChars: 280, hashtags: true },
-    { id: 'facebook', name: 'Facebook', icon: Facebook, maxChars: 63206, hashtags: false },
-    { id: 'linkedin', name: 'LinkedIn', icon: Share2, maxChars: 3000, hashtags: true }
-  ];
 
   // Obtener reto seleccionado según la opción
   const getSelectedContest = () => {
@@ -91,9 +82,9 @@ const SocialGenerator = () => {
         return;
       }
 
-      const posts = await generateContestPosts(contest, selectedPlatform);
+      const posts = await generateContestPosts(contest);
       setGeneratedPosts(posts);
-      
+
       // Limpiar imágenes generadas al cambiar reto
       setGeneratedImages({});
       setShowImageFor(null);
@@ -106,96 +97,95 @@ const SocialGenerator = () => {
   };
 
   // Función principal para generar posts basados en las fases del reto
-  const generateContestPosts = async (contest, platform) => {
-    const platformConfig = platforms.find(p => p.id === platform);
+  const generateContestPosts = async (contest) => {
     const posts = [];
     
     // Post 1: Anuncio del nuevo reto
     posts.push({
       id: 1,
-      title: '🎯 Anuncio del Nuevo Reto',
-      content: generateNewContestPost(contest, platformConfig),
+      title: '✍️ Nuevo Reto de Escritura',
+      content: generateNewContestPost(contest),
       scheduledFor: 'Día 1 del mes',
       type: 'new_contest',
-      hashtags: generateHashtags(platform, ['reto', 'escritura', 'concurso'])
+      hashtags: generateHashtags(['reto', 'escritura', 'concurso'])
     });
 
     // Post 2: Tips de escritura
     posts.push({
       id: 2,
       title: '✍️ Tips de Escritura',
-      content: generateWritingTipsPost(contest, platformConfig),
+      content: generateWritingTipsPost(contest),
       scheduledFor: 'Día 5 del mes',
       type: 'tips',
-      hashtags: generateHashtags(platform, ['tips', 'escritura', 'creatividad'])
+      hashtags: generateHashtags(['tips', 'escritura', 'creatividad'])
     });
 
     // Post 3: Motivación a mitad de mes
     posts.push({
       id: 3,
       title: '🔥 Motivación de Mitad de Mes',
-      content: generateMotivationPost(contest, platformConfig),
+      content: generateMotivationPost(contest),
       scheduledFor: 'Día 10 del mes',
       type: 'motivation',
-      hashtags: generateHashtags(platform, ['motivacion', 'escritura', 'creatividad'])
+      hashtags: generateHashtags(['motivacion', 'escritura', 'creatividad'])
     });
 
     // Post 4: Recordatorio de envío
     posts.push({
       id: 4,
       title: '⏰ Recordatorio de Envío',
-      content: generateReminderPost(contest, platformConfig),
+      content: generateReminderPost(contest),
       scheduledFor: '5 días antes del cierre',
       type: 'reminder',
-      hashtags: generateHashtags(platform, ['ultimosdias', 'envio', 'deadline'])
+      hashtags: generateHashtags(['ultimosdias', 'envio', 'deadline'])
     });
 
     // Post 5: Última llamada
     posts.push({
       id: 5,
       title: '🚨 Última Llamada',
-      content: generateLastCallPost(contest, platformConfig),
+      content: generateLastCallPost(contest),
       scheduledFor: '24 horas antes del cierre',
       type: 'last_call',
-      hashtags: generateHashtags(platform, ['ultimahora', 'deadline', 'urgente'])
+      hashtags: generateHashtags(['ultimahora', 'deadline', 'urgente'])
     });
 
     // Post 6: Votación iniciada
     posts.push({
       id: 6,
       title: '🗳️ Votación Iniciada',
-      content: generateVotingStartPost(contest, platformConfig),
+      content: generateVotingStartPost(contest),
       scheduledFor: 'Al iniciar votación',
       type: 'voting_start',
-      hashtags: generateHashtags(platform, ['votacion', 'historias', 'comunidad'])
+      hashtags: generateHashtags(['votacion', 'historias', 'comunidad'])
     });
 
     // Post 7: Animar a leer historias
     posts.push({
       id: 7,
       title: '📚 Lee las Historias',
-      content: generateReadStoriesPost(contest, platformConfig),
+      content: generateReadStoriesPost(contest),
       scheduledFor: 'Mitad de votación',
       type: 'read_stories',
-      hashtags: generateHashtags(platform, ['lectura', 'historias', 'vota'])
+      hashtags: generateHashtags(['lectura', 'historias', 'vota'])
     });
 
     // Post 8: Resultados
     posts.push({
       id: 8,
       title: '🏆 Resultados',
-      content: generateResultsPost(contest, platformConfig),
+      content: generateResultsPost(contest),
       scheduledFor: 'Al publicar resultados',
       type: 'results',
-      hashtags: generateHashtags(platform, ['resultados', 'ganadores', 'celebracion'])
+      hashtags: generateHashtags(['resultados', 'ganadores', 'celebracion'])
     });
 
     return posts;
   };
 
   // Generar post de nuevo concurso
-  const generateNewContestPost = (contest, platform) => {
-    const baseText = `🎯 ¡NUEVO RETO DE ESCRITURA!
+  const generateNewContestPost = (contest) => {
+    return `¡NUEVO RETO DE ESCRITURA! 🎯
 
 "${contest.title}"
 
@@ -207,12 +197,10 @@ ${contest.description}
 ¿Estás listo/a para el desafío? ¡Demuestra tu creatividad y únete a nuestra comunidad de escritores!
 
 ✍️ Participa en letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post de tips
-  const generateWritingTipsPost = (contest, platform) => {
+  const generateWritingTipsPost = (contest) => {
     const tips = [
       '🎯 Lee el prompt varias veces y busca diferentes interpretaciones',
       '💡 Empieza con una imagen o emoción, no con la trama',
@@ -222,8 +210,8 @@ ${contest.description}
     ];
 
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    
-    const baseText = `✍️ TIP DE ESCRITURA PARA EL RETO
+
+    return `✍️ TIP DE ESCRITURA PARA EL RETO
 
 ${randomTip}
 
@@ -233,17 +221,15 @@ Comparte tu sabiduría con la comunidad 👇
 
 #Reto: "${contest.title}"
 📝 Participa en letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post motivacional
-  const generateMotivationPost = (contest, platform) => {
-    const baseText = `🔥 ESCRITOR/A, ¡ESTE ES TU MOMENTO!
+  const generateMotivationPost = (contest) => {
+    return `🔥 ESCRITOR/A, ¡ESTE ES TU MOMENTO!
 
 ¿Ya empezaste tu historia para "${contest.title}"?
 
-Recuerda: 
+Recuerda:
 ✨ No existe la historia perfecta, solo la historia terminada
 🎯 Cada palabra cuenta
 💫 Tu perspectiva es única e irreemplazable
@@ -252,13 +238,11 @@ La comunidad está esperando tu voz. ¡No dejes que el mundo se pierda tu histor
 
 ⏰ Aún hay tiempo
 📝 letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post de recordatorio
-  const generateReminderPost = (contest, platform) => {
-    const baseText = `⏰ ¡ÚLTIMOS DÍAS!
+  const generateReminderPost = (contest) => {
+    return `⏰ ¡ÚLTIMOS DÍAS!
 
 Solo quedan 5 días para enviar tu historia al reto:
 "${contest.title}"
@@ -267,17 +251,15 @@ Solo quedan 5 días para enviar tu historia al reto:
 
 ¿Tienes tu historia lista? ¿Necesitas esos últimos toques?
 
-¡No dejes para mañana lo que puedes escribir hoy! 
+¡No dejes para mañana lo que puedes escribir hoy!
 
 🏃‍♀️ El tiempo vuela, pero las buenas historias perduran
 ✍️ letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post de última llamada
-  const generateLastCallPost = (contest, platform) => {
-    const baseText = `🚨 ¡ÚLTIMA LLAMADA! 
+  const generateLastCallPost = (contest) => {
+    return `🚨 ¡ÚLTIMA LLAMADA!
 
 ⏰ Quedan menos de 24 horas para enviar tu historia
 
@@ -290,33 +272,29 @@ Si aún no empiezas, ¡AHORA ES EL MOMENTO!
 🔥 Las mejores historias a veces nacen de la presión del último momento
 
 ⚡ ACTÚA AHORA: letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post de inicio de votación
-  const generateVotingStartPost = (contest, platform) => {
-    const baseText = `🗳️ ¡LA VOTACIÓN HA COMENZADO!
+  const generateVotingStartPost = (contest) => {
+    return `🗳️ ¡LA VOTACIÓN HA COMENZADO!
 
 Las historias del reto "${contest.title}" están listas para ser leídas y votadas.
 
 Nuestra increíble comunidad ha creado historias únicas que merecen ser descubiertas.
 
 📚 Lee las historias
-❤️ Vota por tus favoritas  
+❤️ Vota por tus favoritas
 💬 Deja comentarios constructivos
 ✨ Celebra la creatividad de la comunidad
 
 Tu voto cuenta. Cada historia merece una oportunidad.
 
 🔗 letranido.com`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post para animar a leer
-  const generateReadStoriesPost = (contest, platform) => {
-    const baseText = `📚 ¿YA LEÍSTE LAS HISTORIAS?
+  const generateReadStoriesPost = (contest) => {
+    return `📚 ¿YA LEÍSTE LAS HISTORIAS?
 
 El reto "${contest.title}" tiene historias increíbles esperándote:
 
@@ -329,18 +307,16 @@ Cada historia es un mundo nuevo. ¿Cuál será tu favorita?
 
 👀 Lee ahora: letranido.com
 ❤️ No olvides votar`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
   // Generar post de resultados
-  const generateResultsPost = (contest, platform) => {
-    const baseText = `🏆 ¡RESULTADOS DEL RETO DISPONIBLES!
+  const generateResultsPost = (contest) => {
+    return `🏆 ¡RESULTADOS DEL RETO DISPONIBLES!
 
 El reto "${contest.title}" ha concluido y ya puedes ver las historias más destacadas por la comunidad.
 
 ✨ Historias más votadas
-📚 Creatividad extraordinaria  
+📚 Creatividad extraordinaria
 🎭 Diversidad de enfoques
 💫 Talento de nuestra comunidad
 
@@ -348,30 +324,17 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
 
 🎉 Ver resultados completos: letranido.com
 ✍️ ¿Listo para el próximo reto?`;
-
-    return truncateForPlatform(baseText, platform);
   };
 
-  // Generar hashtags según la plataforma
-  const generateHashtags = (platform, keywords) => {
-    if (!platforms.find(p => p.id === platform)?.hashtags) return '';
-
+  // Generar hashtags universal (optimizado para Instagram pero funciona en todas)
+  const generateHashtags = (keywords) => {
     const baseHashtags = ['#letranido', '#escritura', '#retos', '#comunidad'];
     const keywordHashtags = keywords.map(k => `#${k}`);
-    
-    const allHashtags = [...baseHashtags, ...keywordHashtags];
-    
-    // Limitar hashtags según plataforma
-    const maxHashtags = platform === 'instagram' ? 10 : 5;
-    return allHashtags.slice(0, maxHashtags).join(' ');
-  };
 
-  // Truncar texto según límites de la plataforma
-  const truncateForPlatform = (text, platform) => {
-    const maxChars = platform.maxChars;
-    if (text.length <= maxChars) return text;
-    
-    return text.substring(0, maxChars - 3) + '...';
+    const allHashtags = [...baseHashtags, ...keywordHashtags];
+
+    // Máximo 10 hashtags (ideal para Instagram)
+    return allHashtags.slice(0, 10).join(' ');
   };
 
   // Copiar al portapapeles
@@ -399,7 +362,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
     if (!imageData) return;
 
     const link = document.createElement('a');
-    link.download = `${post.type}-${selectedPlatform}-letranido.png`;
+    link.download = `${post.type}-letranido.png`;
     link.href = imageData;
     link.click();
   };
@@ -466,39 +429,6 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Selector de Plataforma */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3">Selecciona la plataforma:</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {platforms.map((platform) => {
-            const Icon = platform.icon;
-            return (
-              <button
-                key={platform.id}
-                onClick={() => setSelectedPlatform(platform.id)}
-                className={`p-3 rounded-lg border-2 transition-all ${
-                  selectedPlatform === platform.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
-              >
-                <Icon className={`w-6 h-6 mx-auto mb-1 ${
-                  selectedPlatform === platform.id 
-                    ? 'text-purple-600' 
-                    : 'text-gray-600'
-                }`} />
-                <p className={`text-sm font-medium ${
-                  selectedPlatform === platform.id 
-                    ? 'text-purple-700' 
-                    : 'text-gray-700'
-                }`}>{platform.name}</p>
-                <p className="text-xs text-gray-500">{platform.maxChars} chars</p>
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -594,11 +524,11 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
                 <div className="mt-4 p-4 bg-white rounded-lg border">
                   <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                     <Image className="w-4 h-4" />
-                    Imagen para {platforms.find(p => p.id === selectedPlatform)?.name}
+                    Imagen para Redes Sociales (1080x1080)
                   </h5>
-                  <ImageGenerator 
+                  <ImageGenerator
                     post={post}
-                    platform={selectedPlatform}
+                    platform="universal"
                     contest={getSelectedContest()}
                     onImageGenerated={(imageDataUrl) => handleImageGenerated(post.id, imageDataUrl)}
                   />
@@ -614,14 +544,13 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
         <h4 className="font-semibold text-blue-900 mb-2">💡 Cómo usar:</h4>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>1. <strong>Selecciona el reto:</strong> Actual, próximo o anterior</li>
-          <li>2. Selecciona tu plataforma preferida</li>
-          <li>3. Haz clic en "Generar Posts del Mes"</li>
-          <li>4. Copia cada post con el botón "Copiar"</li>
-          <li>5. Haz clic en "Imagen" para generar la imagen del post</li>
-          <li>6. Descarga la imagen con "Descargar"</li>
-          <li>7. Sube imagen + texto a Buffer/Hootsuite</li>
-          <li>8. Programa las fechas sugeridas</li>
-          <li>9. ¡Relájate y deja que tu contenido trabaje por ti!</li>
+          <li>2. Haz clic en "Generar Posts del Mes"</li>
+          <li>3. Copia cada post con el botón "Copiar"</li>
+          <li>4. Haz clic en "Imagen" para generar la imagen del post</li>
+          <li>5. Descarga la imagen con "Descargar"</li>
+          <li>6. Sube imagen + texto a Buffer/Hootsuite</li>
+          <li>7. Programa las fechas sugeridas</li>
+          <li>8. ¡Relájate y deja que tu contenido trabaje por ti!</li>
         </ul>
         <div className="mt-3 p-3 bg-blue-100 rounded-lg">
           <p className="text-sm text-blue-800 mb-2">
@@ -629,9 +558,9 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
           </p>
           <ul className="text-xs text-blue-700 space-y-1">
             <li>• <strong>Selector de reto:</strong> Cambia entre actual, próximo o anterior según tu estrategia</li>
-            <li>• <strong>Imágenes automáticas:</strong> Cada post incluye imagen personalizada con branding</li>
+            <li>• <strong>Imágenes universales:</strong> Formato 1080x1080 optimizado para todas las redes sociales</li>
             <li>• <strong>Contenido inteligente:</strong> Extrae información real del reto seleccionado</li>
-            <li>• <strong>Multi-plataforma:</strong> Optimizado para Instagram, Twitter, Facebook, LinkedIn</li>
+            <li>• <strong>Multi-plataforma:</strong> Posts funcionan en Instagram, Twitter, Facebook, LinkedIn</li>
           </ul>
         </div>
       </div>
