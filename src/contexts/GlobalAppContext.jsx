@@ -1134,32 +1134,55 @@ export function GlobalAppProvider({ children }) {
 
       if (error) throw error;
 
-      const processedStories = (stories || []).map((story) => ({
-        ...story,
-        likes_count: story.likes_count || 0,
-        views_count: story.views_count || 0,
-        word_count: story.word_count || 0,
-        excerpt: story.content
-          ? story.content.substring(0, 200) + "..."
-          : "Sin contenido disponible",
-        readTime: Math.ceil((story.word_count || 0) / 200) + " min",
-        // Incluir información del reto para poder verificar su estado
-        contest: story.contests ? {
-          id: story.contests.id,
-          title: story.contests.title,
-          status: story.contests.status,
-          month: story.contests.month,
-          category: story.contests.category,
-          submission_deadline: story.contests.submission_deadline,
-          voting_deadline: story.contests.voting_deadline
-        } : null
-      }));
+      // 📖 Obtener conteo de lecturas para cada historia de concurso
+      const storiesWithReads = await Promise.all(
+        (stories || []).map(async (story) => {
+          let reads_count = 0;
+
+          // Solo obtener lecturas si tiene contest_id
+          if (story.contest_id) {
+            try {
+              const { data: readMetrics } = await supabase.rpc(
+                'get_contest_reading_metrics',
+                { p_contest_id: story.contest_id }
+              );
+
+              const storyReads = readMetrics?.find(m => m.story_id === story.id);
+              reads_count = storyReads?.read_count || 0;
+            } catch (err) {
+              console.error(`Error obteniendo lecturas para historia ${story.id}:`, err);
+            }
+          }
+
+          return {
+            ...story,
+            reads_count,
+            likes_count: story.likes_count || 0,
+            views_count: story.views_count || 0,
+            word_count: story.word_count || 0,
+            excerpt: story.content
+              ? story.content.substring(0, 200) + "..."
+              : "Sin contenido disponible",
+            readTime: Math.ceil((story.word_count || 0) / 200) + " min",
+            // Incluir información del reto para poder verificar su estado
+            contest: story.contests ? {
+              id: story.contests.id,
+              title: story.contests.title,
+              status: story.contests.status,
+              month: story.contests.month,
+              category: story.contests.category,
+              submission_deadline: story.contests.submission_deadline,
+              voting_deadline: story.contests.voting_deadline
+            } : null
+          };
+        })
+      );
 
       if (isMounted.current) {
-        dispatch({ type: actions.SET_USER_STORIES, payload: processedStories });
+        dispatch({ type: actions.SET_USER_STORIES, payload: storiesWithReads });
         console.log(
           "✅ loadUserStories completado, historias cargadas:",
-          processedStories.length
+          storiesWithReads.length
         );
       }
     } catch (error) {

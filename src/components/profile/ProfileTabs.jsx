@@ -12,7 +12,7 @@ import { supabase } from '../../lib/supabase';
 
 const ProfileTabs = ({ user, votingStats }) => {
   const [activeTab, setActiveTab] = useState('resumen');
-  const { userStories, userStoriesLoading, deleteUserStory, refreshUserData, currentContest, getContestPhase } = useGlobalApp();
+  const { userStories, userStoriesLoading, deleteUserStory, refreshUserData, currentContest, getContestPhase, contests } = useGlobalApp();
   const { isPremium } = usePremiumFeatures();
   
   // Estados para historias del portafolio
@@ -277,7 +277,20 @@ const ProfileTabs = ({ user, votingStats }) => {
                       {statusText}
                     </span>;
                   } else {
-                    return <span>{recentStory.likes_count || 0} ❤️ • {recentStory.views_count || 0} 👁️</span>;
+                    // 📖 Mostrar lecturas vs vistas según fecha del concurso
+                    const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
+                    const storyContest = contests?.find(c => c.id === recentStory.contest_id);
+                    const contestDate = storyContest?.finalized_at
+                      ? new Date(storyContest.finalized_at)
+                      : new Date('2020-01-01');
+                    const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+
+                    const displayCount = isOldContest
+                      ? (recentStory.views_count || 0)
+                      : (recentStory.reads_count || recentStory.views_count || 0);
+                    const icon = isOldContest ? '👁️' : '📖';
+
+                    return <span>{recentStory.likes_count || 0} ❤️ • {displayCount} {icon}</span>;
                   }
                 })()}
               </div>
@@ -416,12 +429,32 @@ const ProfileTabs = ({ user, votingStats }) => {
                             </>
                           );
                         } else {
+                          // 📖 Mostrar lecturas vs vistas según fecha del concurso
+                          const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
+                          const storyContest = contests?.find(c => c.id === story.contest_id);
+                          const contestDate = storyContest?.finalized_at
+                            ? new Date(storyContest.finalized_at)
+                            : new Date('2020-01-01');
+                          const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+
+                          const displayCount = isOldContest
+                            ? (story.views_count || 0)
+                            : (story.reads_count || story.views_count || 0);
+                          const useReadsIcon = !isOldContest && story.reads_count > 0;
+
                           return (
                             <>
                               <span>•</span>
                               <span>{story.likes_count || 0} ❤️</span>
                               <span>•</span>
-                              <span>{story.views_count || 0} 👁️</span>
+                              <span className="flex items-center gap-1">
+                                {useReadsIcon ? (
+                                  <BookOpen className="w-3.5 h-3.5 text-blue-600" />
+                                ) : (
+                                  <Eye className="w-3.5 h-3.5 text-gray-500" />
+                                )}
+                                {displayCount}
+                              </span>
                             </>
                           );
                         }
