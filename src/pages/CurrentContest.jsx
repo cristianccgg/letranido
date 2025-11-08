@@ -1930,19 +1930,63 @@ const CurrentContest = () => {
                                       </span>
                                     </div>
 
-                                    {/* 📖 Lecturas - Solo en fase de resultados */}
-                                    <div
-                                      className={`flex items-center gap-1 text-sm min-w-0 ${
-                                        hasVoted
-                                          ? "text-gray-400 dark:text-dark-300"
-                                          : "text-blue-600 dark:text-blue-400"
-                                      }`}
-                                    >
-                                      <BookOpen className="h-3 w-3 flex-shrink-0" />
-                                      <span className="truncate">
-                                        {story.reads_count || 0}
-                                      </span>
-                                    </div>
+                                    {/* 📖 Lecturas (o 👁️ Vistas como fallback) */}
+                                    {(() => {
+                                      // Fecha de corte: Concursos finalizados ANTES del 4 Nov 2025 00:00 UTC solo muestran vistas
+                                      const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
+                                      // Usar finalized_at como referencia (cuando se finalizó el concurso manualmente)
+                                      const contestDate = contest?.finalized_at ? new Date(contest.finalized_at) :
+                                                         contest?.voting_end ? new Date(contest.voting_end) :
+                                                         new Date();
+                                      const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+
+                                      // DEBUG - eliminar después
+                                      if (index === 0) {
+                                        console.log('🔍 DEBUG Lecturas:', {
+                                          contest_title: contest?.title,
+                                          finalized_at: contest?.finalized_at,
+                                          contestDate: contestDate.toISOString(),
+                                          cutoffDate: READS_SYSTEM_LAUNCH.toISOString(),
+                                          isOldContest,
+                                          reads_count: story.reads_count,
+                                          views_count: story.views_count
+                                        });
+                                      }
+
+                                      // Si es concurso antiguo, forzar vistas. Si no, usar lecturas con fallback
+                                      const displayCount = isOldContest
+                                        ? (story.views_count || 0)
+                                        : (story.reads_count || story.views_count || 0);
+                                      const hasReads = !isOldContest && story.reads_count > 0;
+
+                                      return (
+                                        <div
+                                          className={`flex items-center gap-1 text-sm min-w-0 ${
+                                            hasVoted
+                                              ? "text-gray-400 dark:text-dark-300"
+                                              : hasReads
+                                                ? "text-blue-600 dark:text-blue-400"
+                                                : "text-gray-500 dark:text-gray-400"
+                                          }`}
+                                          title={
+                                            isOldContest
+                                              ? "Vistas (concurso anterior al sistema de lecturas)"
+                                              : hasReads
+                                                ? "Lecturas registradas"
+                                                : "Vistas (sistema anterior)"
+                                          }
+                                        >
+                                          {hasReads ? (
+                                            <BookOpen className="h-3 w-3 flex-shrink-0" />
+                                          ) : (
+                                            <Eye className="h-3 w-3 flex-shrink-0" />
+                                          )}
+                                          <span className="truncate">
+                                            {displayCount}
+                                          </span>
+                                        </div>
+                                      );
+                                    })()}
                                   </>
                                 )}
 
