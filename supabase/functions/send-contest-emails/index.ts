@@ -281,7 +281,7 @@ serve(async (req) => {
         emailData = {
           subject: `🗳️ ¡Votación iniciada! Lee y vota por las mejores historias`,
           html: generateVotingHTML(contest, storiesCount || 0),
-          text: `La votación para "${contest.title}" ha comenzado. ${storiesCount || 0} historias esperan tu voto. Visita https://letranido.com/contest/current`,
+          text: `La votación para "${contest.title}" ha comenzado. ${storiesCount || 0} historias esperan tu voto. Visita https://letranido.com/reto/actual`,
         };
         break;
 
@@ -296,7 +296,7 @@ serve(async (req) => {
         emailData = {
           subject: `⏰ ¡Últimos ${votingDaysLeft} días para votar en "${contest.title}"!`,
           html: generateVotingReminderHTML(contest, reminderStoriesCount || 0, votingDaysLeft),
-          text: `Quedan ${votingDaysLeft} días para votar en "${contest.title}". ${reminderStoriesCount || 0} historias esperan tu voto. Visita https://letranido.com/contest/current`,
+          text: `Quedan ${votingDaysLeft} días para votar en "${contest.title}". ${reminderStoriesCount || 0} historias esperan tu voto. Visita https://letranido.com/reto/actual`,
         };
         break;
 
@@ -304,7 +304,7 @@ serve(async (req) => {
         emailData = {
           subject: `🏆 ¡Resultados del reto "${contest.title}"!`,
           html: generateResultsHTML(contest),
-          text: `Resultados del reto "${contest.title}" disponibles. Visita https://letranido.com/contest/current`,
+          text: `Resultados del reto "${contest.title}" disponibles. Visita https://letranido.com/reto/actual`,
         };
         break;
 
@@ -739,7 +739,7 @@ function generateVotingHTML(contest: any, storiesCount: number): string {
         
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">Tu voto es importante y ayuda a reconocer el talento de nuestra comunidad. ¡Cada historia merece ser leída!</p>
-          <a href="https://letranido.com/contest/current" style="background: #6366f1; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);">
+          <a href="https://letranido.com/reto/actual" style="background: #6366f1; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);">
             📚 Leer y votar
           </a>
         </div>
@@ -810,12 +810,12 @@ function generateVotingReminderHTML(contest: any, storiesCount: number, daysLeft
         
         <div style="text-align: center; margin: 35px 0;">
           <p style="color: #4b5563; margin: 0 0 25px 0; font-size: 16px;">
-            ${daysLeft <= 1 
-              ? "No dejes que el tiempo se agote. ¡Cada voto cuenta!" 
+            ${daysLeft <= 1
+              ? "No dejes que el tiempo se agote. ¡Cada voto cuenta!"
               : "Tu participación hace crecer nuestra comunidad. 💜"
             }
           </p>
-          <a href="https://letranido.com/contest/current" style="background: ${urgencyColor}; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);">
+          <a href="https://letranido.com/reto/actual" style="background: ${urgencyColor}; color: white; padding: 18px 36px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);">
             📚 ${daysLeft <= 1 ? "¡Votar AHORA!" : "Leer y votar"}
           </a>
         </div>
@@ -979,38 +979,38 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
     // 1. Verificar si ya existe un usuario registrado con este email
     const { data: existingUser, error: userError } = await supabaseClient
       .from("user_profiles")
-      .select("id, email, newsletter_contests")
+      .select("id, email, email_notifications")
       .eq("email", normalizedEmail)
       .single();
 
     if (userError && userError.code !== "PGRST116") {
       console.error("Error checking existing user:", userError);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Error verificando usuario existente" 
+        JSON.stringify({
+          success: false,
+          message: "Error verificando usuario existente"
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
         }
       );
     }
 
     // 2. Si existe usuario registrado, actualizar sus preferencias
     if (existingUser) {
-      console.log(`👤 Usuario existente encontrado: ${existingUser.id}, newsletter_contests: ${existingUser.newsletter_contests}`);
-      
-      if (existingUser.newsletter_contests) {
+      console.log(`👤 Usuario existente encontrado: ${existingUser.id}, email_notifications: ${existingUser.email_notifications}`);
+
+      if (existingUser.email_notifications) {
         return new Response(
-          JSON.stringify({ 
-            success: true, 
+          JSON.stringify({
+            success: true,
             message: "Ya estás suscrito a las notificaciones de retos en tu cuenta",
-            isNewSubscription: false 
+            isNewSubscription: false
           }),
-          { 
-            status: 200, 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
           }
         );
       }
@@ -1019,7 +1019,7 @@ async function handleNewsletterSubscription(supabaseClient: any, email: string):
       console.log(`📝 Activando newsletter para usuario: ${existingUser.id}`);
       const { error: updateError } = await supabaseClient
         .from("user_profiles")
-        .update({ newsletter_contests: true })
+        .update({ email_notifications: true })
         .eq("id", existingUser.id);
 
       if (updateError) {
