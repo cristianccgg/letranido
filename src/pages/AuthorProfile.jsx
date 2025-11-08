@@ -161,7 +161,34 @@ const AuthorProfile = () => {
         "de",
         data?.length || 0
       );
-      setAuthorStories(visibleStories);
+
+      // 📖 Obtener conteo de lecturas para cada historia
+      const storiesWithReads = await Promise.all(
+        visibleStories.map(async (story) => {
+          if (!story.contest_id) {
+            // Historias sin concurso no tienen reads_count
+            return { ...story, reads_count: 0 };
+          }
+
+          try {
+            const { data: readMetrics } = await supabase.rpc(
+              'get_contest_reading_metrics',
+              { p_contest_id: story.contest_id }
+            );
+
+            const storyReads = readMetrics?.find(m => m.story_id === story.id);
+            return {
+              ...story,
+              reads_count: storyReads?.read_count || 0
+            };
+          } catch (err) {
+            console.error(`Error obteniendo lecturas para historia ${story.id}:`, err);
+            return { ...story, reads_count: 0 };
+          }
+        })
+      );
+
+      setAuthorStories(storiesWithReads);
     } catch (err) {
       console.error("Error cargando historias del autor:", err);
       setAuthorStories([]);
@@ -583,12 +610,47 @@ const AuthorProfile = () => {
                                 {story.likes_count || 0}
                               </span>
                             </span>
-                            <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-                              <Eye className="w-4 h-4 text-green-600" />
-                              <span className="font-medium">
-                                {story.views_count || 0}
-                              </span>
-                            </span>
+                            {(() => {
+                              // Fecha de corte: Concursos finalizados ANTES del 4 Nov 2025 solo muestran vistas
+                              const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
+                              const storyContest = contests?.find(c => c.id === story.contest_id);
+                              const contestDate = storyContest?.finalized_at
+                                ? new Date(storyContest.finalized_at)
+                                : new Date('2020-01-01'); // Fecha antigua por defecto
+                              const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+
+                              // DEBUG
+                              console.log('📖 AuthorProfile Métrica:', {
+                                story_title: story.title,
+                                contest_id: story.contest_id,
+                                contest_found: !!storyContest,
+                                contest_title: storyContest?.title,
+                                finalized_at: storyContest?.finalized_at,
+                                contestDate: contestDate.toISOString(),
+                                isOldContest,
+                                reads_count: story.reads_count,
+                                views_count: story.views_count
+                              });
+
+                              // Si es concurso antiguo, forzar vistas. Si no, usar lecturas con fallback
+                              const displayCount = isOldContest
+                                ? (story.views_count || 0)
+                                : (story.reads_count || story.views_count || 0);
+                              const useReadsIcon = !isOldContest && story.reads_count > 0;
+
+                              return (
+                                <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                                  {useReadsIcon ? (
+                                    <BookOpen className="w-4 h-4 text-blue-600" />
+                                  ) : (
+                                    <Eye className="w-4 h-4 text-gray-500" />
+                                  )}
+                                  <span className="font-medium">
+                                    {displayCount}
+                                  </span>
+                                </span>
+                              );
+                            })()}
                           </>
                         ) : (
                           <span className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 font-medium">

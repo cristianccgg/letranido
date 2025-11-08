@@ -1940,19 +1940,6 @@ const CurrentContest = () => {
                                                          new Date();
                                       const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
 
-                                      // DEBUG - eliminar después
-                                      if (index === 0) {
-                                        console.log('🔍 DEBUG Lecturas:', {
-                                          contest_title: contest?.title,
-                                          finalized_at: contest?.finalized_at,
-                                          contestDate: contestDate.toISOString(),
-                                          cutoffDate: READS_SYSTEM_LAUNCH.toISOString(),
-                                          isOldContest,
-                                          reads_count: story.reads_count,
-                                          views_count: story.views_count
-                                        });
-                                      }
-
                                       // Si es concurso antiguo, forzar vistas. Si no, usar lecturas con fallback
                                       const displayCount = isOldContest
                                         ? (story.views_count || 0)
