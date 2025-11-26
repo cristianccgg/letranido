@@ -18,7 +18,7 @@ const Badge = ({
       const rect = badgeRef.current.getBoundingClientRect();
       setTooltipPosition({
         x: rect.left + rect.width / 2,
-        y: rect.top - 10
+        y: rect.top - 10,
       });
       setShowTooltip(true);
     }
@@ -242,18 +242,18 @@ const Badge = ({
 
   return (
     <>
-      <div 
+      <div
         ref={badgeRef}
         className={`relative group hover:z-50 ${className}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-      {/* Badge principal */}
-      <div
-        className={`
+        {/* Badge principal */}
+        <div
+          className={`
         ${sizeClasses.container} 
         ${sizeClasses.padding}
-        bg-gradient-to-br ${colors.bg}
+        bg-linear-to-br ${colors.bg}
         border-2 ${colors.border}
         rounded-full
         shadow-lg ${colors.glow}
@@ -262,68 +262,73 @@ const Badge = ({
         ${animate ? "hover:scale-110 hover:rotate-6" : "hover:scale-105"}
         relative overflow-hidden
       `}
-      >
-        {/* Efecto de brillo */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent rounded-full"></div>
-
-        {/* Icono del badge */}
-        <div className={`${sizeClasses.icon} text-white relative z-10`}>
-          {icon}
-        </div>
-
-        {/* Efecto de pulso para nuevos badges */}
-        {animate && (
-          <div className="absolute inset-0 rounded-full animate-ping bg-white/30"></div>
-        )}
-      </div>
-
-      </div>
-      
-      {/* Tooltip renderizado como portal */}
-      {showTooltip && showDescription && createPortal(
-        <div 
-          className="fixed px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl z-[9999] pointer-events-none transform -translate-x-1/2 -translate-y-full max-w-xs"
-          style={{
-            left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`
-          }}
         >
-          <div className="font-semibold">{badge.name}</div>
-          
-          {/* Información específica del reto si está disponible */}
-          {badge.metadata?.contest_title && (
-            <div className="text-xs text-blue-300 mt-1 font-medium">
-              📖 {badge.metadata.contest_title}
-            </div>
+          {/* Efecto de brillo */}
+          <div className="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent rounded-full"></div>
+
+          {/* Icono del badge */}
+          <div className={`${sizeClasses.icon} text-white relative z-10`}>
+            {icon}
+          </div>
+
+          {/* Efecto de pulso para nuevos badges */}
+          {animate && (
+            <div className="absolute inset-0 rounded-full animate-ping bg-white/30"></div>
           )}
-          
-          {badge.metadata?.contest_month && (
-            <div className="text-xs text-gray-300">
-              📅 {badge.metadata.contest_month}
-            </div>
-          )}
-          
-          {badge.metadata?.position && (
-            <div className="text-xs text-yellow-300 font-medium">
-              🏆 {badge.metadata.position === 1 ? '1er lugar' : 
-                  badge.metadata.position === 2 ? '2do lugar' : 
-                  badge.metadata.position === 3 ? '3er lugar' : 
-                  `${badge.metadata.position}º lugar`}
-            </div>
-          )}
-          
-          {/* Descripción genérica si no hay información del reto */}
-          {badge.description && !badge.metadata?.contest_title && (
-            <div className="text-xs text-gray-300 mt-1">
-              {badge.description}
-            </div>
-          )}
-          
-          {/* Flecha del tooltip */}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </div>
+
+      {/* Tooltip renderizado como portal */}
+      {showTooltip &&
+        showDescription &&
+        createPortal(
+          <div
+            className="fixed px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-xl z-9999 pointer-events-none transform -translate-x-1/2 -translate-y-full max-w-xs"
+            style={{
+              left: `${tooltipPosition.x}px`,
+              top: `${tooltipPosition.y}px`,
+            }}
+          >
+            <div className="font-semibold">{badge.name}</div>
+
+            {/* Información específica del reto si está disponible */}
+            {badge.metadata?.contest_title && (
+              <div className="text-xs text-blue-300 mt-1 font-medium">
+                📖 {badge.metadata.contest_title}
+              </div>
+            )}
+
+            {badge.metadata?.contest_month && (
+              <div className="text-xs text-gray-300">
+                📅 {badge.metadata.contest_month}
+              </div>
+            )}
+
+            {badge.metadata?.position && (
+              <div className="text-xs text-yellow-300 font-medium">
+                🏆{" "}
+                {badge.metadata.position === 1
+                  ? "1er lugar"
+                  : badge.metadata.position === 2
+                    ? "2do lugar"
+                    : badge.metadata.position === 3
+                      ? "3er lugar"
+                      : `${badge.metadata.position}º lugar`}
+              </div>
+            )}
+
+            {/* Descripción genérica si no hay información del reto */}
+            {badge.description && !badge.metadata?.contest_title && (
+              <div className="text-xs text-gray-300 mt-1">
+                {badge.description}
+              </div>
+            )}
+
+            {/* Flecha del tooltip */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+          </div>,
+          document.body
+        )}
     </>
   );
 };
@@ -390,7 +395,7 @@ const BadgeProgress = ({ currentCount, nextBadge, className = "" }) => {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+              className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             ></div>
           </div>

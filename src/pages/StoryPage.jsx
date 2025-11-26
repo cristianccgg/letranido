@@ -1,6 +1,11 @@
 // pages/StoryPage.jsx - COMPLETAMENTE REFACTORIZADO
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Heart,
   Eye,
@@ -119,26 +124,38 @@ const StoryPage = () => {
         }
 
         const storyData = storyResult.story;
-        
+
         // ✅ VERIFICAR ACCESO SEGÚN FASE DEL CONCURSO
         if (storyData.contest && storyData.contest_id && contests) {
           // Buscar el concurso específico de esta historia
-          const storyContest = contests.find(c => c.id === storyData.contest_id);
+          const storyContest = contests.find(
+            (c) => c.id === storyData.contest_id
+          );
           if (storyContest) {
             // ✅ MODO DEV: Forzar fase de votación para permitir acceso
-            const DEV_FORCE_VOTING = import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === 'true';
-            const contestPhase = DEV_FORCE_VOTING ? 'voting' : getContestPhase(storyContest);
-            console.log(`🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}${DEV_FORCE_VOTING ? ' (MODO DEV)' : ''}`);
+            const DEV_FORCE_VOTING =
+              import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === "true";
+            const contestPhase = DEV_FORCE_VOTING
+              ? "voting"
+              : getContestPhase(storyContest);
+            console.log(
+              `🔒 Verificando acceso - Historia: "${storyData.title}" - Concurso: ${storyContest.title} - Fase: ${contestPhase}${DEV_FORCE_VOTING ? " (MODO DEV)" : ""}`
+            );
 
             // Bloquear acceso durante fase de envíos SOLO para usuarios que no son el autor
-            if (contestPhase === 'submission' && storyData.user_id !== user?.id) {
-              setError('Esta historia está en concurso activo y no se puede ver durante la fase de envíos.');
+            if (
+              contestPhase === "submission" &&
+              storyData.user_id !== user?.id
+            ) {
+              setError(
+                "Esta historia está en concurso activo y no se puede ver durante la fase de envíos."
+              );
               setStory(null);
               return;
             }
           }
         }
-        
+
         setStory(storyData);
         setLikesCount(storyData.likes_count || 0);
 
@@ -253,13 +270,20 @@ const StoryPage = () => {
     // 2. Hay historia cargada
     // 3. La historia pertenece a un concurso
     // 4. El usuario NO es el autor (no trackear sus propias historias)
-    if (!user?.id || !story?.id || !story?.contest_id || story?.user_id === user?.id) {
+    if (
+      !user?.id ||
+      !story?.id ||
+      !story?.contest_id ||
+      story?.user_id === user?.id
+    ) {
       return;
     }
 
     // Timer de 15 segundos para marcar como leída automáticamente
     const readTimer = setTimeout(async () => {
-      console.log('📖 Marcando historia como leída (tracking automático - 15s)');
+      console.log(
+        "📖 Marcando historia como leída (tracking automático - 15s)"
+      );
       await markAsRead(story.id, false); // false = no manual
     }, 15000); // 15 segundos
 
@@ -385,7 +409,7 @@ const StoryPage = () => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("es-ES", {
       year: "numeric",
-      month: "2-digit", 
+      month: "2-digit",
       day: "2-digit",
     });
   };
@@ -527,17 +551,17 @@ const StoryPage = () => {
           <button
             onClick={() => {
               // Navegar inteligentemente según el parámetro 'from' en la URL
-              const fromParam = searchParams.get('from');
-              const authorId = searchParams.get('authorId');
-              
-              if (fromParam === 'historias') {
+              const fromParam = searchParams.get("from");
+              const authorId = searchParams.get("authorId");
+
+              if (fromParam === "historias") {
                 // Si vino desde la página "Leer", volver ahí
                 navigate("/historias");
-              } else if (fromParam === 'profile' && authorId) {
+              } else if (fromParam === "profile" && authorId) {
                 // Si vino desde el perfil de un autor, volver al perfil
                 // Si es el propio usuario, ir al perfil privado, sino al público
                 if (authorId === user?.id) {
-                  navigate('/profile'); // Perfil privado
+                  navigate("/profile"); // Perfil privado
                 } else {
                   navigate(`/author/${authorId}`); // Perfil público
                 }
@@ -553,9 +577,9 @@ const StoryPage = () => {
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
             {(() => {
-              const fromParam = searchParams.get('from');
-              if (fromParam === 'historias') return "Volver a Leer";
-              if (fromParam === 'profile') return "Volver al perfil";
+              const fromParam = searchParams.get("from");
+              if (fromParam === "historias") return "Volver a Leer";
+              if (fromParam === "profile") return "Volver al perfil";
               return "Volver al reto";
             })()}
           </button>
@@ -568,7 +592,7 @@ const StoryPage = () => {
         {/* Story Header */}
         <div className="bg-white dark:bg-dark-800 rounded-xl shadow-lg overflow-hidden">
           {/* Contest Banner */}
-          <div className="bg-gradient-to-r from-primary-500 to-accent-500 p-4">
+          <div className="bg-linear-to-r from-primary-500 to-accent-500 p-4">
             <div className="flex items-center justify-between text-white">
               <div className="flex items-center">
                 <Trophy className="h-5 w-5 mr-2" />
@@ -589,7 +613,7 @@ const StoryPage = () => {
 
           {/* Winner Banner - Solo para historias ganadoras de retos finalizados */}
           {story.is_winner && story.winner_position && (
-            <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 dark:from-yellow-600 dark:via-yellow-700 dark:to-amber-700 p-6 text-center shadow-lg">
+            <div className="bg-linear-to-r from-yellow-400 via-yellow-500 to-amber-500 dark:from-yellow-600 dark:via-yellow-700 dark:to-amber-700 p-6 text-center shadow-lg">
               <div className="flex items-center justify-center gap-3 text-white">
                 {story.winner_position === 1 && (
                   <>
@@ -646,16 +670,23 @@ const StoryPage = () => {
             {(() => {
               // Determinar fase del reto para mostrar/ocultar estadísticas
               const isCurrentContest = story.contest_id === currentContest?.id;
-              const contestToCheck = isCurrentContest ? currentContest : story.contest;
-              const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-              const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
+              const contestToCheck = isCurrentContest
+                ? currentContest
+                : story.contest;
+              const contestPhase = contestToCheck
+                ? getContestPhase(contestToCheck)
+                : null;
+              const isContestActive =
+                contestPhase === "submission" ||
+                contestPhase === "voting" ||
+                contestPhase === "counting";
 
               return (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 text-sm mb-6">
                   {/* Victorias del autor - PRIMERO, oculto durante concurso activo */}
                   {!isContestActive && story.author?.wins > 0 && (
                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
-                      <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                      <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400 shrink-0" />
                       <span className="text-gray-700 dark:text-dark-200 font-medium">
                         {story.author.wins} victorias
                       </span>
@@ -665,32 +696,32 @@ const StoryPage = () => {
                   {/* Votos - SEGUNDO, oculto durante concurso activo (submission, voting, counting) */}
                   {!isContestActive && (
                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
-                      <Heart className="h-4 w-4 text-red-500 dark:text-red-400 flex-shrink-0" />
+                      <Heart className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" />
                       <span className="text-gray-700 dark:text-dark-200 font-medium">
                         {likesCount} votos
                       </span>
                     </div>
                   )}
-                  
+
                   {/* Tiempo de lectura - siempre visible */}
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
-                    <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                    <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <span className="text-gray-700 dark:text-dark-200 font-medium">
                       {getReadingTime(story.word_count)} min
                     </span>
                   </div>
-                  
+
                   {/* Palabras - siempre visible */}
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
-                    <PenTool className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                    <PenTool className="h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0" />
                     <span className="text-gray-700 dark:text-dark-200 font-medium">
                       {story.word_count.toLocaleString()} palabras
                     </span>
                   </div>
-                  
+
                   {/* Fecha - siempre visible */}
                   <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
-                    <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span className="text-gray-700 dark:text-dark-200 font-medium">
                       {formatDate(story.created_at)}
                     </span>
@@ -703,7 +734,7 @@ const StoryPage = () => {
             {story.is_mature && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6">
                 <div className="flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
+                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 shrink-0" />
                   <div>
                     <h4 className="font-medium text-red-800 dark:text-red-300 mb-1">
                       Contenido para adultos (18+)
@@ -723,10 +754,16 @@ const StoryPage = () => {
                 {/* Determinar si estamos en fase de votación */}
                 {(() => {
                   // Usar currentContest si es el reto actual, sino usar story.contest
-                  const isCurrentContest = story.contest_id === currentContest?.id;
-                  const contestToCheck = isCurrentContest ? currentContest : story.contest;
-                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+                  const isCurrentContest =
+                    story.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest
+                    ? currentContest
+                    : story.contest;
+                  const contestPhase = contestToCheck
+                    ? getContestPhase(contestToCheck)
+                    : null;
+                  const isVotingOrCounting =
+                    contestPhase === "voting" || contestPhase === "counting";
 
                   if (isVotingOrCounting) {
                     // Durante votación: ocultar votos y vistas
@@ -891,10 +928,16 @@ const StoryPage = () => {
                 {/* Botón de voto en el footer - también ocultar conteo durante votación */}
                 {(() => {
                   // Usar currentContest si es el reto actual, sino usar story.contest
-                  const isCurrentContest = story.contest_id === currentContest?.id;
-                  const contestToCheck = isCurrentContest ? currentContest : story.contest;
-                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+                  const isCurrentContest =
+                    story.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest
+                    ? currentContest
+                    : story.contest;
+                  const contestPhase = contestToCheck
+                    ? getContestPhase(contestToCheck)
+                    : null;
+                  const isVotingOrCounting =
+                    contestPhase === "voting" || contestPhase === "counting";
 
                   return (
                     <EnhancedVoteButton

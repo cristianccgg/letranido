@@ -966,14 +966,14 @@ const CurrentContest = () => {
       />
 
       {/* Header del reto - Más compacto */}
-      <div className="bg-gradient-to-br from-primary-100 via-white to-accent-100 dark:from-primary-900/20 dark:via-dark-800 dark:to-accent-900/20 rounded-xl p-4 md:p-6 text-center relative overflow-hidden transition-colors duration-300">
+      <div className="bg-linear-to-br from-primary-100 via-white to-accent-100 dark:from-primary-900/20 dark:via-dark-800 dark:to-accent-900/20 rounded-xl p-4 md:p-6 text-center relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos sutiles - Ocultos en mobile */}
         <div className="absolute top-4 right-4 w-16 h-16 bg-primary-200 dark:bg-primary-700/30 rounded-full opacity-10 hidden md:block"></div>
         <div className="absolute bottom-4 left-4 w-12 h-12 bg-accent-200 dark:bg-accent-700/30 rounded-full opacity-15 hidden md:block"></div>
 
         <div className="relative">
           <div className="mb-3">
-            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm">
+            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-linear-to-r from-primary-500 to-accent-500 text-white shadow-sm">
               <Calendar className="h-4 w-4 mr-2" />
               Reto de {contest.month}
             </span>
@@ -990,8 +990,8 @@ const CurrentContest = () => {
           {/* Stats del reto - Responsive y compactas */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-4 text-sm">
             {/* Historias enviadas */}
-            <div className="flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+            <div className="flex items-center justify-center bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                 <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               <div className="flex flex-col sm:block text-center sm:text-left">
@@ -1005,8 +1005,8 @@ const CurrentContest = () => {
             </div>
 
             {/* Contador en tiempo real */}
-            <div className="flex items-center bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+            <div className="flex items-center bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-linear-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                 <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               <div className="flex flex-col">
@@ -1025,8 +1025,8 @@ const CurrentContest = () => {
             </div>
 
             {/* Palabras escritas - Simplificado */}
-            <div className="col-span-2 sm:col-span-1 flex items-center justify-center bg-gradient-to-r from-pink-50 to-indigo-50 dark:from-pink-900/20 dark:to-indigo-900/20 border border-pink-200 dark:border-pink-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+            <div className="col-span-2 sm:col-span-1 flex items-center justify-center bg-linear-to-r from-pink-50 to-indigo-50 dark:from-pink-900/20 dark:to-indigo-900/20 border border-pink-200 dark:border-pink-700 px-3 py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-linear-to-br from-pink-500 to-indigo-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                 <PenTool className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
               </div>
               <div className="text-center sm:text-left">
@@ -1044,7 +1044,7 @@ const CurrentContest = () => {
 
       {/* Banner consolidado de votación */}
       {phaseInfo?.phase === "voting" && (
-        <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
+        <div className="bg-linear-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-3 text-white">
@@ -1054,7 +1054,7 @@ const CurrentContest = () => {
               {/* Instrucciones en bullets */}
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Tienes 3 votos:
@@ -1066,7 +1066,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Votación privada:
@@ -1078,7 +1078,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Lee antes de votar:
@@ -1091,7 +1091,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Comentarios constructivos:
@@ -1104,7 +1104,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Comenta sin compromiso:
@@ -1118,7 +1118,7 @@ const CurrentContest = () => {
               </div>
             </div>
 
-            <div className="text-center lg:text-right flex-shrink-0">
+            <div className="text-center lg:text-right shrink-0">
               {/* Solo mensajes motivacionales sin redundancia de tiempo */}
               {votingStats.currentContestVotes === 0 && (
                 <div className="bg-white/20 rounded-lg px-4 py-3">
@@ -1168,7 +1168,7 @@ const CurrentContest = () => {
 
       {/* Banner informativo durante counting */}
       {phaseInfo?.phase === "counting" && (
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white mb-6">
+        <div className="bg-linear-to-r from-blue-500 to-indigo-500 rounded-xl p-6 text-white mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-3 text-white flex items-center">
@@ -1178,7 +1178,7 @@ const CurrentContest = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Votación cerrada:
@@ -1190,7 +1190,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Próximamente:
@@ -1202,7 +1202,7 @@ const CurrentContest = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-white font-bold flex-shrink-0">•</span>
+                  <span className="text-white font-bold shrink-0">•</span>
                   <div className="text-sm">
                     <span className="font-semibold text-white">
                       Mientras tanto:
@@ -1220,10 +1220,10 @@ const CurrentContest = () => {
 
       {/* Banner Unificado: Votos + Progreso de Lectura - Solo durante votación */}
       {phaseInfo?.phase === "voting" && isAuthenticated && (
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-blue-200 dark:border-blue-600 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="relative overflow-hidden bg-linear-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-blue-200 dark:border-blue-600 rounded-2xl p-6 mb-6 shadow-lg hover:shadow-xl transition-all duration-300">
           {/* Elementos decorativos */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-200/20 to-blue-200/20 rounded-full translate-y-12 -translate-x-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-blue-200/20 to-purple-200/20 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-pink-200/20 to-blue-200/20 rounded-full translate-y-12 -translate-x-12"></div>
 
           <div className="relative z-10">
             {/* Grid de 2 columnas en desktop, stack en móvil */}
@@ -1237,7 +1237,7 @@ const CurrentContest = () => {
                       key={index}
                       className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                         index < votingStats.currentContestVotes
-                          ? "bg-gradient-to-br from-red-500 to-pink-600 shadow-lg scale-110"
+                          ? "bg-linear-to-br from-red-500 to-pink-600 shadow-lg scale-110"
                           : "bg-gray-200 dark:bg-gray-600 opacity-50"
                       }`}
                     >
@@ -1282,7 +1282,7 @@ const CurrentContest = () => {
               {readStats.total > 0 && (
                 <div className="flex items-center gap-4 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-600 pt-4 lg:pt-0 lg:pl-6">
                   {/* Círculo de progreso */}
-                  <div className="relative w-16 h-16 flex-shrink-0">
+                  <div className="relative w-16 h-16 shrink-0">
                     <svg className="w-16 h-16 transform -rotate-90">
                       <circle
                         cx="32"
@@ -1348,7 +1348,7 @@ const CurrentContest = () => {
           {phaseInfo.phase === "submission" && (
             <div className="space-y-6">
               {/* Header compacto con CTA */}
-              <div className="bg-gradient-to-r from-blue-50 to-primary-50 dark:from-blue-900/20 dark:to-primary-900/20 rounded-xl p-6 text-center transition-colors duration-300">
+              <div className="bg-linear-to-r from-blue-50 to-primary-50 dark:from-blue-900/20 dark:to-primary-900/20 rounded-xl p-6 text-center transition-colors duration-300">
                 <div className="flex items-center justify-center mb-3">
                   <PenTool className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2 transition-colors duration-300" />
                   <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100 transition-colors duration-300">
@@ -1371,11 +1371,11 @@ const CurrentContest = () => {
 
               {/* Lista de participantes - Modernizada */}
               <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl shadow-xl border border-indigo-100 dark:border-dark-600 hover:border-purple-200 dark:hover:border-purple-500 overflow-hidden transition-all duration-300">
-                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 p-6 border-b border-indigo-200 dark:border-dark-600 transition-colors duration-300">
+                <div className="bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 p-6 border-b border-indigo-200 dark:border-dark-600 transition-colors duration-300">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 dark:text-dark-100 flex items-center transition-colors duration-300">
-                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-md">
+                        <div className="w-8 h-8 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-md">
                           <Users className="h-4 w-4 text-white" />
                         </div>
                         Escritores participando
@@ -1437,7 +1437,7 @@ const CurrentContest = () => {
                       {stories.map((story) => (
                         <div
                           key={story.id}
-                          className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+                          className="bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl p-4 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
                         >
                           <div className="flex items-center gap-3">
                             <div className="flex-1 min-w-0">
@@ -1504,7 +1504,7 @@ const CurrentContest = () => {
                 phaseInfo?.phase === "results" && (
                   <div className="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
                     <div className="flex items-start gap-3">
-                      <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <Award className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                       <div>
                         <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
                           🎖️ Mención de Honor Otorgada
@@ -1591,7 +1591,7 @@ const CurrentContest = () => {
 
               {/* Panel de filtros - Solo visible fuera de votación */}
               {showFilters && phaseInfo?.phase !== "voting" && (
-                <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-2xl p-6 space-y-4 shadow-lg transition-colors duration-300">
+                <div className="bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-200 dark:border-indigo-700 rounded-2xl p-6 space-y-4 shadow-lg transition-colors duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Búsqueda */}
                     <div>
@@ -1845,7 +1845,7 @@ const CurrentContest = () => {
                                     avatarSize="xs"
                                     badgeSize="xs"
                                     maxBadges={1}
-                                    className="flex-shrink-0"
+                                    className="shrink-0"
                                   />
                                   <span className="hidden sm:inline">•</span>
                                   <span className="whitespace-nowrap ">
@@ -1875,10 +1875,10 @@ const CurrentContest = () => {
                               </div>
 
                               {/* Botones de acción - Limpio y simple */}
-                              <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                              <div className="flex flex-row sm:flex-col gap-2 shrink-0">
                                 <a
                                   href={`/story/${story.id}`}
-                                  className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs md:text-sm font-medium rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm whitespace-nowrap"
+                                  className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs md:text-sm font-medium rounded-lg bg-linear-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-sm whitespace-nowrap"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <BookOpen className="h-3 w-3 mr-1" />
@@ -1900,7 +1900,7 @@ const CurrentContest = () => {
 
                             {/* Excerpt más corto - Con overflow controlado */}
                             <div
-                              className={`text-sm mb-3 line-clamp-2 leading-relaxed break-words overflow-hidden ${
+                              className={`text-sm mb-3 line-clamp-2 leading-relaxed wrapbreak-words overflow-hidden ${
                                 hasVoted
                                   ? "text-gray-400"
                                   : "text-gray-600 dark:text-dark-300"
@@ -1924,7 +1924,7 @@ const CurrentContest = () => {
                                           : "text-red-600 dark:text-red-400"
                                       }`}
                                     >
-                                      <Heart className="h-3 w-3 fill-current flex-shrink-0" />
+                                      <Heart className="h-3 w-3 fill-current shrink-0" />
                                       <span className="font-medium truncate">
                                         {story.likes_count || 0}
                                       </span>
@@ -1972,9 +1972,9 @@ const CurrentContest = () => {
                                           }
                                         >
                                           {hasReads ? (
-                                            <BookOpen className="h-3 w-3 flex-shrink-0" />
+                                            <BookOpen className="h-3 w-3 shrink-0" />
                                           ) : (
-                                            <Eye className="h-3 w-3 flex-shrink-0" />
+                                            <Eye className="h-3 w-3 shrink-0" />
                                           )}
                                           <span className="truncate">
                                             {displayCount}
@@ -2005,7 +2005,7 @@ const CurrentContest = () => {
                                 ) : (
                                   <>
                                     {!isAuthenticated && (
-                                      <span className="text-xs text-blue-600 break-words">
+                                      <span className="text-xs text-blue-600 wrap-break-words">
                                         Lee la historia para votar
                                       </span>
                                     )}

@@ -1,63 +1,86 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { User, BookOpen, Trophy, Settings, FileText, Edit3, Trash2, Eye, Heart, Plus } from 'lucide-react';
-import { useGlobalApp } from '../../contexts/GlobalAppContext';
-import { usePremiumFeatures } from '../../hooks/usePremiumFeatures';
-import UserBadgesSection from '../ui/UserBadgesSection';
-import AllBadgesSection from '../ui/AllBadgesSection';
-import UserKarmaSection from './UserKarmaSection';
-import { FEATURES } from '../../lib/config';
-import { STORY_CATEGORIES, getCategoryByValue, CATEGORY_COLORS } from '../../lib/portfolio-constants';
-import { supabase } from '../../lib/supabase';
+import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  User,
+  BookOpen,
+  Trophy,
+  Settings,
+  FileText,
+  Edit3,
+  Trash2,
+  Eye,
+  Heart,
+  Plus,
+} from "lucide-react";
+import { useGlobalApp } from "../../contexts/GlobalAppContext";
+import { usePremiumFeatures } from "../../hooks/usePremiumFeatures";
+import UserBadgesSection from "../ui/UserBadgesSection";
+import AllBadgesSection from "../ui/AllBadgesSection";
+import UserKarmaSection from "./UserKarmaSection";
+import { FEATURES } from "../../lib/config";
+import {
+  STORY_CATEGORIES,
+  getCategoryByValue,
+  CATEGORY_COLORS,
+} from "../../lib/portfolio-constants";
+import { supabase } from "../../lib/supabase";
 
 const ProfileTabs = ({ user, votingStats }) => {
-  const [activeTab, setActiveTab] = useState('resumen');
-  const { userStories, userStoriesLoading, deleteUserStory, refreshUserData, currentContest, getContestPhase, contests } = useGlobalApp();
+  const [activeTab, setActiveTab] = useState("resumen");
+  const {
+    userStories,
+    userStoriesLoading,
+    deleteUserStory,
+    refreshUserData,
+    currentContest,
+    getContestPhase,
+    contests,
+  } = useGlobalApp();
   const { isPremium } = usePremiumFeatures();
-  
+
   // Estados para historias del portafolio
   const [portfolioStories, setPortfolioStories] = useState([]);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
 
   const tabs = [
     {
-      id: 'resumen',
-      name: 'Resumen',
+      id: "resumen",
+      name: "Resumen",
       icon: User,
-      count: null
+      count: null,
     },
     {
-      id: 'historias',
-      name: 'Mis Historias',
+      id: "historias",
+      name: "Mis Historias",
       icon: BookOpen,
-      count: userStories.length > 0 ? userStories.length : null
+      count: userStories.length > 0 ? userStories.length : null,
     },
     {
-      id: 'logros',
-      name: 'Logros',
+      id: "logros",
+      name: "Logros",
       icon: Trophy,
-      count: null
-    }
+      count: null,
+    },
   ];
 
   // Agregar pestaña de portafolio si está habilitado y es premium
   if (FEATURES.PORTFOLIO_STORIES && isPremium) {
     tabs.splice(2, 0, {
-      id: 'portafolio',
-      name: 'Portafolio',
+      id: "portafolio",
+      name: "Portafolio",
       icon: FileText,
       count: portfolioStories.length > 0 ? portfolioStories.length : null,
-      premium: true
+      premium: true,
     });
   }
 
   // Agregar pestaña de configuración si premium está habilitado
   if (FEATURES.PREMIUM_PLANS) {
     tabs.push({
-      id: 'configuracion',
-      name: 'Configuración',
+      id: "configuracion",
+      name: "Configuración",
       icon: Settings,
-      count: null
+      count: null,
     });
   }
 
@@ -67,32 +90,39 @@ const ProfileTabs = ({ user, votingStats }) => {
 
   // Cargar historias libres cuando se activa la pestaña portafolio
   useEffect(() => {
-    if (activeTab === 'portafolio' && FEATURES.PORTFOLIO_STORIES && isPremium && user?.id) {
+    if (
+      activeTab === "portafolio" &&
+      FEATURES.PORTFOLIO_STORIES &&
+      isPremium &&
+      user?.id
+    ) {
       loadPortfolioStories();
     }
   }, [activeTab]);
 
   const loadPortfolioStories = async () => {
     if (!user?.id) return;
-    
+
     try {
       setPortfolioLoading(true);
-      
+
       // Usar la función SQL con permisos configurados
-      const { data, error } = await supabase.rpc('get_free_stories', {
+      const { data, error } = await supabase.rpc("get_free_stories", {
         limit_count: 100,
         offset_count: 0,
-        category_filter: null
+        category_filter: null,
       });
 
       if (error) throw error;
-      
+
       // Filtrar solo las historias del usuario actual
-      const userPortfolioStories = (data || []).filter(story => story.user_id === user.id);
-      
+      const userPortfolioStories = (data || []).filter(
+        (story) => story.user_id === user.id
+      );
+
       setPortfolioStories(userPortfolioStories);
     } catch (error) {
-      console.error('Error cargando historias del portafolio:', error);
+      console.error("Error cargando historias del portafolio:", error);
       setPortfolioStories([]);
     } finally {
       setPortfolioLoading(false);
@@ -108,11 +138,11 @@ const ProfileTabs = ({ user, votingStats }) => {
     if (confirmed) {
       const result = await deleteUserStory(storyId);
       if (result.success) {
-        alert('✅ Historia eliminada exitosamente');
+        alert("✅ Historia eliminada exitosamente");
         // 🔄 Refrescar datos del usuario para actualizar estados
         await refreshUserData();
       } else {
-        alert('❌ Error al eliminar: ' + result.error);
+        alert("❌ Error al eliminar: " + result.error);
       }
     }
   };
@@ -126,19 +156,21 @@ const ProfileTabs = ({ user, votingStats }) => {
     if (confirmed) {
       try {
         const { error } = await supabase
-          .from('stories')
+          .from("stories")
           .delete()
-          .eq('id', storyId)
-          .eq('user_id', user.id); // Verificar que sea del usuario actual
+          .eq("id", storyId)
+          .eq("user_id", user.id); // Verificar que sea del usuario actual
 
         if (error) throw error;
 
         // Actualizar el estado local
-        setPortfolioStories(prev => prev.filter(story => story.id !== storyId));
-        alert('✅ Historia eliminada exitosamente');
+        setPortfolioStories((prev) =>
+          prev.filter((story) => story.id !== storyId)
+        );
+        alert("✅ Historia eliminada exitosamente");
       } catch (error) {
-        console.error('Error eliminando historia del portafolio:', error);
-        alert('❌ Error al eliminar la historia');
+        console.error("Error eliminando historia del portafolio:", error);
+        alert("❌ Error al eliminar la historia");
       }
     }
   };
@@ -147,14 +179,22 @@ const ProfileTabs = ({ user, votingStats }) => {
     // Calcular estadísticas en tiempo real desde userStories - excluyendo historias en submission/voting/counting
     const { totalLikes, totalViews, recentStory } = useMemo(() => {
       // Filtrar historias que no están en submission, voting o counting para estadísticas
-      const storiesForStats = userStories.filter(story => {
+      const storiesForStats = userStories.filter((story) => {
         if (!story.contest) return true; // Historias libres siempre incluidas
         const isCurrentContest = story.contest_id === currentContest?.id;
-        const contestToCheck = isCurrentContest ? currentContest : story.contest;
-        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-        return contestPhase !== "submission" && contestPhase !== "voting" && contestPhase !== "counting";
+        const contestToCheck = isCurrentContest
+          ? currentContest
+          : story.contest;
+        const contestPhase = contestToCheck
+          ? getContestPhase(contestToCheck)
+          : null;
+        return (
+          contestPhase !== "submission" &&
+          contestPhase !== "voting" &&
+          contestPhase !== "counting"
+        );
       });
-      
+
       const totalLikes = storiesForStats.reduce(
         (total, story) => total + (story.likes_count || 0),
         0
@@ -164,7 +204,7 @@ const ProfileTabs = ({ user, votingStats }) => {
         0
       );
       const recentStory = userStories.length > 0 ? userStories[0] : null;
-      
+
       return { totalLikes, totalViews, recentStory };
     }, [userStories]);
 
@@ -176,34 +216,42 @@ const ProfileTabs = ({ user, votingStats }) => {
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {userStories.length}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Historias</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Historias
+            </div>
           </div>
-          
+
           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {totalLikes}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Likes Recibidos</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Likes Recibidos
+            </div>
           </div>
-          
+
           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {totalViews}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Lecturas
+            </div>
           </div>
-          
+
           <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
               {votingStats?.userVotesCount || 0}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Votos Dados</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Votos Dados
+            </div>
           </div>
         </div>
 
         {/* Karma del Usuario */}
-        <UserKarmaSection 
-          userId={user?.id} 
+        <UserKarmaSection
+          userId={user?.id}
           userName={user?.display_name || user?.name || "Usuario"}
           compact={false}
         />
@@ -213,7 +261,7 @@ const ProfileTabs = ({ user, votingStats }) => {
           userId={user?.id}
           userName={user?.name || user?.display_name || "Usuario"}
         />
-        
+
         {/* Actividad Reciente */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -225,30 +273,34 @@ const ProfileTabs = ({ user, votingStats }) => {
                 <h4 className="font-medium text-gray-900 dark:text-white">
                   {recentStory.title}
                 </h4>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  (() => {
-                    const phase = recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown';
-                    switch(phase) {
-                      case 'submission':
-                        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-                      case 'voting':
-                        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-                      case 'results':
-                        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${(() => {
+                    const phase = recentStory.contest
+                      ? getContestPhase(recentStory.contest)
+                      : "unknown";
+                    switch (phase) {
+                      case "submission":
+                        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+                      case "voting":
+                        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+                      case "results":
+                        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
                       default:
-                        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+                        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
                     }
-                  })()
-                }`}>
+                  })()}`}
+                >
                   {(() => {
-                    const phase = recentStory.contest ? getContestPhase(recentStory.contest) : 'unknown';
+                    const phase = recentStory.contest
+                      ? getContestPhase(recentStory.contest)
+                      : "unknown";
                     const phaseLabels = {
-                      submission: 'Envíos',
-                      voting: 'Votación', 
-                      counting: 'Conteo',
-                      results: 'Resultados',
-                      finalized: 'Finalizado',
-                      unknown: 'Desconocido'
+                      submission: "Envíos",
+                      voting: "Votación",
+                      counting: "Conteo",
+                      results: "Resultados",
+                      finalized: "Finalizado",
+                      unknown: "Desconocido",
                     };
                     return phaseLabels[phase] || phase;
                   })()}
@@ -261,36 +313,56 @@ const ProfileTabs = ({ user, votingStats }) => {
                 <span>{recentStory.word_count || 0} palabras</span>
                 {(() => {
                   // Ocultar estadísticas durante submission, votación y conteo para mantener consistencia
-                  const isCurrentContest = recentStory.contest_id === currentContest?.id;
-                  const contestToCheck = isCurrentContest ? currentContest : recentStory.contest;
-                  const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                  const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
+                  const isCurrentContest =
+                    recentStory.contest_id === currentContest?.id;
+                  const contestToCheck = isCurrentContest
+                    ? currentContest
+                    : recentStory.contest;
+                  const contestPhase = contestToCheck
+                    ? getContestPhase(contestToCheck)
+                    : null;
+                  const isContestActive =
+                    contestPhase === "submission" ||
+                    contestPhase === "voting" ||
+                    contestPhase === "counting";
 
                   if (isContestActive) {
-                    const statusText = {
-                      submission: "En envíos",
-                      voting: "En votación", 
-                      counting: "Contando votos"
-                    }[contestPhase] || "En concurso";
-                    
-                    return <span className="text-yellow-600 dark:text-yellow-400">
-                      {statusText}
-                    </span>;
+                    const statusText =
+                      {
+                        submission: "En envíos",
+                        voting: "En votación",
+                        counting: "Contando votos",
+                      }[contestPhase] || "En concurso";
+
+                    return (
+                      <span className="text-yellow-600 dark:text-yellow-400">
+                        {statusText}
+                      </span>
+                    );
                   } else {
                     // 📖 Mostrar lecturas vs vistas según fecha del concurso
-                    const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
-                    const storyContest = contests?.find(c => c.id === recentStory.contest_id);
+                    const READS_SYSTEM_LAUNCH = new Date(
+                      "2025-11-04T00:00:00.000Z"
+                    );
+                    const storyContest = contests?.find(
+                      (c) => c.id === recentStory.contest_id
+                    );
                     const contestDate = storyContest?.finalized_at
                       ? new Date(storyContest.finalized_at)
-                      : new Date('2020-01-01');
+                      : new Date("2020-01-01");
                     const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
 
                     const displayCount = isOldContest
-                      ? (recentStory.views_count || 0)
-                      : (recentStory.reads_count || recentStory.views_count || 0);
-                    const icon = isOldContest ? '👁️' : '📖';
+                      ? recentStory.views_count || 0
+                      : recentStory.reads_count || recentStory.views_count || 0;
+                    const icon = isOldContest ? "👁️" : "📖";
 
-                    return <span>{recentStory.likes_count || 0} ❤️ • {displayCount} {icon}</span>;
+                    return (
+                      <span>
+                        {recentStory.likes_count || 0} ❤️ • {displayCount}{" "}
+                        {icon}
+                      </span>
+                    );
                   }
                 })()}
               </div>
@@ -302,7 +374,11 @@ const ProfileTabs = ({ user, votingStats }) => {
                 ¡Escribe tu primera historia para ver tu actividad aquí!
               </p>
               <Link
-                to={currentContest?.id ? `/contest/${currentContest.id}` : "/contest/current"}
+                to={
+                  currentContest?.id
+                    ? `/contest/${currentContest.id}`
+                    : "/contest/current"
+                }
                 className="inline-flex items-center mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -319,19 +395,20 @@ const ProfileTabs = ({ user, votingStats }) => {
     // Función helper para determinar si se puede editar/eliminar
     const canEditStory = (story) => {
       if (!story.contest) return false;
-      
+
       // Usar getContestPhase para determinar la fase actual del reto
       const phase = getContestPhase(story.contest);
-      return phase === 'submission';
+      return phase === "submission";
     };
-
 
     return (
       <div className="space-y-4">
         {userStoriesLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Cargando tus historias...</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Cargando tus historias...
+            </p>
           </div>
         ) : userStories.length === 0 ? (
           <div className="text-center py-8">
@@ -343,7 +420,11 @@ const ProfileTabs = ({ user, votingStats }) => {
               ¡Participa en un reto para escribir tu primera historia!
             </p>
             <Link
-              to={currentContest?.id ? `/contest/${currentContest.id}` : "/contest/current"}
+              to={
+                currentContest?.id
+                  ? `/contest/${currentContest.id}`
+                  : "/contest/current"
+              }
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <BookOpen className="w-4 h-4 mr-2" />
@@ -357,10 +438,13 @@ const ProfileTabs = ({ user, votingStats }) => {
                 Mis Historias ({userStories.length})
               </h3>
             </div>
-            
+
             <div className="grid gap-4">
               {userStories.map((story) => (
-                <div key={story.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div
+                  key={story.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700"
+                >
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2 sm:gap-0">
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-1 truncate">
@@ -370,56 +454,69 @@ const ProfileTabs = ({ user, votingStats }) => {
                         Reto: {story.contest?.title}
                       </p>
                     </div>
-                    
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        (() => {
-                          const phase = story.contest ? getContestPhase(story.contest) : 'unknown';
-                          switch(phase) {
-                            case 'submission':
-                              return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-                            case 'voting':
-                              return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-                            case 'results':
-                              return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${(() => {
+                          const phase = story.contest
+                            ? getContestPhase(story.contest)
+                            : "unknown";
+                          switch (phase) {
+                            case "submission":
+                              return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+                            case "voting":
+                              return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+                            case "results":
+                              return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
                             default:
-                              return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+                              return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
                           }
-                        })()
-                      }`}>
+                        })()}`}
+                      >
                         {(() => {
-                          const phase = story.contest ? getContestPhase(story.contest) : 'unknown';
+                          const phase = story.contest
+                            ? getContestPhase(story.contest)
+                            : "unknown";
                           const phaseLabels = {
-                            submission: 'Envíos',
-                            voting: 'Votación', 
-                            counting: 'Conteo',
-                            results: 'Resultados',
-                            finalized: 'Finalizado',
-                            unknown: 'Desconocido'
+                            submission: "Envíos",
+                            voting: "Votación",
+                            counting: "Conteo",
+                            results: "Resultados",
+                            finalized: "Finalizado",
+                            unknown: "Desconocido",
                           };
                           return phaseLabels[phase] || phase;
                         })()}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
                     <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-2">
                       <span>{story.word_count || 0} palabras</span>
                       {(() => {
                         // Ocultar estadísticas durante submission, votación y conteo para mantener consistencia
-                        const isCurrentContest = story.contest_id === currentContest?.id;
-                        const contestToCheck = isCurrentContest ? currentContest : story.contest;
-                        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-                        const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
+                        const isCurrentContest =
+                          story.contest_id === currentContest?.id;
+                        const contestToCheck = isCurrentContest
+                          ? currentContest
+                          : story.contest;
+                        const contestPhase = contestToCheck
+                          ? getContestPhase(contestToCheck)
+                          : null;
+                        const isContestActive =
+                          contestPhase === "submission" ||
+                          contestPhase === "voting" ||
+                          contestPhase === "counting";
 
                         if (isContestActive) {
-                          const statusText = {
-                            submission: "En envíos",
-                            voting: "En votación", 
-                            counting: "Contando votos"
-                          }[contestPhase] || "En concurso";
-                          
+                          const statusText =
+                            {
+                              submission: "En envíos",
+                              voting: "En votación",
+                              counting: "Contando votos",
+                            }[contestPhase] || "En concurso";
+
                           return (
                             <>
                               <span>•</span>
@@ -430,17 +527,23 @@ const ProfileTabs = ({ user, votingStats }) => {
                           );
                         } else {
                           // 📖 Mostrar lecturas vs vistas según fecha del concurso
-                          const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
-                          const storyContest = contests?.find(c => c.id === story.contest_id);
+                          const READS_SYSTEM_LAUNCH = new Date(
+                            "2025-11-04T00:00:00.000Z"
+                          );
+                          const storyContest = contests?.find(
+                            (c) => c.id === story.contest_id
+                          );
                           const contestDate = storyContest?.finalized_at
                             ? new Date(storyContest.finalized_at)
-                            : new Date('2020-01-01');
-                          const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+                            : new Date("2020-01-01");
+                          const isOldContest =
+                            contestDate < READS_SYSTEM_LAUNCH;
 
                           const displayCount = isOldContest
-                            ? (story.views_count || 0)
-                            : (story.reads_count || story.views_count || 0);
-                          const useReadsIcon = !isOldContest && story.reads_count > 0;
+                            ? story.views_count || 0
+                            : story.reads_count || story.views_count || 0;
+                          const useReadsIcon =
+                            !isOldContest && story.reads_count > 0;
 
                           return (
                             <>
@@ -460,35 +563,37 @@ const ProfileTabs = ({ user, votingStats }) => {
                         }
                       })()}
                     </div>
-                    
+
                     <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                       {/* Ver historia */}
                       <Link
                         to={`/story/${story.id}?from=profile&authorId=${user?.id}`}
-                        className="inline-flex items-center px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
+                        className="inline-flex items-center px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm shrink-0"
                         title="Ver historia"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         <span className="hidden sm:inline">Ver</span>
                       </Link>
-                      
+
                       {/* Editar historia (solo si está en submission) */}
                       {canEditStory(story) && (
                         <Link
                           to={`/write/${story.contest_id}?edit=${story.id}`}
-                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm flex-shrink-0"
+                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm shrink-0"
                           title="Editar historia"
                         >
                           <Edit3 className="w-4 h-4 mr-1" />
                           <span className="hidden sm:inline">Editar</span>
                         </Link>
                       )}
-                      
+
                       {/* Eliminar historia (solo si está en submission) */}
                       {canEditStory(story) && (
                         <button
-                          onClick={() => handleDeleteStory(story.id, story.title)}
-                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm flex-shrink-0"
+                          onClick={() =>
+                            handleDeleteStory(story.id, story.title)
+                          }
+                          className="inline-flex items-center px-2 sm:px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors text-sm shrink-0"
                           title="Eliminar historia"
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
@@ -509,14 +614,22 @@ const ProfileTabs = ({ user, votingStats }) => {
   const LogrosTab = () => {
     const { totalLikes, totalViews } = useMemo(() => {
       // Filtrar historias que no están en submission, voting o counting para estadísticas
-      const storiesForStats = userStories.filter(story => {
+      const storiesForStats = userStories.filter((story) => {
         if (!story.contest) return true; // Historias libres siempre incluidas
         const isCurrentContest = story.contest_id === currentContest?.id;
-        const contestToCheck = isCurrentContest ? currentContest : story.contest;
-        const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-        return contestPhase !== "submission" && contestPhase !== "voting" && contestPhase !== "counting";
+        const contestToCheck = isCurrentContest
+          ? currentContest
+          : story.contest;
+        const contestPhase = contestToCheck
+          ? getContestPhase(contestToCheck)
+          : null;
+        return (
+          contestPhase !== "submission" &&
+          contestPhase !== "voting" &&
+          contestPhase !== "counting"
+        );
       });
-      
+
       const totalLikes = storiesForStats.reduce(
         (total, story) => total + (story.likes_count || 0),
         0
@@ -535,44 +648,52 @@ const ProfileTabs = ({ user, votingStats }) => {
           userId={user?.id}
           userName={user?.name || user?.display_name || "Usuario"}
         />
-        
+
         {/* Estadísticas Básicas */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Tu Actividad
           </h3>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {userStories.length}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Historias</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Historias
+              </div>
             </div>
-            
+
             <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {totalLikes}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Likes</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Likes
+              </div>
             </div>
-            
+
             <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {totalViews}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Lecturas
+              </div>
             </div>
-            
+
             <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
               <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {votingStats?.userVotesCount || 0}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Votos</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Votos
+              </div>
             </div>
           </div>
         </div>
-        
+
         {/* TODO: Próximos Objetivos - Comentado temporalmente para evitar inconsistencias
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -629,10 +750,17 @@ const ProfileTabs = ({ user, votingStats }) => {
 
     // Estadísticas del portafolio
     const portfolioStats = useMemo(() => {
-      const totalLikes = portfolioStoriesData.reduce((total, story) => total + (story.likes_count || 0), 0);
-      const totalViews = portfolioStoriesData.reduce((total, story) => total + (story.views_count || 0), 0);
-      const avgEngagement = totalViews > 0 ? ((totalLikes / totalViews) * 100) : 0;
-      
+      const totalLikes = portfolioStoriesData.reduce(
+        (total, story) => total + (story.likes_count || 0),
+        0
+      );
+      const totalViews = portfolioStoriesData.reduce(
+        (total, story) => total + (story.views_count || 0),
+        0
+      );
+      const avgEngagement =
+        totalViews > 0 ? (totalLikes / totalViews) * 100 : 0;
+
       return { totalLikes, totalViews, avgEngagement };
     }, [portfolioStoriesData]);
 
@@ -654,7 +782,7 @@ const ProfileTabs = ({ user, votingStats }) => {
           </div>
           <Link
             to="/write/portfolio"
-            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-sm"
+            className="inline-flex items-center px-4 py-2 bg-linear-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-sm"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nueva Historia
@@ -668,28 +796,36 @@ const ProfileTabs = ({ user, votingStats }) => {
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {portfolioStoriesData.length}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Historias Libres</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Historias Libres
+              </div>
             </div>
-            
+
             <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                 {portfolioStats.totalLikes}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Likes</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Likes
+              </div>
             </div>
-            
+
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {portfolioStats.totalViews}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Lecturas</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Lecturas
+              </div>
             </div>
-            
+
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {portfolioStats.avgEngagement.toFixed(1)}%
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Engagement</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Engagement
+              </div>
             </div>
           </div>
         )}
@@ -699,7 +835,9 @@ const ProfileTabs = ({ user, votingStats }) => {
           {portfolioLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Cargando portafolio...</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Cargando portafolio...
+              </p>
             </div>
           ) : portfolioStoriesData.length === 0 ? (
             <div className="text-center py-12">
@@ -708,11 +846,12 @@ const ProfileTabs = ({ user, votingStats }) => {
                 Tu portafolio está vacío
               </h4>
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Crea historias libres sin restricciones de retos. Explora cualquier tema, género o estilo que te inspire.
+                Crea historias libres sin restricciones de retos. Explora
+                cualquier tema, género o estilo que te inspire.
               </p>
               <Link
                 to="/write/portfolio"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                className="inline-flex items-center px-6 py-3 bg-linear-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Escribir Primera Historia Libre
@@ -722,11 +861,11 @@ const ProfileTabs = ({ user, votingStats }) => {
             portfolioStoriesData.map((story) => {
               const category = getCategoryByValue(story.category);
               const categoryColor = CATEGORY_COLORS[category.color];
-              
+
               return (
                 <div
                   key={story.id}
-                  className="bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/10 border border-purple-200 dark:border-purple-700 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                  className="bg-linear-to-r from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/10 border border-purple-200 dark:border-purple-700 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     <div className="flex-1">
@@ -736,7 +875,9 @@ const ProfileTabs = ({ user, votingStats }) => {
                             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                               {story.title}
                             </h4>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${categoryColor}`}>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium border ${categoryColor}`}
+                            >
                               {category.emoji} {category.label}
                             </span>
                           </div>
@@ -778,7 +919,9 @@ const ProfileTabs = ({ user, votingStats }) => {
                             Editar
                           </Link>
                           <button
-                            onClick={() => handleDeletePortfolioStory(story.id, story.title)}
+                            onClick={() =>
+                              handleDeletePortfolioStory(story.id, story.title)
+                            }
                             className="inline-flex items-center px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4 mr-1" />
@@ -811,15 +954,15 @@ const ProfileTabs = ({ user, votingStats }) => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'resumen':
+      case "resumen":
         return <ResumenTab />;
-      case 'historias':
+      case "historias":
         return <HistoriasTab />;
-      case 'portafolio':
+      case "portafolio":
         return <PortafolioTab />;
-      case 'logros':
+      case "logros":
         return <LogrosTab />;
-      case 'configuracion':
+      case "configuracion":
         return <ConfiguracionTab />;
       default:
         return <ResumenTab />;
@@ -830,34 +973,41 @@ const ProfileTabs = ({ user, votingStats }) => {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       {/* Tabs Header */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex overflow-x-auto scrollbar-hide px-4 sm:px-6" aria-label="Tabs">
+        <nav
+          className="flex overflow-x-auto scrollbar-hide px-4 sm:px-6"
+          aria-label="Tabs"
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
-            
+
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`
-                  flex items-center space-x-2 py-4 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0
-                  ${isActive
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300'
+                  flex items-center space-x-2 py-4 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap shrink-0
+                  ${
+                    isActive
+                      ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                      : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:border-gray-300"
                   }
                 `}
               >
                 <Icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{tab.name}</span>
-                <span className="sm:hidden">{tab.name.split(' ')[0]}</span>
+                <span className="sm:hidden">{tab.name.split(" ")[0]}</span>
                 {tab.count !== null && (
-                  <span className={`
+                  <span
+                    className={`
                     px-2 py-1 rounded-full text-xs
-                    ${isActive 
-                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' 
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    ${
+                      isActive
+                        ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                        : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                     }
-                  `}>
+                  `}
+                  >
                     {tab.count}
                   </span>
                 )}
@@ -868,9 +1018,7 @@ const ProfileTabs = ({ user, votingStats }) => {
       </div>
 
       {/* Tab Content */}
-      <div className="p-4 sm:p-6">
-        {renderTabContent()}
-      </div>
+      <div className="p-4 sm:p-6">{renderTabContent()}</div>
     </div>
   );
 };

@@ -351,13 +351,13 @@ const LandingPage = () => {
       <WelcomeBanner />
 
       {/* Hero Section - Elegante y moderno */}
-      <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
+      <section className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
         {/* Elementos decorativos modernos */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
-          <div className="absolute top-32 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
-          <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
-          <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
+          <div className="absolute top-10 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
+          <div className="absolute top-32 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+          <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+          <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
@@ -455,17 +455,17 @@ const LandingPage = () => {
           {/* Beneficios y ganador - diseño original */}
           <div className="mb-8 max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
                 <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Feedback real
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
                 <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Tus derechos 100%
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-[auto]">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
                 <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
                   Comunidad activa
                 </span>
@@ -480,10 +480,10 @@ const LandingPage = () => {
                       winnersSection.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
-                  className="flex items-center justify-center gap-1 md:gap-2 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:bg-gradient-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-[auto]"
+                  className="flex items-center justify-center gap-1 md:gap-2 bg-linear-to-r from-yellow-50 to-yellow-100 dark:bg-linear-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-auto"
                 >
                   {/* Efecto de brillo sutil */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
                   <WinnerBadgeDisplay
                     userId={lastContestWinners.winners[0].user_id}
@@ -555,7 +555,7 @@ const LandingPage = () => {
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12 ">
                 <div className="max-w-6xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-linear-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
                     <div className="text-center">
                       <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
                         <AnimatedCounter
@@ -563,7 +563,7 @@ const LandingPage = () => {
                           end={historicalStats.totalUsers}
                           duration={2000}
                           startDelay={200}
-                          className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
+                          className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
                       <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
@@ -577,7 +577,7 @@ const LandingPage = () => {
                           end={historicalStats.totalStories}
                           duration={2200}
                           startDelay={400}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
+                          className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
                       <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
@@ -592,7 +592,7 @@ const LandingPage = () => {
                           duration={2500}
                           startDelay={600}
                           formatNumber={true}
-                          className="bg-gradient-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
+                          className="bg-linear-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
                         />
                       </div>
                       <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
@@ -608,7 +608,7 @@ const LandingPage = () => {
       </section>
 
       {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO */}
-      <section className="py-12 lg:py-16 bg-gradient-to-r from-primary-500 to-indigo-600 relative overflow-hidden">
+      <section className="py-12 lg:py-16 bg-linear-to-r from-primary-500 to-indigo-600 relative overflow-hidden">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
@@ -677,7 +677,7 @@ const LandingPage = () => {
       </section>
 
       {/* ¿CÓMO FUNCIONA EL RETO? - Sección principal */}
-      <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
+      <section className="py-20 lg:py-24 bg-linear-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -691,7 +691,7 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <PenTool className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -708,7 +708,7 @@ const LandingPage = () => {
 
             {/* Step 2 */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-purple-100 dark:border-dark-700 hover:border-pink-200 dark:hover:border-pink-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <Heart className="h-8 w-8 text-purple-600 dark:text-purple-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -725,7 +725,7 @@ const LandingPage = () => {
 
             {/* Step 3 */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-pink-100 dark:border-dark-700 hover:border-indigo-200 dark:hover:border-indigo-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 dark:from-pink-800 dark:to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-pink-100 to-indigo-200 dark:from-pink-800 dark:to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <Trophy className="h-8 w-8 text-pink-600 dark:text-pink-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -746,7 +746,7 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/como-funciona"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-xl"
+                className="inline-flex items-center px-6 py-3 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-xl"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
                 Guía Completa
@@ -769,14 +769,14 @@ const LandingPage = () => {
       {lastContestWinners && !loadingWinners && (
         <section
           id="winners-section"
-          className="py-16 lg:py-20 bg-gradient-to-b from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 relative overflow-hidden transition-colors duration-300"
+          className="py-16 lg:py-20 bg-linear-to-b from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 relative overflow-hidden transition-colors duration-300"
         >
           {/* Elementos decorativos */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl animate-pulse"></div>
-            <div className="absolute top-40 right-16 w-24 h-24 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
-            <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
-            <div className="absolute bottom-32 right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
+            <div className="absolute top-20 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl animate-pulse"></div>
+            <div className="absolute top-40 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+            <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+            <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
           </div>
 
           <div className="max-w-6xl mx-auto px-4 relative">
@@ -787,21 +787,21 @@ const LandingPage = () => {
               <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-dark-300 max-w-2xl mx-auto transition-colors duration-300">
                 "{lastContestWinners.contest.title}"
               </p>
-              <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mt-6 shadow-lg"></div>
+              <div className="w-32 h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full mx-auto mt-6 shadow-lg"></div>
             </div>
 
             {/* 🏆 GANADOR DESTACADO - MÁXIMA VISIBILIDAD */}
             <div className="mb-8">
-              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-8 relative overflow-hidden">
+              <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-8 relative overflow-hidden">
                 {/* Elementos decorativos tipo spotlight */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 dark:from-indigo-900/20 dark:via-purple-900/30 dark:to-pink-900/20 rounded-2xl"></div>
-                <div className="absolute top-6 right-6 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 dark:from-indigo-700 dark:to-purple-600 rounded-full opacity-20 blur-xl animate-pulse"></div>
-                <div className="absolute bottom-6 left-6 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-300 dark:from-purple-700 dark:to-pink-600 rounded-full opacity-15 blur-lg animate-pulse"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 dark:from-indigo-900/20 dark:via-purple-900/30 dark:to-pink-900/20 rounded-2xl"></div>
+                <div className="absolute top-6 right-6 w-24 h-24 bg-linear-to-br from-indigo-200 to-purple-300 dark:from-indigo-700 dark:to-purple-600 rounded-full opacity-20 blur-xl animate-pulse"></div>
+                <div className="absolute bottom-6 left-6 w-16 h-16 bg-linear-to-br from-purple-200 to-pink-300 dark:from-purple-700 dark:to-pink-600 rounded-full opacity-15 blur-lg animate-pulse"></div>
 
                 <div className="relative max-w-4xl mx-auto">
                   {/* Header motivacional */}
                   <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full font-bold text-sm shadow-lg mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full font-bold text-sm shadow-lg mb-4">
                       <Sparkles className="h-4 w-4" />
                       Historia Más Votada de {lastContestWinners.contest.month}
                     </div>
@@ -809,24 +809,25 @@ const LandingPage = () => {
                       ¡La historia que más resonó con la comunidad!
                     </h2>
                     <p className="text-gray-600 dark:text-dark-300 text-lg">
-                      Esta historia brilló entre todas y capturó los corazones de los lectores
+                      Esta historia brilló entre todas y capturó los corazones
+                      de los lectores
                     </p>
                   </div>
 
                   {/* Ganador - mismo ancho que finalistas pero destacado */}
                   <div className="mb-8 flex justify-center">
                     <div className="w-full max-w-lg">
-                      <div className="relative p-6 rounded-2xl border-3 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
+                      <div className="relative p-6 rounded-2xl border-3 bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
                         {/* Badge destacado */}
                         <div className="absolute -top-3 left-6">
-                          <div className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
+                          <div className="px-5 py-2 rounded-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
                             🏆 1ER LUGAR
                           </div>
                         </div>
 
                         {/* Corona más grande y llamativa */}
                         <div className="text-center mb-4 mt-6">
-                          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
+                          <div className="w-24 h-24 mx-auto rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
                             <span className="text-5xl">👑</span>
                           </div>
                         </div>
@@ -869,7 +870,7 @@ const LandingPage = () => {
                         <div className="text-center">
                           <Link
                             to={`/story/${lastContestWinners.winners[0].id}`}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
                           >
                             <BookOpen className="h-5 w-5" />
                             <span>Leer historia destacada</span>
@@ -889,7 +890,8 @@ const LandingPage = () => {
                       </h4>
                       {/* Nota sobre criterio de desempate */}
                       <p className="text-xs text-gray-500 dark:text-dark-400 text-center mb-6 max-w-2xl mx-auto">
-                        Las posiciones se determinan por número de votos. En caso de empate, se prioriza la historia enviada primero.
+                        Las posiciones se determinan por número de votos. En
+                        caso de empate, se prioriza la historia enviada primero.
                       </p>
                       <div
                         className={`grid gap-6 max-w-6xl mx-auto ${
@@ -909,8 +911,8 @@ const LandingPage = () => {
                                 key={story.id}
                                 className={`relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col ${
                                   isSecond
-                                    ? "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
-                                    : "bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
+                                    ? "bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
+                                    : "bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-300 dark:border-indigo-500"
                                 }`}
                               >
                                 {/* Badge de posición */}
@@ -918,8 +920,8 @@ const LandingPage = () => {
                                   <div
                                     className={`px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg ${
                                       isSecond
-                                        ? "bg-gradient-to-r from-indigo-500 to-purple-600"
-                                        : "bg-gradient-to-r from-indigo-500 to-purple-600"
+                                        ? "bg-linear-to-r from-indigo-500 to-purple-600"
+                                        : "bg-linear-to-r from-indigo-500 to-purple-600"
                                     }`}
                                   >
                                     {isSecond ? "🥈 2º LUGAR" : "🥉 3º LUGAR"}
@@ -931,8 +933,8 @@ const LandingPage = () => {
                                   <div
                                     className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg ${
                                       isSecond
-                                        ? "bg-gradient-to-br from-indigo-400 to-purple-500"
-                                        : "bg-gradient-to-br from-indigo-400 to-purple-500"
+                                        ? "bg-linear-to-br from-indigo-400 to-purple-500"
+                                        : "bg-linear-to-br from-indigo-400 to-purple-500"
                                     }`}
                                   >
                                     <span className="text-4xl">
@@ -986,8 +988,8 @@ const LandingPage = () => {
                                     to={`/story/${story.id}`}
                                     className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg ${
                                       isSecond
-                                        ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-                                        : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                        ? "bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                        : "bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
                                     }`}
                                   >
                                     <BookOpen className="h-4 w-4" />
@@ -1000,17 +1002,17 @@ const LandingPage = () => {
 
                         {/* Tarjeta de Mención de Honor */}
                         {lastContestWinners.honoraryMention && (
-                          <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500">
+                          <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col bg-linear-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500">
                             {/* Badge de mención de honor */}
                             <div className="absolute -top-3 left-6">
-                              <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-gradient-to-r from-blue-500 to-sky-600">
+                              <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-linear-to-r from-blue-500 to-sky-600">
                                 🎖️ MENCIÓN DE HONOR
                               </div>
                             </div>
 
                             {/* Medalla */}
                             <div className="text-center mb-4 mt-4">
-                              <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-400 to-sky-500">
+                              <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-linear-to-br from-blue-400 to-sky-500">
                                 <span className="text-4xl">🎖️</span>
                               </div>
                             </div>
@@ -1062,7 +1064,7 @@ const LandingPage = () => {
                             <div className="text-center mt-auto">
                               <Link
                                 to={`/story/${lastContestWinners.honoraryMention.id}`}
-                                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md"
+                                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-linear-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md"
                               >
                                 <BookOpen className="h-4 w-4" />
                                 <span>Leer historia</span>
@@ -1089,7 +1091,7 @@ const LandingPage = () => {
                       {/* Botón Ver listado */}
                       <Link
                         to={`/contest/${lastContestWinners.contest.id}#stories-section`}
-                        className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 w-full sm:w-auto"
+                        className="inline-flex items-center px-6 py-3 rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 w-full sm:w-auto"
                       >
                         <Trophy className="h-5 w-5 mr-2" />
                         Ver todas las historias
@@ -1099,7 +1101,7 @@ const LandingPage = () => {
                       {/* Botón Participar */}
                       <Link
                         to="/contest/current"
-                        className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                        className="inline-flex items-center px-6 py-3 rounded-xl bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                       >
                         <PenTool className="h-5 w-5 mr-2" />
                         Participar en el reto actual
@@ -1126,7 +1128,7 @@ const LandingPage = () => {
       )}
 
       {/* Features Section - Original */}
-      <section className="py-20 lg:py-24 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
+      <section className="py-20 lg:py-24 bg-linear-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -1141,7 +1143,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Feature 1 - Siempre visible */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <PenTool className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -1155,7 +1157,7 @@ const LandingPage = () => {
 
             {/* Feature 2 - Siempre visible */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-purple-100 to-pink-200 dark:from-purple-800 dark:to-pink-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <Users className="h-8 w-8 text-purple-600 dark:text-purple-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -1169,7 +1171,7 @@ const LandingPage = () => {
 
             {/* Feature 3 - Sistema de Badges mejorado */}
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-200 dark:from-yellow-800 dark:to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
+              <div className="w-16 h-16 bg-linear-to-br from-yellow-100 to-orange-200 dark:from-yellow-800 dark:to-orange-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg transition-colors duration-300">
                 <Trophy className="h-8 w-8 text-yellow-600 dark:text-yellow-400 transition-colors duration-300" />
               </div>
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-dark-100 mb-4 tracking-tight transition-colors duration-300">
@@ -1185,10 +1187,10 @@ const LandingPage = () => {
       </section>
 
       {/* Sección de Derechos de Autor */}
-      <section className="py-12 lg:py-16 bg-gradient-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
+      <section className="py-12 lg:py-16 bg-linear-to-b from-white to-indigo-50 dark:from-dark-900 dark:to-dark-800 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="w-16 h-16 bg-linear-to-br from-indigo-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <Shield className="h-8 w-8 text-indigo-600" />
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-dark-100 mb-3 tracking-tight transition-colors duration-300">
@@ -1203,7 +1205,7 @@ const LandingPage = () => {
           <div className="space-y-6 max-w-4xl mx-auto">
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 border border-indigo-100 dark:border-dark-700 hover:border-purple-200 dark:hover:border-purple-500">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 transition-colors duration-300">
+                <div className="w-16 h-16 bg-linear-to-br from-indigo-100 to-purple-200 dark:from-indigo-800 dark:to-purple-700 rounded-xl flex items-center justify-center shadow-lg shrink-0 transition-colors duration-300">
                   <Copyright className="h-8 w-8 text-indigo-600 dark:text-indigo-400 transition-colors duration-300" />
                 </div>
                 <div>
@@ -1220,7 +1222,7 @@ const LandingPage = () => {
 
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-purple-100 dark:border-dark-700 hover:border-pink-200 dark:hover:border-pink-500 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-700 dark:to-pink-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="w-16 h-16 bg-linear-to-br from-purple-100 to-pink-200 dark:from-purple-700 dark:to-pink-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
                   <Lock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
@@ -1237,7 +1239,7 @@ const LandingPage = () => {
 
             <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-pink-100 dark:border-dark-700 hover:border-indigo-200 dark:hover:border-indigo-500 hover:shadow-2xl hover:scale-105 transition-all duration-300">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-200 dark:from-pink-600 dark:to-indigo-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="w-16 h-16 bg-linear-to-br from-pink-100 to-indigo-200 dark:from-pink-600 dark:to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shrink-0">
                   <Users className="h-8 w-8 text-pink-600 dark:text-pink-400" />
                 </div>
                 <div>
