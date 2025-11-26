@@ -648,12 +648,12 @@ const StoryPage = () => {
               const isCurrentContest = story.contest_id === currentContest?.id;
               const contestToCheck = isCurrentContest ? currentContest : story.contest;
               const contestPhase = contestToCheck ? getContestPhase(contestToCheck) : null;
-              const isVotingOrCounting = contestPhase === "voting" || contestPhase === "counting";
+              const isContestActive = contestPhase === "submission" || contestPhase === "voting" || contestPhase === "counting";
 
               return (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 text-sm mb-6">
-                  {/* Victorias del autor - PRIMERO, oculto durante votación */}
-                  {!isVotingOrCounting && story.author?.wins > 0 && (
+                  {/* Victorias del autor - PRIMERO, oculto durante concurso activo */}
+                  {!isContestActive && story.author?.wins > 0 && (
                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
                       <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
                       <span className="text-gray-700 dark:text-dark-200 font-medium">
@@ -661,9 +661,9 @@ const StoryPage = () => {
                       </span>
                     </div>
                   )}
-                  
-                  {/* Votos - SEGUNDO, oculto durante votación */}
-                  {!isVotingOrCounting && (
+
+                  {/* Votos - SEGUNDO, oculto durante concurso activo (submission, voting, counting) */}
+                  {!isContestActive && (
                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-700 px-3 py-2 rounded-lg">
                       <Heart className="h-4 w-4 text-red-500 dark:text-red-400 flex-shrink-0" />
                       <span className="text-gray-700 dark:text-dark-200 font-medium">
