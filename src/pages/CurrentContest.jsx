@@ -1450,7 +1450,7 @@ const CurrentContest = () => {
                                   avatarSize="md"
                                   badgeSize="xs"
                                   maxBadges={1}
-                                  className="flex-1 min-w-0"
+                                  className="flex min-w-0"
                                 />
                                 {story.likes_count > 50 && (
                                   <span
@@ -1933,18 +1933,26 @@ const CurrentContest = () => {
                                     {/* 📖 Lecturas (o 👁️ Vistas como fallback) */}
                                     {(() => {
                                       // Fecha de corte: Concursos finalizados ANTES del 4 Nov 2025 00:00 UTC solo muestran vistas
-                                      const READS_SYSTEM_LAUNCH = new Date('2025-11-04T00:00:00.000Z');
+                                      const READS_SYSTEM_LAUNCH = new Date(
+                                        "2025-11-04T00:00:00.000Z"
+                                      );
                                       // Usar finalized_at como referencia (cuando se finalizó el concurso manualmente)
-                                      const contestDate = contest?.finalized_at ? new Date(contest.finalized_at) :
-                                                         contest?.voting_end ? new Date(contest.voting_end) :
-                                                         new Date();
-                                      const isOldContest = contestDate < READS_SYSTEM_LAUNCH;
+                                      const contestDate = contest?.finalized_at
+                                        ? new Date(contest.finalized_at)
+                                        : contest?.voting_end
+                                          ? new Date(contest.voting_end)
+                                          : new Date();
+                                      const isOldContest =
+                                        contestDate < READS_SYSTEM_LAUNCH;
 
                                       // Si es concurso antiguo, forzar vistas. Si no, usar lecturas con fallback
                                       const displayCount = isOldContest
-                                        ? (story.views_count || 0)
-                                        : (story.reads_count || story.views_count || 0);
-                                      const hasReads = !isOldContest && story.reads_count > 0;
+                                        ? story.views_count || 0
+                                        : story.reads_count ||
+                                          story.views_count ||
+                                          0;
+                                      const hasReads =
+                                        !isOldContest && story.reads_count > 0;
 
                                       return (
                                         <div
