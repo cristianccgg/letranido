@@ -94,9 +94,27 @@ const ContestAdminPanel = () => {
     );
 
     const sortedProduction = productionContests.sort((a, b) => {
-      const aSubmission = new Date(a.submission_deadline);
-      const bSubmission = new Date(b.submission_deadline);
-      return aSubmission - bSubmission; // Más cercano a empezar primero
+      // Ordenar por el mes que representa el concurso (cronológicamente)
+      // Extraer año y mes del campo "month" (formato: "diciembre 2025", "enero 2026")
+      const parseMonth = (monthStr) => {
+        const months = {
+          'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3,
+          'mayo': 4, 'junio': 5, 'julio': 6, 'agosto': 7,
+          'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+        };
+
+        const parts = monthStr.toLowerCase().split(' ');
+        const monthName = parts[0];
+        const year = parseInt(parts[1]) || new Date().getFullYear();
+        const monthNum = months[monthName] ?? 0;
+
+        return new Date(year, monthNum, 1);
+      };
+
+      const aDate = parseMonth(a.month);
+      const bDate = parseMonth(b.month);
+
+      return aDate - bDate; // Orden cronológico por mes del concurso
     });
 
     const sortedFinalized = finalized.sort(
