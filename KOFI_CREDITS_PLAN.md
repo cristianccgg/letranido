@@ -1,8 +1,21 @@
-# 💎 Plan de Implementación: Ko-fi Credits System
+# 💎 Ko-fi Credits System - Plan de Implementación
 
-**Fecha de creación:** Noviembre 26, 2025
-**Estado:** Planificación
-**Objetivo:** Monetización sostenible mediante beneficios opcionales para donantes
+**Estado:** ✅ Listo para desarrollo | **Lanzamiento:** Enero 1, 2026
+**Última actualización:** Diciembre 3, 2025
+
+---
+
+## 🎯 Decisiones Clave
+
+| Aspecto | Decisión |
+|---------|----------|
+| **Equidad** | 🏆 Beneficios NO afectan concursos (100% equitativo) |
+| **Lanzamiento** | 🚀 Limpio en 2026 (todos empiezan desde cero) |
+| **MVP** | 📖 Historia Libre (2 cr) + Avatar (3 cr) + Exportar PDF (1 cr) |
+| **Path Gratuito** | ⭐ 40% créditos por mérito (ganar retos, logros, participación) |
+| **Consumibles** | 🔄 80% beneficios consumibles → demanda recurrente |
+
+**Beneficios ELIMINADOS por equidad:** Historia Extendida en concurso, Destaque 24h, Vista previa de prompt
 
 ---
 
@@ -158,409 +171,154 @@
 
 ---
 
-## 🎁 Catálogo de Beneficios
+## 🎁 Catálogo de Beneficios (100% Equitativos)
 
-### 1. Historia Extendida (1 crédito) ⭐ MVP
+**Principio rector:** Beneficios NO afectan competencia en concursos activos
 
-**Qué ofrece:**
+---
 
-- Límite de palabras: 1,000 → 2,000 palabras
-- Solo para UN reto específico
-- Se consume al publicar la historia
+### 📖 Categoría 1: Contenido Extra (Fuera de Concurso)
+
+#### 1. Historia Libre (2 créditos) ⭐ **MVP**
+
+- **Qué es:** Publicar 1 historia completamente **fuera de concurso**
+- **Dónde aparece:** Galería separada "Historias Libres"
+- **Límite:** 2000 palabras
+- **Interacción:** Likes y comentarios de la comunidad
+- **Equidad:** ✅ NO compite en retos, cero impacto en concursos
 
 **Flujo:**
-
-1. Usuario tiene historia en reto actual
-2. Clic en "Usar crédito: Extender palabras"
-3. Confirmación: "Gastarás 1 crédito para 2000 palabras"
-4. Al aceptar: límite cambia, crédito se consume
-5. Badge visible: "✨ Historia Extendida"
+1. Usuario: "Tengo idea que no encaja con prompt actual"
+2. Clic "Escribir Historia Libre" → gasta 2 créditos
+3. Editor con 2000 palabras → publica
+4. Aparece en galería separada, fuera del reto
 
 **Por qué es MVP:**
-
-- ✅ Técnicamente simple (solo cambiar límite)
-- ✅ Beneficio claro e inmediato
-- ✅ No afecta equidad del concurso
-- ✅ Testeable con donantes actuales
-
----
-
-### 2. Historia Libre (2 créditos)
-
-**Qué ofrece:**
-
-- Publicar 1 historia fuera de concurso
-- Aparece en nueva sección "Historias Libres"
-- Límite: 2,000 palabras
-- Puede recibir likes de la comunidad
-
-**Flujo:**
-
-1. Usuario va a "Escribir Historia Libre"
-2. Sistema verifica: ¿Tiene 2 créditos?
-3. Editor especial con límite 2000 palabras
-4. Al publicar: consume 2 créditos
-5. Historia visible en galería "Historias Libres"
-
-**Beneficios:**
-
-- ✅ Genera contenido fuera de concursos
+- ✅ 100% equitativo (no toca concursos)
+- ✅ Consumible (genera demanda recurrente)
 - ✅ Mantiene usuarios activos entre retos
-- ✅ No satura concursos principales
+- ✅ Genera contenido extra para la plataforma
 
 ---
 
-### 3. Destaque de Historia (1 crédito)
+#### 2. Historia "Fuera de Temporada" (1 crédito)
 
-**Qué ofrece:**
+- **Qué es:** Publicar en un **reto pasado** que ya cerró
+- **Aparece como:** "Contribución Tardía" en archivo histórico
+- **No puede:** Ganar ni recibir votos (solo portafolio)
+- **Equidad:** ✅ Reto ya finalizó, cero impacto
 
-- Tu historia aparece con badge "⭐ Destacada" por 24h
-- Posición prioritaria en lista de historias del reto
-- Más visibilidad = potencialmente más lecturas
-- **NO da más votos directamente**
-
-**Flujo:**
-
-1. Usuario tiene historia publicada en reto
-2. Clic en "Destacar mi historia"
-3. Confirmación: "Gastarás 1 crédito para destacar 24h"
-4. Historia sube en la lista con badge dorado
-5. Después de 24h, vuelve a posición normal
-
-**Consideraciones:**
-
-- ⚠️ Podría percibirse como "pagar por ventaja"
-- ✅ Pero solo da visibilidad, no garantiza votos
-- ✅ Útil para escritores que publican cerca del cierre
+**Caso de uso:** "Se me ocurrió idea genial para el reto de julio, pero ya cerró"
 
 ---
 
-### 4. Avatar Personalizado (3 créditos)
+### 🎨 Categoría 2: Personalización del Perfil
 
-**Qué ofrece:**
+#### 3. Avatar Personalizado (3 créditos)
 
-- Subir imagen propia en lugar de avatar generado
-- Badge especial "🎨 Avatar Personalizado"
-- Visible en todo el sitio
+- Subir imagen propia vs avatar generado
+- Badge "🎨 Avatar Personalizado" visible en perfil
+- **Equidad:** ✅ Cosmético puro, cero ventaja competitiva
 
-**Flujo:**
+#### 4. Banner de Perfil (2 créditos)
 
-1. Usuario va a "Personalizar Avatar"
-2. Sube imagen (validación: formato, tamaño)
-3. Confirmación: "Gastarás 3 créditos"
-4. Avatar se actualiza en 5 minutos
-5. Badge permanente en perfil
+- Imagen de fondo en perfil público
+- Diseño profesional o imagen propia
+- **Equidad:** ✅ Personalización visual, no afecta concursos
 
-**Beneficios:**
+#### 5. Biografía Extendida (1 crédito)
 
-- ✅ Personalización valiosa para usuarios activos
-- ✅ Costo alto = incentiva donaciones mayores
-- ✅ Mejora identidad de marca personal
+- Límite: 200 → 500 caracteres
+- Sección "Sobre mi escritura" + links adicionales
+- **Equidad:** ✅ Solo mejora perfil personal
 
 ---
 
-### 5. Exportación PDF/EPUB (1 crédito por historia) - Fase 2
+### 📦 Categoría 3: Utilidades y Portafolio
 
-**Qué ofrece:**
+#### 6. Exportar Historia PDF/EPUB (1 crédito por historia)
 
-- Descargar tus historias en formato PDF o EPUB
-- Diseño profesional con logo Letranido
+- Descarga profesional con logo Letranido
 - Ideal para portafolio o compartir
+- **Equidad:** ✅ Beneficio post-concurso
+- **Consumible:** Sí (1 crédito por cada historia exportada)
 
-**Flujo:**
+#### 7. Compilación Anual PDF (5 créditos)
 
-1. Usuario selecciona historia
-2. Clic en "Exportar como PDF"
-3. Gasta 1 crédito
-4. Descarga inmediata del archivo
+- Todas tus historias del año en un PDF tipo libro
+- Diseño profesional, índice, portada personalizada
+- Solo disponible en Diciembre
+- **Equidad:** ✅ Portafolio personal, no afecta concursos
+- **Consumible:** Sí (cada año nuevo)
 
----
+#### 8. Análisis de Escritura con IA (2 créditos)
 
-### 6. Paquete de Feedback Personalizado (5 créditos) - Fase 3
-
-**Qué ofrece:**
-
-- Análisis detallado de tu historia por admin/escritor experto
-- Feedback sobre estructura, estilo, adherencia al prompt
-- Sugerencias de mejora (300-500 palabras)
-- Entrega en 7 días
-
-**Por qué funciona:**
-
-- ✅ Alto valor percibido (coaching personalizado)
-- ✅ Mejora calidad de futuros escritos
-- ✅ Costo alto incentiva acumulación y donaciones
-- ✅ Límite mensual (3 por mes) crea escasez
+- Análisis de estilo: palabras favoritas, complejidad, tono
+- Sugerencias de mejora automáticas
+- Funciona con historias ya publicadas
+- **Equidad:** ✅ Herramienta de aprendizaje post-concurso
 
 ---
 
-### 7. "Boost de Visibilidad" - Pack de 3 usos (3 créditos) - Fase 3
+### 🌟 Categoría 4: Experiencias Premium
 
-**Qué ofrece:**
+#### 9. "Café Virtual" con Admin (10 créditos) - Fase 3
 
-- 3 destacados de historia (normalmente 1 crédito cada uno)
-- Ahorro de 33% vs compra individual
-- Incentiva gasto recurrente
+- Sesión 30 min Zoom/Meet con admin
+- Feedback personalizado sobre escritura
+- Límite: 2 por mes (escasez)
+- **Equidad:** ✅ Coaching personal, no afecta concursos
+- **Consumible:** Sí (alto costo = incentiva donaciones)
 
-**Estrategia de pricing:**
+#### 10. Comentario Destacado (1 crédito)
 
-- Individual: 1 crédito/uso
-- Pack x3: 3 créditos (ahorro de 1)
-- Incentiva compra por volumen
+- Tu comentario en historia ajena aparece destacado (dorado)
+- Más visible para la comunidad
+- Solo en historias de otros usuarios
+- **Equidad:** ✅ Fomenta engagement, no afecta tu historia
+
+---
+
+## 🚫 Beneficios ELIMINADOS por Equidad
+
+| Beneficio Rechazado | Razón de Eliminación |
+|---------------------|---------------------|
+| ❌ Historia Extendida (2000 palabras en concurso) | Ventaja percibida: más espacio para desarrollar historia ganadora |
+| ❌ Destaque 24h en reto actual | Más visibilidad = potencialmente más votos |
+| ❌ Vista previa de prompt | Tiempo extra de preparación |
+| ❌ Publicar 2 historias en un reto | Doble oportunidad de ganar |
+| ❌ Votar 5 veces (vs 3) | Manipulación de votación |
+
+**Mensaje clave:** "Los concursos son 100% equitativos. Créditos = beneficios extra, NO ventajas competitivas."
 
 ---
 
 ## 🔄 Estrategias para Incentivar GASTO de Créditos
 
-**Problema:** Usuarios acumulan créditos pero no los gastan = no vuelven a donar
-
-**Objetivo:** Tasa de gasto del 70%+ (70% de créditos ganados se gastan en 30 días)
-
-### 🎯 Tácticas Psicológicas
-
-#### 1. **Beneficios Consumibles (No Permanentes)**
-
-✅ **Diseña beneficios que se consumen:**
-
-| Beneficio | Tipo | Tasa de recompra esperada |
-|-----------|------|---------------------------|
-| Historia Extendida | **Consumible** (1 vez) | Alta - cada reto |
-| Historia Libre | **Consumible** (1 vez) | Media - mensual |
-| Destaque 24h | **Temporal** (expira) | Media - por reto |
-| Avatar Personalizado | **Permanente** | Baja - una vez |
-| Exportar PDF | **Consumible** (por historia) | Media - portafolio |
-
-**Estrategia:** 80% beneficios consumibles, 20% permanentes
-
-**Por qué funciona:**
-
-- ✅ Beneficios consumibles crean demanda recurrente
-- ✅ "Se me acabaron mis créditos" = incentivo para donar
-- ✅ Permanentes dan sensación de "inversión" pero no recompra
-
----
-
-#### 2. **Urgencia y Escasez Artificial**
-
-**Ofertas por tiempo limitado:**
-
-```jsx
-<CreditPromotion>
-  🔥 Solo este reto: Historia Extendida a 1 crédito
-  (Próximo reto: 2 créditos)
-</CreditPromotion>
-```
-
-**Beneficios estacionales:**
-
-| Mes | Beneficio especial | Costo | Escasez |
-|-----|-------------------|-------|---------|
-| Diciembre | 🎄 Historia Navideña (3000 palabras) | 2 créditos | Solo dic |
-| Junio | 📚 Compilación personal PDF (todas tus historias) | 5 créditos | Solo jun |
-| Aniversario Letranido | 🎉 Pack x2 Historia Extendida | 1 crédito | Solo 1 semana |
-
-**Por qué funciona:**
-
-- ✅ FOMO (Fear of Missing Out)
-- ✅ "Debo usar mis créditos ahora o pierdo la oferta"
-- ✅ Evita acumulación indefinida
-
----
-
-#### 3. **Recompensas por Gasto (Gamificación)**
-
-**Sistema de "Créditos Bonus":**
-
-```
-Gasta 5 créditos en un mes → Recibe 1 crédito bonus
-Gasta 10 créditos en un mes → Recibe 3 créditos bonus
-```
-
-**Badge de "Gran Gastador":**
-
-- 🛍️ "Supporter Activo" - Ha gastado 10+ créditos
-- Visible en perfil
-- Reconocimiento social
-
-**Por qué funciona:**
-
-- ✅ Incentiva gasto, no acumulación
-- ✅ Usuarios que gastan más = más propensos a donar
-- ✅ Loop: Gastar → Bonus → Gastar más
-
----
-
-#### 4. **Recordatorios Inteligentes (Nudges)**
-
-**Email automático cuando:**
-
-- ✅ Usuario tiene 5+ créditos sin usar por 30 días
-- ✅ Nuevo reto comienza (CTA: "Usa Historia Extendida")
-- ✅ Quedan 3 días para fin de reto ("Última chance para destacar")
-
-**Mensaje ejemplo:**
-
-```
-Asunto: Tienes 6 créditos esperando ✨
-
-¡Hola [Nombre]!
-
-Notamos que tienes 6 créditos sin usar.
-Aprovecha el reto actual para:
-
-📝 Escribir con 2000 palabras (1 crédito)
-⭐ Destacar tu historia 24h (1 crédito)
-✨ Publicar historia libre (2 créditos)
-
-[CTA: Ver beneficios disponibles]
-```
-
-**Por qué funciona:**
-
-- ✅ Recordatorio suave, no invasivo
-- ✅ Contextual (timing relevante)
-- ✅ CTAs específicos
-
----
-
-#### 5. **Bundles y Descuentos por Volumen**
-
-**Packs con descuento:**
-
-| Pack | Beneficios | Costo normal | Costo pack | Ahorro |
-|------|-----------|--------------|------------|--------|
-| 📦 "Escritor Prolífico" | 3x Historia Extendida | 3 créditos | **2 créditos** | 33% |
-| 📦 "Paquete Visibilidad" | 2x Destaque + 1x Historia Libre | 4 créditos | **3 créditos** | 25% |
-| 📦 "Pack Completo" | 2x Extendida + 1x Libre + 1x Avatar | 8 créditos | **6 créditos** | 25% |
-
-**Por qué funciona:**
-
-- ✅ Incentiva gasto inmediato de múltiples créditos
-- ✅ Valor percibido ("estoy ahorrando")
-- ✅ Reduce acumulación
-
----
-
-#### 6. **Visibilidad Constante del Balance**
-
-**Dashboard con "presión social":**
-
-```jsx
-<CreditBalance>
-  <div className="text-2xl font-bold">{creditsBalance} créditos</div>
-
-  {/* Comparación con comunidad */}
-  <p className="text-sm text-gray-600">
-    📊 Promedio de la comunidad: 3.2 créditos gastados/mes
-    {userMonthlySpending < 3.2 && (
-      <span className="text-rose-500">
-        (Tú: {userMonthlySpending} - ¡aprovecha más!)
-      </span>
-    )}
-  </p>
-
-  {/* Sugerencias contextuales */}
-  {creditsBalance >= 3 && (
-    <div className="bg-linear-to-r from-pink-50 to-rose-50 p-4 rounded-lg">
-      💡 Tienes suficientes créditos para:
-      <ul>
-        <li>✨ Historia Libre (2 créditos)</li>
-        <li>📝 Historia Extendida (1 crédito)</li>
-      </ul>
-    </div>
-  )}
-</CreditBalance>
-```
-
-**Por qué funciona:**
-
-- ✅ Visible en cada visita
-- ✅ Sugerencias contextuales automáticas
-- ✅ Comparación social (sin presión negativa)
-
----
-
-#### 7. **Beneficios "Gratis" con Requisito de Gasto**
-
-**Ejemplo:**
-
-```
-🎁 Gasta 3 créditos este mes → Recibe 1 Destaque GRATIS
-🎁 Primera Historia Libre del mes: 2 créditos
-    Segunda del mismo mes: 1 crédito (descuento)
-```
-
-**Por qué funciona:**
-
-- ✅ "Debo gastar para desbloquear el regalo"
-- ✅ Incentiva actividad dentro del mes
-- ✅ Evita acumulación crónica
-
----
-
-### 📊 Métricas para Monitorear Gasto
-
-| Métrica | Objetivo | Señal de alerta |
-|---------|----------|-----------------|
-| **Tasa de gasto mensual** | 70%+ | <50% = usuarios acumulan |
-| **Tiempo promedio hasta primer gasto** | <7 días | >14 días = no ven valor |
-| **% usuarios con balance >10 sin usar** | <10% | >20% = mal diseño de beneficios |
-| **Recompra (2da donación)** | 30%+ | <20% = no están gastando suficiente |
-| **Beneficio más usado** | Historia Extendida (50%+) | Si ninguno domina = confusión |
-
-**Dashboard admin debe mostrar:**
-
-```jsx
-<SpendingMetrics>
-  <MetricCard
-    title="Tasa de gasto mensual"
-    value="68%"
-    target="70%"
-    trend="↗️ +5% vs mes anterior"
-  />
-
-  <MetricCard
-    title="Usuarios con >10 créditos sin usar"
-    value="8 usuarios (15%)"
-    alert={value > 0.20 ? "warning" : "ok"}
-  />
-
-  <MetricCard
-    title="Tiempo hasta primer gasto"
-    value="5.3 días"
-    target="<7 días"
-  />
-
-  <AlertBox type="warning" show={spendingRate < 0.50}>
-    ⚠️ Tasa de gasto baja. Considera:
-    - Enviar recordatorio a usuarios con créditos
-    - Crear oferta temporal
-    - Revisar precios de beneficios
-  </AlertBox>
-</SpendingMetrics>
-```
-
----
-
-### 🎯 Plan de Acción: Incentivar Gasto
-
-**Mes 1 (MVP):**
-- ✅ Lanzar Historia Extendida (consumible, 1 crédito)
-- ✅ Email recordatorio a usuarios con 5+ créditos
-
-**Mes 2:**
-- ✅ Agregar Historia Libre (consumible, 2 créditos)
-- ✅ Primera oferta temporal: "Historia Extendida gratis con pack"
-
-**Mes 3:**
-- ✅ Bundles con descuento
-- ✅ Sistema de bonus por gasto
-- ✅ Beneficio estacional navideño
-
-**Continuo:**
-- 📧 Email semanal con sugerencias contextuales
-- 📊 Monitorear tasa de gasto (objetivo 70%)
-- 🔄 Ajustar precios si acumulación >20%
+**Objetivo:** Tasa de gasto del **70%+** (créditos ganados se gastan en 30 días)
+
+**Problema a evitar:** Usuarios acumulan créditos sin gastar → no vuelven a donar
+
+### 7 Tácticas Clave
+
+| # | Táctica | Implementación | Resultado Esperado |
+|---|---------|----------------|-------------------|
+| 1️⃣ | **80% Consumibles** | Historia Libre, Exportar PDF, Análisis IA | "Se acabaron" → donar más |
+| 2️⃣ | **Ofertas Temporales** | "Solo este mes: Compilación PDF 4 créditos" | FOMO → gasto inmediato |
+| 3️⃣ | **Bonus por Gasto** | Gasta 5 → recibe 1 bonus | Incentiva gasto, no acumulación |
+| 4️⃣ | **Recordatorios Email** | "Tienes 5+ créditos sin usar por 30 días" | Nudge suave contextual |
+| 5️⃣ | **Bundles con Descuento** | 3x Historia Libre = 5 créditos (vs 6) | Gasto múltiple inmediato |
+| 6️⃣ | **Dashboard Visible** | Balance + sugerencias contextuales | Recordatorio constante |
+| 7️⃣ | **"Gratis" con Gasto** | Gasta 3 → recibe 1 beneficio gratis | Desbloqueo por actividad |
+
+### Métricas Críticas de Gasto
+
+| Métrica | Target | 🚨 Alerta | Acción si falla |
+|---------|--------|-----------|-----------------|
+| Tasa de gasto mensual | 70%+ | <50% | Enviar recordatorios + crear oferta temporal |
+| Tiempo hasta 1er gasto | <7 días | >14 días | Revisar precios de beneficios |
+| Usuarios con +10 créditos sin usar | <10% | >20% | Rediseñar catálogo de beneficios |
+| Recompra (2da donación) | 30%+ | <20% | Aumentar recordatorios de uso |
 
 ---
 
@@ -912,329 +670,193 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ---
 
-## 📊 Métricas de Éxito
+## 📊 KPIs y Dashboard Admin
 
-### KPIs a Trackear
+### Métricas Clave (3 Prioridades)
 
-**🎯 Prioridad 1: Gasto de Créditos (Clave para Recurrencia)**
+**1️⃣ Gasto de Créditos** (más importante)
+- Tasa gasto mensual: 70%+ (alerta <50%)
+- Tiempo hasta 1er gasto: <7 días (alerta >14 días)
+- Usuarios +10 sin usar: <10% (alerta >20%)
 
-| Métrica                        | Objetivo (3 meses) | Cómo medirlo                             | Por qué es crítica |
-| ------------------------------ | ------------------ | ---------------------------------------- | ------------------ |
-| **Tasa de gasto mensual** | **70%+** | (spent_total / earned_total) | Si <50% = usuarios acumulan y no donan más |
-| **Tiempo hasta primer gasto** | **<7 días** | Días entre earn y primer spend | Si >14 días = no ven valor inmediato |
-| **Usuarios con balance >10 sin usar** | **<10%** | Count usuarios con balance >10 y sin gasto 30+ días | Señal de mal diseño de beneficios |
-| **Recompra (2da donación)** | **30%+** | Usuarios con 2+ donaciones | El objetivo final del sistema |
+**2️⃣ Monetización**
+- Ingresos mensuales: $80-120
+- Recompra (2da donación): 30%+
+- Conversión nuevos usuarios: 10%
 
-**💰 Prioridad 2: Monetización**
+**3️⃣ Engagement**
+- Beneficio más popular: Historia Libre (40%+)
+- Beneficios usados/usuario: 2.5/mes
+- Usuarios activos con créditos: 60%+
 
-| Métrica                        | Objetivo (3 meses) | Cómo medirlo                             |
-| ------------------------------ | ------------------ | ---------------------------------------- |
-| Ingresos mensuales             | $80-120            | Total donaciones Ko-fi                   |
-| Donantes recurrentes           | 30%                | Usuarios con 2+ donaciones               |
-| Tiempo hasta recompra          | < 30 días          | Promedio entre `last_donation_date`      |
-| Conversión donante (nuevos usuarios) | 10%         | % usuarios nuevos que donan en primer mes |
-
-**📈 Prioridad 3: Engagement**
-
-| Métrica                        | Objetivo (3 meses) | Cómo medirlo                             |
-| ------------------------------ | ------------------ | ---------------------------------------- |
-| Beneficio más popular          | Historia Extendida (50%+) | Tipo más usado en `credit_benefits_used` |
-| Beneficios usados por usuario  | 2.5 promedio/mes | Promedio de transacciones por usuario activo |
-| Usuarios activos con créditos  | 60%+ | % usuarios activos con balance >0 |
-
-### Dashboard de Métricas (Admin)
+### Dashboard Admin (Mockup)
 
 ```jsx
-<MetricsDashboard>
-  <MetricCard
-    title="Donaciones este mes"
-    value="$95"
-    trend="+15% vs mes anterior"
-  />
-  <MetricCard
-    title="Usuarios con créditos"
-    value="12"
-    subtitle="de 20 activos (60%)"
-  />
-  <MetricCard
-    title="Créditos gastados"
-    value="85%"
-    subtitle="Alta utilización"
-  />
-  <MetricCard
-    title="Beneficio más popular"
-    value="Historia Extendida"
-    subtitle="67% del uso"
-  />
-</MetricsDashboard>
+<AdminDashboard>
+  <MetricCard title="💰 Ingresos" value="$95" trend="+15%" />
+  <MetricCard title="📊 Tasa gasto" value="68%" alert={<70} />
+  <MetricCard title="🔄 Recompra" value="32%" trend="+8%" />
+  <AlertBox show={gastoMensual < 50}>
+    ⚠️ Gasto bajo → Enviar recordatorios + crear oferta temporal
+  </AlertBox>
+</AdminDashboard>
 ```
 
 ---
 
-## 🎯 Estrategia de Comunicación
+## 🎯 Comunicación (Timeline Lanzamiento 2026)
 
-### 1. Anuncio Inicial (Cuando lance MVP)
+### Noviembre 2025: Teaser "Coming Soon"
 
-**Email a todos los usuarios:**
+**Post Landing + Email:**
+> 🎁 **2026: Ko-fi Credits**
+>
+> Nuevo sistema de beneficios para apoyar Letranido.
+> - Donar → créditos
+> - Ganar retos → créditos
+> - Escribir bien → créditos
+>
+> Beneficios: Historias libres, personalización, portafolio profesional
+>
+> ✅ Todos empiezan desde cero en Enero
+> ✅ Concursos 100% equitativos
+>
+> Más detalles próximamente...
 
-```
-Asunto: 💎 Presentamos: Ko-fi Credits - Nuevos beneficios para supporters
+### Diciembre 1-15: Beta Cerrada
 
-¡Hola [Nombre]!
+**Invitación a 5 donantes:**
+> Te invitamos a probar Ko-fi Credits antes del lanzamiento.
+> Recibirás 5 créditos de prueba (se resetean en Enero).
+> Tu feedback es invaluable.
 
-Tenemos noticias emocionantes. Hemos lanzado **Ko-fi Credits**,
-un nuevo sistema para agradecer a quienes apoyan Letranido.
+### Diciembre 15-31: Educación (4 Posts)
 
-¿Cómo funciona?
-• Donas en Ko-fi → Recibes créditos
-• Usas créditos para beneficios opcionales
-• $3 = 3 créditos | $5 = 6 créditos | $10 = 15 créditos
+1. "Cómo ganar créditos gratis" (sin donar)
+2. "Catálogo de beneficios" (con mockups)
+3. "FAQ: Equidad y concursos"
+4. "Listo para 2026" (cuenta regresiva)
 
-Beneficios disponibles:
-✨ Historia Extendida (1 crédito) - Escribe hasta 2000 palabras
-📖 Historia Libre (2 créditos) - Publica fuera de concursos
-⭐ Y más por venir...
+### Enero 1, 2026: Lanzamiento
 
-Importante: Esto NO afecta los concursos. Todos pueden participar
-y ganar igual, tengan créditos o no. Los beneficios son extras
-opcionales para quienes quieran apoyar la plataforma.
-
-[CTA: Conocer más →]
-
-¡Gracias por ser parte de Letranido!
-```
-
----
-
-### 2. Banner en Landing Page
-
-```jsx
-<AnnouncementBanner>
-  <span>💎 Nuevo: Ko-fi Credits</span>
-  <span>Apoya Letranido y obtén beneficios especiales</span>
-  <Link to="/credits">Conocer más →</Link>
-</AnnouncementBanner>
-```
-
----
-
-### 3. Página Informativa `/credits`
-
-**Contenido:**
-
-- ¿Qué son los Ko-fi Credits?
-- ¿Cómo funcionan?
-- Catálogo completo de beneficios
-- Preguntas frecuentes
-- CTA: Donar en Ko-fi
+**Email masivo:**
+> 🎉 Ko-fi Credits YA ESTÁ AQUÍ
+>
+> Empieza a ganar HOY:
+> 🏆 Gana reto Enero → hasta 5 créditos
+> 📝 Publica historia → camino a racha
+> 💰 Dona en Ko-fi → $3 = 3 créditos
+>
+> [Ver mi dashboard] [Explorar beneficios]
 
 ---
 
-## ⚠️ Consideraciones Importantes
+## 📝 FAQ y Principios
 
-### Equidad del Concurso
+### Preguntas Frecuentes
 
-✅ **Los beneficios NO pueden:**
+**¿Los créditos expiran?** No, nunca.
 
-- Dar más votos
-- Garantizar ganar
-- Permitir más de 1 historia por reto
-- Ocultar historias de otros
+**¿Puedo transferirlos?** No, son personales.
 
-✅ **Los beneficios SÍ pueden:**
+**¿Donar da ventaja en concursos?** No. Concursos 100% equitativos. Créditos = beneficios extra fuera de competencia.
 
-- Dar más espacio creativo (palabras)
-- Permitir contenido extra (historias libres)
-- Mejorar visibilidad (highlight)
-- Personalizar perfil (avatar)
+**¿Cómo confirmo mi donación?** Email en 24-48h (manual MVP) o 5 min (automático Fase 4).
 
-### Transparencia
+**¿Puedo reembolso?** Donaciones son voluntarias y no reembolsables. Créditos nunca expiran.
 
-- ✅ Comunicar claramente que son beneficios opcionales
-- ✅ Enfatizar que usuarios gratuitos pueden ganar igual
-- ✅ Mostrar ejemplos de ganadores sin créditos
-- ✅ Política de privacidad: quién ve que tienes créditos (nadie excepto tú)
+### Principios NO Negociables
 
-### Escalabilidad
+❌ Beneficios NO afectan concursos activos
+❌ NO dar créditos por votos directos
+✅ Usuarios gratuitos pueden ganar igual
+✅ Path gratuito viable (40% créditos por mérito)
+✅ Transparencia total
 
-- ✅ Empezar simple (manual) para validar
-- ✅ Automatizar cuando haya demanda
-- ✅ No implementar todo de golpe
-- ✅ Iterar según feedback real
+### Iteración Continua
 
----
+**Cada 2 semanas:** Revisar métricas → feedback → ajustar precios → comunicar
 
-## 📝 Preguntas Frecuentes (FAQ)
-
-**¿Los créditos expiran?**
-No, los créditos nunca expiran.
-
-**¿Puedo transferir créditos a otro usuario?**
-No, los créditos son personales e intransferibles.
-
-**¿Qué pasa si tengo créditos y no sé qué hacer con ellos?**
-Puedes guardarlos para futuros beneficios o retos.
-
-**¿Donar me da ventaja en los concursos?**
-No. Los concursos siguen siendo 100% equitativos. Los beneficios son extras opcionales.
-
-**¿Puedo solicitar un reembolso?**
-Las donaciones son voluntarias y no reembolsables, pero los créditos nunca expiran.
-
-**¿Cómo sé que mi donación fue registrada?**
-Recibirás un email confirmando tus créditos en 24-48 horas (manual) o 5 minutos (automático en Fase 4).
+**Preguntas clave:**
+- ¿Beneficio más popular?
+- ¿Tiempo hasta recompra?
+- ¿Beneficios sin uso?
+- ¿Afecta percepción de equidad?
 
 ---
 
-## 🔄 Plan de Iteración
-
-**Cada 2 semanas:**
-
-1. Revisar métricas de uso
-2. Recopilar feedback de usuarios
-3. Ajustar beneficios o precios según datos
-4. Comunicar cambios con transparencia
-
-**Preguntas a responder con datos:**
-
-- ¿Qué beneficio es más popular?
-- ¿Cuánto tiempo pasa hasta recompra?
-- ¿Hay beneficios que nadie usa?
-- ¿Los usuarios entienden el sistema?
-- ¿Afecta negativamente la percepción de equidad?
-
----
-
-## 🎉 Próximos Pasos Inmediatos
-
-### Fase 1: MVP (Semanas 1-2)
-
-1. ✅ **Crear infraestructura BD**
-   - Tablas: `kofi_credits`, `credit_transactions`, `credit_benefits_used`
-   - Funciones SQL: `add_kofi_credits`, `spend_kofi_credits`
-   - RLS policies
-
-2. ✅ **Panel Admin**
-   - Asignar créditos manualmente
-   - Ver historial de donaciones
-   - Métricas básicas de gasto
-
-3. ✅ **Dashboard Usuario**
-   - Ver balance de créditos
-   - Historial de transacciones
-   - Catálogo de beneficios
-
-4. ✅ **Primer Beneficio: Historia Extendida**
-   - Botón "Usar crédito" en editor
-   - Límite 1000 → 2000 palabras
-   - Badge "✨ Historia Extendida"
-
-5. ✅ **Sistema de Emails**
-   - Confirmación al recibir créditos
-   - Recordatorio a usuarios con 5+ créditos sin usar
-
-### Fase 2: Logros y Más Beneficios (Mes 2-3)
-
-6. ✅ **Nuevos Paths para Ganar Créditos**
-   - Ganar retos (automático al finalizar)
-   - Umbral de excelencia (10+ votos)
-   - Historias destacadas (curación manual)
-   - Racha de 3 historias
-   - Participación activa
-
-7. ✅ **Nuevos Beneficios Consumibles**
-   - Historia Libre (2 créditos)
-   - Destaque 24h (1 crédito)
-   - Exportar PDF (1 crédito)
-
-8. ✅ **Sistema de Bundles**
-   - Pack "Escritor Prolífico" (descuento 33%)
-   - Ofertas temporales estacionales
-
-### Fase 3: Optimización de Gasto (Mes 4+)
-
-9. ✅ **Gamificación del Gasto**
-   - Sistema de bonus por gasto
-   - Badges "Supporter Activo"
-   - Comparación social en dashboard
-
-10. ✅ **Automatización**
-    - Ko-fi webhooks
-    - Asignación automática de créditos
-    - Recordatorios inteligentes contextuales
-
-11. ✅ **Iteración basada en datos**
-    - Monitorear tasa de gasto (objetivo 70%)
-    - Ajustar precios si acumulación >20%
-    - A/B testing de beneficios
-
----
 
 ## 📋 Resumen Ejecutivo
 
 ### El Sistema en Una Página
 
-**🎯 Objetivo:** Monetización sostenible mediante créditos que incentivan donaciones recurrentes
+**🎯 Objetivo:** Monetización sostenible + beneficios 100% equitativos
 
-**💎 Formas de Obtener Créditos:**
+---
 
-1. **Donaciones Ko-fi** (60% del total)
-   - $3 = 3 créditos | $5 = 6 créditos | $10 = 15 créditos
-   - Asignación manual (MVP) → automática (Fase 4)
+### 💎 Obtener Créditos (3 Paths)
 
-2. **Ganar Retos** (15% del total)
-   - 1° lugar: 5 créditos | 2° lugar: 3 créditos | 3° lugar: 2 créditos
+| Path | Créditos/mes | % | Método |
+|------|--------------|---|--------|
+| 💰 **Donaciones Ko-fi** | 30-50 | 60% | $3=3 / $5=6 / $10=15 |
+| 🏆 **Ganar Retos** | 10 | 15% | 1°=5 / 2°=3 / 3°=2 |
+| ⭐ **Logros Calidad** | 14-21 | 25% | Umbral 10+ votos, racha, participación |
 
-3. **Logros de Calidad** (25% del total)
-   - Umbral de excelencia (10+ votos): 2 créditos
-   - Historia destacada (curación): 3 créditos
-   - Racha de 3 historias: 1 crédito
-   - Participación activa: 1 crédito/reto
+---
 
-**🎁 Formas de Gastar Créditos:**
+### 🎁 Gastar Créditos (100% Equitativos)
 
-| Beneficio | Costo | Tipo | Prioridad |
-|-----------|-------|------|-----------|
-| Historia Extendida (2000 palabras) | 1 | Consumible | ⭐ MVP |
-| Historia Libre | 2 | Consumible | Fase 2 |
-| Destaque 24h | 1 | Temporal | Fase 2 |
-| Avatar Personalizado | 3 | Permanente | Fase 3 |
-| Exportar PDF | 1 | Consumible | Fase 2 |
-| Feedback Personalizado | 5 | Consumible | Fase 3 |
+| Beneficio | Costo | Equidad | Fase |
+|-----------|-------|---------|------|
+| **Historia Libre** | 2 | ✅ Fuera de concurso | MVP |
+| **Avatar Personalizado** | 3 | ✅ Cosmético | MVP |
+| **Exportar PDF** | 1 | ✅ Post-concurso | MVP |
+| Banner de Perfil | 2 | ✅ Cosmético | 2 |
+| Biografía Extendida | 1 | ✅ Perfil | 2 |
+| Análisis IA | 2 | ✅ Educativo | 2 |
+| Compilación Anual PDF | 5 | ✅ Portafolio | 3 |
+| Café Virtual con Admin | 10 | ✅ Experiencia | 3 |
 
-**🔑 Claves del Éxito:**
+**❌ Eliminados:** Historia Extendida en concurso, Destaque 24h, Vista previa de prompt
 
-1. **80% beneficios consumibles** → Demanda recurrente
-2. **Tasa de gasto 70%+** → Usuarios activos necesitan más créditos
-3. **Recordatorios inteligentes** → Nudges contextuales
-4. **Bundles con descuento** → Incentivo para gastar múltiples créditos
-5. **Ofertas temporales** → FOMO y urgencia
+---
 
-**⚠️ Principios NO Negociables:**
+### 🔑 Principios Clave
 
-- ❌ NO dar ventaja directa en concursos
-- ❌ NO dar créditos por votos directos (evita gaming)
-- ✅ Mantener equidad: usuarios gratuitos pueden ganar igual
-- ✅ Path gratuito viable mediante logros de calidad
-- ✅ Transparencia total sobre el sistema
+1. **Concursos 100% equitativos** - Créditos NO afectan competencia
+2. **80% beneficios consumibles** - Demanda recurrente
+3. **Tasa de gasto 70%+** - Incentiva donaciones recurrentes
+4. **Path gratuito viable** - 40% créditos por mérito
+5. **Lanzamiento limpio 2026** - Todos empiezan desde cero
 
-**📊 Métricas Críticas:**
+---
 
-- **Tasa de gasto mensual:** 70%+ (si <50% = problema)
-- **Tiempo hasta primer gasto:** <7 días
-- **Recompra:** 30%+ de donantes donan 2+ veces
-- **Ingresos mensuales:** $80-120 USD
+### 📊 Métricas Críticas
 
-**🚀 Timeline:**
+| Métrica | Target | Alerta |
+|---------|--------|--------|
+| Tasa de gasto mensual | 70%+ | <50% |
+| Recompra (2da donación) | 30%+ | <20% |
+| Tiempo hasta 1er gasto | <7 días | >14 días |
+| Ingresos mensuales | $80-120 | <$50 |
 
-- **Semanas 1-2:** MVP (Historia Extendida + admin panel)
-- **Mes 2:** Logros de calidad + Historia Libre
-- **Mes 3:** Bundles + gamificación
-- **Mes 4+:** Automatización + optimización
+---
+
+### 🚀 Plan de Lanzamiento Enero 2026
+
+**Nov 2025:** Desarrollo silencioso + anuncio "Coming Soon"
+**Dic 1-15:** Beta cerrada (5 donantes actuales)
+**Dic 15-31:** Campaña educación (4 posts explicativos)
+**Ene 1, 2026:** 🎉 **LANZAMIENTO OFICIAL**
+**Ene 31:** Primeros ganadores reciben créditos automáticamente
+
+**Bonus de Lanzamiento (Solo Enero):**
+- Primera Historia Libre: GRATIS
+- Primera donación Ko-fi: +2 créditos bonus
+- Participar en reto Enero: +1 crédito bonus
 
 ---
 
 **Última actualización:** Diciembre 3, 2025
-**Responsable:** Equipo Letranido
-**Revisión:** Mensual o según hitos de implementación
-**Estado:** ✅ Plan completo - Listo para implementación MVP
+**Estado:** ✅ Plan completo - Listo para desarrollo
+**Decisión clave:** Sistema 100% equitativo, lanzamiento limpio 2026
