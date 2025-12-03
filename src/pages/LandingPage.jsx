@@ -228,6 +228,9 @@ const LandingPage = () => {
     loadLastContestWinners();
   }, [initialized, contests, currentContest, getStoriesByContest]);
 
+  // Estado para forzar re-render cuando cambia la fase automáticamente
+  const [phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
+
   // Contador de tiempo restante (dinámico según la fase del reto)
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
@@ -271,6 +274,47 @@ const LandingPage = () => {
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
+  }, [currentContest, currentContestPhase]);
+
+  // ✅ DETECCIÓN AUTOMÁTICA DE CAMBIO DE FASE
+  // Programa un timeout para el momento exacto del deadline para forzar actualización
+  useEffect(() => {
+    if (!currentContest) return;
+
+    const now = new Date();
+    let deadline;
+
+    // Determinar el próximo deadline según la fase actual
+    if (currentContestPhase === "submission") {
+      deadline = new Date(currentContest.submission_deadline);
+    } else if (currentContestPhase === "voting") {
+      deadline = new Date(currentContest.voting_deadline);
+    } else {
+      // Ya está en counting o results, no hay más deadlines automáticos
+      return;
+    }
+
+    const timeUntilDeadline = deadline - now;
+
+    // Si el deadline ya pasó, forzar actualización inmediata
+    if (timeUntilDeadline <= 0) {
+      console.log("🔄 Deadline alcanzado, forzando actualización de fase");
+      setPhaseCheckTimestamp(Date.now());
+      return;
+    }
+
+    // Programar timeout para el deadline + 2 segundos de buffer
+    console.log(
+      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`
+    );
+    const timeout = setTimeout(() => {
+      console.log("🔄 Deadline alcanzado, actualizando fase automáticamente");
+      setPhaseCheckTimestamp(Date.now());
+      // Forzar refresh del contexto global para actualizar la fase
+      window.location.reload();
+    }, timeUntilDeadline + 2000); // +2s de buffer
+
+    return () => clearTimeout(timeout);
   }, [currentContest, currentContestPhase]);
 
   // Estado para mostrar el modal de reglas
