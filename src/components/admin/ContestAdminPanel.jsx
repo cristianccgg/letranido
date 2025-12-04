@@ -95,17 +95,29 @@ const ContestAdminPanel = () => {
 
     const sortedProduction = productionContests.sort((a, b) => {
       // Ordenar por el mes que representa el concurso (cronológicamente)
-      // Extraer año y mes del campo "month" (formato: "diciembre 2025", "enero 2026")
+      // Extraer año y mes del campo "month" (formato: "diciembre 2025", "enero de 2026", "Diciembre de 2025")
       const parseMonth = (monthStr) => {
+        if (!monthStr) return new Date(0); // Fallback para valores undefined
+
         const months = {
           'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3,
           'mayo': 4, 'junio': 5, 'julio': 6, 'agosto': 7,
           'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
         };
 
-        const parts = monthStr.toLowerCase().split(' ');
+        const parts = monthStr.toLowerCase().trim().split(' ');
         const monthName = parts[0];
-        const year = parseInt(parts[1]) || new Date().getFullYear();
+
+        // ✅ Buscar el año en TODAS las partes (por si hay "de" en medio)
+        let year = new Date().getFullYear();
+        for (const part of parts) {
+          const parsedYear = parseInt(part);
+          if (!isNaN(parsedYear) && parsedYear >= 2020 && parsedYear <= 2100) {
+            year = parsedYear;
+            break;
+          }
+        }
+
         const monthNum = months[monthName] ?? 0;
 
         return new Date(year, monthNum, 1);
@@ -125,13 +137,38 @@ const ContestAdminPanel = () => {
     return [...sortedTest, ...sortedProduction, ...sortedFinalized];
   };
 
+  // Helper para determinar la fase del concurso (igual que GlobalAppContext)
+  const getContestPhase = (contest) => {
+    if (!contest) return "unknown";
+    const now = new Date();
+    const submissionDeadline = new Date(contest.submission_deadline);
+    const votingDeadline = new Date(contest.voting_deadline);
+
+    if (now <= submissionDeadline) {
+      return "submission";
+    } else if (now <= votingDeadline) {
+      return "voting";
+    } else {
+      // Votación terminó
+      if (contest.status === "results" || contest.finalized_at) {
+        return "results";
+      } else {
+        return "counting"; // Esperando cierre manual
+      }
+    }
+  };
+
   // Función para obtener el estilo y label de prioridad
   const getContestPriorityInfo = (contest, index, sortedContests) => {
     const isFinalized = contest.finalized_at !== null;
     const isTest = isTestContest(contest);
-    const activeContests = sortedContests.filter(
-      (c) => c.finalized_at === null
-    );
+    const phase = getContestPhase(contest);
+
+    // ✅ FILTRAR concursos realmente activos (excluir "counting" y "results" sin cerrar)
+    const activeContests = sortedContests.filter((c) => {
+      const cPhase = getContestPhase(c);
+      return c.finalized_at === null && cPhase !== "counting" && cPhase !== "results";
+    });
     const activeIndex = activeContests.findIndex((c) => c.id === contest.id);
 
     if (isFinalized) {
@@ -139,6 +176,15 @@ const ContestAdminPanel = () => {
         priority: null,
         className: "bg-gray-100 text-gray-600",
         label: "Finalizado",
+      };
+    }
+
+    // ✅ Mostrar concursos en "counting" como "Esperando cierre"
+    if (phase === "counting") {
+      return {
+        priority: "PENDING",
+        className: "bg-orange-100 text-orange-700",
+        label: "⏳ Esperando cierre manual",
       };
     }
 
