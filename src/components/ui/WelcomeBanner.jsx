@@ -7,7 +7,7 @@ const WelcomeBanner = () => {
 
   // 📝 CONFIGURACIÓN DEL BANNER - Actualizar mensualmente cuando haya reto finalizado
   const BANNER_CONFIG = {
-    month: "Octubre", // 👈 CAMBIAR MES AQUÍ
+    month: "Noviembre", // 👈 CAMBIAR MES AQUÍ
     enabled: true, // 👈 true = mostrar banner | false = ocultar banner
   };
 
