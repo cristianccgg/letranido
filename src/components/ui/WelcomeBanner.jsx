@@ -30,7 +30,7 @@ const WelcomeBanner = () => {
   if (!isVisible || !BANNER_CONFIG.enabled) return null;
 
   return (
-    <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
+    <div className="bg-linear-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -38,11 +38,11 @@ const WelcomeBanner = () => {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-base font-medium">
                 <span className="hidden sm:flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 flex-shrink-0" />
+                  <Sparkles className="h-4 w-4 shrink-0" />
                   ¡Descubre las historias destacadas de {BANNER_CONFIG.month}!
                 </span>
                 <span className="sm:hidden flex items-center gap-2">
-                  <Sparkles className="h-3 w-3 flex-shrink-0" />
+                  <Sparkles className="h-3 w-3 shrink-0" />
                   Historias destacadas de {BANNER_CONFIG.month}
                 </span>
               </p>
