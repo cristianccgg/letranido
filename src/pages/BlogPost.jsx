@@ -227,6 +227,17 @@ const BlogPost = () => {
 
           {/* Article Header */}
           <article className="bg-white/20 dark:bg-dark-900 backdrop-blur-md rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+            {/* Featured Image */}
+            {post.image && (
+              <div className="w-full h-64 md:h-96 overflow-hidden">
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
             <div className="p-8 md:p-12">
               {/* Category and meta */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
