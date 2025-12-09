@@ -67,6 +67,11 @@ const SEOHead = ({
       <meta name="twitter:image:alt" content={title || 'Letranido - Comunidad de Escritura Creativa'} />
       <meta name="twitter:creator" content="@letranido" />
       <meta name="twitter:site" content="@letranido" />
+
+      {/* Pinterest specific meta tags */}
+      <meta name="pinterest:card" content="summary_large_image" />
+      <meta name="pinterest-rich-pin" content="true" />
+      <meta property="og:see_also" content={siteUrl} />
       
       {/* Article specific meta (for contest pages, stories, etc.) */}
       {type === 'article' && (
