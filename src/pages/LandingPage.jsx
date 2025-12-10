@@ -445,7 +445,7 @@ const LandingPage = () => {
                   prompt diferente
                 </span>{" "}
                 que puedes interpretar como quieras: síguelo exactamente,
-                adaptalo o úsalo como inspiración
+                adáptalo o úsalo como inspiración
               </p>
 
               <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
