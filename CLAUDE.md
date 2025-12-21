@@ -23,11 +23,17 @@
 - **1 voto por encuesta** por usuario autenticado
 - **Componentes**: `PollPreview.jsx`, `PollAdminPanel.jsx`, `NextContestOrPoll.jsx`
 
-### 🎖️ Sistema de Badges y Karma
+### 🎖️ Sistema de Badges y Karma (✅ FIX APLICADO Dic 2024)
 - **Badges automáticos**: Ganadores, finalistas, veteranos
 - **Ko-fi Supporter Badge**: Badge especial con gradiente rosado y shimmer dorado
 - **Karma system**: Rankings dinámicos de la comunidad
 - **Perfiles públicos**: Con métricas y logros de usuarios
+- **Asignación**: Automática al publicar historias (`check_and_award_badges`)
+- **Tipos de badges**:
+  - **Únicos**: `first_story`, `writer_5`, `writer_15`, `contest_winner_veteran`, `contest_winner_legend`
+  - **Repetibles**: `contest_winner`, `contest_finalist` (uno por concurso ganado)
+- **⚠️ CRÍTICO**: Sin constraint UNIQUE, usa lógica `EXISTS()` para prevenir duplicados
+- **Fix Dic 2024**: Corregido conteo de victorias (solo `winner_position = 1`)
 
 ### 👥 Sistema de Perfiles Públicos (Oct 2024 - ✅ EN PRODUCCIÓN)
 - **Autenticación**: Supabase Auth
@@ -168,6 +174,17 @@ npm run build        # Build producción
 - **Conversión automática** por triggers
 - **1 voto por encuesta**, cambio permitido
 
+### ⚠️ Sistema de Badges (CRÍTICO - Dic 2024)
+- **Asignación automática**: Al publicar historias vía `check_and_award_badges()`
+- **Sin constraint UNIQUE**: Badges de concursos se pueden repetir
+- **Victorias = solo 1er lugar**: Query debe usar `winner_position = 1`
+- **Tipo de datos**: Todas las funciones usan `JSONB` no `JSON`
+- **Verificación de duplicados**: Usa `EXISTS()` no `ON CONFLICT`
+- **Auditoría**: Ejecutar `verify_all_badges_comprehensive.sql` mensualmente
+- **Scripts importantes**:
+  - `database-scripts/fixes/fix_badges_without_unique_constraint.sql` - Última versión corregida
+  - `database-scripts/fixes/BADGE_SYSTEM_AUDIT.md` - Documentación completa
+
 ### ⚠️ Features Premium
 - **DESACTIVADAS**: Código existe pero no está público
 - Flags: `PREMIUM_PLANS`, `PREMIUM_EDITOR`, `PORTFOLIO_STORIES` (todos `false`)
@@ -198,9 +215,51 @@ git pull origin main         # Actualizar main
 - **Vercel deployment**: Build automático desde main
 - **Feature flags**: Controlados en `src/lib/config.js`
 
-## Últimos Cambios (Oct 2024)
+## Últimos Cambios
 
-### ✅ Completado y en Producción:
+### ✅ Diciembre 2024 - Fix Sistema de Badges
+
+**Problema reportado**: Usuario recibió badge "Ganador Veterano" incorrectamente al publicar su 5ta historia.
+
+**Bugs encontrados y corregidos**:
+
+1. **Bug de conteo de victorias** ❌→✅
+   - **Problema**: `check_and_award_badges()` contaba TODAS las posiciones ganadoras (1º, 2º, 3º)
+   - **Causa**: Query usaba `is_winner = true` sin verificar `winner_position`
+   - **Fix**: Cambiado a `is_winner = true AND winner_position = 1`
+   - **Impacto**: 1 usuario afectado (badge removido)
+
+2. **Bug de tipo de datos JSON/JSONB** ❌→✅
+   - **Problema**: Función declaraba `JSON` pero usaba operaciones `JSONB`
+   - **Causa**: Type mismatch causaba fallos silenciosos
+   - **Fix**: Cambiado retorno y variable a `JSONB`
+
+3. **Bug de constraint UNIQUE** ❌→✅
+   - **Problema**: Constraint `UNIQUE(user_id, badge_id)` impedía múltiples badges de concursos
+   - **Causa**: Diseño original incorrecto para badges repetibles
+   - **Fix**: Eliminado `ON CONFLICT`, ahora usa `EXISTS()` para verificar duplicados
+   - **Resultado**: Badges de concursos pueden repetirse correctamente
+
+**Archivos modificados**:
+- `database-scripts/fixes/fix_badges_without_unique_constraint.sql` - Fix final aplicado
+- `database-scripts/fixes/verify_all_badges_comprehensive.sql` - Script de auditoría
+- `database-scripts/fixes/BADGE_SYSTEM_AUDIT.md` - Documentación completa
+
+**Funciones SQL actualizadas**:
+- `check_and_award_badges(UUID)` - Ahora retorna JSONB, usa EXISTS() en lugar de ON CONFLICT
+- `award_specific_badge(UUID, VARCHAR, UUID)` - Soporta badges repetibles por contest_id
+- `assign_badge_manual(UUID, VARCHAR)` - Nueva función helper para asignación manual
+
+**Estado actual**: ✅ Sistema funcionando correctamente
+- Badges automáticos se asignan al publicar historias
+- Badges de victorias solo cuentan primer lugar
+- Badges de concursos pueden repetirse (uno por concurso)
+- 3 badges huérfanos de cuentas de prueba (opcional limpiar)
+
+---
+
+### ✅ Octubre 2024 - Perfiles y Features
+
 1. **Sistema de Perfiles Públicos**
    - Biografía, país, redes sociales, sitio web
    - Privacy controls completos
@@ -222,11 +281,11 @@ git pull origin main         # Actualizar main
    - Reemplazó ComingSoonModal
    - Aparece automáticamente a usuarios logueados
 
-### 📝 Rama de Respaldo
+### 📝 Ramas de Respaldo
 - `backup-antes-merge-20251024` - Backup antes del merge a main
 
 ---
 
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Octubre 24, 2024 - Post-lanzamiento de Perfiles Públicos
+**Última actualización**: Diciembre 21, 2024 - Post-fix Sistema de Badges

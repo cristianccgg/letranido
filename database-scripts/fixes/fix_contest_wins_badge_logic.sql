@@ -13,11 +13,11 @@ DROP FUNCTION IF EXISTS check_and_award_badges(UUID);
 
 -- Crear la nueva versión corregida
 CREATE OR REPLACE FUNCTION check_and_award_badges(target_user_id UUID)
-RETURNS JSON AS $$
+RETURNS JSONB AS $$
 DECLARE
   story_count INTEGER;
   contest_wins INTEGER; -- Solo primer lugar (winner_position = 1)
-  new_badges JSON := '[]'::JSON;
+  new_badges JSONB := '[]'::JSONB;
   badge_record RECORD;
 BEGIN
   -- Obtener estadísticas del usuario
@@ -148,5 +148,5 @@ GROUP BY up.id, up.display_name, up.email, ub.earned_at
 ORDER BY first_place_wins DESC;
 
 -- PASO 6: Comentarios actualizados
-COMMENT ON FUNCTION check_and_award_badges IS 'Verifica y otorga automáticamente badges. Contest_wins solo cuenta victorias en PRIMER lugar (winner_position=1)';
+COMMENT ON FUNCTION check_and_award_badges IS 'Verifica y otorga automáticamente badges. Contest_wins solo cuenta victorias en PRIMER lugar (winner_position=1). Retorna JSONB.';
 COMMENT ON FUNCTION award_specific_badge IS 'Otorga un badge específico a un usuario. Incluye support para contest_winner_veteran y contest_winner_legend';
