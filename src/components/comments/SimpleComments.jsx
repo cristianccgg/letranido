@@ -289,24 +289,19 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
           </div>
         ) : (
           comments.map((comment) => (
-            <div 
-              key={comment.id} 
+            <div
+              key={comment.id}
               id={`comment-${comment.id}`}
               className="bg-gray-50 dark:bg-dark-700 rounded-lg p-4"
             >
               <div className="flex items-start gap-3">
-                <UserAvatar 
-                  user={{ name: comment.author, email: `${comment.author}@mock.com` }} 
-                  size="sm" 
-                />
-
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <UserCardWithBadges
                         userId={comment.author_id}
                         userName={comment.author}
-                        avatarSize="xs"
+                        avatarSize="sm"
                         badgeSize="xs"
                         maxBadges={1}
                         className="font-medium"
