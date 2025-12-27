@@ -6,8 +6,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { useGoogleAnalytics, AnalyticsEvents } from "../../hooks/useGoogleAnalytics";
 import UserAvatar from "../ui/UserAvatar";
 import ReportModal from "../modals/ReportModal";
-import { UserWithTopBadge } from "../ui/UserNameWithBadges";
-import ProfileButton from "../ui/ProfileButton";
+import UserCardWithBadges from "../ui/UserCardWithBadges";
 
 // Hook para detectar tamaño de pantalla
 const useIsMobile = () => {
@@ -304,17 +303,13 @@ const SimpleComments = ({ storyId, storyTitle, contestId, onCommentsCountChange 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <UserWithTopBadge 
+                      <UserCardWithBadges
                         userId={comment.author_id}
                         userName={comment.author}
+                        avatarSize="xs"
+                        badgeSize="xs"
+                        maxBadges={1}
                         className="font-medium"
-                      />
-                      <ProfileButton 
-                        userId={comment.author_id}
-                        size="xs"
-                        variant="primary"
-                        showText={false}
-                        className="ml-1"
                       />
                       <span className="text-xs text-gray-500 dark:text-dark-400">
                         {formatTimeAgo(comment.created_at)}
