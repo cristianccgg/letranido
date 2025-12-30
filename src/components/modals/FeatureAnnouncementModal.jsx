@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { X, UserCircle, BookCheck, Sparkles, ArrowRight } from "lucide-react";
+import { X, MessageSquare, Heart, Reply, Sparkles, ArrowRight, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /**
  * Modal que anuncia nuevas features a los usuarios existentes
  * Se muestra UNA VEZ usando localStorage
+ *
+ * Actualizado: Diciembre 2024 - Comentarios interactivos + Roadmap 2025
  */
 const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
-  const STORAGE_KEY = `feature_announcement_perfiles_${userId}`;
+  const STORAGE_KEY = `feature_announcement_comments_dec2024_${userId}`;
   const [hasSeenAnnouncement, setHasSeenAnnouncement] = useState(false);
 
   useEffect(() => {
@@ -47,10 +49,10 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold">
-                ¡Novedades!
+                ✨ Comentarios más interactivos
               </h2>
               <p className="text-white/90 text-xs">
-                Mejoras pensadas para ti
+                Nuevas funcionalidades disponibles ahora
               </p>
             </div>
           </div>
@@ -58,83 +60,73 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId }) => {
 
         {/* Contenido - más compacto */}
         <div className="p-4 sm:p-5 space-y-4">
-          {/* Feature 1: Perfiles Públicos */}
+          {/* Feature 1: Respuestas a Comentarios */}
           <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-lg">
-                <UserCircle className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                <Reply className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                ✨ Perfiles Públicos
+                💬 Responde Comentarios
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Crea tu perfil con biografía, país y redes sociales. Todas tus historias visibles en un solo lugar.
+                Ahora puedes responder directamente a comentarios en las historias. Crea conversaciones más profundas con otros lectores.
               </p>
             </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-          {/* Feature 2: Historias Leídas */}
+          {/* Feature 2: Likes en Comentarios */}
           <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
-                <BookCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg">
+                <Heart className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                📖 Lectura Rastreada
+                ❤️ Likes en Comentarios
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Marca automáticamente historias como leídas
+                Dale like a los comentarios que te gusten. Celebra los aportes valiosos de la comunidad.
               </p>
             </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-          {/* Feature 3: Ko-fi Supporter Badge - PREVIEW VISUAL */}
+          {/* Roadmap 2026 */}
           <div className="flex gap-3">
             <div className="flex-shrink-0">
-              {/* Badge visual - solo icono con gradiente rosado */}
-              <div className="bg-gradient-to-r from-pink-400 via-rose-500 to-red-500 p-2 rounded-lg shadow-md shadow-pink-500/50 border border-pink-300">
-                <span className="text-lg">❤️</span>
+              <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 p-2 rounded-lg">
+                <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                ☕ Badge Ko-fi Supporter
+                🚀 Próximo en 2026
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Reconocimiento especial para quienes apoyan en Ko-fi
+                Historias libres fuera de retos, múltiples concursos mensuales, y un nuevo sistema de créditos. ¡Mantente atento!
               </p>
             </div>
           </div>
 
           {/* CTA Section - más compacto */}
-          <div className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-lg p-4 border border-primary-200 dark:border-primary-800 mt-4">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800 mt-4">
             <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 text-center">
-              Es el momento perfecto para que los lectores te conozcan mejor
+              ¡Visita cualquier historia y prueba las nuevas funciones!
             </p>
-            <div className="flex flex-col gap-2">
-              <Link
-                to="/profile"
-                onClick={handleClose}
-                className="inline-flex cursor-pointer items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Completar mi perfil
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-              <button
-                onClick={handleClose}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              >
-                Cerrar
-              </button>
-            </div>
+            <button
+              onClick={handleClose}
+              className="w-full inline-flex cursor-pointer items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              ¡Entendido!
+              <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>

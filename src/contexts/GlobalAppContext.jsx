@@ -3073,7 +3073,7 @@ export function GlobalAppProvider({ children }) {
     try {
       console.log("📝 Fetching comments for story:", storyId);
 
-      // Primero obtener los comentarios
+      // Obtener TODOS los comentarios (principales y respuestas)
       const { data: comments, error: commentsError } = await supabase
         .from("comments")
         .select(`
@@ -3088,29 +3088,40 @@ export function GlobalAppProvider({ children }) {
           updated_at
         `)
         .eq("story_id", storyId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Respuestas en orden cronológico
 
       if (commentsError) {
         console.error("❌ Error fetching comments:", commentsError);
-        return { success: false, error: commentsError.message, comments: [] };
+        return {
+          success: false,
+          error: commentsError.message,
+          comments: [],
+          replies: {},
+          allComments: []
+        };
       }
 
       if (!comments || comments.length === 0) {
         console.log("✅ No comments found");
-        return { success: true, comments: [] };
+        return {
+          success: true,
+          comments: [],
+          replies: {},
+          allComments: []
+        };
       }
 
       // Obtener IDs únicos de usuarios
       const userIds = [...new Set(comments.map(c => c.user_id).filter(Boolean))];
-      
-      // Obtener perfiles de usuarios (temporalmente deshabilitado)
+
+      // Obtener perfiles de usuarios
       let profiles = null;
       try {
         const { data: profilesData, error: profilesError } = await supabase
-          .from("user_profiles") // Intentar con user_profiles
+          .from("user_profiles")
           .select("id, display_name, email")
           .in("id", userIds);
-        
+
         if (!profilesError) {
           profiles = profilesData;
         }
@@ -3124,12 +3135,48 @@ export function GlobalAppProvider({ children }) {
         profiles: profiles?.find(p => p.id === comment.user_id) || null
       }));
 
-      console.log("✅ Comments loaded:", commentsWithProfiles?.length || 0);
-      console.log("📊 Comments data:", commentsWithProfiles);
-      return { success: true, comments: commentsWithProfiles || [] };
+      // Separar comentarios principales de respuestas
+      const mainComments = commentsWithProfiles.filter(c => !c.parent_id);
+      const replies = commentsWithProfiles.filter(c => c.parent_id);
+
+      // Ordenar comentarios principales: más recientes primero
+      mainComments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      // Agrupar respuestas por parent_id para acceso O(1)
+      const repliesByParent = {};
+      replies.forEach(reply => {
+        if (!repliesByParent[reply.parent_id]) {
+          repliesByParent[reply.parent_id] = [];
+        }
+        repliesByParent[reply.parent_id].push(reply);
+      });
+
+      // Ordenar respuestas dentro de cada grupo: más antiguas primero (conversación cronológica)
+      Object.keys(repliesByParent).forEach(parentId => {
+        repliesByParent[parentId].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      });
+
+      console.log("✅ Comments loaded:", {
+        main: mainComments.length,
+        replies: replies.length,
+        total: commentsWithProfiles.length
+      });
+
+      return {
+        success: true,
+        comments: mainComments,
+        replies: repliesByParent,
+        allComments: commentsWithProfiles
+      };
     } catch (err) {
       console.error("💥 Error fetching comments:", err);
-      return { success: false, error: err.message, comments: [] };
+      return {
+        success: false,
+        error: err.message,
+        comments: [],
+        replies: {},
+        allComments: []
+      };
     }
   }, []);
 
@@ -3239,37 +3286,78 @@ export function GlobalAppProvider({ children }) {
       }
 
       try {
-        console.log("❤️ Toggling comment like:", commentId);
+        console.log("❤️ Toggling comment like:", commentId, "user:", state.user.id);
 
-        // Versión simplificada: solo incrementar/decrementar el contador
-        // TODO: Implementar tabla comment_likes para tracking real de usuarios
+        // Llamar a la función SQL que hace toggle automático (like/unlike)
+        const { data, error } = await supabase.rpc('toggle_comment_like', {
+          p_user_id: state.user.id,
+          p_comment_id: commentId
+        });
 
-        // Obtener comentario actual
-        const { data: currentComment, error: fetchError } = await supabase
-          .from("comments")
-          .select("likes_count")
-          .eq("id", commentId)
-          .single();
+        if (error) throw error;
 
-        if (fetchError) throw fetchError;
-
-        // Por ahora, simplemente alternar entre incrementar/decrementar
-        // En una implementación real, verificaríamos si el usuario ya dio like
-        const currentCount = currentComment.likes_count || 0;
-        const newCount = currentCount + 1; // Siempre incrementar por ahora
-
-        const { error: updateError } = await supabase
-          .from("comments")
-          .update({ likes_count: newCount })
-          .eq("id", commentId);
-
-        if (updateError) throw updateError;
-
-        console.log("❤️ Comment like toggled");
-        return { success: true, liked: true };
+        console.log("✅ Comment like toggled:", data);
+        return {
+          success: true,
+          action: data.action, // 'liked' o 'unliked'
+          likesCount: data.likes_count,
+          liked: data.action === 'liked'
+        };
       } catch (err) {
         console.error("💥 Error toggling comment like:", err);
         return { success: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  const checkUserCommentLike = useCallback(
+    async (commentId) => {
+      if (!state.isAuthenticated || !state.user) {
+        return { success: true, liked: false };
+      }
+
+      try {
+        const { data, error } = await supabase.rpc('check_user_comment_like', {
+          p_user_id: state.user.id,
+          p_comment_id: commentId
+        });
+
+        if (error) throw error;
+
+        return { success: true, liked: data };
+      } catch (err) {
+        console.error("Error checking comment like:", err);
+        return { success: false, liked: false, error: err.message };
+      }
+    },
+    [state.isAuthenticated, state.user]
+  );
+
+  const getUserCommentLikesBatch = useCallback(
+    async (commentIds) => {
+      if (!state.isAuthenticated || !state.user || !commentIds.length) {
+        return { success: true, likes: {} };
+      }
+
+      try {
+        const { data, error } = await supabase.rpc('get_user_comment_likes_batch', {
+          p_user_id: state.user.id,
+          p_comment_ids: commentIds
+        });
+
+        if (error) throw error;
+
+        // Convertir array a objeto para búsqueda O(1)
+        const likesMap = {};
+        data.forEach(item => {
+          likesMap[item.comment_id] = item.liked;
+        });
+
+        return { success: true, likes: likesMap };
+      } catch (err) {
+        console.error("Error getting comment likes batch:", err);
+        return { success: false, likes: {}, error: err.message };
       }
     },
     [state.isAuthenticated, state.user]
@@ -4217,6 +4305,8 @@ export function GlobalAppProvider({ children }) {
     addComment,
     deleteComment,
     toggleCommentLike,
+    checkUserCommentLike,
+    getUserCommentLikesBatch,
 
     // Funciones de reportes
     reportComment,
