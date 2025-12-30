@@ -27,6 +27,7 @@ import LandingPage from "./pages/LandingPage";
 import CurrentContest from "./pages/CurrentContest";
 import StoryPage from "./pages/StoryPage";
 import WritePrompt from "./pages/WritePrompt";
+import FeedPage from "./pages/FeedPage";
 
 // Páginas menos críticas - lazy loading
 const UnifiedProfile = lazy(() => import("./pages/UnifiedProfile"));
@@ -246,6 +247,9 @@ function AppContent() {
             <Route path="/contest/current" element={<CurrentContest />} />
             <Route path="/contest/:id" element={<CurrentContest />} />
             <Route path="/story/:id" element={<StoryPage />} />
+
+            {/* Feed */}
+            <Route path="/feed" element={<FeedPage />} />
 
             {/* Admin */}
             <Route path="/admin" element={<ContestAdminPanel />} />
