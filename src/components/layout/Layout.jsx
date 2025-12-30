@@ -192,6 +192,10 @@ const Layout = ({ children, onFeedbackClick }) => {
       href: "/",
     },
     {
+      name: "Feed",
+      href: "/feed",
+    },
+    {
       name: getWriteButtonText(),
       href: writeButtonState.href,
       disabled: writeButtonState.disabled,

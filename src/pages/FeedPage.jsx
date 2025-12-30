@@ -5,12 +5,13 @@ import { useGlobalApp } from '../contexts/GlobalAppContext';
 import useFeedPrompts from '../hooks/useFeedPrompts';
 import useMicroStories from '../hooks/useMicroStories';
 import MicroStoryCard from '../components/feed/MicroStoryCard';
+import ArchivedPromptsView from '../components/feed/ArchivedPromptsView';
 import { supabase } from '../lib/supabase';
 
 const FeedPage = () => {
   const { user } = useGlobalApp();
   const { activePrompt, loading: promptsLoading } = useFeedPrompts('active');
-  const { stories, loading: storiesLoading, refreshStories, userHasPublished } = useMicroStories(activePrompt?.id);
+  const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, userHasPublished } = useMicroStories(activePrompt?.id);
 
   // Estado del formulario
   const [title, setTitle] = useState('');
@@ -89,6 +90,8 @@ const FeedPage = () => {
       setTitle('');
       setContent('');
       setWordCount(0);
+
+      // Refresh to get the complete updated list
       refreshStories();
 
       setTimeout(() => setSuccess(null), 3000);
@@ -104,21 +107,90 @@ const FeedPage = () => {
   const handleLike = async (storyId) => {
     if (!user) return;
 
-    // Optimistic update
+    // Optimistic update del estado de like y contador
     const currentlyLiked = userLikes[storyId] || false;
+    const likeChange = currentlyLiked ? -1 : 1;
+
     setUserLikes(prev => ({ ...prev, [storyId]: !currentlyLiked }));
+    updateStoryLikeCount(storyId, likeChange);
 
     try {
+      // Llamar a la función que hace toggle del like
       await supabase.rpc('toggle_feed_story_like', {
         p_user_id: user.id,
         p_story_id: storyId
       });
 
-      refreshStories();
+      // El trigger de la BD ya actualizó el contador en feed_stories.likes_count
+      // Nuestro update optimista mantiene la UI sincronizada sin reload
     } catch (err) {
-      // Rollback on error
+      // Rollback on error - revertir tanto el estado de like como el contador
       setUserLikes(prev => ({ ...prev, [storyId]: currentlyLiked }));
+      updateStoryLikeCount(storyId, -likeChange);
       console.error('Error toggling like:', err);
+    }
+  };
+
+  // Eliminar historia propia
+  const handleDelete = async (storyId) => {
+    if (!user) return;
+
+    // Confirmar eliminación
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta historia? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('feed_stories')
+        .delete()
+        .eq('id', storyId)
+        .eq('user_id', user.id); // Solo el autor puede eliminar
+
+      if (error) throw error;
+
+      // Actualizar estado local sin hacer refresh (evita error de schema cache)
+      // El hook useMicroStories se actualizará automáticamente en el próximo ciclo
+      setSuccess('Historia eliminada correctamente');
+
+      // Pequeño delay antes de refresh para que la BD procese el delete
+      setTimeout(() => {
+        refreshStories();
+        setSuccess(null);
+      }, 500);
+    } catch (err) {
+      console.error('Error deleting story:', err);
+      setError('Error al eliminar la historia');
+      setTimeout(() => setError(null), 3000);
+    }
+  };
+
+  // Reportar historia
+  const handleReport = async (storyId) => {
+    if (!user) return;
+
+    const reason = window.prompt('¿Por qué reportas esta historia?\n(Spam, contenido inapropiado, plagio, etc.)');
+    if (!reason) return;
+
+    try {
+      const { error } = await supabase
+        .from('reports')
+        .insert([{
+          reporter_id: user.id,
+          reported_item_type: 'feed_story',
+          reported_item_id: storyId,
+          reason: reason.trim(),
+          description: null,
+        }]);
+
+      if (error) throw error;
+
+      setSuccess('Reporte enviado. Gracias por ayudarnos a mantener la comunidad segura.');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      console.error('Error reporting story:', err);
+      setError('Error al enviar el reporte');
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -278,6 +350,8 @@ const FeedPage = () => {
                           onLike={handleLike}
                           isLiked={userLikes[story.id] || false}
                           currentUserId={user?.id}
+                          onDelete={handleDelete}
+                          onReport={handleReport}
                         />
                       ))}
                     </>
@@ -304,18 +378,8 @@ const FeedPage = () => {
           </>
         )}
 
-        {/* Vista de archivo (pendiente de implementar) */}
-        {showArchive && (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <Archive className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 dark:text-gray-400 font-medium">
-              Archivo de prompts anteriores
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              Próximamente podrás ver prompts anteriores
-            </p>
-          </div>
-        )}
+        {/* Vista de archivo */}
+        {showArchive && <ArchivedPromptsView />}
       </div>
     </div>
   );

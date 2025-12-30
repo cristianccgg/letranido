@@ -58,6 +58,47 @@
 - **Tabla BD**: `user_story_reads` con funciones SQL optimizadas
 - **Hook**: `useReadStories.js` para gestión completa del sistema
 
+### 📱 Sistema de Feed (Dic 2024 - ✅ EN PRODUCCIÓN)
+- **Funcionalidad**: Red social de microhistorias (50-300 palabras) basadas en prompts semanales
+- **Diseño**: Estilo Instagram/Facebook - todo en una página con scroll continuo
+- **Integración**: Feed integrado en landing page autenticada (debajo de banners de concursos)
+- **Características principales**:
+  - Prompts semanales rotativos (`active` → `archived`)
+  - 1 historia por usuario por prompt
+  - Likes en historias (optimistic UI, sin reload)
+  - Comentarios anidados (1 nivel: comentario → respuesta)
+  - Likes en comentarios (optimistic UI)
+  - Delete y report para historias y comentarios
+  - Vista de archivo para prompts pasados
+  - Toggle entre vista actual y archivo
+- **Ubicación**:
+  - **Landing autenticada**: Feed aparece debajo de banners de concurso (vista principal)
+  - **Ruta `/feed`**: Vista dedicada (accesible desde navegación)
+- **Tablas BD**:
+  - `feed_prompts` - Prompts con estados (active/archived)
+  - `feed_stories` - Microhistorias con word_count
+  - `feed_story_likes` - Tracking de likes por usuario
+  - `feed_story_comments` - Comentarios con parent_id
+  - `feed_comment_likes` - Likes en comentarios
+- **Componentes**:
+  - `LandingPage.jsx` - Integra feed completo para usuarios autenticados
+  - `FeedPage.jsx` - Vista dedicada del feed (ruta `/feed`)
+  - `MicroStoryCard.jsx` - Tarjeta de historia estilo red social
+  - `FeedCommentsSection.jsx` - Sistema de comentarios con respuestas
+  - `ArchivedPromptsView.jsx` - Vista de prompts pasados
+- **Hooks**: `useFeedPrompts.js`, `useMicroStories.js`
+- **Funciones SQL**:
+  - `toggle_feed_story_like()` - Like/unlike automático
+  - `toggle_feed_comment_like()` - Like/unlike en comentarios
+  - `get_user_feed_story_likes_batch()` - Batch loading de likes
+  - `get_user_feed_comment_likes_batch()` - Batch loading de likes de comentarios
+- **⚠️ CRÍTICO**:
+  - Optimistic updates en todos los likes (no recargan página)
+  - Manual JOIN workaround para evitar errores de Supabase schema
+  - Triggers automáticos para contadores (likes_count, comments_count)
+  - Feed solo visible para usuarios autenticados
+  - Landing no autenticada mantiene diseño original completo
+
 ## Arquitectura del Código
 
 ### Estructura de Carpetas Clave
@@ -67,15 +108,23 @@ src/
 ├── pages/
 │   ├── CurrentContest.jsx           # Página del reto actual
 │   ├── LandingPage.jsx             # Landing con ganadores
-│   └── AuthorProfile.jsx           # Perfiles públicos ✅
+│   ├── AuthorProfile.jsx           # Perfiles públicos ✅
+│   └── FeedPage.jsx                # Feed de microhistorias ✅
 ├── components/
 │   ├── admin/                      # Paneles de administración
+│   ├── feed/                       # Sistema de feed ✅
+│   │   ├── MicroStoryCard.jsx     # Tarjeta de historia
+│   │   ├── FeedCommentsSection.jsx # Sistema de comentarios
+│   │   ├── FeedStoryComments.jsx  # Adaptador de comentarios
+│   │   └── ArchivedPromptsView.jsx # Vista de archivo
 │   ├── ui/                        # Componentes reutilizables
 │   │   ├── ProfileButton.jsx      # Botón de perfil inline ✅
 │   │   ├── SocialLinksEditor.jsx  # Editor de redes sociales ✅
 │   │   └── UserCardWithBadges.jsx # Con ProfileButton integrado ✅
 │   └── voting/                    # Sistema de votación
 ├── hooks/                         # Custom hooks
+│   ├── useFeedPrompts.js         # Gestión de prompts del feed ✅
+│   └── useMicroStories.js        # Gestión de microhistorias ✅
 └── lib/                          # Utilidades y configuración
 ```
 
@@ -94,6 +143,12 @@ src/
   - Columnas nuevas: `bio`, `country`, `social_links` (JSON), `profile_is_public`
 - `polls`, `poll_options`, `poll_votes` - Sistema de encuestas
 - `user_story_reads` - Tracking de historias leídas ✅
+- **Feed system** (Dic 2024):
+  - `feed_prompts` - Prompts semanales con estados
+  - `feed_stories` - Microhistorias (50-300 palabras)
+  - `feed_story_likes` - Likes por usuario en historias
+  - `feed_story_comments` - Comentarios con parent_id
+  - `feed_comment_likes` - Likes por usuario en comentarios
 
 ## Comunicación de Features
 

@@ -1,4 +1,4 @@
-// pages/LandingPage.jsx - VERSIÓN CORREGIDA SIN HISTORIAS
+// pages/LandingPage.jsx - Landing con feed integrado para usuarios autenticados
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -22,6 +22,10 @@ import {
   MessageCircle,
   Vote,
   Crown,
+  Rss,
+  Send,
+  Archive,
+  AlertCircle,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import SEOHead from "../components/SEO/SEOHead";
@@ -40,6 +44,12 @@ import WelcomeBanner from "../components/ui/WelcomeBanner";
 import FeatureAnnouncementModal from "../components/modals/FeatureAnnouncementModal";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
+// Feed components
+import useFeedPrompts from "../hooks/useFeedPrompts";
+import useMicroStories from "../hooks/useMicroStories";
+import MicroStoryCard from "../components/feed/MicroStoryCard";
+import ArchivedPromptsView from "../components/feed/ArchivedPromptsView";
+import { supabase } from "../lib/supabase";
 
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
@@ -97,6 +107,24 @@ const LandingPage = () => {
     loadGlobalStats,
   } = useGlobalApp();
 
+  // 🆕 FEED STATE - Solo para usuarios autenticados
+  const { activePrompt, loading: promptsLoading } = useFeedPrompts('active');
+  const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, userHasPublished } = useMicroStories(activePrompt?.id);
+
+  // Estado del formulario de feed
+  const [feedTitle, setFeedTitle] = useState('');
+  const [feedContent, setFeedContent] = useState('');
+  const [feedWordCount, setFeedWordCount] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+  const [feedError, setFeedError] = useState(null);
+  const [feedSuccess, setFeedSuccess] = useState(null);
+
+  // Estado de likes (optimistic UI)
+  const [userLikes, setUserLikes] = useState({});
+
+  // Tab para ver archivo
+  const [showArchive, setShowArchive] = useState(false);
+
   // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
   const historicalStats = {
     totalUsers: globalStats.totalUsers ?? 34,
@@ -137,6 +165,35 @@ const LandingPage = () => {
       return () => clearTimeout(timer);
     }
   }, [user, initialized]);
+
+  // 🆕 FEED: Calcular word count
+  useEffect(() => {
+    const words = feedContent.trim().split(/\s+/).filter(w => w.length > 0);
+    setFeedWordCount(words.length);
+  }, [feedContent]);
+
+  // 🆕 FEED: Cargar likes del usuario
+  useEffect(() => {
+    const loadUserLikes = async () => {
+      if (!user || !stories.length) return;
+
+      const storyIds = stories.map(s => s.id);
+      const { data } = await supabase.rpc('get_user_feed_story_likes_batch', {
+        p_user_id: user.id,
+        p_story_ids: storyIds
+      });
+
+      if (data) {
+        const likesMap = {};
+        data.forEach(item => {
+          likesMap[item.story_id] = true;
+        });
+        setUserLikes(likesMap);
+      }
+    };
+
+    loadUserLikes();
+  }, [user, stories]);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
@@ -316,6 +373,73 @@ const LandingPage = () => {
 
     return () => clearTimeout(timeout);
   }, [currentContest, currentContestPhase]);
+
+  // 🆕 FEED: Handlers
+  const handlePublishFeed = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      setFeedError('Debes iniciar sesión para publicar');
+      return;
+    }
+
+    if (feedWordCount < 50 || feedWordCount > 300) {
+      setFeedError('La historia debe tener entre 50 y 300 palabras');
+      return;
+    }
+
+    try {
+      setPublishing(true);
+      setFeedError(null);
+
+      const { error: insertError } = await supabase
+        .from('feed_stories')
+        .insert([{
+          prompt_id: activePrompt.id,
+          user_id: user.id,
+          title: feedTitle.trim() || null,
+          content: feedContent.trim(),
+          word_count: feedWordCount
+        }]);
+
+      if (insertError) throw insertError;
+
+      setFeedSuccess('¡Historia publicada!');
+      setFeedTitle('');
+      setFeedContent('');
+      setFeedWordCount(0);
+
+      refreshStories();
+
+      setTimeout(() => setFeedSuccess(null), 3000);
+    } catch (err) {
+      console.error('Error publishing feed story:', err);
+      setFeedError(err.message);
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleLikeFeed = async (storyId) => {
+    if (!user) return;
+
+    const currentlyLiked = userLikes[storyId] || false;
+    const likeChange = currentlyLiked ? -1 : 1;
+
+    setUserLikes(prev => ({ ...prev, [storyId]: !currentlyLiked }));
+    updateStoryLikeCount(storyId, likeChange);
+
+    try {
+      await supabase.rpc('toggle_feed_story_like', {
+        p_user_id: user.id,
+        p_story_id: storyId
+      });
+    } catch (err) {
+      setUserLikes(prev => ({ ...prev, [storyId]: currentlyLiked }));
+      updateStoryLikeCount(storyId, -likeChange);
+      console.error('Error toggling like:', err);
+    }
+  };
 
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
@@ -595,6 +719,160 @@ const LandingPage = () => {
                 currentContest={currentContest}
                 isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
               />
+
+              {/* 🆕 FEED SECTION - Solo visible para usuarios autenticados */}
+              {user && (
+                <div className="mt-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
+                  {/* Header del Feed */}
+                  <div className="bg-linear-to-r from-purple-500 to-pink-500 text-white p-6 rounded-t-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Rss className="w-6 h-6" />
+                        <h2 className="text-2xl font-bold">Feed Comunitario</h2>
+                      </div>
+                      <button
+                        onClick={() => setShowArchive(!showArchive)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                      >
+                        <Archive className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {showArchive ? 'Ver Feed Actual' : 'Ver Archivo'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    {!showArchive ? (
+                      <>
+                        {/* Prompt Activo */}
+                        {activePrompt && (
+                          <div className="mb-6 bg-linear-to-r from-indigo-50 to-purple-50 dark:from-dark-700 dark:to-dark-600 p-6 rounded-xl border border-purple-200 dark:border-dark-500">
+                            <div className="flex items-start gap-3 mb-3">
+                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                                  Prompt de esta semana
+                                </h3>
+                                <p className="text-gray-700 dark:text-gray-200 italic text-lg">
+                                  "{activePrompt.prompt_text}"
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                  50-300 palabras • {activePrompt.stories_count || 0} historias publicadas
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Formulario de publicación */}
+                            {!userHasPublished ? (
+                              <form onSubmit={handlePublishFeed} className="mt-4 space-y-4">
+                                <div>
+                                  <input
+                                    type="text"
+                                    value={feedTitle}
+                                    onChange={(e) => setFeedTitle(e.target.value)}
+                                    placeholder="Título (opcional)"
+                                    maxLength={100}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                                  />
+                                </div>
+                                <div>
+                                  <textarea
+                                    value={feedContent}
+                                    onChange={(e) => setFeedContent(e.target.value)}
+                                    placeholder="Escribe tu microhistoria..."
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none"
+                                  />
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className={`text-sm ${
+                                      feedWordCount < 50 || feedWordCount > 300
+                                        ? 'text-red-600 dark:text-red-400'
+                                        : 'text-green-600 dark:text-green-400'
+                                    }`}>
+                                      {feedWordCount} / 50-300 palabras
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {feedError && (
+                                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                    <span className="text-sm text-red-600 dark:text-red-400">{feedError}</span>
+                                  </div>
+                                )}
+
+                                {feedSuccess && (
+                                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                    <span className="text-sm text-green-600 dark:text-green-400">{feedSuccess}</span>
+                                  </div>
+                                )}
+
+                                <button
+                                  type="submit"
+                                  disabled={publishing || feedWordCount < 50 || feedWordCount > 300}
+                                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-lg transition-all disabled:cursor-not-allowed"
+                                >
+                                  {publishing ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                      Publicando...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Send className="w-5 h-5" />
+                                      Publicar Historia
+                                    </>
+                                  )}
+                                </button>
+                              </form>
+                            ) : (
+                              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                <p className="text-green-700 dark:text-green-300 text-center">
+                                  ✓ Ya publicaste tu historia para este prompt
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Lista de historias */}
+                        {storiesLoading ? (
+                          <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                            <p className="text-gray-600 dark:text-gray-400">Cargando historias...</p>
+                          </div>
+                        ) : stories.length > 0 ? (
+                          <div className="space-y-4">
+                            <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
+                              Historias de la comunidad ({stories.length})
+                            </h3>
+                            {stories.map((story) => (
+                              <MicroStoryCard
+                                key={story.id}
+                                story={story}
+                                onLike={handleLikeFeed}
+                                isLiked={userLikes[story.id] || false}
+                                currentUserId={user?.id}
+                                onDelete={null}
+                                onReport={null}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p>Sé el primero en publicar una historia para este prompt</p>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <ArchivedPromptsView />
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Estadísticas integradas en el hero */}
               <div className="mt-12 ">

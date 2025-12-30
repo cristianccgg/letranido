@@ -4,9 +4,11 @@ import { Heart, MessageCircle, MoreVertical, Flag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import UserAvatar from '../ui/UserAvatar';
 import UserCardWithBadges from '../ui/UserCardWithBadges';
+import FeedStoryComments from './FeedStoryComments';
 
 const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onReport }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(story.comments_count || 0);
   const isAuthor = currentUserId === story.user_id;
 
   // Formatear tiempo relativo
@@ -50,7 +52,12 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
         {/* Menú de opciones */}
         <div className="relative">
           <button
-            onClick={() => setShowMenu(!showMenu)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
           >
             <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -101,7 +108,12 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
       {/* Acciones */}
       <div className="flex items-center gap-6 pt-2 border-t border-gray-100 dark:border-gray-700">
         <button
-          onClick={() => onLike && onLike(story.id)}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onLike && onLike(story.id);
+          }}
           className={`flex items-center gap-2 transition-colors ${
             isLiked
               ? 'text-red-500'
@@ -114,13 +126,20 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
           )}
         </button>
 
-        <button className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 transition-colors">
+        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
           <MessageCircle className="w-5 h-5" />
-          {story.comments_count > 0 && (
-            <span className="text-sm font-medium">{story.comments_count}</span>
+          {commentsCount > 0 && (
+            <span className="text-sm font-medium">{commentsCount}</span>
           )}
-        </button>
+        </div>
       </div>
+
+      {/* Sistema de comentarios expandible */}
+      <FeedStoryComments
+        storyId={story.id}
+        initialCount={commentsCount}
+        onCountChange={setCommentsCount}
+      />
     </div>
   );
 };

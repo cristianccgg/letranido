@@ -23,24 +23,37 @@ const useMicroStories = (promptId) => {
       setLoading(true);
       setError(null);
 
-      // Cargar historias con información del autor
-      const { data, error: fetchError } = await supabase
+      // Cargar historias
+      const { data: storiesData, error: fetchError } = await supabase
         .from('feed_stories')
-        .select(`
-          *,
-          author:user_profiles!user_id (
-            id,
-            display_name,
-            avatar_url,
-            country
-          )
-        `)
+        .select('*')
         .eq('prompt_id', promptId)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
 
-      setStories(data || []);
+      // Cargar perfiles de autores
+      let data = [];
+      if (storiesData && storiesData.length > 0) {
+        const userIds = [...new Set(storiesData.map(s => s.user_id))];
+        const { data: profiles } = await supabase
+          .from('user_profiles')
+          .select('id, display_name, avatar_url, country')
+          .in('id', userIds);
+
+        // Combinar datos
+        const profilesMap = {};
+        profiles?.forEach(p => {
+          profilesMap[p.id] = p;
+        });
+
+        data = storiesData.map(story => ({
+          ...story,
+          author: profilesMap[story.user_id] || null
+        }));
+      }
+
+      setStories(data);
 
       // Verificar si el usuario actual ya publicó
       const { data: { user } } = await supabase.auth.getUser();
@@ -60,11 +73,23 @@ const useMicroStories = (promptId) => {
     loadStories();
   }, [loadStories]);
 
+  // Función para actualizar el contador de likes localmente sin recargar todo
+  const updateStoryLikeCount = useCallback((storyId, increment) => {
+    setStories(prevStories =>
+      prevStories.map(story =>
+        story.id === storyId
+          ? { ...story, likes_count: story.likes_count + increment }
+          : story
+      )
+    );
+  }, []);
+
   return {
     stories,
     loading,
     error,
     refreshStories: loadStories,
+    updateStoryLikeCount,
     userHasPublished: !!userStoryId,
     userStoryId,
   };
