@@ -228,6 +228,28 @@ const SimpleComments = ({
     return `Comparte qué te gustó, sugiere mejoras o comenta sobre estilo/personajes. Ej: "${randomExample}"`;
   });
 
+  // ✅ SCROLL A COMENTARIO ESPECÍFICO SI HAY HASH EN URL
+  useEffect(() => {
+    // Esperar a que los comentarios se hayan cargado
+    if (!loading && comments.length > 0) {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#comment-')) {
+        // Pequeño delay para asegurar que el DOM está listo
+        setTimeout(() => {
+          const element = document.querySelector(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Opcional: agregar un highlight temporal
+            element.classList.add('bg-blue-100', 'dark:bg-blue-900/30');
+            setTimeout(() => {
+              element.classList.remove('bg-blue-100', 'dark:bg-blue-900/30');
+            }, 2000);
+          }
+        }, 300);
+      }
+    }
+  }, [loading, comments]);
+
   // ✅ CARGAR COMENTARIOS REALES CON RESPUESTAS Y LIKES
   useEffect(() => {
     const loadComments = async () => {

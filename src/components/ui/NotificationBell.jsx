@@ -41,6 +41,10 @@ const NotificationBell = ({ userId, className = "" }) => {
         return <Heart className="w-5 h-5 text-red-500" />;
       case 'comment':
         return <MessageCircle className="w-5 h-5 text-blue-500" />;
+      case 'comment_reply':
+        return <MessageCircle className="w-5 h-5 text-blue-500" />;
+      case 'comment_like':
+        return <Heart className="w-5 h-5 text-red-500" />;
       case 'contest_winner':
         return <Crown className="w-5 h-5 text-purple-500" />;
       default:
@@ -57,7 +61,7 @@ const NotificationBell = ({ userId, className = "" }) => {
 
     // Redirigir según el tipo
     const data = notification.data || {};
-    
+
     if ((notification.type === 'like' || notification.type === 'comment_received') && data.story_id) {
       // Ir a la historia y si es comentario, hacer scroll al comentario específico
       let url = `/story/${data.story_id}`;
@@ -65,6 +69,13 @@ const NotificationBell = ({ userId, className = "" }) => {
         url += `#comment-${data.comment_id}`;
       }
       window.location.href = url;
+    } else if (notification.type === 'comment_reply' && data.story_id && data.comment_id) {
+      // Ir a la historia y hacer scroll al comentario que fue respondido (parent)
+      // O al comentario de la respuesta, según prefieras
+      window.location.href = `/story/${data.story_id}#comment-${data.parent_comment_id || data.comment_id}`;
+    } else if (notification.type === 'comment_like' && data.story_id && data.comment_id) {
+      // Ir a la historia y hacer scroll al comentario que recibió el like
+      window.location.href = `/story/${data.story_id}#comment-${data.comment_id}`;
     } else if (notification.type === 'badge') {
       // Ir al perfil para ver badges
       window.location.href = `/profile`;
@@ -72,7 +83,7 @@ const NotificationBell = ({ userId, className = "" }) => {
       // Ir a los resultados del reto
       window.location.href = `/contest/current`;
     }
-    
+
     setIsOpen(false);
   };
 
