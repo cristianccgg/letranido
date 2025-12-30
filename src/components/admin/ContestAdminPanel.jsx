@@ -27,6 +27,7 @@ import {
   Vote,
   Heart,
   BookOpen,
+  Rss,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -41,6 +42,7 @@ import PollAdminPanel from "./PollAdminPanel";
 import SocialGenerator from "./SocialGenerator";
 import KofiBadgePanel from "./KofiBadgePanel";
 import ReadingMetricsPanel from "./ReadingMetricsPanel";
+import FeedAdminPanel from "./FeedAdminPanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -1354,6 +1356,7 @@ const ContestAdminPanel = () => {
   const tabs = [
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "encuestas", label: "Encuestas", icon: Vote },
+    { id: "feed", label: "Feed", icon: Rss },
     { id: "analytics", label: "Analytics", icon: Award },
     { id: "lecturas", label: "Métricas de Lectura", icon: BookOpen },
     { id: "kofi", label: "Ko-fi Badges", icon: Heart },
@@ -1866,6 +1869,11 @@ const ContestAdminPanel = () => {
           {activeTab === "encuestas" && (
             <div className="p-6">
               <PollAdminPanel />
+            </div>
+          )}
+          {activeTab === "feed" && (
+            <div className="p-6">
+              <FeedAdminPanel />
             </div>
           )}
           {activeTab === "analytics" && (
