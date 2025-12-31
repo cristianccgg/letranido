@@ -1,12 +1,17 @@
 // components/feed/MicroStoryCard.jsx - Tarjeta de microhistoria estilo red social
-import React, { useState } from 'react';
-import { Heart, MessageCircle, MoreVertical, Flag } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import UserAvatar from '../ui/UserAvatar';
-import UserCardWithBadges from '../ui/UserCardWithBadges';
-import FeedStoryComments from './FeedStoryComments';
+import { useState } from "react";
+import { Heart, MessageCircle, MoreVertical, Flag } from "lucide-react";
+import UserCardWithBadges from "../ui/UserCardWithBadges";
+import FeedStoryComments from "./FeedStoryComments";
 
-const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onReport }) => {
+const MicroStoryCard = ({
+  story,
+  onLike,
+  isLiked,
+  currentUserId,
+  onDelete,
+  onReport,
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [commentsCount, setCommentsCount] = useState(story.comments_count || 0);
   const isAuthor = currentUserId === story.user_id;
@@ -17,36 +22,30 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
 
-    if (seconds < 60) return 'Ahora';
+    if (seconds < 60) return "Ahora";
     if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)}m`;
     if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)}h`;
     if (seconds < 604800) return `Hace ${Math.floor(seconds / 86400)}d`;
-    return date.toLocaleDateString('es-CO', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString("es-CO", { month: "short", day: "numeric" });
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all">
       {/* Header - Autor */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <Link to={`/author/${story.author?.id}`} className="shrink-0">
-            <UserAvatar user={story.author} size="md" />
-          </Link>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Link
-                to={`/author/${story.author?.id}`}
-                className="font-bold text-gray-900 dark:text-white hover:underline truncate"
-              >
-                {story.author?.display_name || 'Usuario'}
-              </Link>
-              <UserCardWithBadges userId={story.author?.id} compact />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {formatTimeAgo(story.created_at)} • {story.word_count} palabras
-            </p>
-          </div>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <UserCardWithBadges
+            userId={story.user_id}
+            userName={story.author}
+            userEmail={`${story.author}@mock.com`}
+            avatarSize="md"
+            badgeSize="xs"
+            maxBadges={1}
+            className="flex min-w-0"
+          />
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            • {formatTimeAgo(story.created_at)} • {story.word_count} palabras
+          </span>
         </div>
 
         {/* Menú de opciones */}
@@ -101,7 +100,7 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
       )}
 
       {/* Contenido de la historia */}
-      <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap mb-4 leading-relaxed">
+      <p className="text-gray-800 text-start dark:text-gray-200 whitespace-pre-wrap mb-4 leading-relaxed">
         {story.content}
       </p>
 
@@ -116,11 +115,11 @@ const MicroStoryCard = ({ story, onLike, isLiked, currentUserId, onDelete, onRep
           }}
           className={`flex items-center gap-2 transition-colors ${
             isLiked
-              ? 'text-red-500'
-              : 'text-gray-500 dark:text-gray-400 hover:text-red-500'
+              ? "text-red-500"
+              : "text-gray-500 dark:text-gray-400 hover:text-red-500"
           }`}
         >
-          <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+          <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
           {story.likes_count > 0 && (
             <span className="text-sm font-medium">{story.likes_count}</span>
           )}

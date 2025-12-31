@@ -32,24 +32,27 @@ const useMicroStories = (promptId) => {
 
       if (fetchError) throw fetchError;
 
-      // Cargar perfiles de autores
+      // Cargar display_name de cada autor (mismo patrón que resto del sitio)
       let data = [];
       if (storiesData && storiesData.length > 0) {
-        const userIds = [...new Set(storiesData.map(s => s.user_id))];
+        const userIds = [...new Set(storiesData.map(s => s.user_id).filter(Boolean))];
+
+        // Cargar solo display_name de user_profiles
         const { data: profiles } = await supabase
           .from('user_profiles')
-          .select('id, display_name, avatar_url, country')
+          .select('id, display_name')
           .in('id', userIds);
 
-        // Combinar datos
-        const profilesMap = {};
+        // Crear map de nombres
+        const namesMap = {};
         profiles?.forEach(p => {
-          profilesMap[p.id] = p;
+          namesMap[p.id] = p.display_name;
         });
 
+        // Transformar: author es un string (igual que en stories de retos)
         data = storiesData.map(story => ({
           ...story,
-          author: profilesMap[story.user_id] || null
+          author: namesMap[story.user_id] || 'Usuario'
         }));
       }
 
