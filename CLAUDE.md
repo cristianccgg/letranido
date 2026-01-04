@@ -250,11 +250,22 @@ git pull origin main         # Actualizar main
 - `award_specific_badge(UUID, VARCHAR, UUID)` - Soporta badges repetibles por contest_id
 - `assign_badge_manual(UUID, VARCHAR)` - Nueva función helper para asignación manual
 
-**Estado actual**: ✅ Sistema funcionando correctamente
+4. **🔥 Bug CRÍTICO de ambigüedad SQL (Enero 4, 2026)** ❌→✅
+   - **Problema**: `award_specific_badge()` tenía variable local `badge_id` con mismo nombre que columna de tabla
+   - **Causa**: PostgreSQL no podía resolver `badge_id = badge_id` (variable vs columna)
+   - **Síntoma**: Badges NO se asignaban al finalizar concursos desde Diciembre 21, 2024
+   - **Impacto**: TODOS los ganadores desde Diciembre 2024 no recibieron badges automáticamente
+   - **Fix aplicado**: Renombrar variable a `v_badge_id` (prefijo `v_` para "variable")
+   - **Script de corrección**: `fix_award_specific_badge_ambiguity.sql` (Enero 4, 2026)
+   - **Script de recuperación**: `fix_december_2024_badges.sql` - Asignar badges faltantes manualmente
+   - **Root cause**: El fix de Diciembre 21 (`fix_badges_without_unique_constraint.sql`) introdujo este bug
+
+**Estado actual**: ✅ Sistema funcionando correctamente (después del fix Enero 4, 2026)
 - Badges automáticos se asignan al publicar historias
 - Badges de victorias solo cuentan primer lugar
 - Badges de concursos pueden repetirse (uno por concurso)
-- 3 badges huérfanos de cuentas de prueba (opcional limpiar)
+- Función `award_specific_badge()` corregida (sin ambigüedad)
+- Badges de Diciembre 2025 asignados manualmente
 
 ---
 
@@ -298,8 +309,22 @@ git pull origin main         # Actualizar main
      - `CurrentContest.jsx` - Eliminado banner informativo y badge
      - `ContestAdminPanel.jsx` - Eliminado de simulación y preview
 
+2. **🔥 FIX CRÍTICO: Race Condition en Badges de Finalización** (Enero 4, 2026)
+   - **Problema detectado**: Badges de ganadores NO se asignaban automáticamente al finalizar retos
+   - **Causa raíz**: Race condition - se re-consultaba `wins_count` después de actualizarlo, pero la query retornaba valor antiguo por caché/replicación
+   - **Solución aplicada**: Usar `newWinsCount` calculado en memoria en lugar de re-consultar BD
+   - **Afectados**: Diciembre 2024 - badges no asignados (solucionado con script manual)
+   - **Archivos modificados**:
+     - `src/hooks/useContestFinalization.js` - Fix de race condition (líneas 105-217)
+     - `database-scripts/diagnostics/diagnose_december_badges.sql` - Script diagnóstico
+     - `database-scripts/fixes/fix_december_2024_badges.sql` - Script de corrección manual
+   - **Mejoras añadidas**:
+     - Logs detallados de cada paso del proceso de asignación
+     - Verificación explícita de `newWinsCount` antes de badges veterano/leyenda
+     - Mensajes informativos cuando usuario no califica aún
+
 ---
 
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Enero 4, 2026 - Eliminación sistema de menciones de honor
+**Última actualización**: Enero 4, 2026 - Fix crítico race condition badges + Eliminación menciones de honor

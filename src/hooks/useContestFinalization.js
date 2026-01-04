@@ -102,6 +102,9 @@ export const useContestFinalization = () => {
       const userUpdates = winners.map(async (winner, index) => {
         const position = index + 1;
 
+        // ✅ CALCULAR newWinsCount ANTES para usarlo en verificación de badges
+        let newWinsCount = null;
+
         // Solo actualizar wins_count para primer lugar
         if (position === 1) {
           // Primero obtener valores actuales
@@ -119,7 +122,7 @@ export const useContestFinalization = () => {
             throw getUserError;
           }
 
-          const newWinsCount = (currentUser.wins_count || 0) + 1;
+          newWinsCount = (currentUser.wins_count || 0) + 1;
 
           // Actualizar wins_count solo para primer lugar
           const { error: userUpdateError } = await supabase
@@ -136,13 +139,15 @@ export const useContestFinalization = () => {
             );
             throw userUpdateError;
           }
+
+          console.log(`✅ wins_count actualizado a ${newWinsCount} para ${winner.user_profiles?.display_name}`);
         }
 
         // 🏆 ASIGNAR BADGES DE GANADORES
         try {
           // Badge según posición
           const badgeType = position === 1 ? 'contest_winner' : 'contest_finalist';
-          
+
           // Llamar función de base de datos para asignar badge
           const { error: badgeError } = await supabase.rpc('award_specific_badge', {
             target_user_id: winner.user_id,
@@ -158,16 +163,12 @@ export const useContestFinalization = () => {
           }
 
           // Badge de veterano SOLO si tiene 2+ primeros lugares (posición 1)
-          if (position === 1) {
-            // Obtener el newWinsCount actualizado solo para primer lugar
-            const { data: updatedUser, error: getUpdatedUserError } = await supabase
-              .from("user_profiles")
-              .select("wins_count")
-              .eq("id", winner.user_id)
-              .single();
-              
+          if (position === 1 && newWinsCount !== null) {
+            // ✅ FIX: Usar newWinsCount calculado, NO re-consultar la BD
+            console.log(`🔍 Verificando badge veterano: ${newWinsCount} victorias totales`);
+
             // Badge de veterano: 2+ victorias (según documentación pública)
-            if (!getUpdatedUserError && updatedUser.wins_count >= 2) {
+            if (newWinsCount >= 2) {
               const { error: veteranBadgeError } = await supabase.rpc('award_specific_badge', {
                 target_user_id: winner.user_id,
                 badge_type: 'contest_winner_veteran',
@@ -177,12 +178,14 @@ export const useContestFinalization = () => {
               if (veteranBadgeError) {
                 console.error(`Error asignando badge veteran a usuario ${winner.user_id}:`, veteranBadgeError);
               } else {
-                console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${updatedUser.wins_count} victorias)`);
+                console.log(`🏆 Badge veterano asignado a ${winner.user_profiles?.display_name} (${newWinsCount} victorias)`);
               }
+            } else {
+              console.log(`ℹ️ ${winner.user_profiles?.display_name} aún no califica para veterano (tiene ${newWinsCount} victoria${newWinsCount !== 1 ? 's' : ''})`);
             }
 
             // 🆕 Badge de leyenda: 5+ victorias
-            if (!getUpdatedUserError && updatedUser.wins_count >= 5) {
+            if (newWinsCount >= 5) {
               const { error: legendBadgeError } = await supabase.rpc('award_specific_badge', {
                 target_user_id: winner.user_id,
                 badge_type: 'contest_winner_legend',
@@ -192,7 +195,7 @@ export const useContestFinalization = () => {
               if (legendBadgeError) {
                 console.error(`Error asignando badge leyenda a usuario ${winner.user_id}:`, legendBadgeError);
               } else {
-                console.log(`👑 Badge leyenda asignado a ${winner.user_profiles?.display_name} (${updatedUser.wins_count} victorias)`);
+                console.log(`👑 Badge leyenda asignado a ${winner.user_profiles?.display_name} (${newWinsCount} victorias)`);
               }
             }
           }
@@ -204,7 +207,7 @@ export const useContestFinalization = () => {
 
         if (position === 1) {
           console.log(
-            `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria (1er lugar)`
+            `🎖️ Usuario ${winner.user_profiles?.display_name} actualizado: +1 victoria (1er lugar) → Total: ${newWinsCount}`
           );
         } else {
           console.log(

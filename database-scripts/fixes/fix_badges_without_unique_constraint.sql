@@ -2,6 +2,12 @@
 -- Problema: El constraint UNIQUE(user_id, badge_id) no permite múltiples badges de concursos
 -- Solución: Usar lógica diferente para badges únicos vs badges repetibles
 -- Fecha: Diciembre 21, 2024
+--
+-- ⚠️ ADVERTENCIA: Este script contiene un bug de ambigüedad SQL
+-- Bug: Variable local `badge_id` tiene mismo nombre que columna de tabla
+-- Resultado: award_specific_badge() NO funcionó correctamente desde este fix
+-- Corregido en: fix_award_specific_badge_ambiguity.sql (Enero 4, 2026)
+-- NO EJECUTAR ESTE SCRIPT - Usar fix_award_specific_badge_ambiguity.sql en su lugar
 
 -- PASO 1: Recrear check_and_award_badges sin ON CONFLICT
 DROP FUNCTION IF EXISTS check_and_award_badges(UUID);
