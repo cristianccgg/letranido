@@ -21,8 +21,8 @@ import { useGlobalApp } from "../../contexts/GlobalAppContext";
 // 💾 Cache en localStorage para rankings (persiste entre sesiones)
 // Los rankings se actualizan manualmente ~1 vez al mes después de cerrar retos
 // Usamos el timestamp de last_updated de BD como "versión" del cache
-const CACHE_KEY = 'letranido_rankings_cache';
-const CACHE_VERSION_KEY = 'letranido_rankings_version';
+const CACHE_KEY = "letranido_rankings_cache";
+const CACHE_VERSION_KEY = "letranido_rankings_version";
 
 // Sistema de karma adaptado para Letranido (mismo que KarmaRankings.jsx)
 const KARMA_POINTS = {
@@ -83,7 +83,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
     const handleClickOutside = (event) => {
       // Verificar si el click fue fuera del sidebar
-      const sidebar = document.getElementById('karma-sidebar');
+      const sidebar = document.getElementById("karma-sidebar");
       if (sidebar && !sidebar.contains(event.target)) {
         onClose();
       }
@@ -91,12 +91,12 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
     // Agregar listener después de un pequeño delay para evitar que se cierre inmediatamente
     const timer = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }, 100);
 
     return () => {
       clearTimeout(timer);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
 
@@ -169,14 +169,16 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           }
           return null;
         } catch (error) {
-          console.error(`Error loading winner for contest ${contest.id}:`, error);
+          console.error(
+            `Error loading winner for contest ${contest.id}:`,
+            error
+          );
           return null;
         }
       });
 
       const winners = (await Promise.all(winnersPromises)).filter(Boolean);
       setRecentWinners(winners);
-
     } catch (error) {
       console.error("Error loading discovery content:", error);
       setRecentContests([]);
@@ -206,7 +208,9 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
       // 3️⃣ Si la versión coincide y hay datos, usar cache (SIN llamadas a BD)
       if (currentVersion && cachedVersion === currentVersion && cachedData) {
-        console.log("⚡ Usando cache localStorage (versión válida, sin llamadas a BD)");
+        console.log(
+          "⚡ Usando cache localStorage (versión válida, sin llamadas a BD)"
+        );
         const parsed = JSON.parse(cachedData);
         setAllUsers(parsed.users);
         setDisplayedUsers(parsed.users.slice(0, USERS_PER_BATCH));
@@ -231,7 +235,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         supabase
           .from("user_badges")
           .select("user_id")
-          .eq("badge_id", "kofi_supporter")
+          .eq("badge_id", "kofi_supporter"),
       ]);
 
       const { data: cachedRankings, error: cacheError } = rankingsResult;
@@ -243,7 +247,11 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
         return;
       }
 
-      console.log("✅ Datos cargados desde BD:", cachedRankings.length, "usuarios");
+      console.log(
+        "✅ Datos cargados desde BD:",
+        cachedRankings.length,
+        "usuarios"
+      );
 
       // Ko-fi supporters
       const supporterIds = new Set(
@@ -266,9 +274,16 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
       // 5️⃣ Guardar en localStorage con nueva versión
       try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ users: formattedRankings }));
-        localStorage.setItem(CACHE_VERSION_KEY, currentVersion || 'v1');
-        console.log("💾 Cache guardado en localStorage (versión:", currentVersion || 'v1', ")");
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ users: formattedRankings })
+        );
+        localStorage.setItem(CACHE_VERSION_KEY, currentVersion || "v1");
+        console.log(
+          "💾 Cache guardado en localStorage (versión:",
+          currentVersion || "v1",
+          ")"
+        );
       } catch (e) {
         console.warn("⚠️ No se pudo guardar en localStorage:", e);
       }
@@ -278,7 +293,6 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
       setDisplayedUsers(formattedRankings.slice(0, USERS_PER_BATCH));
       setLastUpdated(currentVersion);
       setIsUsingCache(true);
-
     } catch (error) {
       console.error("❌ Error loading rankings:", error);
       await loadRealTimeRankings();
@@ -683,14 +697,6 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           to={`/story/${winner.storyId}`}
           className="block p-3 rounded-lg bg-gradient-to-br from-yellow-50/50 to-amber-50/50 dark:from-yellow-900/10 dark:to-amber-900/10 border border-yellow-200/50 dark:border-yellow-800/30 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-md transition-all duration-200"
         >
-          {/* Header con mes del reto */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">🏆</span>
-            <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-400">
-              {winner.contestMonth}
-            </span>
-          </div>
-
           {/* Título de la historia */}
           <h4 className="text-sm font-bold text-gray-900 dark:text-dark-100 mb-1 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
             {winner.storyTitle}
@@ -946,18 +952,18 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                       ` de ${allUsers.length}`}{" "}
                     escritores
                   </p>
-                {/* Mostrar información de actualización */}
-                {isUsingCache && lastUpdated && (
-                  <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                    🏆 Rankings actualizados al finalizar retos
-                  </p>
-                )}
-                {!isUsingCache && (
-                  <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                    🏆 Rankings se actualizan al finalizar retos
-                  </p>
-                )}
-              </div>
+                  {/* Mostrar información de actualización */}
+                  {isUsingCache && lastUpdated && (
+                    <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
+                      🏆 Rankings actualizados al finalizar retos
+                    </p>
+                  )}
+                  {!isUsingCache && (
+                    <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
+                      🏆 Rankings se actualizan al finalizar retos
+                    </p>
+                  )}
+                </div>
 
                 {/* Ranking con scroll infinito */}
                 <div className="space-y-1">
