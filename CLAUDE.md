@@ -286,6 +286,20 @@ git pull origin main         # Actualizar main
 
 ---
 
+### ✅ Enero 2026 - Sistema de Resultados
+
+1. **Eliminación de Menciones de Honor**
+   - **Razón**: Evitar confusión con empates múltiples (3+ personas con mismos votos)
+   - **Cambio**: Solo se reconocen 3 posiciones (1º, 2º, 3º lugar)
+   - **Criterio de desempate**: Aclarado en podio que si hay empate, quien envió primero queda mejor posicionado
+   - **Archivos modificados**:
+     - `useContestFinalization.js` - Eliminada lógica de detección
+     - `LandingPage.jsx` - Eliminado banner y tarjeta de mención
+     - `CurrentContest.jsx` - Eliminado banner informativo y badge
+     - `ContestAdminPanel.jsx` - Eliminado de simulación y preview
+
+---
+
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Diciembre 21, 2024 - Post-fix Sistema de Badges
+**Última actualización**: Enero 4, 2026 - Eliminación sistema de menciones de honor

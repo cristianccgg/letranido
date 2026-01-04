@@ -947,19 +947,7 @@ const ContestAdminPanel = () => {
         };
       }));
 
-      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
-      let honoraryMention = null;
-      if (storiesWithUsers.length >= 4) {
-        const thirdPlace = mockWinners[2];
-        const fourthPlace = storiesWithUsers[3];
-        
-        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
-          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
-          console.log("🎖️ Mención de Honor detectada (simulación):", honoraryMention.title);
-        }
-      }
-
-      setSimulatedWinners({ winners: mockWinners, honoraryMention });
+      setSimulatedWinners({ winners: mockWinners });
       setSelectedContest(contest);
       setShowPreviewModal(true);
 
@@ -978,7 +966,7 @@ const ContestAdminPanel = () => {
     setFinalizingContestId(contest.id);
     const result = await previewWinners(contest.id);
     if (result.success) {
-      setWinners(result); // Guardar todo el resultado incluyendo honoraryMention
+      setWinners(result); // Guardar resultado de ganadores
       setSelectedContest(contest);
       setShowFinalizationModal(true);
     } else {
@@ -2194,41 +2182,6 @@ const ContestAdminPanel = () => {
                     ))}
                   </div>
 
-                  {/* Mención de Honor en simulación */}
-                  {simulatedWinners?.honoraryMention && (
-                    <div className="mt-4 p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
-                      <div className="flex items-center">
-                        <div className="mr-4">
-                          <Award className="h-8 w-8 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-lg text-blue-700">
-                              🎖️ Mención de Honor (Simulación)
-                            </span>
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-blue-200 text-blue-800">
-                              {simulatedWinners.honoraryMention.likes_count || 0} likes
-                            </span>
-                          </div>
-                          <h4 className="font-medium text-gray-900 mb-1">
-                            {simulatedWinners.honoraryMention.title}
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            por {simulatedWinners.honoraryMention.user_profiles?.display_name || "Usuario"}
-                          </p>
-                          <p className="text-xs text-blue-600 mt-1">
-                            Mismos votos que 3º lugar - Criterio de desempate: fecha de envío
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500">Reconocimiento:</div>
-                          <div className="font-medium text-blue-700">
-                            🎖️ Mención especial
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex gap-4 justify-end">
@@ -3020,48 +2973,6 @@ const ContestAdminPanel = () => {
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Mención de Honor */}
-                {winners?.honoraryMention && (
-                  <div className="mt-4 p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
-                    <div className="flex items-center">
-                      <div className="mr-4">
-                        <Award className="h-8 w-8 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-bold text-lg text-blue-700">
-                            🎖️ Mención de Honor
-                          </span>
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-blue-200 text-blue-800">
-                            {winners.honoraryMention.likes_count || 0}{" "}
-                            likes
-                          </span>
-                        </div>
-                        <h4 className="font-medium text-gray-900 mb-1">
-                          {winners.honoraryMention.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          por{" "}
-                          {winners.honoraryMention.user_profiles
-                            ?.display_name || "Usuario"}
-                        </p>
-                        <p className="text-xs text-blue-600 mt-1">
-                          Mismos votos que 3º lugar - Criterio de desempate:
-                          fecha de envío
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">
-                          Reconocimiento:
-                        </div>
-                        <div className="font-medium text-blue-700">
-                          🎖️ Mención especial
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}

@@ -186,33 +186,9 @@ const LandingPage = () => {
 
           const winners = sortedStories.slice(0, 3);
 
-          // Verificar si hay mención de honor (4º lugar con mismos votos que 3º)
-          let honoraryMention = null;
-          if (sortedStories.length >= 4) {
-            const thirdPlace = winners[2];
-            const fourthPlace = sortedStories[3];
-
-            if (
-              thirdPlace &&
-              fourthPlace &&
-              thirdPlace.likes_count === fourthPlace.likes_count
-            ) {
-              honoraryMention = {
-                ...fourthPlace,
-                position: 4,
-                isHonoraryMention: true,
-              };
-              console.log(
-                "🎖️ Mención de Honor detectada en landing:",
-                honoraryMention.title
-              );
-            }
-          }
-
           setLastContestWinners({
             contest: lastContest,
             winners: winners,
-            honoraryMention: honoraryMention,
           });
         } else {
           setLastContestWinners(null);
@@ -928,21 +904,14 @@ const LandingPage = () => {
                   {lastContestWinners.winners.length > 1 && (
                     <div className="mt-8 pt-6 border-t border-indigo-200 dark:border-dark-600">
                       <h4 className="text-lg font-semibold text-gray-600 dark:text-dark-300 text-center mb-2">
-                        {lastContestWinners.honoraryMention
-                          ? "Finalistas y Menciones"
-                          : "Finalistas"}
+                        Finalistas
                       </h4>
                       {/* Nota sobre criterio de desempate */}
                       <p className="text-xs text-gray-500 dark:text-dark-400 text-center mb-6 max-w-2xl mx-auto">
-                        Las posiciones se determinan por número de votos. En
-                        caso de empate, se prioriza la historia enviada primero.
+                        <strong>Criterio de desempate:</strong> Si hay empate en votos, el orden se define por la fecha de envío (quien envió primero queda mejor posicionado).
                       </p>
                       <div
-                        className={`grid gap-6 max-w-6xl mx-auto ${
-                          lastContestWinners.honoraryMention
-                            ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" // 4 tarjetas más compactas
-                            : "grid-cols-1 lg:grid-cols-2" // 2 tarjetas más grandes
-                        }`}
+                        className="grid gap-6 max-w-6xl mx-auto grid-cols-1 lg:grid-cols-2"
                       >
                         {lastContestWinners.winners
                           .slice(1, 3)
@@ -1043,79 +1012,6 @@ const LandingPage = () => {
                               </div>
                             );
                           })}
-
-                        {/* Tarjeta de Mención de Honor */}
-                        {lastContestWinners.honoraryMention && (
-                          <div className="relative p-6 rounded-2xl border-2 transition-all duration-300 shadow-lg h-full flex flex-col bg-linear-to-br from-blue-50 via-sky-50 to-blue-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-blue-300 dark:border-blue-500">
-                            {/* Badge de mención de honor */}
-                            <div className="absolute -top-3 left-6">
-                              <div className="px-4 py-1 rounded-full text-white font-bold text-sm shadow-lg bg-linear-to-r from-blue-500 to-sky-600">
-                                🎖️ MENCIÓN DE HONOR
-                              </div>
-                            </div>
-
-                            {/* Medalla */}
-                            <div className="text-center mb-4 mt-4">
-                              <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-linear-to-br from-blue-400 to-sky-500">
-                                <span className="text-4xl">🎖️</span>
-                              </div>
-                            </div>
-
-                            {/* Título de la historia - clickeable */}
-                            <Link
-                              to={`/story/${lastContestWinners.honoraryMention.id}`}
-                              className="block mb-3"
-                            >
-                              <h5 className="text-lg font-bold text-gray-900 dark:text-dark-100 text-center hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
-                                "{lastContestWinners.honoraryMention.title}"
-                              </h5>
-                            </Link>
-
-                            {/* Autor - con ProfileButton funcional */}
-                            <div className="flex justify-center mb-4">
-                              <UserCardWithBadges
-                                userId={
-                                  lastContestWinners.honoraryMention.user_id
-                                }
-                                userName={
-                                  lastContestWinners.honoraryMention.author
-                                }
-                                userEmail={`${lastContestWinners.honoraryMention.author}@mock.com`}
-                                avatarSize="sm"
-                                badgeSize="xs"
-                                maxBadges={1}
-                                className="font-semibold text-sm"
-                              />
-                            </div>
-
-                            {/* Explicación del empate */}
-                            <div className="text-center mb-4">
-                              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 shadow-sm">
-                                <Heart className="h-4 w-4" />
-                                <span className="text-sm font-medium">
-                                  {lastContestWinners.honoraryMention
-                                    .likes_count || 0}{" "}
-                                  votos (= 3º lugar)
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="text-center text-xs text-blue-600 dark:text-blue-400 mb-4">
-                              Criterio de desempate: fecha de envío
-                            </div>
-
-                            {/* Call to action - Link separado */}
-                            <div className="text-center mt-auto">
-                              <Link
-                                to={`/story/${lastContestWinners.honoraryMention.id}`}
-                                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-linear-to-r from-blue-500 to-sky-600 text-white font-semibold hover:from-blue-600 hover:to-sky-700 transition-all duration-300 hover:scale-105 shadow-md"
-                              >
-                                <BookOpen className="h-4 w-4" />
-                                <span>Leer historia</span>
-                              </Link>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}

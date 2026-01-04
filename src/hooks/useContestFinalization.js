@@ -66,29 +66,13 @@ export const useContestFinalization = () => {
         user_profiles: userProfiles?.find(profile => profile.id === story.user_id) || null
       }));
 
-      // 2. Determinar ganadores (top 3) y mención de honor
+      // 2. Determinar ganadores (top 3)
       const winners = storiesWithUsers.slice(0, 3);
-      
-      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
-      let honoraryMention = null;
-      if (storiesWithUsers.length >= 4) {
-        const thirdPlace = winners[2];
-        const fourthPlace = storiesWithUsers[3];
-        
-        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
-          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
-          console.log("🎖️ Mención de Honor detectada:", honoraryMention.title);
-        }
-      }
-      
+
       console.log(
         "🏆 Ganadores determinados:",
         winners.map((w) => w.title)
       );
-      
-      if (honoraryMention) {
-        console.log("🎖️ Mención de Honor:", honoraryMention.title);
-      }
 
       // 3. Marcar historias ganadoras
       const winnerUpdates = winners.map(async (winner, index) => {
@@ -263,7 +247,6 @@ export const useContestFinalization = () => {
           ...winner,
           position: index + 1,
         })),
-        honoraryMention: honoraryMention,
         totalStories: stories.length,
       };
     } catch (err) {
@@ -482,36 +465,13 @@ export const useContestFinalization = () => {
         }))
       );
 
-      // Determinar ganadores (top 3) y mención de honor (vista previa)
+      // Determinar ganadores (top 3)
       const winners = storiesWithUsers.slice(0, 3);
-      
-      // Verificar si el 4º lugar tiene los mismos votos que el 3º (mención de honor)
-      let honoraryMention = null;
-      if (storiesWithUsers.length >= 4) {
-        const thirdPlace = winners[2];
-        const fourthPlace = storiesWithUsers[3];
-        
-        if (thirdPlace && fourthPlace && thirdPlace.likes_count === fourthPlace.likes_count) {
-          honoraryMention = { ...fourthPlace, position: 4, isHonoraryMention: true };
-          console.log("🎖️ Mención de Honor detectada (preview):", honoraryMention.title);
-        }
-      }
-      
+
       console.log(
         "🏆 Vista previa de ganadores:",
         winners.map((w) => w.title)
       );
-      
-      if (honoraryMention) {
-        console.log("🎖️ Vista previa Mención de Honor:", honoraryMention.title);
-        console.log("🔍 Datos completos de mención de honor:", honoraryMention);
-      } else {
-        console.log("❌ No se detectó mención de honor");
-        if (storiesWithUsers.length >= 4) {
-          console.log("🔍 Debug empate - 3º lugar:", storiesWithUsers[2]);
-          console.log("🔍 Debug empate - 4º lugar:", storiesWithUsers[3]);
-        }
-      }
 
       setLoading(false);
       return {
@@ -520,7 +480,6 @@ export const useContestFinalization = () => {
           ...winner,
           position: index + 1,
         })),
-        honoraryMention: honoraryMention,
         totalStories: stories.length,
       };
     } catch (err) {
