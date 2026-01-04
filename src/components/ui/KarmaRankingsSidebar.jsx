@@ -12,6 +12,8 @@ import {
   Vote,
   Crown,
   Medal,
+  Calendar,
+  BookOpen,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
@@ -35,7 +37,7 @@ const KARMA_POINTS = {
 };
 
 const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
-  const { currentContest, currentContestPhase } = useGlobalApp();
+  const { currentContestPhase, contests, getStoriesByContest } = useGlobalApp();
   const [allUsers, setAllUsers] = useState([]);
   const [displayedUsers, setDisplayedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,9 +46,15 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
   const [isUsingCache, setIsUsingCache] = useState(false);
   const USERS_PER_BATCH = 5; // Cargar 5 usuarios cada vez para garantizar scroll
 
+  // 🆕 Estados para nuevas secciones
+  const [recentWinners, setRecentWinners] = useState([]);
+  const [recentContests, setRecentContests] = useState([]);
+  const [loadingDiscovery, setLoadingDiscovery] = useState(true);
+
   useEffect(() => {
     if (isOpen) {
       loadCompactRankings();
+      loadDiscoveryContent();
       // 📱 Bloquear scroll del body cuando el sidebar está abierto (mobile fix)
       document.body.style.overflow = "hidden";
       document.body.style.position = "fixed";
@@ -113,6 +121,69 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
   // Función para mostrar menos usuarios (volver a los primeros 5)
   const showLessUsers = () => {
     setDisplayedUsers(allUsers.slice(0, USERS_PER_BATCH));
+  };
+
+  // 🆕 Función para cargar contenido de descubrimiento (ganadores y retos recientes)
+  const loadDiscoveryContent = async () => {
+    setLoadingDiscovery(true);
+    try {
+      // 1️⃣ Obtener últimos 5 retos finalizados
+      const finishedContests = contests
+        .filter((contest) => contest.status === "results")
+        .sort(
+          (a, b) =>
+            new Date(b.finalized_at || b.voting_deadline) -
+            new Date(a.finalized_at || a.voting_deadline)
+        )
+        .slice(0, 5);
+
+      setRecentContests(finishedContests);
+
+      // 2️⃣ Obtener ganador (1er lugar) de cada reto reciente
+      const winnersPromises = finishedContests.map(async (contest) => {
+        try {
+          const result = await getStoriesByContest(contest.id);
+
+          if (result.success && result.stories.length > 0) {
+            // Ordenar por votos y fecha (mismo criterio que landing)
+            const sortedStories = result.stories.sort((a, b) => {
+              const likesA = a.likes_count || 0;
+              const likesB = b.likes_count || 0;
+              if (likesB !== likesA) return likesB - likesA;
+
+              // En empate, por fecha (más antigua primero)
+              return new Date(a.created_at) - new Date(b.created_at);
+            });
+
+            const winner = sortedStories[0];
+            return {
+              contestId: contest.id,
+              contestMonth: contest.month,
+              contestTitle: contest.title,
+              storyId: winner.id,
+              storyTitle: winner.title,
+              author: winner.author,
+              userId: winner.user_id,
+              likesCount: winner.likes_count || 0,
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error(`Error loading winner for contest ${contest.id}:`, error);
+          return null;
+        }
+      });
+
+      const winners = (await Promise.all(winnersPromises)).filter(Boolean);
+      setRecentWinners(winners);
+
+    } catch (error) {
+      console.error("Error loading discovery content:", error);
+      setRecentContests([]);
+      setRecentWinners([]);
+    } finally {
+      setLoadingDiscovery(false);
+    }
   };
 
   const loadCompactRankings = async () => {
@@ -604,6 +675,65 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
     return userKarma;
   };
 
+  // 🆕 Componente para mostrar ganador reciente
+  const RecentWinnerCard = ({ winner }) => {
+    return (
+      <div className="group">
+        <Link
+          to={`/story/${winner.storyId}`}
+          className="block p-3 rounded-lg bg-gradient-to-br from-yellow-50/50 to-amber-50/50 dark:from-yellow-900/10 dark:to-amber-900/10 border border-yellow-200/50 dark:border-yellow-800/30 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-md transition-all duration-200"
+        >
+          {/* Header con mes del reto */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🏆</span>
+            <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-400">
+              {winner.contestMonth}
+            </span>
+          </div>
+
+          {/* Título de la historia */}
+          <h4 className="text-sm font-bold text-gray-900 dark:text-dark-100 mb-1 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+            {winner.storyTitle}
+          </h4>
+
+          {/* Autor y votos */}
+          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-dark-400">
+            <span className="truncate">{winner.author}</span>
+            <div className="flex items-center gap-1 shrink-0">
+              <Heart className="h-3 w-3 text-yellow-600 dark:text-yellow-500" />
+              <span className="font-semibold text-yellow-700 dark:text-yellow-400">
+                {winner.likesCount}
+              </span>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  };
+
+  // 🆕 Componente para mostrar reto reciente
+  const RecentContestCard = ({ contest }) => {
+    return (
+      <Link
+        to={`/contest/${contest.id}`}
+        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-200 group"
+      >
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-100 to-indigo-100 dark:from-primary-800 dark:to-indigo-800 flex items-center justify-center shrink-0">
+          <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+            {contest.month}
+          </div>
+          <div className="text-xs text-gray-600 dark:text-dark-400 truncate group-hover:text-gray-900 dark:group-hover:text-dark-200 transition-colors">
+            {contest.title}
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+      </Link>
+    );
+  };
+
   const CompactUserCard = ({ user, position }) => {
     const getMedalIcon = (pos) => {
       if (pos === 1) return "🥇";
@@ -726,10 +856,10 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg">
-                <Trophy className="h-5 w-5 text-white" />
+                <BookOpen className="h-5 w-5 text-white" />
               </div>
               <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-dark-100">
-                Karma Rankings
+                Descubrir
               </h2>
             </div>
             <button
@@ -740,7 +870,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
             </button>
           </div>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-300">
-            Los escritores que más contribuyen a la comunidad
+            Historias destacadas, retos y rankings
           </p>
         </div>
 
@@ -758,16 +888,64 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div className="p-4 space-y-4">
-              {/* Header con contador total */}
-              <div className="text-center pb-2 border-b border-gray-200 dark:border-dark-600">
-                <p className="text-sm text-gray-600 dark:text-dark-300">
-                  <span className="font-semibold text-primary-600 dark:text-primary-400">
-                    {displayedUsers.length}
-                  </span>
-                  {displayedUsers.length < allUsers.length &&
-                    ` de ${allUsers.length}`}{" "}
-                  escritores
-                </p>
+              {/* 🆕 SECCIÓN: RECENT WINNERS */}
+              {!loadingDiscovery && recentWinners.length > 0 && (
+                <div className="pb-4 border-b border-gray-200 dark:border-dark-600">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                      Historias Destacadas
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {recentWinners.slice(0, 4).map((winner) => (
+                      <RecentWinnerCard key={winner.storyId} winner={winner} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 🆕 SECCIÓN: RECENT CONTESTS */}
+              {!loadingDiscovery && recentContests.length > 0 && (
+                <div className="pb-4 border-b border-gray-200 dark:border-dark-600">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-500" />
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                      Retos Recientes
+                    </h3>
+                  </div>
+                  <div className="space-y-1">
+                    {recentContests.map((contest) => (
+                      <RecentContestCard key={contest.id} contest={contest} />
+                    ))}
+                  </div>
+                  <Link
+                    to="/contest-history"
+                    className="mt-3 flex items-center justify-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                  >
+                    Ver todos los retos
+                    <ChevronRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              )}
+
+              {/* 🏆 SECCIÓN: KARMA RANKINGS */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 text-primary-600 dark:text-primary-500" />
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                    Ranking de Karma
+                  </h3>
+                </div>
+                <div className="text-center pb-2 border-b border-gray-200 dark:border-dark-600">
+                  <p className="text-sm text-gray-600 dark:text-dark-300">
+                    <span className="font-semibold text-primary-600 dark:text-primary-400">
+                      {displayedUsers.length}
+                    </span>
+                    {displayedUsers.length < allUsers.length &&
+                      ` de ${allUsers.length}`}{" "}
+                    escritores
+                  </p>
                 {/* Mostrar información de actualización */}
                 {isUsingCache && lastUpdated && (
                   <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
@@ -781,79 +959,80 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* Ranking con scroll infinito */}
-              <div className="space-y-1">
-                {displayedUsers.length > 0 ? (
-                  <>
-                    {displayedUsers.map((user, index) => (
-                      <CompactUserCard
-                        key={user.userId}
-                        user={user}
-                        position={index + 1}
-                      />
-                    ))}
+                {/* Ranking con scroll infinito */}
+                <div className="space-y-1">
+                  {displayedUsers.length > 0 ? (
+                    <>
+                      {displayedUsers.map((user, index) => (
+                        <CompactUserCard
+                          key={user.userId}
+                          user={user}
+                          position={index + 1}
+                        />
+                      ))}
 
-                    {/* Loading más usuarios */}
-                    {loadingMore && (
-                      <div className="p-4 text-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto mb-2"></div>
-                        <p className="text-xs text-gray-500 dark:text-dark-400">
-                          Cargando más escritores...
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Botón Ver más/menos */}
-                    {!loadingMore && (
-                      <div className="p-4 text-center space-y-2">
-                        {/* Botón Ver más */}
-                        {displayedUsers.length < allUsers.length && (
-                          <button
-                            onClick={loadMoreUsers}
-                            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
-                          >
-                            Ver más escritores
-                            <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                              +
-                              {Math.min(
-                                USERS_PER_BATCH,
-                                allUsers.length - displayedUsers.length
-                              )}
-                            </span>
-                          </button>
-                        )}
-
-                        {/* Botón Ver menos (solo si hay más de los iniciales) */}
-                        {displayedUsers.length > USERS_PER_BATCH && (
-                          <button
-                            onClick={showLessUsers}
-                            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
-                          >
-                            Ver menos escritores
-                            <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                              -{displayedUsers.length - USERS_PER_BATCH}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Mensaje cuando se cargaron todos */}
-                    {!loadingMore &&
-                      displayedUsers.length >= allUsers.length &&
-                      allUsers.length > USERS_PER_BATCH && (
-                        <div className="p-4 text-center border-t border-gray-200 dark:border-dark-600 mt-4">
+                      {/* Loading más usuarios */}
+                      {loadingMore && (
+                        <div className="p-4 text-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto mb-2"></div>
                           <p className="text-xs text-gray-500 dark:text-dark-400">
-                            🏆 ¡Has visto todos los escritores con karma!
+                            Cargando más escritores...
                           </p>
                         </div>
                       )}
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-500 dark:text-dark-400 text-center py-8">
-                    ¡Sé el primero en aparecer aquí!
-                  </p>
-                )}
+
+                      {/* Botón Ver más/menos */}
+                      {!loadingMore && (
+                        <div className="p-4 text-center space-y-2">
+                          {/* Botón Ver más */}
+                          {displayedUsers.length < allUsers.length && (
+                            <button
+                              onClick={loadMoreUsers}
+                              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
+                            >
+                              Ver más escritores
+                              <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
+                                +
+                                {Math.min(
+                                  USERS_PER_BATCH,
+                                  allUsers.length - displayedUsers.length
+                                )}
+                              </span>
+                            </button>
+                          )}
+
+                          {/* Botón Ver menos (solo si hay más de los iniciales) */}
+                          {displayedUsers.length > USERS_PER_BATCH && (
+                            <button
+                              onClick={showLessUsers}
+                              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
+                            >
+                              Ver menos escritores
+                              <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
+                                -{displayedUsers.length - USERS_PER_BATCH}
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Mensaje cuando se cargaron todos */}
+                      {!loadingMore &&
+                        displayedUsers.length >= allUsers.length &&
+                        allUsers.length > USERS_PER_BATCH && (
+                          <div className="p-4 text-center border-t border-gray-200 dark:border-dark-600 mt-4">
+                            <p className="text-xs text-gray-500 dark:text-dark-400">
+                              🏆 ¡Has visto todos los escritores con karma!
+                            </p>
+                          </div>
+                        )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-dark-400 text-center py-8">
+                      ¡Sé el primero en aparecer aquí!
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Karma explanation */}
