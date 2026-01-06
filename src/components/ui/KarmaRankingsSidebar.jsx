@@ -36,7 +36,7 @@ const KARMA_POINTS = {
   CONSECUTIVE_MONTHS: 10,
 };
 
-const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
+const KarmaRankingsSidebar = ({ isOpen, onClose, isEmbedded = false }) => {
   const { currentContestPhase, contests, getStoriesByContest } = useGlobalApp();
   const [allUsers, setAllUsers] = useState([]);
   const [displayedUsers, setDisplayedUsers] = useState([]);
@@ -50,36 +50,43 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
   const [recentWinners, setRecentWinners] = useState([]);
   const [recentContests, setRecentContests] = useState([]);
   const [loadingDiscovery, setLoadingDiscovery] = useState(true);
+  const [isKarmaExpanded, setIsKarmaExpanded] = useState(false); // Estado para expandir/colapsar explicación del karma
 
   useEffect(() => {
     if (isOpen) {
       loadCompactRankings();
       loadDiscoveryContent();
-      // 📱 Bloquear scroll del body cuando el sidebar está abierto (mobile fix)
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-      document.body.style.top = "0";
+      // 📱 Bloquear scroll del body cuando el sidebar está abierto (solo en modo modal, no en embedded)
+      if (!isEmbedded) {
+        document.body.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.width = "100%";
+        document.body.style.top = "0";
+      }
     } else {
-      // Restaurar scroll cuando se cierra
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.body.style.top = "";
+      // Restaurar scroll cuando se cierra (solo si no es embedded)
+      if (!isEmbedded) {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.body.style.top = "";
+      }
     }
 
     // Cleanup al desmontar
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.body.style.top = "";
+      if (!isEmbedded) {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.body.style.top = "";
+      }
     };
-  }, [isOpen, currentContestPhase]);
+  }, [isOpen, currentContestPhase, isEmbedded]);
 
-  // 🖱️ Cerrar al hacer click fuera del sidebar (desktop)
+  // 🖱️ Cerrar al hacer click fuera del sidebar (solo en modo modal, no en embedded)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isEmbedded) return;
 
     const handleClickOutside = (event) => {
       // Verificar si el click fue fuera del sidebar
@@ -98,7 +105,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
       clearTimeout(timer);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isEmbedded]);
 
   // Función para cargar más usuarios
   const loadMoreUsers = () => {
@@ -838,8 +845,8 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Overlay - Click afuera cierra el sidebar (solo mobile) */}
-      {isOpen && (
+      {/* Overlay - Click afuera cierra el sidebar (solo mobile y modo modal) */}
+      {isOpen && !isEmbedded && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
@@ -850,101 +857,105 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
       <div
         id="karma-sidebar"
         className={`
-        fixed left-0 top-0 h-full w-80 bg-white dark:bg-dark-800 shadow-2xl z-50
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        border-r border-gray-200 dark:border-dark-600
-        flex flex-col overflow-hidden
+        ${
+          isEmbedded
+            ? // Modo embedded (desktop): parte del layout, fluye con el contenido de la página, diseño integrado
+              "relative w-full rounded-2xl border border-gray-200 dark:border-dark-600 bg-white dark:bg-dark-800 shadow-lg overflow-hidden"
+            : // Modo modal (mobile): fixed, se desliza desde la izquierda
+              "fixed left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300 ease-in-out bg-white dark:bg-dark-800 shadow-2xl border-r border-gray-200 dark:border-dark-600"
+        }
+        ${!isEmbedded && (isOpen ? "translate-x-0" : "-translate-x-full")}
+        ${isEmbedded ? "" : "flex flex-col overflow-hidden"}
       `}
       >
-        {/* Header - compacto en mobile */}
-        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-dark-600 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 flex-shrink-0">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
+        {/* Header */}
+        <div
+          className={`p-3 border-b border-gray-200 dark:border-dark-600 bg-white dark:bg-dark-800 ${isEmbedded ? "rounded-t-2xl" : "flex-shrink-0"}`}
+        >
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg">
-                <BookOpen className="h-5 w-5 text-white" />
+              <div className="p-1 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-lg">
+                <BookOpen className="h-3.5 w-3.5 text-white" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-dark-100">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-dark-100">
                 Descubrir
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+              className="p-1.5 cursor-pointer bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200 hover:scale-110 border border-red-200 dark:border-red-800/50 group"
+              title="Cerrar sidebar"
             >
-              <X className="h-5 w-5 text-gray-500 dark:text-dark-400" />
+              <X className="h-3.5 w-3.5 text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300 transition-colors" />
             </button>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-300">
-            Historias destacadas, retos y rankings
-          </p>
         </div>
 
-        {/* Content - scroll solo en esta área */}
+        {/* Content - scroll con la página en modo embedded, scroll independiente en modo modal */}
         <div
-          className="flex-1 overflow-y-auto overscroll-contain"
-          style={{ WebkitOverflowScrolling: "touch" }}
+          className={
+            isEmbedded ? "pb-4" : "flex-1 overflow-y-auto overscroll-contain"
+          }
+          style={isEmbedded ? {} : { WebkitOverflowScrolling: "touch" }}
         >
           {loading ? (
-            <div className="p-6 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-3"></div>
-              <p className="text-sm text-gray-600 dark:text-dark-300">
+            <div className="p-4 text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto mb-2"></div>
+              <p className="text-xs text-gray-600 dark:text-dark-300">
                 Calculando karma...
               </p>
             </div>
           ) : (
-            <div className="p-4 space-y-4">
+            <div className="p-3 space-y-3">
               {/* 🆕 SECCIÓN: RECENT WINNERS */}
               {!loadingDiscovery && recentWinners.length > 0 && (
-                <div className="pb-4 border-b border-gray-200 dark:border-dark-600">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Trophy className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                <div className="pb-3 border-b border-gray-200 dark:border-dark-600">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Crown className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <h3 className="text-xs font-semibold text-gray-800 dark:text-dark-100">
                       Historias Destacadas
                     </h3>
                   </div>
-                  <div className="space-y-2">
-                    {recentWinners.slice(0, 4).map((winner) => (
+                  <div className="space-y-1.5">
+                    {recentWinners.slice(0, 2).map((winner) => (
                       <RecentWinnerCard key={winner.storyId} winner={winner} />
                     ))}
                   </div>
                 </div>
               )}
-
               {/* 🆕 SECCIÓN: RECENT CONTESTS */}
               {!loadingDiscovery && recentContests.length > 0 && (
-                <div className="pb-4 border-b border-gray-200 dark:border-dark-600">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-500" />
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                <div className="pb-3 border-b border-gray-200 dark:border-dark-600">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Calendar className="h-3.5 w-3.5 text-primary-600 dark:text-primary-500" />
+                    <h3 className="text-xs font-semibold text-gray-800 dark:text-dark-100">
                       Retos Recientes
                     </h3>
                   </div>
                   <div className="space-y-1">
-                    {recentContests.map((contest) => (
+                    {recentContests.slice(0, 3).map((contest) => (
                       <RecentContestCard key={contest.id} contest={contest} />
                     ))}
                   </div>
                   <Link
                     to="/contest-history"
-                    className="mt-3 flex items-center justify-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                    className="mt-2 flex items-center justify-center gap-0.5 text-[10px] text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
                   >
-                    Ver todos los retos
-                    <ChevronRight className="h-3 w-3" />
+                    Ver todos
+                    <ChevronRight className="h-2.5 w-2.5" />
                   </Link>
                 </div>
               )}
-
               {/* 🏆 SECCIÓN: KARMA RANKINGS */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="h-4 w-4 text-primary-600 dark:text-primary-500" />
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-dark-100">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Zap className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-xs font-semibold text-gray-800 dark:text-dark-100">
                     Ranking de Karma
                   </h3>
                 </div>
-                <div className="text-center pb-2 border-b border-gray-200 dark:border-dark-600">
-                  <p className="text-sm text-gray-600 dark:text-dark-300">
+                <div className="text-center pb-1.5 border-b border-gray-200 dark:border-dark-600">
+                  <p className="text-xs text-gray-600 dark:text-dark-300">
                     <span className="font-semibold text-primary-600 dark:text-primary-400">
                       {displayedUsers.length}
                     </span>
@@ -952,21 +963,10 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                       ` de ${allUsers.length}`}{" "}
                     escritores
                   </p>
-                  {/* Mostrar información de actualización */}
-                  {isUsingCache && lastUpdated && (
-                    <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                      🏆 Rankings actualizados al finalizar retos
-                    </p>
-                  )}
-                  {!isUsingCache && (
-                    <p className="text-xs text-gray-500 dark:text-dark-400 mt-1">
-                      🏆 Rankings se actualizan al finalizar retos
-                    </p>
-                  )}
                 </div>
 
-                {/* Ranking con scroll infinito */}
-                <div className="space-y-1">
+                {/* Ranking con scroll INTERNO - altura fija para no crecer verticalmente */}
+                <div className="max-h-[400px] overflow-y-auto overscroll-contain space-y-1 pr-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-dark-600 scrollbar-track-transparent">
                   {displayedUsers.length > 0 ? (
                     <>
                       {displayedUsers.map((user, index) => (
@@ -987,41 +987,6 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                         </div>
                       )}
 
-                      {/* Botón Ver más/menos */}
-                      {!loadingMore && (
-                        <div className="p-4 text-center space-y-2">
-                          {/* Botón Ver más */}
-                          {displayedUsers.length < allUsers.length && (
-                            <button
-                              onClick={loadMoreUsers}
-                              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
-                            >
-                              Ver más escritores
-                              <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                                +
-                                {Math.min(
-                                  USERS_PER_BATCH,
-                                  allUsers.length - displayedUsers.length
-                                )}
-                              </span>
-                            </button>
-                          )}
-
-                          {/* Botón Ver menos (solo si hay más de los iniciales) */}
-                          {displayedUsers.length > USERS_PER_BATCH && (
-                            <button
-                              onClick={showLessUsers}
-                              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2 mx-auto"
-                            >
-                              Ver menos escritores
-                              <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                                -{displayedUsers.length - USERS_PER_BATCH}
-                              </span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-
                       {/* Mensaje cuando se cargaron todos */}
                       {!loadingMore &&
                         displayedUsers.length >= allUsers.length &&
@@ -1039,93 +1004,139 @@ const KarmaRankingsSidebar = ({ isOpen, onClose }) => {
                     </p>
                   )}
                 </div>
-              </div>
 
-              {/* Karma explanation */}
-              <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4 border border-primary-200 dark:border-primary-800">
-                <h4 className="font-semibold text-primary-900 dark:text-primary-300 mb-2 text-sm flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  ¿Cómo ganar karma?
-                </h4>
-                <div className="text-xs text-primary-800 dark:text-primary-300 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <PenTool className="h-3 w-3" />
-                    <span>
-                      Publicar historia: <strong>+15</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="h-3 w-3" />
-                    <span>
-                      Dar comentario: <strong>+2</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-3 w-3" />
-                    <span>
-                      Recibir comentario: <strong>+3</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Heart className="h-3 w-3" />
-                    <span>
-                      Recibir voto: <strong>+2</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Vote className="h-3 w-3" />
-                    <span>
-                      Dar voto: <strong>+1</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Crown className="h-3 w-3" />
-                    <span>
-                      Ganar reto: <strong>+75</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Medal className="h-3 w-3" />
-                    <span>
-                      Ser finalista: <strong>+30</strong>
-                    </span>
-                  </div>
-
-                  {/* Ko-fi Supporter - Expandido con detalles */}
-                  <div className="pt-2 mt-2 border-t border-primary-200 dark:border-primary-700">
-                    <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/30 dark:to-rose-900/30 p-3 rounded-lg border border-pink-200 dark:border-pink-800">
-                      <div className="flex items-start gap-2 mb-2">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 border border-pink-300 dark:border-pink-700 flex-shrink-0 mt-0.5 text-xs">
-                          ❤️
+                {/* Botones FUERA del scroll - siempre visibles */}
+                {!loadingMore && displayedUsers.length > 0 && (
+                  <div className="pt-3 text-center space-y-2 border-t border-gray-200 dark:border-dark-600 mt-2">
+                    {/* Botón Ver más */}
+                    {displayedUsers.length < allUsers.length && (
+                      <button
+                        onClick={loadMoreUsers}
+                        className="w-full cursor-pointer px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                      >
+                        Ver más escritores
+                        <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
+                          +
+                          {Math.min(
+                            USERS_PER_BATCH,
+                            allUsers.length - displayedUsers.length
+                          )}
                         </span>
-                        <div className="flex-1">
-                          <div className="font-semibold text-pink-700 dark:text-pink-300 mb-1">
-                            Apoyar en Ko-fi: <strong>+50 karma</strong>
+                      </button>
+                    )}
+
+                    {/* Botón Ver menos (solo si hay más de los iniciales) */}
+                    {displayedUsers.length > USERS_PER_BATCH && (
+                      <button
+                        onClick={showLessUsers}
+                        className="w-full cursor-pointer px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                      >
+                        Ver menos
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Karma explanation - Expandible */}
+              <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800 overflow-hidden">
+                {/* Header clickeable */}
+                <button
+                  onClick={() => setIsKarmaExpanded(!isKarmaExpanded)}
+                  className="w-full cursor-pointer px-4 py-2 flex items-center justify-between hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+                >
+                  <h4 className="font-semibold text-primary-900 dark:text-primary-300 text-sm flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    ¿Cómo ganar karma?
+                  </h4>
+                  <ChevronRight
+                    className={`h-4 w-4 text-primary-600 dark:text-primary-400 transition-transform duration-200 ${
+                      isKarmaExpanded ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+
+                {/* Contenido expandible */}
+                {isKarmaExpanded && (
+                  <div className="px-4 pb-4 text-xs text-primary-800 dark:text-primary-300 space-y-2 border-t border-primary-200 dark:border-primary-700 pt-3">
+                    <div className="flex items-center gap-2">
+                      <PenTool className="h-3 w-3" />
+                      <span>
+                        Publicar historia: <strong>+15</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="h-3 w-3" />
+                      <span>
+                        Dar comentario: <strong>+2</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-3 w-3" />
+                      <span>
+                        Recibir comentario: <strong>+3</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Heart className="h-3 w-3" />
+                      <span>
+                        Recibir voto: <strong>+2</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Vote className="h-3 w-3" />
+                      <span>
+                        Dar voto: <strong>+1</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-3 w-3" />
+                      <span>
+                        Ganar reto: <strong>+75</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Medal className="h-3 w-3" />
+                      <span>
+                        Ser finalista: <strong>+30</strong>
+                      </span>
+                    </div>
+
+                    {/* Ko-fi Supporter - Expandido con detalles */}
+                    <div className="pt-2 mt-2 border-t border-primary-200 dark:border-primary-700">
+                      <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/30 dark:to-rose-900/30 p-3 rounded-lg border border-pink-200 dark:border-pink-800">
+                        <div className="flex items-start gap-2 mb-2">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 border border-pink-300 dark:border-pink-700 flex-shrink-0 mt-0.5 text-xs">
+                            ❤️
+                          </span>
+                          <div className="flex-1">
+                            <div className="font-semibold text-pink-700 dark:text-pink-300 mb-1">
+                              Apoyar en Ko-fi: <strong>+50 karma</strong>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <p className="text-pink-800 dark:text-pink-200 leading-relaxed mb-3">
-                        Los Ko-fi Supporters reciben un badge especial ❤️ junto
-                        a su nombre en todo el sitio.
-                      </p>
+                        <p className="text-pink-800 dark:text-pink-200 leading-relaxed mb-3">
+                          Los Ko-fi Supporters reciben un badge especial ❤️
+                          junto a su nombre en todo el sitio.
+                        </p>
 
-                      {/* CTA de donación */}
-                      <a
-                        href="https://ko-fi.com/letranido"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 text-white text-xs font-semibold rounded-lg hover:from-pink-600 hover:via-rose-600 hover:to-red-600 transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
-                      >
-                        <Heart className="h-3 w-3" />
-                        <span>Apoyar a Letranido</span>
-                      </a>
-                      <p className="text-[10px] text-pink-700 dark:text-pink-400 mt-2 leading-tight">
-                        Tu aporte ayuda a mantener el sitio en línea y mejorarlo
-                        cada día
-                      </p>
+                        {/* CTA de donación */}
+                        <a
+                          href="https://ko-fi.com/letranido"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 text-white text-xs font-semibold rounded-lg hover:from-pink-600 hover:via-rose-600 hover:to-red-600 transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+                        >
+                          <Heart className="h-3 w-3" />
+                          <span>Apoyar a Letranido</span>
+                        </a>
+                        <p className="text-[10px] text-pink-700 dark:text-pink-400 mt-2 leading-tight">
+                          Tu aporte ayuda a mantener el sitio en línea y
+                          mejorarlo cada día
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

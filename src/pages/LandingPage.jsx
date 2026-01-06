@@ -1,5 +1,5 @@
 // pages/LandingPage.jsx - VERSIÓN CORREGIDA SIN HISTORIAS
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -205,7 +205,7 @@ const LandingPage = () => {
   }, [initialized, contests, currentContest, getStoriesByContest]);
 
   // Estado para forzar re-render cuando cambia la fase automáticamente
-  const [phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
+  const [_phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
 
   // Contador de tiempo restante (dinámico según la fase del reto)
   const [timeLeft, setTimeLeft] = useState("");
@@ -298,8 +298,91 @@ const LandingPage = () => {
   const [rulesModalContest, setRulesModalContest] = useState(null);
   const [nextContestExpanded, setNextContestExpanded] = useState(false);
 
-  // Estado para el sidebar de rankings
-  const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
+  // 🎯 Estado para el sidebar de rankings con persistencia
+  // En desktop (≥1024px): sidebar incrustado, cerrado por defecto (usuario puede abrirlo)
+  // En mobile (<1024px): sidebar modal, cerrado por defecto
+  const getInitialSidebarState = () => {
+    // Verificar si estamos en desktop
+    const isDesktop = window.innerWidth >= 1024;
+
+    // En desktop, verificar localStorage
+    if (isDesktop) {
+      const saved = localStorage.getItem("landingSidebarOpen");
+      // Por defecto cerrado en desktop, el usuario puede abrirlo con el botón
+      return saved !== null ? saved === "true" : false;
+    }
+
+    // En mobile siempre empieza cerrado
+    return false;
+  };
+
+  const [showRankingsSidebar, setShowRankingsSidebar] = useState(
+    getInitialSidebarState
+  );
+
+  // 📍 Referencia para hacer scroll a la sidebar
+  const sidebarRef = useRef(null);
+
+  // 🎯 Función para abrir sidebar y hacer scroll hacia ella
+  const openSidebarAndScroll = () => {
+    setShowRankingsSidebar(true);
+
+    // Pequeño delay para que la sidebar se renderice primero
+    setTimeout(() => {
+      if (sidebarRef.current) {
+        sidebarRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }, 100);
+  };
+
+  // 📱 Detectar si estamos en mobile o desktop
+  const [isMobile, setIsMobile] = useState(() => {
+    // Inicializar correctamente desde el principio
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile((prevMobile) => {
+        // Solo actualizar si realmente cambió
+        if (prevMobile !== mobile) {
+          // 🔧 Si cambiamos a mobile, cerrar la sidebar para evitar problemas de layout
+          if (mobile && showRankingsSidebar) {
+            setShowRankingsSidebar(false);
+          }
+          // 🔧 Si cambiamos a desktop, abrir la sidebar (comportamiento por defecto)
+          else if (!mobile && !showRankingsSidebar) {
+            setShowRankingsSidebar(true);
+          }
+          return mobile;
+        }
+        return prevMobile;
+      });
+    };
+
+    // Escuchar cambios de tamaño
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [showRankingsSidebar]);
+
+  // Guardar preferencia en localStorage cuando cambie (solo desktop)
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) {
+      localStorage.setItem(
+        "landingSidebarOpen",
+        showRankingsSidebar.toString()
+      );
+    }
+  }, [showRankingsSidebar]);
 
   // ✅ Contador para el siguiente reto
   const [nextTimeLeft, setNextTimeLeft] = useState("");
@@ -367,267 +450,293 @@ const LandingPage = () => {
         url="/"
       />
 
-      {/* Welcome Banner */}
+      {/* Welcome Banner - Fuera del layout para que ocupe todo el ancho */}
       <WelcomeBanner />
 
-      {/* Hero Section - Elegante y moderno */}
-      <section className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
-        {/* Elementos decorativos modernos */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
-          <div className="absolute top-32 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
-          <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
-          <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
-        </div>
+      {/* 🖥️ Sección superior con sidebar (Hero + Contest actual) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Layout de 2 columnas en desktop - Sidebar + Contenido */}
+        <div className="lg:flex lg:gap-8">
+          {/* 📄 Contenido Principal - Columna derecha */}
+          <div className="flex-1 min-w-0">
+            {/* Hero Section - Elegante y moderno */}
+            <section className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300 rounded-2xl">
+              {/* Elementos decorativos modernos */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-10 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
+                <div className="absolute top-32 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+                <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+                <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
+              </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
-          {/* Logo/Título con tagline */}
-          <div className="mb-0 flex flex-col items-center">
-            <div className="flex items-center mb-0">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
-                Letranido
-              </h1>
-              <img
-                src={logo}
-                alt="Logo de Letranido - Pluma en nido, símbolo de escritura creativa"
-                className="h-15 md:h-25 w-auto transition-all duration-300 hover:scale-110 hover:rotate-3 hover:drop-shadow-lg cursor-pointer"
-              />
-            </div>
+              <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
+                {/* Logo/Título con tagline */}
+                <div className="mb-0 flex flex-col items-center">
+                  <div className="flex items-center mb-0">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
+                      Letranido
+                    </h1>
+                    <img
+                      src={logo}
+                      alt="Logo de Letranido - Pluma en nido, símbolo de escritura creativa"
+                      className="h-15 md:h-25 w-auto transition-all duration-300 hover:scale-110 hover:rotate-3 hover:drop-shadow-lg cursor-pointer"
+                    />
+                  </div>
 
-            {/* HERO PRINCIPAL - Claro y motivacional */}
-            <div className="mb-8">
-              {/* Tagline emocional */}
-              <p className="font-dancing-script text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-4 font-semibold transition-colors duration-300">
-                <span className="text-indigo-600 dark:text-indigo-400">
-                  Escribe
-                </span>
-                .
-                <span className="text-purple-600 dark:text-purple-400">
-                  {" "}
-                  Recibe feedback
-                </span>
-                .
-                <span className="text-indigo-600 dark:text-indigo-400">
-                  {" "}
-                  Crece como escritor
-                </span>
-                .
-              </p>
+                  {/* HERO PRINCIPAL - Claro y motivacional */}
+                  <div className="mb-8">
+                    {/* Tagline emocional */}
+                    <p className="font-dancing-script text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-4 font-semibold transition-colors duration-300">
+                      <span className="text-indigo-600 dark:text-indigo-400">
+                        Escribe
+                      </span>
+                      .
+                      <span className="text-purple-600 dark:text-purple-400">
+                        {" "}
+                        Recibe feedback
+                      </span>
+                      .
+                      <span className="text-indigo-600 dark:text-indigo-400">
+                        {" "}
+                        Crece como escritor
+                      </span>
+                      .
+                    </p>
 
-              {/* Explicación clara del concepto */}
-              <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-4 max-w-3xl leading-relaxed transition-colors duration-300">
-                Cada mes un{" "}
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
-                  prompt diferente
-                </span>{" "}
-                que puedes interpretar como quieras: síguelo exactamente,
-                adáptalo o úsalo como inspiración
-              </p>
+                    {/* Explicación clara del concepto */}
+                    <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-4 max-w-3xl leading-relaxed transition-colors duration-300">
+                      Cada mes un{" "}
+                      <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
+                        prompt diferente
+                      </span>{" "}
+                      que puedes interpretar como quieras: síguelo exactamente,
+                      adáptalo o úsalo como inspiración
+                    </p>
 
-              <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
-                ✨ Recuerda: escribimos para crecer, mejorar y disfrutar, no
-                solo para ganar. Cada historia es un paso en tu viaje literario.
-              </p>
-            </div>
+                    <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
+                      ✨ Recuerda: escribimos para crecer, mejorar y disfrutar,
+                      no solo para ganar. Cada historia es un paso en tu viaje
+                      literario.
+                    </p>
+                  </div>
 
-            {/* 🆕 CTAs PRINCIPALES ESTILO WATTPAD - Solo visible en desarrollo */}
-            {FEATURES.PORTFOLIO_STORIES && (
-              <div className="mb-12">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-lg mx-auto">
-                  {/* Leer Historias */}
-                  <Link
-                    to="/stories"
-                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-2xl hover:bg-purple-700 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
-                  >
-                    <BookOpen className="h-6 w-6" />
-                    <span>Leer Historias</span>
-                  </Link>
+                  {/* 🆕 CTAs PRINCIPALES ESTILO WATTPAD - Solo visible en desarrollo */}
+                  {FEATURES.PORTFOLIO_STORIES && (
+                    <div className="mb-12">
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-lg mx-auto">
+                        {/* Leer Historias */}
+                        <Link
+                          to="/stories"
+                          className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-2xl hover:bg-purple-700 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                        >
+                          <BookOpen className="h-6 w-6" />
+                          <span>Leer Historias</span>
+                        </Link>
 
-                  {/* Escribir Historia */}
-                  <Link
-                    to="/contest/current"
-                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-amber-500 text-white font-bold text-lg rounded-2xl hover:bg-amber-600 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
-                  >
-                    <PenTool className="h-6 w-6" />
-                    <span>Escribir Historia</span>
-                  </Link>
+                        {/* Escribir Historia */}
+                        <Link
+                          to="/contest/current"
+                          className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-amber-500 text-white font-bold text-lg rounded-2xl hover:bg-amber-600 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                        >
+                          <PenTool className="h-6 w-6" />
+                          <span>Escribir Historia</span>
+                        </Link>
+                      </div>
+
+                      {/* Subtextos explicativos */}
+                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
+                        <div className="text-sm text-gray-600 dark:text-dark-400">
+                          <span className="font-medium text-purple-700 dark:text-purple-400">
+                            ✨ Descubre
+                          </span>{" "}
+                          creatividad premium sin límites
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-dark-400">
+                          <span className="font-medium text-amber-700 dark:text-amber-400">
+                            🏆 Participa
+                          </span>{" "}
+                          en el reto mensual
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Subtextos explicativos */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
-                  <div className="text-sm text-gray-600 dark:text-dark-400">
-                    <span className="font-medium text-purple-700 dark:text-purple-400">
-                      ✨ Descubre
-                    </span>{" "}
-                    creatividad premium sin límites
+                {/* Beneficios y ganador - diseño original */}
+                <div className="mb-8 max-w-4xl mx-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
+                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                        Feedback real
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                        Tus derechos 100%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                        Comunidad activa
+                      </span>
+                    </div>
+                    {/* Tarjeta especial del ganador - MEJORADA */}
+                    {lastContestWinners && (
+                      <button
+                        onClick={() => {
+                          const winnersSection =
+                            document.querySelector("#winners-section");
+                          if (winnersSection) {
+                            winnersSection.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                          }
+                        }}
+                        className="flex items-center justify-center gap-1 md:gap-2 bg-linear-to-r from-yellow-50 to-yellow-100 dark:bg-linear-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-auto"
+                      >
+                        {/* Efecto de brillo sutil */}
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                        <WinnerBadgeDisplay
+                          userId={lastContestWinners.winners[0].user_id}
+                        />
+                        <div className="text-center relative z-10">
+                          <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
+                            1ER LUGAR
+                          </div>
+                          <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
+                            {lastContestWinners.contest.month}
+                          </div>
+                          <div className="font-semibold text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
+                            {lastContestWinners.winners[0].author}
+                          </div>
+                        </div>
+                      </button>
+                    )}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-dark-400">
-                    <span className="font-medium text-amber-700 dark:text-amber-400">
-                      🏆 Participa
-                    </span>{" "}
-                    en el reto mensual
-                  </div>
+                </div>
+
+                <div className="lg:flex lg:gap-8">
+                  {/* 📊 Sidebar de Rankings - Columna izquierda integrada (desktop only) */}
+                  {!isMobile && showRankingsSidebar && (
+                    <aside ref={sidebarRef} className="lg:w-80 flex-shrink-0 text-start">
+                      <KarmaRankingsSidebar
+                        isOpen={showRankingsSidebar}
+                        onClose={() => setShowRankingsSidebar(false)}
+                        isEmbedded={true}
+                      />
+                    </aside>
+                  )}
+                  {currentContest && (
+                    <div className="space-y-6">
+                      {/* Tarjeta del reto actual */}
+                      <ContestCard
+                        contest={currentContest}
+                        phase={currentContestPhase}
+                        timeLeft={timeLeft}
+                        isNext={false}
+                        onRulesClick={() => {
+                          setRulesModalContest(currentContest);
+                          setShowRulesModal(true);
+                        }}
+                        onExpandNext={() => setNextContestExpanded(true)}
+                      />
+                      {/* Tarjeta del siguiente reto - igual diseño que actual */}
+                      {nextContest && (
+                        <div data-next-contest>
+                          <ContestCard
+                            contest={nextContest}
+                            phase="submission" // El siguiente siempre está en submission
+                            timeLeft={
+                              currentContestPhase === "voting" ||
+                              currentContestPhase === "counting"
+                                ? nextTimeLeft
+                                : null
+                            } // Contador real cuando esté habilitado
+                            isNext={true}
+                            isEnabled={
+                              currentContestPhase === "voting" ||
+                              currentContestPhase === "counting"
+                            } // Habilitado durante votación y counting
+                            forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
+                            onRulesClick={() => {
+                              setRulesModalContest(nextContest);
+                              setShowRulesModal(true);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {/* Mostrar encuesta activa (cuando esté disponible) */}
+                      <NextContestOrPoll
+                        nextContest={nextContest}
+                        currentContest={currentContest}
+                        isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
+                      />
+                      {/* Estadísticas integradas en el hero */}
+                      <div className="mt-12 ">
+                        <div className="max-w-6xl mx-auto">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-linear-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
+                            <div className="text-center">
+                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                                <AnimatedCounter
+                                  key="users-counter"
+                                  end={historicalStats.totalUsers}
+                                  duration={2000}
+                                  startDelay={200}
+                                  className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
+                                />
+                              </div>
+                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                                Escritores en la comunidad
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                                <AnimatedCounter
+                                  key="stories-counter"
+                                  end={historicalStats.totalStories}
+                                  duration={2200}
+                                  startDelay={400}
+                                  className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
+                                />
+                              </div>
+                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                                Historias publicadas
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                                <AnimatedCounter
+                                  key="words-counter"
+                                  end={historicalStats.totalWords}
+                                  duration={2500}
+                                  startDelay={600}
+                                  formatNumber={true}
+                                  className="bg-linear-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
+                                />
+                              </div>
+                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                                Palabras escritas
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+              {/* Fin div relative max-w-6xl */}
+            </section>
+            {/* Fin Hero Section */}
           </div>
-
-          {/* Beneficios y ganador - diseño original */}
-          <div className="mb-8 max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                  Feedback real
-                </span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                  Tus derechos 100%
-                </span>
-              </div>
-              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                  Comunidad activa
-                </span>
-              </div>
-              {/* Tarjeta especial del ganador - MEJORADA */}
-              {lastContestWinners && (
-                <button
-                  onClick={() => {
-                    const winnersSection =
-                      document.querySelector("#winners-section");
-                    if (winnersSection) {
-                      winnersSection.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
-                  className="flex items-center justify-center gap-1 md:gap-2 bg-linear-to-r from-yellow-50 to-yellow-100 dark:bg-linear-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-auto"
-                >
-                  {/* Efecto de brillo sutil */}
-                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-                  <WinnerBadgeDisplay
-                    userId={lastContestWinners.winners[0].user_id}
-                  />
-                  <div className="text-center relative z-10">
-                    <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
-                      1ER LUGAR
-                    </div>
-                    <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
-                      {lastContestWinners.contest.month}
-                    </div>
-                    <div className="font-semibold text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
-                      {lastContestWinners.winners[0].author}
-                    </div>
-                  </div>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {currentContest && (
-            <div className="space-y-6">
-              {/* Tarjeta del reto actual */}
-              <ContestCard
-                contest={currentContest}
-                phase={currentContestPhase}
-                timeLeft={timeLeft}
-                isNext={false}
-                onRulesClick={() => {
-                  setRulesModalContest(currentContest);
-                  setShowRulesModal(true);
-                }}
-                onExpandNext={() => setNextContestExpanded(true)}
-              />
-
-              {/* Tarjeta del siguiente reto - igual diseño que actual */}
-              {nextContest && (
-                <div data-next-contest>
-                  <ContestCard
-                    contest={nextContest}
-                    phase="submission" // El siguiente siempre está en submission
-                    timeLeft={
-                      currentContestPhase === "voting" ||
-                      currentContestPhase === "counting"
-                        ? nextTimeLeft
-                        : null
-                    } // Contador real cuando esté habilitado
-                    isNext={true}
-                    isEnabled={
-                      currentContestPhase === "voting" ||
-                      currentContestPhase === "counting"
-                    } // Habilitado durante votación y counting
-                    forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
-                    onRulesClick={() => {
-                      setRulesModalContest(nextContest);
-                      setShowRulesModal(true);
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Mostrar encuesta activa (cuando esté disponible) */}
-              <NextContestOrPoll
-                nextContest={nextContest}
-                currentContest={currentContest}
-                isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
-              />
-
-              {/* Estadísticas integradas en el hero */}
-              <div className="mt-12 ">
-                <div className="max-w-6xl mx-auto">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-linear-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                        <AnimatedCounter
-                          key="users-counter"
-                          end={historicalStats.totalUsers}
-                          duration={2000}
-                          startDelay={200}
-                          className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
-                        />
-                      </div>
-                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                        Escritores en la comunidad
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                        <AnimatedCounter
-                          key="stories-counter"
-                          end={historicalStats.totalStories}
-                          duration={2200}
-                          startDelay={400}
-                          className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
-                        />
-                      </div>
-                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                        Historias publicadas
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                        <AnimatedCounter
-                          key="words-counter"
-                          end={historicalStats.totalWords}
-                          duration={2500}
-                          startDelay={600}
-                          formatNumber={true}
-                          className="bg-linear-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
-                        />
-                      </div>
-                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                        Palabras escritas
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Fin contenido principal columna derecha */}
         </div>
-      </section>
+        {/* Fin layout de 2 columnas */}
+      </div>
+      {/* Fin sección superior con sidebar */}
 
-      {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO */}
+      {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO (ancho completo) */}
       <section className="py-12 lg:py-16 bg-linear-to-r from-primary-500 to-indigo-600 relative overflow-hidden">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden">
@@ -685,7 +794,7 @@ const LandingPage = () => {
               </div>
               <ArrowRight className="h-5 w-5 text-white/60 hidden sm:block" />
               <button
-                onClick={() => setShowRankingsSidebar(true)}
+                onClick={openSidebarAndScroll}
                 className="inline-flex cursor-pointer items-center px-6 py-3 bg-white dark:bg-white/95 text-primary-600 dark:text-primary-700 rounded-xl font-semibold hover:bg-white/90 dark:hover:bg-white/85 transition-all duration-200 shadow-lg hover:scale-105 transform"
               >
                 <Trophy className="h-5 w-5 mr-2" />
@@ -908,11 +1017,11 @@ const LandingPage = () => {
                       </h4>
                       {/* Nota sobre criterio de desempate */}
                       <p className="text-xs text-gray-500 dark:text-dark-400 text-center mb-6 max-w-2xl mx-auto">
-                        <strong>Criterio de desempate:</strong> Si hay empate en votos, el orden se define por la fecha de envío (quien envió primero queda mejor posicionado).
+                        <strong>Criterio de desempate:</strong> Si hay empate en
+                        votos, el orden se define por la fecha de envío (quien
+                        envió primero queda mejor posicionado).
                       </p>
-                      <div
-                        className="grid gap-6 max-w-6xl mx-auto grid-cols-1 lg:grid-cols-2"
-                      >
+                      <div className="grid gap-6 max-w-6xl mx-auto grid-cols-1 lg:grid-cols-2">
                         {lastContestWinners.winners
                           .slice(1, 3)
                           .map((story, index) => {
@@ -1216,18 +1325,49 @@ const LandingPage = () => {
         contest={rulesModalContest || currentContest}
       />
 
-      {/* Sidebar de rankings */}
-      <KarmaRankingsSidebar
-        isOpen={showRankingsSidebar}
-        onClose={() => setShowRankingsSidebar(false)}
-      />
-
       {/* Modal de anuncio de nuevas features */}
       <FeatureAnnouncementModal
         isOpen={showFeatureModal}
         onClose={() => setShowFeatureModal(false)}
         userId={user?.id}
       />
+
+      {/* 📱 Sidebar de rankings en mobile (modal) */}
+      {isMobile && (
+        <KarmaRankingsSidebar
+          isOpen={showRankingsSidebar}
+          onClose={() => setShowRankingsSidebar(false)}
+          isEmbedded={false}
+        />
+      )}
+
+      {/* 🔘 Botón flotante para abrir sidebar (mobile y desktop cuando está cerrado) */}
+      {!showRankingsSidebar && (
+        <button
+          onClick={openSidebarAndScroll}
+          className="
+            fixed left-0 z-30 cursor-pointer
+            bg-gradient-to-r from-yellow-400 to-orange-500
+            text-white font-bold
+            rounded-r-xl shadow-lg hover:shadow-xl
+            transform transition-all duration-300 hover:scale-105
+            flex items-center justify-center
+            hover:translate-x-1
+            lg:top-1/2 lg:-translate-y-1/2 lg:py-3 lg:px-4
+            top-1/2 py-1 px-1 pr-2
+          "
+          aria-label="Abrir Rankings"
+        >
+          <div className="flex items-center">
+            <span
+              className="lg:text-sm text-xs leading-tight"
+              style={{ writingMode: "vertical-rl" }}
+            >
+              Rankings
+            </span>
+          </div>
+        </button>
+      )}
     </div>
   );
 };
