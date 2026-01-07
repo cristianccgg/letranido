@@ -26,12 +26,23 @@ export const sendContestEmailViaSupabase = async (emailType, additionalData = {}
     const { data, error } = await supabase.functions.invoke('send-contest-emails', {
       body: requestBody
     });
-    
+
+    // Manejar errores de la invocación
     if (error) {
       console.error('❌ Error llamando Edge Function:', error);
       return { success: false, error: error.message };
     }
-    
+
+    // ✅ FIX: Verificar si la función retornó un error lógico (success: false)
+    // La Edge Function puede retornar status 200 con { success: false, error: "..." }
+    if (data && !data.success) {
+      console.error('❌ Edge Function retornó error:', data.error || data.message);
+      return {
+        success: false,
+        error: data.error || data.message || 'Error desconocido desde Edge Function'
+      };
+    }
+
     console.log('✅ Respuesta de Edge Function:', data);
     return data;
     
@@ -123,12 +134,22 @@ export const getEmailRecipientsCount = async (emailType, additionalData = {}) =>
     const { data, error } = await supabase.functions.invoke('send-contest-emails', {
       body: requestBody
     });
-    
+
+    // Manejar errores de la invocación
     if (error) {
       console.error('❌ Error obteniendo conteo:', error);
       return { success: false, error: error.message };
     }
-    
+
+    // ✅ FIX: Verificar si la función retornó un error lógico
+    if (data && !data.success) {
+      console.error('❌ Edge Function retornó error al obtener conteo:', data.error || data.message);
+      return {
+        success: false,
+        error: data.error || data.message || 'Error desconocido al obtener conteo'
+      };
+    }
+
     console.log('✅ Conteo obtenido:', data);
     return {
       success: true,
@@ -174,12 +195,22 @@ export const sendEmailBatch = async (emailType, batchOptions, additionalData = {
     const { data, error } = await supabase.functions.invoke('send-contest-emails', {
       body: requestBody
     });
-    
+
+    // Manejar errores de la invocación
     if (error) {
       console.error('❌ Error enviando lote:', error);
       return { success: false, error: error.message };
     }
-    
+
+    // ✅ FIX: Verificar si la función retornó un error lógico
+    if (data && !data.success) {
+      console.error(`❌ Edge Function retornó error al enviar lote ${batchNumber}:`, data.error || data.message);
+      return {
+        success: false,
+        error: data.error || data.message || 'Error desconocido al enviar lote'
+      };
+    }
+
     console.log(`✅ Lote ${batchNumber} enviado:`, data);
     return {
       ...data,
