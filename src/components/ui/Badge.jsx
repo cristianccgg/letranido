@@ -150,6 +150,75 @@ const Badge = ({
         />
       </svg>
     ),
+    // Nuevos iconos para badges de enero 2026
+    "pen-tool": (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <path d="M12 19l7-7 3 3-7 7-3-3z" opacity="0.2" />
+        <path
+          d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="11" cy="11" r="2" fill="currentColor" />
+      </svg>
+    ),
+    flag: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" opacity="0.2" />
+        <path
+          d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M4 22V15" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    ),
+    compass: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <circle cx="12" cy="12" r="10" opacity="0.2" />
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <polygon
+          points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth="1"
+        />
+      </svg>
+    ),
+    "check-circle": (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+        <circle cx="12" cy="12" r="10" opacity="0.2" />
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path
+          d="M9 12l2 2 4-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
   };
 
   // Colores predefinidos según el tier y tipo
@@ -201,6 +270,31 @@ const Badge = ({
       bg: "from-pink-400 via-rose-500 to-red-500",
       border: "border-pink-300",
       glow: "shadow-pink-500/70",
+      text: "text-pink-900",
+    },
+    // Nuevos badges - Enero 2026
+    writer_25: {
+      bg: "from-violet-500 to-purple-700",
+      border: "border-violet-300",
+      glow: "shadow-violet-500/60",
+      text: "text-violet-900",
+    },
+    participant_10: {
+      bg: "from-indigo-500 to-indigo-700",
+      border: "border-indigo-300",
+      glow: "shadow-indigo-500/60",
+      text: "text-indigo-900",
+    },
+    explorer_30: {
+      bg: "from-amber-400 to-orange-500",
+      border: "border-amber-300",
+      glow: "shadow-amber-500/60",
+      text: "text-amber-900",
+    },
+    voter_10: {
+      bg: "from-pink-500 to-rose-600",
+      border: "border-pink-300",
+      glow: "shadow-pink-500/60",
       text: "text-pink-900",
     },
   };
@@ -337,6 +431,15 @@ const Badge = ({
 const BadgeGrid = ({ badges, maxVisible = 4, size = "md", className = "" }) => {
   if (!badges || badges.length === 0) return null;
 
+  // Tamaños para el indicador "+N"
+  const gridSizes = {
+    xs: { container: "w-8 h-8", text: "text-xs" },
+    sm: { container: "w-12 h-12", text: "text-sm" },
+    md: { container: "w-16 h-16", text: "text-base" },
+    lg: { container: "w-20 h-20", text: "text-lg" },
+  };
+
+  const sizeClasses = gridSizes[size] || gridSizes.md;
   const visibleBadges = badges.slice(0, maxVisible);
   const hiddenCount = badges.length - maxVisible;
 
@@ -354,10 +457,10 @@ const BadgeGrid = ({ badges, maxVisible = 4, size = "md", className = "" }) => {
       {hiddenCount > 0 && (
         <div
           className={`
-          ${sizeClasses.container || "w-16 h-16"} 
-          bg-gray-200 border-2 border-gray-300 rounded-full 
+          ${sizeClasses.container}
+          bg-gray-200 border-2 border-gray-300 rounded-full
           flex items-center justify-center text-gray-600 font-semibold
-          ${sizeClasses.text || "text-base"}
+          ${sizeClasses.text}
         `}
         >
           +{hiddenCount}

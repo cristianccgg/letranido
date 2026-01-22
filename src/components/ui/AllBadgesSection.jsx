@@ -85,14 +85,23 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
   const categories = [
     { id: "all", name: "Todos", icon: Trophy, color: "purple" },
     { id: "story_count", name: "Escritura", icon: Award, color: "blue" },
-    { id: "contest_winner", name: "Campeón", icon: Target, color: "yellow" },
+    { id: "contest_participation", name: "Participación", icon: Target, color: "green" },
+    { id: "contest_winner", name: "Campeón", icon: Trophy, color: "yellow" },
     { id: "contest_wins", name: "Veterano", icon: Trophy, color: "red" },
+    { id: "community", name: "Comunidad", icon: Award, color: "pink" },
   ];
 
   // Filtrar badges según categoría seleccionada
   const getFilteredBadges = () => {
     if (selectedCategory === "all") {
       return badgeDefinitions;
+    }
+    // Categoría "community" agrupa unique_authors_read y contests_voted
+    if (selectedCategory === "community") {
+      return [
+        ...(categorizedBadges["unique_authors_read"] || []),
+        ...(categorizedBadges["contests_voted"] || []),
+      ];
     }
     return categorizedBadges[selectedCategory] || [];
   };
@@ -110,6 +119,12 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
         return userStats.storyCount >= (criteria.threshold || 0);
       case "contest_wins":
         return userStats.contestWins >= (criteria.threshold || 0);
+      case "contest_participation":
+        return userStats.contestParticipations >= (criteria.threshold || 0);
+      case "unique_authors_read":
+        return userStats.uniqueAuthorsRead >= (criteria.threshold || 0);
+      case "contests_voted":
+        return userStats.contestsVoted >= (criteria.threshold || 0);
       case "contest_winner":
       case "contest_finalist":
         // Estos badges se otorgan manualmente, verificar si los tiene
@@ -131,6 +146,12 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
         return Math.min((userStats.storyCount / threshold) * 100, 100);
       case "contest_wins":
         return Math.min((userStats.contestWins / threshold) * 100, 100);
+      case "contest_participation":
+        return Math.min((userStats.contestParticipations / threshold) * 100, 100);
+      case "unique_authors_read":
+        return Math.min((userStats.uniqueAuthorsRead / threshold) * 100, 100);
+      case "contests_voted":
+        return Math.min((userStats.contestsVoted / threshold) * 100, 100);
       default:
         return hasBadge(badge.id) ? 100 : 0;
     }
@@ -159,7 +180,12 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
             const categoryBadges =
               category.id === "all"
                 ? badgeDefinitions
-                : categorizedBadges[category.id] || [];
+                : category.id === "community"
+                  ? [
+                      ...(categorizedBadges["unique_authors_read"] || []),
+                      ...(categorizedBadges["contests_voted"] || []),
+                    ]
+                  : categorizedBadges[category.id] || [];
 
             const earnedCount = categoryBadges.filter((badge) =>
               hasBadge(badge.id)
@@ -286,10 +312,15 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
                         <span className="text-gray-400 dark:text-dark-500">
                           {badge.criteria?.type === "story_count" && userStats
                             ? `${userStats.storyCount}/${badge.criteria?.threshold || 0}`
-                            : badge.criteria?.type === "contest_wins" &&
-                                userStats
+                            : badge.criteria?.type === "contest_wins" && userStats
                               ? `${userStats.contestWins}/${badge.criteria?.threshold || 0}`
-                              : "Bloqueado"}
+                              : badge.criteria?.type === "contest_participation" && userStats
+                                ? `${userStats.contestParticipations}/${badge.criteria?.threshold || 0}`
+                                : badge.criteria?.type === "unique_authors_read" && userStats
+                                  ? `${userStats.uniqueAuthorsRead}/${badge.criteria?.threshold || 0}`
+                                  : badge.criteria?.type === "contests_voted" && userStats
+                                    ? `${userStats.contestsVoted}/${badge.criteria?.threshold || 0}`
+                                    : "Bloqueado"}
                         </span>
                       )}
                     </div>

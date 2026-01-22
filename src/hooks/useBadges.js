@@ -134,26 +134,72 @@ export const useBadges = (userId) => {
     if (!userId) return null;
 
     try {
-      // Obtener conteo de historias
+      // Obtener historias publicadas
       const { data: stories, error: storiesError } = await supabase
         .from("stories")
-        .select("id, is_winner")
+        .select("id, is_winner, winner_position, contest_id")
         .eq("user_id", userId)
         .not("published_at", "is", null);
 
       if (storiesError) throw storiesError;
 
       const storyCount = stories?.length || 0;
+      // Solo contar victorias en primer lugar
       const contestWins =
-        stories?.filter((story) => story.is_winner).length || 0;
+        stories?.filter((story) => story.is_winner && story.winner_position === 1).length || 0;
+      // Contar retos únicos participados
+      const contestParticipations = new Set(
+        stories?.filter((s) => s.contest_id).map((s) => s.contest_id)
+      ).size;
+
+      // Obtener autores únicos leídos
+      const { data: reads, error: readsError } = await supabase
+        .from("user_story_reads")
+        .select("story_id, stories(user_id)")
+        .eq("user_id", userId);
+
+      let uniqueAuthorsRead = 0;
+      if (!readsError && reads) {
+        const authorIds = new Set(
+          reads
+            .filter((r) => r.stories?.user_id && r.stories.user_id !== userId)
+            .map((r) => r.stories.user_id)
+        );
+        uniqueAuthorsRead = authorIds.size;
+      }
+
+      // Obtener retos donde ha votado
+      const { data: votes, error: votesError } = await supabase
+        .from("votes")
+        .select("story_id, stories(contest_id)")
+        .eq("user_id", userId);
+
+      let contestsVoted = 0;
+      if (!votesError && votes) {
+        const contestIds = new Set(
+          votes
+            .filter((v) => v.stories?.contest_id)
+            .map((v) => v.stories.contest_id)
+        );
+        contestsVoted = contestIds.size;
+      }
 
       return {
         storyCount,
         contestWins,
+        contestParticipations,
+        uniqueAuthorsRead,
+        contestsVoted,
       };
     } catch (err) {
       console.error("Error getting user stats:", err);
-      return { storyCount: 0, contestWins: 0 }; // Return default values instead of null
+      return {
+        storyCount: 0,
+        contestWins: 0,
+        contestParticipations: 0,
+        uniqueAuthorsRead: 0,
+        contestsVoted: 0
+      };
     }
   }, [userId]);
 
@@ -181,9 +227,16 @@ export const useBadges = (userId) => {
         return thresholdA - thresholdB;
       });
 
-      // Encontrar el siguiente badge que puede conseguir
-      const currentValue =
-        category === "story_count" ? stats.storyCount : stats.contestWins;
+      // Mapear categoría a estadística correspondiente
+      const categoryToStat = {
+        story_count: stats.storyCount,
+        contest_wins: stats.contestWins,
+        contest_participation: stats.contestParticipations,
+        unique_authors_read: stats.uniqueAuthorsRead,
+        contests_voted: stats.contestsVoted,
+      };
+
+      const currentValue = categoryToStat[category] || 0;
 
       for (const badge of sortedBadges) {
         const threshold = badge.criteria?.threshold || 0;

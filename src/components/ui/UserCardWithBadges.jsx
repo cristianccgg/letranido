@@ -40,11 +40,18 @@ const UserCardWithBadges = ({
     .filter((badge) => badge.id !== "kofi_supporter") // Excluir Ko-fi supporter de la lista normal
     .sort((a, b) => {
       const priorityOrder = {
-        contest_winner_veteran: 5, // Múltiples victorias - prioridad máxima
-        contest_winner: 4, // Al menos una victoria
-        contest_finalist: 3, // Top 3 en un reto
-        writer_15: 2,
-        writer_5: 1,
+        contest_winner_legend: 8, // 5+ victorias - prioridad máxima
+        contest_winner_veteran: 7, // 2+ victorias
+        contest_winner: 6, // Al menos una victoria
+        contest_finalist: 5, // Top 3 en un reto
+        writer_25: 4, // 25 historias (Novelista)
+        writer_15: 3, // 15 historias
+        participant_10: 2.5, // 10 retos participados
+        explorer_30: 2.4, // 30 autores leídos
+        voter_10: 2.3, // 10 retos votados
+        participant_6: 2, // 6 retos participados
+        writer_5: 1, // 5 historias
+        participant_3: 0.5, // 3 retos participados
         first_story: 0,
       };
 
@@ -227,11 +234,18 @@ export const UserCardWithBadgesVertical = ({
     .filter((badge) => badge.id !== "kofi_supporter") // Excluir Ko-fi supporter de la lista normal
     .sort((a, b) => {
       const priorityOrder = {
-        contest_winner_veteran: 5, // Múltiples victorias - prioridad máxima
-        contest_winner: 4, // Al menos una victoria
-        contest_finalist: 3, // Top 3 en un reto
-        writer_15: 2,
-        writer_5: 1,
+        contest_winner_legend: 8, // 5+ victorias - prioridad máxima
+        contest_winner_veteran: 7, // 2+ victorias
+        contest_winner: 6, // Al menos una victoria
+        contest_finalist: 5, // Top 3 en un reto
+        writer_25: 4, // 25 historias (Novelista)
+        writer_15: 3, // 15 historias
+        participant_10: 2.5, // 10 retos participados
+        explorer_30: 2.4, // 30 autores leídos
+        voter_10: 2.3, // 10 retos votados
+        participant_6: 2, // 6 retos participados
+        writer_5: 1, // 5 historias
+        participant_3: 0.5, // 3 retos participados
         first_story: 0,
       };
 

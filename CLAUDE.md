@@ -23,17 +23,22 @@
 - **1 voto por encuesta** por usuario autenticado
 - **Componentes**: `PollPreview.jsx`, `PollAdminPanel.jsx`, `NextContestOrPoll.jsx`
 
-### 🎖️ Sistema de Badges y Karma (✅ FIX APLICADO Dic 2024)
-- **Badges automáticos**: Ganadores, finalistas, veteranos
+### 🎖️ Sistema de Badges y Karma (✅ ACTUALIZADO Enero 2026)
+- **Badges automáticos**: Ganadores, finalistas, veteranos, participación, comunidad
 - **Ko-fi Supporter Badge**: Badge especial con gradiente rosado y shimmer dorado
 - **Karma system**: Rankings dinámicos de la comunidad
 - **Perfiles públicos**: Con métricas y logros de usuarios
 - **Asignación**: Automática al publicar historias (`check_and_award_badges`)
-- **Tipos de badges**:
-  - **Únicos**: `first_story`, `writer_5`, `writer_15`, `contest_winner_veteran`, `contest_winner_legend`
-  - **Repetibles**: `contest_winner`, `contest_finalist` (uno por concurso ganado)
+- **Tipos de badges (14 totales)**:
+  - **Escritura**: `first_story` (1), `writer_5` (5), `writer_15` (15), `writer_25` (25 historias)
+  - **Participación**: `participant_3` (3), `participant_6` (6), `participant_10` (10 retos)
+  - **Comunidad**: `explorer_30` (30 autores leídos), `voter_10` (10 retos votados)
+  - **Concursos**: `contest_winner`, `contest_finalist` (repetibles por reto)
+  - **Logros**: `contest_winner_veteran` (2+ victorias), `contest_winner_legend` (5+ victorias)
+  - **Especiales**: `kofi_supporter` (donantes)
 - **⚠️ CRÍTICO**: Sin constraint UNIQUE, usa lógica `EXISTS()` para prevenir duplicados
 - **Fix Dic 2024**: Corregido conteo de victorias (solo `winner_position = 1`)
+- **Enero 2026**: Agregados 6 nuevos badges (participación, comunidad, escritura avanzada)
 
 ### 👥 Sistema de Perfiles Públicos (Oct 2024 - ✅ EN PRODUCCIÓN)
 - **Autenticación**: Supabase Auth
@@ -325,6 +330,39 @@ git pull origin main         # Actualizar main
 
 ---
 
+### ✅ Enero 22, 2026 - Nuevos Badges de Participación y Comunidad
+
+**6 nuevos badges agregados** para incentivar participación y engagement:
+
+1. **Escritura Avanzada**
+   - `writer_25` (Novelista) - 25 historias publicadas
+
+2. **Participación en Retos** (progresión 3 → 6 → 10)
+   - `participant_3` (Participante) - 3 retos
+   - `participant_6` (Participante Fiel) - 6 retos
+   - `participant_10` (Veterano de Retos) - 10 retos
+
+3. **Comunidad**
+   - `explorer_30` (Explorador) - Leer de 30 autores distintos
+   - `voter_10` (Votante Comprometido) - Votar en 10 retos diferentes
+
+**Archivos modificados:**
+- `database-scripts/migrations/new_badges_january_2026.sql` - Script SQL completo
+- `src/components/ui/Badge.jsx` - Nuevos iconos y colores
+- `src/components/ui/UserCardWithBadges.jsx` - Prioridades actualizadas
+- `src/hooks/useBadges.js` - Soporte para nuevos tipos de badges
+
+**Función SQL actualizada:** `check_and_award_badges()` ahora soporta:
+- `story_count` - Historias publicadas
+- `contest_wins` - Victorias en primer lugar
+- `contest_participation` - Retos participados (nuevo)
+- `unique_authors_read` - Autores leídos (nuevo)
+- `contests_voted` - Retos votados (nuevo)
+
+**Asignación retroactiva:** Ejecutar `SELECT * FROM assign_retroactive_badges();` después de aplicar migración
+
+---
+
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Enero 4, 2026 - Fix crítico race condition badges + Eliminación menciones de honor
+**Última actualización**: Enero 22, 2026 - 6 nuevos badges de participación y comunidad
