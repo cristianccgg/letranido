@@ -13,6 +13,7 @@ const MicroStoryCard = ({
   onReport,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [commentsCount, setCommentsCount] = useState(story.comments_count || 0);
   const isAuthor = currentUserId === story.user_id;
 
@@ -57,7 +58,7 @@ const MicroStoryCard = ({
               e.stopPropagation();
               setShowMenu(!showMenu);
             }}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors cursor-pointer"
           >
             <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           </button>
@@ -70,7 +71,7 @@ const MicroStoryCard = ({
                     setShowMenu(false);
                     onDelete(story.id);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
                   Eliminar
                 </button>
@@ -81,7 +82,7 @@ const MicroStoryCard = ({
                     setShowMenu(false);
                     onReport(story.id);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 cursor-pointer"
                 >
                   <Flag className="w-4 h-4" />
                   Reportar
@@ -113,7 +114,7 @@ const MicroStoryCard = ({
             e.stopPropagation();
             onLike && onLike(story.id);
           }}
-          className={`flex items-center gap-2 transition-colors ${
+          className={`flex items-center gap-2 transition-colors cursor-pointer ${
             isLiked
               ? "text-red-500"
               : "text-gray-500 dark:text-gray-400 hover:text-red-500"
@@ -125,12 +126,16 @@ const MicroStoryCard = ({
           )}
         </button>
 
-        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+        <button
+          type="button"
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
+        >
           <MessageCircle className="w-5 h-5" />
           {commentsCount > 0 && (
             <span className="text-sm font-medium">{commentsCount}</span>
           )}
-        </div>
+        </button>
       </div>
 
       {/* Sistema de comentarios expandible */}
@@ -138,6 +143,8 @@ const MicroStoryCard = ({
         storyId={story.id}
         initialCount={commentsCount}
         onCountChange={setCommentsCount}
+        isOpen={showComments}
+        onToggleOpen={setShowComments}
       />
     </div>
   );

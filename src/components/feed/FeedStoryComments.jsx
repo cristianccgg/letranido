@@ -9,9 +9,9 @@ import FeedCommentsSection from './FeedCommentsSection';
  * Componente que adapta SimpleComments para trabajar con feed_story_comments
  * en lugar de la tabla comments normal
  */
-const FeedStoryComments = ({ storyId, initialCount = 0, onCountChange }) => {
+const FeedStoryComments = ({ storyId, initialCount = 0, onCountChange, isOpen = false, onToggleOpen }) => {
   const { user } = useGlobalApp();
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(isOpen);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [commentsCount, setCommentsCount] = useState(initialCount);
@@ -23,10 +23,14 @@ const FeedStoryComments = ({ storyId, initialCount = 0, onCountChange }) => {
     }
   }, [showComments, storyId]);
 
-  // Sincronizar contador inicial con prop
+  // Sincronizar con prop externo
   useEffect(() => {
     setCommentsCount(initialCount);
   }, [initialCount]);
+
+  useEffect(() => {
+    setShowComments(isOpen);
+  }, [isOpen]);
 
   const loadComments = async () => {
     try {
@@ -181,8 +185,12 @@ const FeedStoryComments = ({ storyId, initialCount = 0, onCountChange }) => {
     <div className="border-t border-gray-100 dark:border-gray-700">
       {/* Botón para mostrar/ocultar comentarios */}
       <button
-        onClick={() => setShowComments(!showComments)}
-        className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+        onClick={() => {
+          const next = !showComments;
+          setShowComments(next);
+          onToggleOpen?.(next);
+        }}
+        className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
       >
         <MessageSquare className="w-4 h-4" />
         {showComments ? 'Ocultar comentarios' : `Ver comentarios${commentsCount > 0 ? ` (${commentsCount})` : ''}`}

@@ -87,12 +87,34 @@ const useMicroStories = (promptId) => {
     );
   }, []);
 
+  // Eliminar historia del feed (solo el autor puede)
+  const deleteStory = useCallback(async (storyId, userId) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('feed_stories')
+        .delete()
+        .eq('id', storyId)
+        .eq('user_id', userId);
+
+      if (deleteError) throw deleteError;
+
+      // Actualizar estado local
+      setStories(prev => prev.filter(s => s.id !== storyId));
+      setUserStoryId(prev => prev === storyId ? null : prev);
+      return { success: true };
+    } catch (err) {
+      console.error('Error deleting feed story:', err);
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   return {
     stories,
     loading,
     error,
     refreshStories: loadStories,
     updateStoryLikeCount,
+    deleteStory,
     userHasPublished: !!userStoryId,
     userStoryId,
   };

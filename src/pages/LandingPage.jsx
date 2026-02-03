@@ -109,7 +109,7 @@ const LandingPage = () => {
 
   // 🆕 FEED STATE - Solo para usuarios autenticados
   const { activePrompt, loading: promptsLoading } = useFeedPrompts('active');
-  const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, userHasPublished } = useMicroStories(activePrompt?.id);
+  const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, deleteStory, userHasPublished } = useMicroStories(activePrompt?.id);
 
   // Estado del formulario de feed
   const [feedTitle, setFeedTitle] = useState('');
@@ -173,14 +173,16 @@ const LandingPage = () => {
   }, [feedContent]);
 
   // 🆕 FEED: Cargar likes del usuario
+  // Usar story IDs como dependencia estable para no re-ejecutar al cambiar likes_count
+  const storyIds = stories.map(s => s.id).join(',');
   useEffect(() => {
     const loadUserLikes = async () => {
-      if (!user || !stories.length) return;
+      if (!user || !storyIds) return;
 
-      const storyIds = stories.map(s => s.id);
+      const ids = storyIds.split(',');
       const { data } = await supabase.rpc('get_user_feed_story_likes_batch', {
         p_user_id: user.id,
-        p_story_ids: storyIds
+        p_story_ids: ids
       });
 
       if (data) {
@@ -193,7 +195,7 @@ const LandingPage = () => {
     };
 
     loadUserLikes();
-  }, [user, stories]);
+  }, [user, storyIds]);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
@@ -438,6 +440,36 @@ const LandingPage = () => {
       setUserLikes(prev => ({ ...prev, [storyId]: currentlyLiked }));
       updateStoryLikeCount(storyId, -likeChange);
       console.error('Error toggling like:', err);
+    }
+  };
+
+  const handleDeleteFeed = async (storyId) => {
+    if (!user) return;
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta historia?')) return;
+
+    const result = await deleteStory(storyId, user.id);
+    if (!result.success) {
+      setFeedError('Error al eliminar la historia');
+    }
+  };
+
+  const handleReportFeed = async (storyId) => {
+    if (!user) return;
+    try {
+      const { error: reportError } = await supabase
+        .from('reports')
+        .insert([{
+          reporter_id: user.id,
+          reported_item_type: 'feed_story',
+          reported_item_id: storyId,
+          reason: 'Reportado por usuario',
+        }]);
+
+      if (reportError) throw reportError;
+      alert('Historia reportada. Gracias por ayudar a mantener la comunidad.');
+    } catch (err) {
+      console.error('Error reporting feed story:', err);
+      setFeedError('Error al reportar la historia');
     }
   };
 
@@ -855,8 +887,8 @@ const LandingPage = () => {
                                 onLike={handleLikeFeed}
                                 isLiked={userLikes[story.id] || false}
                                 currentUserId={user?.id}
-                                onDelete={null}
-                                onReport={null}
+                                onDelete={handleDeleteFeed}
+                                onReport={handleReportFeed}
                               />
                             ))}
                           </div>
