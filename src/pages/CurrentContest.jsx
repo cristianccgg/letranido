@@ -104,6 +104,36 @@ const CurrentContest = () => {
     user?.id
   );
 
+  // ✅ ESTADÍSTICAS DE LECTURA AJUSTADAS (excluye historia propia del usuario)
+  const adjustedReadStats = useMemo(() => {
+    if (!readStats || readStats.total === 0) {
+      return readStats;
+    }
+
+    // Verificar si el usuario tiene una historia en este concurso
+    const userHasStoryInContest = galleryStories.some(
+      (story) => story.user_id === user?.id
+    );
+
+    if (!userHasStoryInContest) {
+      return readStats;
+    }
+
+    // Ajustar estadísticas excluyendo la historia propia
+    const adjustedTotal = Math.max(0, readStats.total - 1);
+    const adjustedUnread = Math.max(0, readStats.unread - 1);
+    const adjustedPercentage = adjustedTotal > 0
+      ? (readStats.read / adjustedTotal) * 100
+      : 100;
+
+    return {
+      total: adjustedTotal,
+      read: readStats.read,
+      unread: adjustedUnread,
+      percentage: adjustedPercentage,
+    };
+  }, [readStats, galleryStories, user?.id]);
+
   // ✅ MODO DESARROLLO: Forzar fase de votación para testing
   const DEV_FORCE_VOTING =
     import.meta.env.VITE_DEV_FORCE_VOTING_PHASE === "true";
@@ -1232,8 +1262,8 @@ const CurrentContest = () => {
                 </div>
               </div>
 
-              {/* Columna 2: Progreso de Lectura (solo si hay datos) */}
-              {readStats.total > 0 && (
+              {/* Columna 2: Progreso de Lectura (solo si hay datos, excluye historia propia) */}
+              {adjustedReadStats.total > 0 && (
                 <div className="flex items-center gap-4 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-600 pt-4 lg:pt-0 lg:pl-6">
                   {/* Círculo de progreso */}
                   <div className="relative w-16 h-16 shrink-0">
@@ -1255,14 +1285,14 @@ const CurrentContest = () => {
                         strokeWidth="5"
                         fill="transparent"
                         strokeDasharray={`${2 * Math.PI * 28}`}
-                        strokeDashoffset={`${2 * Math.PI * 28 * (1 - readStats.percentage / 100)}`}
+                        strokeDashoffset={`${2 * Math.PI * 28 * (1 - adjustedReadStats.percentage / 100)}`}
                         className="text-blue-600 dark:text-blue-400 transition-all duration-500"
                         strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {Math.round(readStats.percentage)}%
+                        {Math.round(adjustedReadStats.percentage)}%
                       </span>
                     </div>
                   </div>
@@ -1276,12 +1306,12 @@ const CurrentContest = () => {
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {readStats.read} de {readStats.total} historias
-                      {readStats.unread > 0 && (
+                      {adjustedReadStats.read} de {adjustedReadStats.total} historias
+                      {adjustedReadStats.unread > 0 && (
                         <span className="ml-1">
                           ·{" "}
                           <span className="text-orange-600 dark:text-orange-400 font-semibold">
-                            {readStats.unread}
+                            {adjustedReadStats.unread}
                           </span>{" "}
                           pendientes
                         </span>
@@ -1665,15 +1695,57 @@ const CurrentContest = () => {
                         return (
                           <div
                             key={story.id}
-                            className={`backdrop-blur-sm border rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
+                            className={`backdrop-blur-sm border-2 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
                               hasVoted
-                                ? "bg-gray-50/80 border-gray-300 opacity-75 hover:opacity-90 dark:bg-dark-700/80 dark:border-dark-500 hover:dark:border-purple-400"
+                                ? "bg-pink-50/50 border-pink-300 dark:bg-pink-900/20 dark:border-pink-700"
                                 : hasRead && phaseInfo?.phase === "voting"
-                                  ? "bg-blue-50/40 border-blue-200 dark:bg-blue-900/10 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
-                                  : "bg-white/95 border-indigo-100 hover:border-purple-200 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
+                                  ? "bg-blue-50/50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700"
+                                  : "bg-white/95 border-indigo-100 hover:border-purple-300 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
                             }`}
                             onClick={() => navigate(`/story/${story.id}`)}
                           >
+                            {/* Overlay con badge central - Votada o Leída */}
+                            {(hasVoted || (hasRead && phaseInfo?.phase === "voting")) && (
+                              <div
+                                className={`absolute inset-0 z-40 flex items-center justify-center backdrop-blur-[1px] ${
+                                  hasVoted
+                                    ? "bg-pink-200/40 dark:bg-pink-900/50"
+                                    : "bg-blue-200/40 dark:bg-blue-900/50"
+                                }`}
+                                onClick={(e) => {
+                                  // El overlay permite navegar a la historia
+                                }}
+                              >
+                                <div
+                                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-lg transition-all ${
+                                    hasVoted
+                                      ? "bg-pink-500 text-white"
+                                      : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                                  }`}
+                                  onClick={(e) => {
+                                    if (!hasVoted && hasRead) {
+                                      e.stopPropagation();
+                                      handleToggleRead(e);
+                                    }
+                                  }}
+                                  title={!hasVoted && hasRead ? "Click para desmarcar como leída" : undefined}
+                                >
+                                  {hasVoted ? (
+                                    <Heart className="h-4 w-4 fill-current" />
+                                  ) : (
+                                    <BookCheck className="h-4 w-4" />
+                                  )}
+                                  <span>
+                                    {hasVoted && hasRead
+                                      ? "Votada"
+                                      : hasVoted
+                                        ? "Votada"
+                                        : "Leída"}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
                             {/* Header responsive */}
                             <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
                               <div className="flex-1 min-w-0">
@@ -1702,46 +1774,11 @@ const CurrentContest = () => {
                                     </div>
                                   )}
 
-                                {/* Badge central - Votada Y/O Leída */}
-                                {(hasVoted ||
-                                  (hasRead &&
-                                    phaseInfo?.phase === "voting")) && (
-                                  <div
-                                    className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium shadow-md backdrop-blur-sm transition-all ${
-                                      hasVoted
-                                        ? "bg-gray-400/90 text-white"
-                                        : "bg-blue-500/90 text-white hover:bg-blue-600/90 cursor-pointer"
-                                    }`}
-                                    onClick={
-                                      hasVoted ? undefined : handleToggleRead
-                                    }
-                                    title={
-                                      hasVoted
-                                        ? undefined
-                                        : "Click para desmarcar como leída"
-                                    }
-                                  >
-                                    {hasVoted && (
-                                      <Heart className="h-4 w-4 fill-current" />
-                                    )}
-                                    {!hasVoted && hasRead && (
-                                      <BookCheck className="h-4 w-4" />
-                                    )}
-                                    <span>
-                                      {hasVoted && hasRead
-                                        ? "Votada • Leída"
-                                        : hasVoted
-                                          ? "Tu voto"
-                                          : "Leída"}
-                                    </span>
-                                  </div>
-                                )}
-
                                 <h3
                                   className={`text-base md:text-lg font-semibold cursor-pointer line-clamp-2 mb-2 ${
                                     hasVoted
                                       ? "text-gray-500 dark:text-dark-400"
-                                      : "text-gray-900 dark:text-dark-300 dark:hover:text-primary-400 hover:text-primary-600"
+                                      : "text-gray-900 dark:text-dark-100 hover:text-primary-600 dark:hover:text-primary-400"
                                   }`}
                                 >
                                   <a href={`/story/${story.id}`}>
