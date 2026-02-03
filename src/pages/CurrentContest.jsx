@@ -500,9 +500,18 @@ const CurrentContest = () => {
       );
     }
 
+    // Calcular fase para usar en ordenamiento
+    const currentPhase = contest
+      ? DEV_FORCE_VOTING
+        ? "voting"
+        : getContestPhase(contest)
+      : null;
+
+    let sorted;
+
     switch (sortBy) {
       case "popular":
-        return filtered.sort((a, b) => {
+        sorted = filtered.sort((a, b) => {
           // Primero por likes_count (descendente)
           const likesA = a.likes_count || 0;
           const likesB = b.likes_count || 0;
@@ -515,23 +524,19 @@ const CurrentContest = () => {
           const dateB = new Date(b.created_at);
           return dateA - dateB;
         });
+        break;
       case "viewed":
-        return filtered.sort(
+        sorted = filtered.sort(
           (a, b) => (b.views_count || 0) - (a.views_count || 0)
         );
+        break;
       case "alphabetical":
-        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+        sorted = filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
       case "author":
-        return filtered.sort((a, b) => a.author.localeCompare(b.author));
+        sorted = filtered.sort((a, b) => a.author.localeCompare(b.author));
+        break;
       case "random": {
-        // ✅ ORDENAMIENTO INTELIGENTE en fase de votación
-        // Calcular fase directamente para evitar dependencia circular
-        const currentPhase = contest
-          ? DEV_FORCE_VOTING
-            ? "voting"
-            : getContestPhase(contest)
-          : null;
-
         if (currentPhase === "voting" && isAuthenticated && readStories) {
           // Separar historias en leídas y no leídas
           const unreadStories = filtered.filter(
@@ -554,19 +559,32 @@ const CurrentContest = () => {
           );
 
           // Mostrar no leídas primero, luego leídas
-          return [...randomizedUnread, ...randomizedRead];
+          sorted = [...randomizedUnread, ...randomizedRead];
+        } else {
+          // Orden random normal si no está en votación
+          sorted = getRandomizedStories(filtered, contest?.id, searchTerm);
         }
-
-        // Orden random normal si no está en votación
-        return getRandomizedStories(filtered, contest?.id, searchTerm);
+        break;
       }
       case "recent":
-        return filtered.sort(
+        sorted = filtered.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
+        break;
       default:
-        return getRandomizedStories(filtered, contest?.id, searchTerm);
+        sorted = getRandomizedStories(filtered, contest?.id, searchTerm);
     }
+
+    // ✅ Durante votación, mover historia propia al final
+    if (currentPhase === "voting" && isAuthenticated && user?.id) {
+      const ownStoryIndex = sorted.findIndex((story) => story.user_id === user.id);
+      if (ownStoryIndex !== -1) {
+        const [ownStory] = sorted.splice(ownStoryIndex, 1);
+        sorted.push(ownStory);
+      }
+    }
+
+    return sorted;
   }, [
     galleryStories,
     searchTerm,
@@ -579,6 +597,7 @@ const CurrentContest = () => {
     isAuthenticated,
     readStories,
     isStoryRead,
+    user?.id, // Para mover historia propia al final
   ]);
 
   // ✅ GENERAR DATOS PARA COMPARTIR HISTORIA ESPECÍFICA
@@ -1671,6 +1690,9 @@ const CurrentContest = () => {
                   ) : (
                     <div className="grid gap-3">
                       {filteredAndSortedStories.map((story, index) => {
+                        // Verificar si es la historia propia del usuario
+                        const isOwnStory = isAuthenticated && story.user_id === user?.id;
+
                         // Verificar si el usuario ya votó por esta historia
                         const hasVoted =
                           story.isLiked ||
@@ -1692,25 +1714,40 @@ const CurrentContest = () => {
                           await toggleRead(story.id);
                         };
 
+                        // Determinar si tiene overlay (para desactivar scale en hover)
                         return (
                           <div
                             key={story.id}
-                            className={`backdrop-blur-sm border-2 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden relative ${
-                              hasVoted
-                                ? "bg-pink-50/50 border-pink-300 dark:bg-pink-900/20 dark:border-pink-700"
-                                : hasRead && phaseInfo?.phase === "voting"
-                                  ? "bg-blue-50/50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700"
-                                  : "bg-white/95 border-indigo-100 hover:border-purple-300 dark:bg-dark-800/95 dark:border-dark-600 hover:dark:border-purple-500"
+                            className={`group backdrop-blur-sm border-2 rounded-2xl p-4 md:p-6 hover:shadow-xl hover:border-purple-400 dark:hover:border-purple-500 transition-all duration-300 cursor-pointer overflow-hidden relative ${
+                              isOwnStory
+                                ? "bg-purple-50/50 border-purple-300 dark:bg-purple-900/20 dark:border-purple-700"
+                                : hasVoted
+                                  ? "bg-pink-50/50 border-pink-300 dark:bg-pink-900/20 dark:border-pink-700"
+                                  : hasRead && phaseInfo?.phase === "voting"
+                                    ? "bg-blue-50/50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700"
+                                    : "bg-white/95 border-indigo-100 dark:bg-dark-800/95 dark:border-dark-600"
                             }`}
                             onClick={() => navigate(`/story/${story.id}`)}
                           >
-                            {/* Overlay con badge central - Votada o Leída */}
-                            {(hasVoted || (hasRead && phaseInfo?.phase === "voting")) && (
+                            {/* Overlay con badge central - Historia propia */}
+                            {isOwnStory && phaseInfo?.phase === "voting" && (
                               <div
-                                className={`absolute inset-0 z-40 flex items-center justify-center backdrop-blur-[1px] ${
+                                className="absolute inset-0 z-40 flex items-center justify-center backdrop-blur-[1px] bg-purple-200/40 dark:bg-purple-900/50 group-hover:bg-purple-200/20 dark:group-hover:bg-purple-900/30 transition-all duration-300"
+                              >
+                                <div className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-lg bg-purple-500 text-white">
+                                  <PenTool className="h-4 w-4" />
+                                  <span>Tu historia</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Overlay con badge central - Votada o Leída */}
+                            {!isOwnStory && (hasVoted || (hasRead && phaseInfo?.phase === "voting")) && (
+                              <div
+                                className={`absolute inset-0 z-40 flex items-center justify-center backdrop-blur-[1px] transition-all duration-300 ${
                                   hasVoted
-                                    ? "bg-pink-200/40 dark:bg-pink-900/50"
-                                    : "bg-blue-200/40 dark:bg-blue-900/50"
+                                    ? "bg-pink-200/40 dark:bg-pink-900/50 group-hover:bg-pink-200/20 dark:group-hover:bg-pink-900/30"
+                                    : "bg-blue-200/40 dark:bg-blue-900/50 group-hover:bg-blue-200/20 dark:group-hover:bg-blue-900/30"
                                 }`}
                                 onClick={(e) => {
                                   // El overlay permite navegar a la historia

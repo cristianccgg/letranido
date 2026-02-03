@@ -18,17 +18,8 @@ const SocialShareDropdown = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showBadge, setShowBadge] = useState(true);
   const dropdownRef = useRef(null);
   const { title, text, url } = shareData;
-
-  // Check if user has used the new share feature
-  useEffect(() => {
-    const hasUsedNewShare = localStorage.getItem('hasUsedSocialShare');
-    if (hasUsedNewShare) {
-      setShowBadge(false);
-    }
-  }, []);
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -49,9 +40,6 @@ const SocialShareDropdown = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       setIsOpen(false);
-      // Mark as used
-      localStorage.setItem('hasUsedSocialShare', 'true');
-      setShowBadge(false);
     } catch {
       // Fallback para navegadores que no soportan clipboard API
       const textArea = document.createElement("textarea");
@@ -63,9 +51,6 @@ const SocialShareDropdown = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       setIsOpen(false);
-      // Mark as used
-      localStorage.setItem('hasUsedSocialShare', 'true');
-      setShowBadge(false);
     }
   };
 
@@ -142,7 +127,7 @@ const SocialShareDropdown = ({
             ? "bg-green-500 hover:bg-green-600 text-white"
             : "bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:scale-105 transition-all duration-300 ease-in-out"
         } rounded-lg flex items-center gap-2 cursor-pointer border border-blue-200 dark:border-blue-700`}
-        title={copied ? "¡Enlace copiado!" : `¡Nuevo! Compartir ${variant === "story" ? "historia" : "reto"} en redes sociales`}
+        title={copied ? "¡Enlace copiado!" : `Compartir ${variant === "story" ? "historia" : "reto"} en redes sociales`}
       >
         {copied ? (
           <>
@@ -155,13 +140,6 @@ const SocialShareDropdown = ({
             <span>Compartir</span>
             <ChevronDown className={`${iconSizes[size]} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </>
-        )}
-        
-        {/* Nuevo Badge */}
-        {showBadge && !copied && (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
-            ¡Nuevo!
-          </span>
         )}
       </button>
 
