@@ -363,6 +363,62 @@ git pull origin main         # Actualizar main
 
 ---
 
+### 🎨 Enero 25, 2026 - Badges Custom con Imágenes (EN PROGRESO)
+
+**Objetivo:** Reemplazar los badges SVG/emoji actuales por imágenes personalizadas generadas con IA (DiffusionBee).
+
+**Estado:** ⏸️ En pausa - Continuar mañana
+
+**Herramienta:** DiffusionBee con modelo **Game Icon Institute** (ideal para iconos de juegos/achievements)
+
+**Configuración actual:**
+- Feature flag: `FEATURES.USE_CUSTOM_BADGE_IMAGES` en `src/lib/config.js`
+- Solo activo en desarrollo (`import.meta.env.DEV`)
+- Producción NO afectada
+
+**Archivos modificados:**
+- `src/lib/config.js` - Agregado feature flag
+- `src/components/ui/Badge.jsx` - Soporte para imágenes custom
+- `src/assets/badges/primera_pluma.png` - Imagen de prueba (pendiente rehacer)
+
+**Próximos pasos (para continuar):**
+1. Regenerar badges con nuevo estilo (más limpio, menos ornamento)
+2. Usar prompts tipo:
+   ```
+   circular achievement badge, [COLOR] background, [ICONO] in center, clean simple design, game UI style, minimal ornament
+   ```
+3. Negative prompt: `complex, busy, too many details, cluttered, ornate frame`
+
+**Orden de badges a crear (14 totales):**
+| # | ID | Nombre | Color sugerido | Icono |
+|---|-----|--------|----------------|-------|
+| 1 | `first_story` | Primera Pluma | Verde esmeralda | Pluma/quill |
+| 2 | `writer_5` | Escritor | Verde | Libro abierto |
+| 3 | `writer_15` | Escritor Prolífico | Verde oscuro | Pila de libros |
+| 4 | `writer_25` | Novelista | Violeta | Libro grueso dorado |
+| 5 | `participant_3` | Participante | Azul claro | Bandera |
+| 6 | `participant_6` | Participante Fiel | Azul | Escudo con estrellas |
+| 7 | `participant_10` | Veterano de Retos | Índigo | Escudo con 10 estrellas |
+| 8 | `explorer_30` | Explorador | Ámbar/naranja | Brújula |
+| 9 | `voter_10` | Votante Comprometido | Rosa | Balanza o urna |
+| 10 | `contest_finalist` | Finalista | Azul/plata | Medalla plateada |
+| 11 | `contest_winner` | Ganador | Dorado | Trofeo dorado |
+| 12 | `contest_winner_veteran` | Ganador Veterano | Rojo/dorado | Trofeo con laureles |
+| 13 | `contest_winner_legend` | Leyenda | Púrpura/dorado | Corona con gemas |
+| 14 | `kofi_supporter` | Ko-fi Supporter | Rosa/rojo | Corazón o taza café |
+
+**Settings recomendados para DiffusionBee:**
+- Modelo: Game Icon Institute
+- Tamaño: 512x512
+- Steps: 30-50
+
+**Cómo agregar un nuevo badge:**
+1. Generar imagen con DiffusionBee
+2. Guardar en `src/assets/badges/[nombre].png`
+3. Importar en `Badge.jsx` y agregar al objeto `customBadgeImages`
+
+---
+
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Enero 22, 2026 - 6 nuevos badges de participación y comunidad
+**Última actualización**: Enero 25, 2026 - Sistema de badges custom con imágenes (en progreso)

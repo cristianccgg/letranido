@@ -55,6 +55,9 @@ export const FEATURES = {
 
   // Feature announcements - Activa/desactiva los anuncios de nuevas features
   SHOW_FEATURE_ANNOUNCEMENT: import.meta.env.VITE_SHOW_FEATURE_ANNOUNCEMENT === 'true',
+
+  // Custom badge images - Desactivado hasta terminar de generar todos los badges
+  USE_CUSTOM_BADGE_IMAGES: false,
 };
 
 // URLs importantes

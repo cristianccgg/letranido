@@ -1,6 +1,19 @@
 // components/ui/Badge.jsx - Sistema de badges con diseños CSS/SVG profesionales
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { FEATURES } from "../../lib/config";
+
+// Importar imágenes de badges custom (solo se usan si FEATURES.USE_CUSTOM_BADGE_IMAGES está activo)
+import primeraPlumaBadge from "../../assets/badges/primera_pluma.png";
+
+// Mapeo de badge IDs a imágenes custom
+const customBadgeImages = {
+  first_story: primeraPlumaBadge,
+  // Agregar más badges aquí conforme los vayas creando:
+  // writer_5: escritorBadge,
+  // writer_15: escritorProlificoBadge,
+  // etc.
+};
 
 const Badge = ({
   badge,
@@ -334,6 +347,9 @@ const Badge = ({
     specialColors[badge.id] || badgeColors[badge.tier] || badgeColors[1];
   const icon = badgeIcons[badge.icon] || badgeIcons.feather;
 
+  // Verificar si hay imagen custom para este badge
+  const customImage = FEATURES.USE_CUSTOM_BADGE_IMAGES ? customBadgeImages[badge.id] : null;
+
   return (
     <>
       <div
@@ -345,25 +361,33 @@ const Badge = ({
         {/* Badge principal */}
         <div
           className={`
-        ${sizeClasses.container} 
-        ${sizeClasses.padding}
-        bg-linear-to-br ${colors.bg}
-        border-2 ${colors.border}
-        rounded-full
-        shadow-lg ${colors.glow}
-        flex items-center justify-center
-        transform transition-all duration-300
-        ${animate ? "hover:scale-110 hover:rotate-6" : "hover:scale-105"}
-        relative overflow-hidden
-      `}
+            ${sizeClasses.container}
+            ${sizeClasses.padding}
+            bg-linear-to-br ${colors.bg}
+            border-2 ${colors.border}
+            rounded-full
+            shadow-lg ${colors.glow}
+            flex items-center justify-center
+            transform transition-all duration-300
+            ${animate ? "hover:scale-110 hover:rotate-6" : "hover:scale-105"}
+            relative overflow-hidden
+          `}
         >
           {/* Efecto de brillo */}
           <div className="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent rounded-full"></div>
 
-          {/* Icono del badge */}
-          <div className={`${sizeClasses.icon} text-white relative z-10`}>
-            {icon}
-          </div>
+          {/* Icono del badge - imagen custom o SVG */}
+          {customImage ? (
+            <img
+              src={customImage}
+              alt={badge.name}
+              className="w-full h-full object-contain relative z-10 scale-150"
+            />
+          ) : (
+            <div className={`${sizeClasses.icon} text-white relative z-10`}>
+              {icon}
+            </div>
+          )}
 
           {/* Efecto de pulso para nuevos badges */}
           {animate && (
