@@ -451,7 +451,7 @@ const LandingPage = () => {
       />
 
       {/* Welcome Banner - Fuera del layout para que ocupe todo el ancho */}
-      <WelcomeBanner />
+      <WelcomeBanner lastContestWinners={lastContestWinners} />
 
       {/* 🖥️ Sección superior con sidebar (Hero + Contest actual) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

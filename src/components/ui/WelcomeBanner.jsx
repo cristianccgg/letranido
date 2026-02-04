@@ -2,14 +2,11 @@
 import { useState } from "react";
 import { X, Sparkles } from "lucide-react";
 
-const WelcomeBanner = () => {
+const WelcomeBanner = ({ lastContestWinners }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  // 📝 CONFIGURACIÓN DEL BANNER - Actualizar mensualmente cuando haya reto finalizado
-  const BANNER_CONFIG = {
-    month: "Diciembre", // 👈 CAMBIAR MES AQUÍ
-    enabled: true, // 👈 true = mostrar banner | false = ocultar banner
-  };
+  // Se muestra automáticamente si hay un reto finalizado con ganadores
+  const month = lastContestWinners?.contest?.month;
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -26,8 +23,8 @@ const WelcomeBanner = () => {
     }
   };
 
-  // No mostrar si está deshabilitado o ha sido cerrado
-  if (!isVisible || !BANNER_CONFIG.enabled) return null;
+  // No mostrar si no hay reto finalizado o ha sido cerrado
+  if (!isVisible || !month) return null;
 
   return (
     <div className="bg-linear-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
@@ -39,11 +36,11 @@ const WelcomeBanner = () => {
               <p className="text-xs sm:text-base font-medium">
                 <span className="hidden sm:flex items-center gap-2">
                   <Sparkles className="h-4 w-4 shrink-0" />
-                  ¡Descubre las historias destacadas de {BANNER_CONFIG.month}!
+                  ¡Descubre las historias destacadas de {month}!
                 </span>
                 <span className="sm:hidden flex items-center gap-2">
                   <Sparkles className="h-3 w-3 shrink-0" />
-                  Historias destacadas de {BANNER_CONFIG.month}
+                  Historias destacadas de {month}
                 </span>
               </p>
             </div>
