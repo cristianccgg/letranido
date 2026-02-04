@@ -921,7 +921,7 @@ const LandingPage = () => {
 
             {/* 🏆 GANADOR DESTACADO - MÁXIMA VISIBILIDAD */}
             <div className="mb-8">
-              <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-8 relative overflow-hidden">
+              <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-4 sm:p-8 relative overflow-hidden">
                 {/* Elementos decorativos tipo spotlight */}
                 <div className="absolute inset-0 bg-linear-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 dark:from-indigo-900/20 dark:via-purple-900/30 dark:to-pink-900/20 rounded-2xl"></div>
                 <div className="absolute top-6 right-6 w-24 h-24 bg-linear-to-br from-indigo-200 to-purple-300 dark:from-indigo-700 dark:to-purple-600 rounded-full opacity-20 blur-xl animate-pulse"></div>
@@ -946,7 +946,7 @@ const LandingPage = () => {
                   {/* Ganador - mismo ancho que finalistas pero destacado */}
                   <div className="mb-8 flex justify-center">
                     <div className="w-full max-w-lg">
-                      <div className="relative p-6 rounded-2xl border-3 bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
+                      <div className="relative p-4 sm:p-6 rounded-2xl border-3 bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-2 sm:ring-4 ring-yellow-300/50 ring-offset-1 sm:ring-offset-2">
                         {/* Badge destacado */}
                         <div className="absolute -top-3 left-6">
                           <div className="px-5 py-2 rounded-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
@@ -956,8 +956,8 @@ const LandingPage = () => {
 
                         {/* Corona más grande y llamativa */}
                         <div className="text-center mb-4 mt-6">
-                          <div className="w-24 h-24 mx-auto rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
-                            <span className="text-5xl">👑</span>
+                          <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
+                            <span className="text-3xl sm:text-5xl">👑</span>
                           </div>
                         </div>
 
@@ -986,9 +986,9 @@ const LandingPage = () => {
 
                         {/* Estadísticas más destacadas */}
                         <div className="text-center mb-4">
-                          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
-                            <Heart className="h-5 w-5" />
-                            <span className="font-bold text-lg">
+                          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
+                            <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="font-bold text-base sm:text-lg">
                               {lastContestWinners.winners[0].likes_count || 0}{" "}
                               votos
                             </span>
@@ -999,7 +999,7 @@ const LandingPage = () => {
                         <div className="text-center">
                           <Link
                             to={`/story/${lastContestWinners.winners[0].id}`}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
                           >
                             <BookOpen className="h-5 w-5" />
                             <span>Leer historia destacada</span>
