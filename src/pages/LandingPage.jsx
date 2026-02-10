@@ -105,6 +105,8 @@ const LandingPage = () => {
     globalStats,
     globalStatsLoading,
     loadGlobalStats,
+    // Auth modal
+    openAuthModal,
   } = useGlobalApp();
 
   // 🆕 FEED STATE - Solo para usuarios autenticados
@@ -124,6 +126,9 @@ const LandingPage = () => {
 
   // Tab para ver archivo
   const [showArchive, setShowArchive] = useState(false);
+
+  // Tab principal: Reto Mensual vs Reto Semanal
+  const [activeTab, setActiveTab] = useState('mensual');
 
   // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
   const historicalStats = {
@@ -706,72 +711,96 @@ const LandingPage = () => {
 
           {currentContest && (
             <div className="space-y-6">
-              {/* Tarjeta del reto actual */}
-              <ContestCard
-                contest={currentContest}
-                phase={currentContestPhase}
-                timeLeft={timeLeft}
-                isNext={false}
-                onRulesClick={() => {
-                  setRulesModalContest(currentContest);
-                  setShowRulesModal(true);
-                }}
-                onExpandNext={() => setNextContestExpanded(true)}
-              />
+              {/* Tab Bar - Visible para todos */}
+              <div className="flex bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-indigo-200 dark:border-dark-600">
+                <button
+                  onClick={() => setActiveTab('mensual')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    activeTab === 'mensual'
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+                      : 'text-gray-600 dark:text-dark-300 hover:bg-indigo-50 dark:hover:bg-dark-700'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4" />
+                  Reto Mensual
+                </button>
+                <button
+                  onClick={() => setActiveTab('semanal')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    activeTab === 'semanal'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                      : 'text-gray-600 dark:text-dark-300 hover:bg-purple-50 dark:hover:bg-dark-700'
+                  }`}
+                >
+                  <Zap className="w-4 h-4" />
+                  Reto Semanal
+                </button>
+              </div>
 
-              {/* Tarjeta del siguiente reto - igual diseño que actual */}
-              {nextContest && (
-                <div data-next-contest>
+              {/* Reto Mensual */}
+              {activeTab === 'mensual' && (
+                <>
                   <ContestCard
-                    contest={nextContest}
-                    phase="submission" // El siguiente siempre está en submission
-                    timeLeft={
-                      currentContestPhase === "voting" ||
-                      currentContestPhase === "counting"
-                        ? nextTimeLeft
-                        : null
-                    } // Contador real cuando esté habilitado
-                    isNext={true}
-                    isEnabled={
-                      currentContestPhase === "voting" ||
-                      currentContestPhase === "counting"
-                    } // Habilitado durante votación y counting
-                    forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
+                    contest={currentContest}
+                    phase={currentContestPhase}
+                    timeLeft={timeLeft}
+                    isNext={false}
                     onRulesClick={() => {
-                      setRulesModalContest(nextContest);
+                      setRulesModalContest(currentContest);
                       setShowRulesModal(true);
                     }}
+                    onExpandNext={() => setNextContestExpanded(true)}
                   />
-                </div>
+
+                  {nextContest && (
+                    <div data-next-contest>
+                      <ContestCard
+                        contest={nextContest}
+                        phase="submission"
+                        timeLeft={
+                          currentContestPhase === "voting" ||
+                          currentContestPhase === "counting"
+                            ? nextTimeLeft
+                            : null
+                        }
+                        isNext={true}
+                        isEnabled={
+                          currentContestPhase === "voting" ||
+                          currentContestPhase === "counting"
+                        }
+                        forceExpanded={nextContestExpanded}
+                        onRulesClick={() => {
+                          setRulesModalContest(nextContest);
+                          setShowRulesModal(true);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <NextContestOrPoll
+                    nextContest={nextContest}
+                    currentContest={currentContest}
+                    isEnabled={true}
+                  />
+                </>
               )}
 
-              {/* Mostrar encuesta activa (cuando esté disponible) */}
-              <NextContestOrPoll
-                nextContest={nextContest}
-                currentContest={currentContest}
-                isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
-              />
-
-              {/* 🆕 FEED SECTION - Solo visible para usuarios autenticados */}
-              {user && (
-                <div className="mt-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
-                  {/* Header del Feed */}
-                  <div className="bg-linear-to-r from-purple-500 to-pink-500 text-white p-6 rounded-t-2xl">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Rss className="w-6 h-6" />
-                        <h2 className="text-2xl font-bold">Feed Comunitario</h2>
-                      </div>
-                      <button
-                        onClick={() => setShowArchive(!showArchive)}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                      >
-                        <Archive className="w-4 h-4" />
-                        <span className="text-sm font-medium">
-                          {showArchive ? 'Ver Feed Actual' : 'Ver Archivo'}
-                        </span>
-                      </button>
-                    </div>
+              {/* Reto Semanal - Visible para todos */}
+              {activeTab === 'semanal' && (
+                <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
+                  {/* Header compacto */}
+                  <div className="flex items-center justify-between p-4 border-b border-purple-100 dark:border-dark-600">
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      Reto Semanal
+                    </h3>
+                    <button
+                      onClick={() => setShowArchive(!showArchive)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-sm font-medium text-purple-700 dark:text-purple-300"
+                    >
+                      <Archive className="w-4 h-4" />
+                      {showArchive ? 'Ver Actual' : 'Ver Archivo'}
+                    </button>
                   </div>
 
                   <div className="p-6">
@@ -787,16 +816,40 @@ const LandingPage = () => {
                                   Prompt de esta semana
                                 </h3>
                                 <p className="text-gray-700 dark:text-gray-200 italic text-lg">
-                                  "{activePrompt.prompt_text}"
+                                  &ldquo;{activePrompt.prompt_text}&rdquo;
                                 </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                  Sin votación ni ganadores — escribe por el placer de escribir
+                                </p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                   50-300 palabras • {activePrompt.stories_count || 0} historias publicadas
                                 </p>
                               </div>
                             </div>
 
-                            {/* Formulario de publicación */}
-                            {!userHasPublished ? (
+                            {/* Formulario de publicación o CTA de registro */}
+                            {!user ? (
+                              <div className="mt-4 p-5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
+                                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                                  Inicia sesión o crea una cuenta para participar en el reto semanal
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                  <button
+                                    onClick={() => openAuthModal('login')}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all"
+                                  >
+                                    Iniciar sesión
+                                  </button>
+                                  <button
+                                    onClick={() => openAuthModal('register')}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-purple-400 dark:border-purple-500 text-purple-700 dark:text-purple-300 font-semibold rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
+                                  >
+                                    <PenTool className="w-4 h-4" />
+                                    Crear cuenta gratis
+                                  </button>
+                                </div>
+                              </div>
+                            ) : !userHasPublished ? (
                               <form onSubmit={handlePublishFeed} className="mt-4 space-y-4">
                                 <div>
                                   <input
