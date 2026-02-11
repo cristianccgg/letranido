@@ -175,6 +175,31 @@ const FeedAdminPanel = () => {
     setShowForm(true);
   };
 
+  // Calcular fechas sugeridas basándose en el último prompt
+  const getSuggestedDates = () => {
+    if (prompts.length === 0) return { start_date: '', end_date: '' };
+
+    // Encontrar el prompt con end_date más tardía
+    const latestPrompt = prompts.reduce((latest, p) =>
+      new Date(p.end_date) > new Date(latest.end_date) ? p : latest
+    );
+
+    // Día siguiente al end_date del último prompt
+    const nextStart = new Date(latestPrompt.end_date);
+    nextStart.setDate(nextStart.getDate() + 1);
+
+    // 7 días después del inicio
+    const nextEnd = new Date(nextStart);
+    nextEnd.setDate(nextEnd.getDate() + 6);
+
+    const formatForInput = (date) => date.toISOString().split('T')[0];
+
+    return {
+      start_date: formatForInput(nextStart),
+      end_date: formatForInput(nextEnd)
+    };
+  };
+
   // Resetear formulario
   const resetForm = () => {
     setFormData({
@@ -241,7 +266,24 @@ const FeedAdminPanel = () => {
         </div>
 
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              resetForm();
+            } else {
+              // Pre-llenar fechas sugeridas al crear nuevo prompt
+              const suggested = getSuggestedDates();
+              setFormData({
+                title: '',
+                description: '',
+                prompt_text: '',
+                start_date: suggested.start_date,
+                end_date: suggested.end_date,
+                status: 'draft'
+              });
+              setEditingPrompt(null);
+              setShowForm(true);
+            }
+          }}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
             showForm
               ? 'bg-gray-200 hover:bg-gray-300 text-gray-700'
@@ -322,6 +364,14 @@ const FeedAdminPanel = () => {
             </div>
 
             {/* Fechas */}
+            {!editingPrompt && formData.start_date && prompts.length > 0 && (
+              <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="text-sm text-blue-700 dark:text-blue-300">
+                  Fechas sugeridas automáticamente: inicia el día después del último prompt y dura 7 días. Puedes ajustarlas.
+                </span>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -454,7 +504,7 @@ const FeedAdminPanel = () => {
                     {formatDate(prompt.start_date)} - {formatDate(prompt.end_date)}
                   </div>
                   <span>•</span>
-                  <span>{prompt.stories_count || 0} historias</span>
+                  <span>{prompt.stories_count || 0} microhistorias</span>
                   <span>•</span>
                   <span>{prompt.total_likes || 0} likes</span>
                   <span>•</span>
