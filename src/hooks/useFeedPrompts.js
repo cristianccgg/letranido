@@ -1,11 +1,11 @@
 // hooks/useFeedPrompts.js - Hook para gestión de prompts del feed
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 
 /**
  * Hook personalizado para gestionar prompts del feed
  * @param {string} filter - Filtro: 'all', 'active', 'archived'
- * @returns {object} - { prompts, loading, error, refreshPrompts, activePrompt }
+ * @returns {object} - { prompts, loading, error, refreshPrompts, activePrompt, nextPrompt }
  */
 const useFeedPrompts = (filter = 'all') => {
   const [prompts, setPrompts] = useState([]);
@@ -17,6 +17,9 @@ const useFeedPrompts = (filter = 'all') => {
       setLoading(true);
       setError(null);
 
+      // Auto-gestionar prompts (archivar expirados, activar programados)
+      await supabase.rpc('auto_manage_feed_prompts');
+
       let query = supabase
         .from('feed_prompts')
         .select('*')
@@ -24,12 +27,13 @@ const useFeedPrompts = (filter = 'all') => {
 
       // Aplicar filtros
       if (filter === 'active') {
-        query = query.eq('status', 'active');
+        // Incluir drafts para poder derivar nextPrompt
+        query = query.in('status', ['active', 'draft']);
       } else if (filter === 'archived') {
         query = query.eq('status', 'archived');
       } else {
-        // 'all' - solo mostrar active y archived (no drafts para usuarios normales)
-        query = query.in('status', ['active', 'archived']);
+        // 'all' - active, archived y drafts próximos (RLS filtra drafts lejanos)
+        query = query.in('status', ['active', 'archived', 'draft']);
       }
 
       const { data, error: fetchError } = await query;
@@ -49,8 +53,16 @@ const useFeedPrompts = (filter = 'all') => {
     loadPrompts();
   }, [loadPrompts]);
 
-  // Encontrar prompt activo (el más reciente que esté en status 'active')
+  // Prompt activo (el que está en status 'active')
   const activePrompt = prompts.find(p => p.status === 'active');
+
+  // Siguiente prompt: primer draft con start_date futuro
+  const nextPrompt = useMemo(() => {
+    const now = new Date();
+    return prompts
+      .filter(p => p.status === 'draft' && new Date(p.start_date) > now)
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))[0] || null;
+  }, [prompts]);
 
   return {
     prompts,
@@ -58,6 +70,7 @@ const useFeedPrompts = (filter = 'all') => {
     error,
     refreshPrompts: loadPrompts,
     activePrompt,
+    nextPrompt,
   };
 };
 

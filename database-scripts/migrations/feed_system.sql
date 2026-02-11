@@ -17,11 +17,9 @@ CREATE TABLE IF NOT EXISTS feed_prompts (
   -- Contenido del prompt
   title VARCHAR(200) NOT NULL,
   description TEXT NOT NULL,
-  prompt_text TEXT NOT NULL,
+  prompt_text TEXT,
 
   -- Control temporal
-  week_number INTEGER NOT NULL,
-  year INTEGER NOT NULL,
   start_date TIMESTAMPTZ NOT NULL,
   end_date TIMESTAMPTZ NOT NULL,
 
@@ -43,13 +41,11 @@ CREATE TABLE IF NOT EXISTS feed_prompts (
 
   -- Constraints
   CONSTRAINT valid_prompt_status CHECK (status IN ('draft', 'active', 'archived')),
-  CONSTRAINT valid_date_range CHECK (end_date > start_date),
-  CONSTRAINT unique_week_year UNIQUE(week_number, year)
+  CONSTRAINT valid_date_range CHECK (end_date > start_date)
 );
 
-COMMENT ON TABLE feed_prompts IS 'Prompts semanales para microhistorias del feed';
-COMMENT ON COLUMN feed_prompts.status IS 'draft=no publicado | active=abierto 7 días | archived=cerrado permanente';
-COMMENT ON COLUMN feed_prompts.week_number IS 'Número de semana del año (1-52)';
+COMMENT ON TABLE feed_prompts IS 'Prompts para microhistorias del feed (semanales o quincenales)';
+COMMENT ON COLUMN feed_prompts.status IS 'draft=no publicado/en cola | active=abierto | archived=cerrado permanente';
 
 -- ============================================================================
 -- 2. TABLA: feed_stories (microhistorias)
@@ -164,9 +160,6 @@ COMMENT ON TABLE feed_comment_likes IS 'Tracking de likes en comentarios de micr
 CREATE INDEX IF NOT EXISTS idx_feed_prompts_status_date
 ON feed_prompts(status, start_date DESC);
 
-CREATE INDEX IF NOT EXISTS idx_feed_prompts_week_year
-ON feed_prompts(year DESC, week_number DESC);
-
 CREATE INDEX IF NOT EXISTS idx_feed_prompts_created_by
 ON feed_prompts(created_by);
 
@@ -211,28 +204,41 @@ ON feed_comment_likes(user_id);
 -- 7. FUNCIONES SQL - Auto-archivar prompts expirados
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION auto_archive_expired_prompts()
-RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION auto_manage_feed_prompts()
+RETURNS JSONB AS $$
 DECLARE
   v_archived_count INTEGER;
+  v_activated_count INTEGER;
 BEGIN
-  -- Archivar todos los prompts activos cuya fecha de fin ya pasó
+  -- Paso 1: Archivar prompts activos cuya fecha de fin ya pasó
   WITH archived AS (
     UPDATE feed_prompts
-    SET
-      status = 'archived',
-      updated_at = NOW()
-    WHERE status = 'active'
-      AND end_date < NOW()
+    SET status = 'archived', updated_at = NOW()
+    WHERE status = 'active' AND end_date < NOW()
     RETURNING id
   )
   SELECT COUNT(*) INTO v_archived_count FROM archived;
 
-  RETURN v_archived_count;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  -- Paso 2: Auto-activar drafts cuya fecha de inicio ya llegó
+  WITH activated AS (
+    UPDATE feed_prompts
+    SET status = 'active', updated_at = NOW()
+    WHERE status = 'draft'
+      AND start_date <= NOW()
+      AND end_date > NOW()
+    RETURNING id
+  )
+  SELECT COUNT(*) INTO v_activated_count FROM activated;
 
-COMMENT ON FUNCTION auto_archive_expired_prompts IS 'Archiva automáticamente prompts cuya fecha de fin ya pasó. Retorna cantidad archivada.';
+  RETURN jsonb_build_object(
+    'archived', v_archived_count,
+    'activated', v_activated_count
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public;
+
+COMMENT ON FUNCTION auto_manage_feed_prompts IS 'Archiva prompts expirados y auto-activa drafts programados. Retorna conteo de cambios.';
 
 -- ============================================================================
 -- 8. FUNCIONES SQL - Toggle like en microhistoria
@@ -520,6 +526,16 @@ DROP POLICY IF EXISTS "Anyone can view active/archived prompts" ON feed_prompts;
 CREATE POLICY "Anyone can view active/archived prompts"
 ON feed_prompts FOR SELECT
 USING (status IN ('active', 'archived'));
+
+-- Lectura: Usuarios autenticados pueden ver drafts próximos (para preview "siguiente prompt")
+DROP POLICY IF EXISTS "Users can view upcoming draft prompts" ON feed_prompts;
+CREATE POLICY "Users can view upcoming draft prompts"
+ON feed_prompts FOR SELECT
+USING (
+  status = 'draft'
+  AND start_date <= (NOW() + INTERVAL '30 days')
+  AND auth.uid() IS NOT NULL
+);
 
 -- Lectura (admins): Admins pueden ver todos incluyendo drafts
 DROP POLICY IF EXISTS "Admins can view all prompts" ON feed_prompts;

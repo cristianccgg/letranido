@@ -110,7 +110,7 @@ const LandingPage = () => {
   } = useGlobalApp();
 
   // 🆕 FEED STATE - Solo para usuarios autenticados
-  const { activePrompt, loading: promptsLoading } = useFeedPrompts('active');
+  const { activePrompt, nextPrompt, loading: promptsLoading } = useFeedPrompts('active');
   const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, deleteStory, userHasPublished } = useMicroStories(activePrompt?.id);
 
   // Estado del formulario de feed
@@ -127,8 +127,11 @@ const LandingPage = () => {
   // Tab para ver archivo
   const [showArchive, setShowArchive] = useState(false);
 
-  // Tab principal: Reto Mensual vs Reto Semanal
+  // Tab principal: Reto Mensual vs Microhistorias
   const [activeTab, setActiveTab] = useState('mensual');
+
+  // Countdown para el prompt del feed
+  const [feedTimeLeft, setFeedTimeLeft] = useState('');
 
   // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
   const historicalStats = {
@@ -170,6 +173,39 @@ const LandingPage = () => {
       return () => clearTimeout(timer);
     }
   }, [user, initialized]);
+
+  // 🆕 FEED: Countdown del prompt activo
+  useEffect(() => {
+    if (!activePrompt?.end_date) {
+      setFeedTimeLeft('');
+      return;
+    }
+
+    const updateFeedTime = () => {
+      const now = new Date();
+      const deadline = new Date(activePrompt.end_date);
+      const diff = deadline - now;
+
+      if (diff <= 0) {
+        setFeedTimeLeft('Prompt cerrado');
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (days > 0) {
+        setFeedTimeLeft(`${days}d ${hours}h ${minutes}m`);
+      } else {
+        setFeedTimeLeft(`${hours}h ${minutes}m`);
+      }
+    };
+
+    updateFeedTime();
+    const interval = setInterval(updateFeedTime, 60000);
+    return () => clearInterval(interval);
+  }, [activePrompt?.end_date]);
 
   // 🆕 FEED: Calcular word count
   useEffect(() => {
@@ -733,7 +769,7 @@ const LandingPage = () => {
                   }`}
                 >
                   <Zap className="w-4 h-4" />
-                  Reto Semanal
+                  Microhistorias
                 </button>
               </div>
 
@@ -785,14 +821,14 @@ const LandingPage = () => {
                 </>
               )}
 
-              {/* Reto Semanal - Visible para todos */}
+              {/* Microhistorias - Visible para todos */}
               {activeTab === 'semanal' && (
                 <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
                   {/* Header compacto */}
                   <div className="flex items-center justify-between p-4 border-b border-purple-100 dark:border-dark-600">
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
                       <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                      Reto Semanal
+                      Microhistorias
                     </h3>
                     <button
                       onClick={() => setShowArchive(!showArchive)}
@@ -812,18 +848,37 @@ const LandingPage = () => {
                             <div className="flex items-start gap-3 mb-3">
                               <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
                               <div className="flex-1">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-                                  Prompt de esta semana
+                                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                                  {activePrompt.title || 'Prompt de esta semana'}
                                 </h3>
-                                <p className="text-gray-700 dark:text-gray-200 italic text-lg">
-                                  &ldquo;{activePrompt.prompt_text}&rdquo;
-                                </p>
+                                {activePrompt.description && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    {activePrompt.description}
+                                  </p>
+                                )}
+                                {activePrompt.prompt_text && (
+                                  <p className="text-gray-700 dark:text-gray-200 italic text-lg">
+                                    &ldquo;{activePrompt.prompt_text}&rdquo;
+                                  </p>
+                                )}
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                   Sin votación ni ganadores — escribe por el placer de escribir
                                 </p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                   50-300 palabras • {activePrompt.stories_count || 0} historias publicadas
                                 </p>
+                                {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
+                                  <p className="text-sm text-purple-600 dark:text-purple-400 mt-2 flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    Tiempo restante: <span className="font-semibold">{feedTimeLeft}</span>
+                                  </p>
+                                )}
+                                {feedTimeLeft === 'Prompt cerrado' && (
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    Este prompt ha terminado
+                                  </p>
+                                )}
                               </div>
                             </div>
 
@@ -831,7 +886,7 @@ const LandingPage = () => {
                             {!user ? (
                               <div className="mt-4 p-5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
                                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                                  Inicia sesión o crea una cuenta para participar en el reto semanal
+                                  Inicia sesión o crea una cuenta para publicar tu microhistoria
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                   <button
@@ -949,6 +1004,40 @@ const LandingPage = () => {
                           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
                             <p>Sé el primero en publicar una historia para este prompt</p>
+                          </div>
+                        )}
+
+                        {/* Preview del próximo prompt */}
+                        {nextPrompt && (
+                          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border border-purple-200 dark:border-purple-800 rounded-xl">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Calendar className="w-4 h-4 text-purple-500" />
+                              <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                                Próximo prompt
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-1">
+                              {nextPrompt.title}
+                            </h4>
+                            {nextPrompt.description && (
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                {nextPrompt.description}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Inicia el {new Date(nextPrompt.start_date).toLocaleDateString('es-CO', {
+                                weekday: 'long', day: 'numeric', month: 'long'
+                              })}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Estado vacío */}
+                        {!activePrompt && !nextPrompt && !promptsLoading && (
+                          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                            <Zap className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p>No hay prompt activo en este momento</p>
+                            <p className="text-sm mt-1">Vuelve pronto para el próximo reto</p>
                           </div>
                         )}
                       </>

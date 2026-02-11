@@ -8,8 +8,6 @@ import {
   Archive,
   Edit2,
   Trash2,
-  Eye,
-  EyeOff,
   Save,
   X,
   AlertCircle,
@@ -31,10 +29,8 @@ const FeedAdminPanel = () => {
     title: '',
     description: '',
     prompt_text: '',
-    week_number: getCurrentWeekNumber(),
-    year: new Date().getFullYear(),
-    start_date: getNextMonday(),
-    end_date: getNextSunday(),
+    start_date: '',
+    end_date: '',
     status: 'draft'
   });
 
@@ -47,7 +43,7 @@ const FeedAdminPanel = () => {
       const { data, error: fetchError } = await supabase
         .from('feed_prompts')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('start_date', { ascending: false });
 
       if (fetchError) throw fetchError;
 
@@ -71,6 +67,12 @@ const FeedAdminPanel = () => {
     setSuccess(null);
 
     try {
+      // Convertir fechas a hora Colombia (UTC-5)
+      // start_date: 00:00 Colombia = 05:00 UTC
+      // end_date: 23:59 Colombia = 04:59 UTC del día siguiente
+      const startUTC = `${formData.start_date}T05:00:00Z`;
+      const endUTC = `${formData.end_date}T04:59:59Z`;
+
       if (editingPrompt) {
         // Actualizar
         const { error: updateError } = await supabase
@@ -78,11 +80,9 @@ const FeedAdminPanel = () => {
           .update({
             title: formData.title,
             description: formData.description,
-            prompt_text: formData.prompt_text,
-            week_number: parseInt(formData.week_number),
-            year: parseInt(formData.year),
-            start_date: formData.start_date,
-            end_date: formData.end_date,
+            prompt_text: formData.prompt_text || null,
+            start_date: startUTC,
+            end_date: endUTC,
             status: formData.status,
             updated_at: new Date().toISOString()
           })
@@ -97,11 +97,9 @@ const FeedAdminPanel = () => {
           .insert([{
             title: formData.title,
             description: formData.description,
-            prompt_text: formData.prompt_text,
-            week_number: parseInt(formData.week_number),
-            year: parseInt(formData.year),
-            start_date: formData.start_date,
-            end_date: formData.end_date,
+            prompt_text: formData.prompt_text || null,
+            start_date: startUTC,
+            end_date: endUTC,
             status: formData.status
           }]);
 
@@ -169,9 +167,7 @@ const FeedAdminPanel = () => {
     setFormData({
       title: prompt.title,
       description: prompt.description,
-      prompt_text: prompt.prompt_text,
-      week_number: prompt.week_number,
-      year: prompt.year,
+      prompt_text: prompt.prompt_text || '',
       start_date: prompt.start_date.split('T')[0],
       end_date: prompt.end_date.split('T')[0],
       status: prompt.status
@@ -185,10 +181,8 @@ const FeedAdminPanel = () => {
       title: '',
       description: '',
       prompt_text: '',
-      week_number: getCurrentWeekNumber(),
-      year: new Date().getFullYear(),
-      start_date: getNextMonday(),
-      end_date: getNextSunday(),
+      start_date: '',
+      end_date: '',
       status: 'draft'
     });
     setEditingPrompt(null);
@@ -316,49 +310,15 @@ const FeedAdminPanel = () => {
             {/* Prompt Text */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Prompt (Texto de Inspiración) *
+                Texto de Inspiración (Opcional)
               </label>
               <textarea
-                required
                 rows={3}
                 value={formData.prompt_text}
                 onChange={(e) => setFormData({ ...formData, prompt_text: e.target.value })}
                 placeholder="El texto del prompt que verán los usuarios..."
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white resize-none"
               />
-            </div>
-
-            {/* Semana y Año */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Semana del Año *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={1}
-                  max={52}
-                  value={formData.week_number}
-                  onChange={(e) => setFormData({ ...formData, week_number: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Año *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={2024}
-                  max={2030}
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
             </div>
 
             {/* Fechas */}
@@ -459,8 +419,14 @@ const FeedAdminPanel = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <StatusBadge status={prompt.status} />
+                      {prompt.status === 'draft' && new Date(prompt.start_date) > new Date() && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                          <Clock className="w-3 h-3" />
+                          En Cola
+                        </span>
+                      )}
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Semana {prompt.week_number} • {prompt.year}
+                        {formatDate(prompt.start_date)} — {formatDate(prompt.end_date)}
                       </span>
                     </div>
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -473,11 +439,13 @@ const FeedAdminPanel = () => {
                 </div>
 
                 {/* Prompt Text */}
-                <div className="bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500 p-3 mb-4">
-                  <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
-                    "{prompt.prompt_text}"
-                  </p>
-                </div>
+                {prompt.prompt_text && (
+                  <div className="bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500 p-3 mb-4">
+                    <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
+                      "{prompt.prompt_text}"
+                    </p>
+                  </div>
+                )}
 
                 {/* Info */}
                 <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
@@ -552,36 +520,5 @@ const FeedAdminPanel = () => {
     </div>
   );
 };
-
-// ============================================================================
-// UTILIDADES
-// ============================================================================
-
-// Obtener número de semana actual
-function getCurrentWeekNumber() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const diff = now - start;
-  const oneWeek = 1000 * 60 * 60 * 24 * 7;
-  return Math.ceil((diff / oneWeek));
-}
-
-// Obtener próximo lunes (inicio de semana)
-function getNextMonday() {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const daysUntilMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
-  const nextMonday = new Date(now);
-  nextMonday.setDate(now.getDate() + daysUntilMonday);
-  return nextMonday.toISOString().split('T')[0];
-}
-
-// Obtener próximo domingo (fin de semana)
-function getNextSunday() {
-  const nextMonday = new Date(getNextMonday());
-  const nextSunday = new Date(nextMonday);
-  nextSunday.setDate(nextMonday.getDate() + 6);
-  return nextSunday.toISOString().split('T')[0];
-}
 
 export default FeedAdminPanel;
