@@ -852,33 +852,38 @@ const LandingPage = () => {
                                   {activePrompt.title || 'Prompt de esta semana'}
                                 </h3>
                                 {activePrompt.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                     {activePrompt.description}
                                   </p>
                                 )}
                                 {activePrompt.prompt_text && (
-                                  <p className="text-gray-700 dark:text-gray-200 italic text-lg">
+                                  <p className="text-sm text-gray-500 dark:text-gray-300 italic mt-1">
                                     &ldquo;{activePrompt.prompt_text}&rdquo;
                                   </p>
                                 )}
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                  Sin votación ni ganadores — escribe por el placer de escribir
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                                  Escribe, lee y comenta — sin votación, solo escritura libre
                                 </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  50-300 palabras • {activePrompt.stories_count || 0} historias publicadas
-                                </p>
-                                {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
-                                  <p className="text-sm text-purple-600 dark:text-purple-400 mt-2 flex items-center gap-1.5">
-                                    <Clock className="w-3.5 h-3.5" />
-                                    Tiempo restante: <span className="font-semibold">{feedTimeLeft}</span>
-                                  </p>
-                                )}
-                                {feedTimeLeft === 'Prompt cerrado' && (
-                                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
-                                    <Clock className="w-3.5 h-3.5" />
-                                    Este prompt ha terminado
-                                  </p>
-                                )}
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  <span>50-300 palabras</span>
+                                  <span>•</span>
+                                  <span>{activePrompt.stories_count || 0} historias</span>
+                                  {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {feedTimeLeft}
+                                      </span>
+                                    </>
+                                  )}
+                                  {feedTimeLeft === 'Prompt cerrado' && (
+                                    <>
+                                      <span>•</span>
+                                      <span>Prompt cerrado</span>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
