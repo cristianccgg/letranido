@@ -261,7 +261,7 @@ const FeedAdminPanel = () => {
             📝 Gestión de Prompts del Feed
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Crea y gestiona prompts semanales para microhistorias
+            Crea y gestiona prompts para microhistorias
           </p>
         </div>
 

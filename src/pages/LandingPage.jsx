@@ -73,7 +73,7 @@ const WinnerBadgeDisplay = ({ userId }) => {
   // Encontrar el badge de mayor prestigio
   const topBadge = userBadges
     .filter((badge) =>
-      Object.prototype.hasOwnProperty.call(prestigeOrder, badge.id)
+      Object.prototype.hasOwnProperty.call(prestigeOrder, badge.id),
     )
     .sort((a, b) => (prestigeOrder[b.id] || 0) - (prestigeOrder[a.id] || 0))[0];
 
@@ -111,12 +111,23 @@ const LandingPage = () => {
   } = useGlobalApp();
 
   // 🆕 FEED STATE - Solo para usuarios autenticados
-  const { activePrompt, nextPrompt, loading: promptsLoading } = useFeedPrompts('active');
-  const { stories, loading: storiesLoading, refreshStories, updateStoryLikeCount, deleteStory, userHasPublished } = useMicroStories(activePrompt?.id);
+  const {
+    activePrompt,
+    nextPrompt,
+    loading: promptsLoading,
+  } = useFeedPrompts("active");
+  const {
+    stories,
+    loading: storiesLoading,
+    refreshStories,
+    updateStoryLikeCount,
+    deleteStory,
+    userHasPublished,
+  } = useMicroStories(activePrompt?.id);
 
   // Estado del formulario de feed
-  const [feedTitle, setFeedTitle] = useState('');
-  const [feedContent, setFeedContent] = useState('');
+  const [feedTitle, setFeedTitle] = useState("");
+  const [feedContent, setFeedContent] = useState("");
   const [feedWordCount, setFeedWordCount] = useState(0);
   const [publishing, setPublishing] = useState(false);
   const [feedError, setFeedError] = useState(null);
@@ -129,10 +140,10 @@ const LandingPage = () => {
   const [showArchive, setShowArchive] = useState(false);
 
   // Tab principal: Reto Mensual vs Microhistorias
-  const [activeTab, setActiveTab] = useState('mensual');
+  const [activeTab, setActiveTab] = useState("mensual");
 
   // Countdown para el prompt del feed
-  const [feedTimeLeft, setFeedTimeLeft] = useState('');
+  const [feedTimeLeft, setFeedTimeLeft] = useState("");
 
   // Expandir/colapsar próximo prompt semanal
   const [nextPromptExpanded, setNextPromptExpanded] = useState(false);
@@ -181,7 +192,7 @@ const LandingPage = () => {
   // 🆕 FEED: Countdown del prompt activo
   useEffect(() => {
     if (!activePrompt?.end_date) {
-      setFeedTimeLeft('');
+      setFeedTimeLeft("");
       return;
     }
 
@@ -191,12 +202,14 @@ const LandingPage = () => {
       const diff = deadline - now;
 
       if (diff <= 0) {
-        setFeedTimeLeft('Prompt cerrado');
+        setFeedTimeLeft("Prompt cerrado");
         return;
       }
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
       if (days > 0) {
@@ -213,26 +226,29 @@ const LandingPage = () => {
 
   // 🆕 FEED: Calcular word count
   useEffect(() => {
-    const words = feedContent.trim().split(/\s+/).filter(w => w.length > 0);
+    const words = feedContent
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length > 0);
     setFeedWordCount(words.length);
   }, [feedContent]);
 
   // 🆕 FEED: Cargar likes del usuario
   // Usar story IDs como dependencia estable para no re-ejecutar al cambiar likes_count
-  const storyIds = stories.map(s => s.id).join(',');
+  const storyIds = stories.map((s) => s.id).join(",");
   useEffect(() => {
     const loadUserLikes = async () => {
       if (!user || !storyIds) return;
 
-      const ids = storyIds.split(',');
-      const { data } = await supabase.rpc('get_user_feed_story_likes_batch', {
+      const ids = storyIds.split(",");
+      const { data } = await supabase.rpc("get_user_feed_story_likes_batch", {
         p_user_id: user.id,
-        p_story_ids: ids
+        p_story_ids: ids,
       });
 
       if (data) {
         const likesMap = {};
-        data.forEach(item => {
+        data.forEach((item) => {
           likesMap[item.story_id] = true;
         });
         setUserLikes(likesMap);
@@ -256,12 +272,12 @@ const LandingPage = () => {
         const finishedContests = contests
           .filter(
             (contest) =>
-              contest.status === "results" && contest.id !== currentContest?.id
+              contest.status === "results" && contest.id !== currentContest?.id,
           )
           .sort(
             (a, b) =>
               new Date(b.finalized_at || b.voting_deadline) -
-              new Date(a.finalized_at || a.voting_deadline)
+              new Date(a.finalized_at || a.voting_deadline),
           );
 
         if (finishedContests.length === 0) {
@@ -308,7 +324,7 @@ const LandingPage = () => {
               };
               console.log(
                 "🎖️ Mención de Honor detectada en landing:",
-                honoraryMention.title
+                honoraryMention.title,
               );
             }
           }
@@ -366,12 +382,12 @@ const LandingPage = () => {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
       setTimeLeft(
-        `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`
+        `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`,
       );
     };
 
@@ -409,7 +425,7 @@ const LandingPage = () => {
 
     // Programar timeout para el deadline + 2 segundos de buffer
     console.log(
-      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`
+      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`,
     );
     const timeout = setTimeout(() => {
       console.log("🔄 Deadline alcanzado, actualizando fase automáticamente");
@@ -426,12 +442,12 @@ const LandingPage = () => {
     e.preventDefault();
 
     if (!user) {
-      setFeedError('Debes iniciar sesión para publicar');
+      setFeedError("Debes iniciar sesión para publicar");
       return;
     }
 
     if (feedWordCount < 50 || feedWordCount > 300) {
-      setFeedError('La microhistoria debe tener entre 50 y 300 palabras');
+      setFeedError("La microhistoria debe tener entre 50 y 300 palabras");
       return;
     }
 
@@ -440,27 +456,29 @@ const LandingPage = () => {
       setFeedError(null);
 
       const { error: insertError } = await supabase
-        .from('feed_stories')
-        .insert([{
-          prompt_id: activePrompt.id,
-          user_id: user.id,
-          title: feedTitle.trim() || null,
-          content: feedContent.trim(),
-          word_count: feedWordCount
-        }]);
+        .from("feed_stories")
+        .insert([
+          {
+            prompt_id: activePrompt.id,
+            user_id: user.id,
+            title: feedTitle.trim() || null,
+            content: feedContent.trim(),
+            word_count: feedWordCount,
+          },
+        ]);
 
       if (insertError) throw insertError;
 
-      setFeedSuccess('¡Microhistoria publicada!');
-      setFeedTitle('');
-      setFeedContent('');
+      setFeedSuccess("¡Microhistoria publicada!");
+      setFeedTitle("");
+      setFeedContent("");
       setFeedWordCount(0);
 
       refreshStories();
 
       setTimeout(() => setFeedSuccess(null), 3000);
     } catch (err) {
-      console.error('Error publishing feed story:', err);
+      console.error("Error publishing feed story:", err);
       setFeedError(err.message);
     } finally {
       setPublishing(false);
@@ -473,48 +491,49 @@ const LandingPage = () => {
     const currentlyLiked = userLikes[storyId] || false;
     const likeChange = currentlyLiked ? -1 : 1;
 
-    setUserLikes(prev => ({ ...prev, [storyId]: !currentlyLiked }));
+    setUserLikes((prev) => ({ ...prev, [storyId]: !currentlyLiked }));
     updateStoryLikeCount(storyId, likeChange);
 
     try {
-      await supabase.rpc('toggle_feed_story_like', {
+      await supabase.rpc("toggle_feed_story_like", {
         p_user_id: user.id,
-        p_story_id: storyId
+        p_story_id: storyId,
       });
     } catch (err) {
-      setUserLikes(prev => ({ ...prev, [storyId]: currentlyLiked }));
+      setUserLikes((prev) => ({ ...prev, [storyId]: currentlyLiked }));
       updateStoryLikeCount(storyId, -likeChange);
-      console.error('Error toggling like:', err);
+      console.error("Error toggling like:", err);
     }
   };
 
   const handleDeleteFeed = async (storyId) => {
     if (!user) return;
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta historia?')) return;
+    if (!window.confirm("¿Estás seguro de que quieres eliminar esta historia?"))
+      return;
 
     const result = await deleteStory(storyId, user.id);
     if (!result.success) {
-      setFeedError('Error al eliminar la historia');
+      setFeedError("Error al eliminar la historia");
     }
   };
 
   const handleReportFeed = async (storyId) => {
     if (!user) return;
     try {
-      const { error: reportError } = await supabase
-        .from('reports')
-        .insert([{
+      const { error: reportError } = await supabase.from("reports").insert([
+        {
           reporter_id: user.id,
-          reported_item_type: 'feed_story',
+          reported_item_type: "feed_story",
           reported_item_id: storyId,
-          reason: 'Reportado por usuario',
-        }]);
+          reason: "Reportado por usuario",
+        },
+      ]);
 
       if (reportError) throw reportError;
-      alert('Historia reportada. Gracias por ayudar a mantener la comunidad.');
+      alert("Historia reportada. Gracias por ayudar a mantener la comunidad.");
     } catch (err) {
-      console.error('Error reporting feed story:', err);
-      setFeedError('Error al reportar la historia');
+      console.error("Error reporting feed story:", err);
+      setFeedError("Error al reportar la historia");
     }
   };
 
@@ -549,7 +568,7 @@ const LandingPage = () => {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -754,31 +773,36 @@ const LandingPage = () => {
               {/* Tab Bar - Visible para todos */}
               <div className="flex bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-indigo-200 dark:border-dark-600">
                 <button
-                  onClick={() => setActiveTab('mensual')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    activeTab === 'mensual'
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
-                      : 'text-gray-600 dark:text-dark-300 hover:bg-indigo-50 dark:hover:bg-dark-700'
+                  onClick={() => setActiveTab("mensual")}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    activeTab === "mensual"
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
+                      : "text-gray-600 dark:text-dark-300 hover:bg-indigo-50 dark:hover:bg-dark-700"
                   }`}
                 >
                   <Calendar className="w-4 h-4" />
                   Reto Mensual
                 </button>
                 <button
-                  onClick={() => setActiveTab('semanal')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    activeTab === 'semanal'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
-                      : 'text-gray-600 dark:text-dark-300 hover:bg-purple-50 dark:hover:bg-dark-700'
+                  onClick={() => setActiveTab("semanal")}
+                  className={`relative flex-1 flex items-center cursor-pointer justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    activeTab === "semanal"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-dark-300 hover:bg-purple-50 dark:hover:bg-dark-700"
                   }`}
                 >
                   <Zap className="w-4 h-4" />
                   Microhistorias
+                  {activeTab !== "semanal" && (
+                    <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
+                      Nuevo
+                    </span>
+                  )}
                 </button>
               </div>
 
               {/* Reto Mensual */}
-              {activeTab === 'mensual' && (
+              {activeTab === "mensual" && (
                 <>
                   <ContestCard
                     contest={currentContest}
@@ -826,7 +850,7 @@ const LandingPage = () => {
               )}
 
               {/* Microhistorias - Visible para todos */}
-              {activeTab === 'semanal' && (
+              {activeTab === "semanal" && (
                 <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
                   {/* Header compacto */}
                   <div className="flex items-center justify-between p-4 border-b border-purple-100 dark:border-dark-600">
@@ -839,7 +863,7 @@ const LandingPage = () => {
                       className="flex items-center gap-2 px-3 py-1.5 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-sm font-medium text-purple-700 dark:text-purple-300"
                     >
                       <Archive className="w-4 h-4" />
-                      {showArchive ? 'Ver Actual' : 'Ver Archivo'}
+                      {showArchive ? "Ver Actual" : "Ver Archivo"}
                     </button>
                   </div>
 
@@ -854,7 +878,8 @@ const LandingPage = () => {
                               <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1 shrink-0" />
                               <div className="flex-1">
                                 <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-                                  {activePrompt.title || 'Prompt de esta semana'}
+                                  {activePrompt.title ||
+                                    "Prompt de esta semana"}
                                 </h3>
                                 {activePrompt.description && (
                                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -875,22 +900,27 @@ const LandingPage = () => {
 
                             {/* Nota fija + stats */}
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                              No tiene que ser una historia completa, puede ser un momento, un recuerdo, un fragmento. Solo déjate llevar.
+                              No tiene que ser una historia completa, puede ser
+                              un momento, un recuerdo, un fragmento. Solo déjate
+                              llevar.
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-2">
                               <span>50–300 palabras</span>
                               <span>•</span>
-                              <span>{activePrompt.stories_count || 0} microhistorias</span>
-                              {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
-                                <>
-                                  <span>•</span>
-                                  <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {feedTimeLeft}
-                                  </span>
-                                </>
-                              )}
-                              {feedTimeLeft === 'Prompt cerrado' && (
+                              <span>
+                                {activePrompt.stories_count || 0} microhistorias
+                              </span>
+                              {feedTimeLeft &&
+                                feedTimeLeft !== "Prompt cerrado" && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {feedTimeLeft}
+                                    </span>
+                                  </>
+                                )}
+                              {feedTimeLeft === "Prompt cerrado" && (
                                 <>
                                   <span>•</span>
                                   <span>Prompt cerrado</span>
@@ -902,17 +932,18 @@ const LandingPage = () => {
                             {!user ? (
                               <div className="mt-4 p-5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
                                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                                  Inicia sesión o crea una cuenta para publicar tu microhistoria o microrrelato
+                                  Inicia sesión o crea una cuenta para publicar
+                                  tu microhistoria o microrrelato
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                   <button
-                                    onClick={() => openAuthModal('login')}
+                                    onClick={() => openAuthModal("login")}
                                     className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all"
                                   >
                                     Iniciar sesión
                                   </button>
                                   <button
-                                    onClick={() => openAuthModal('register')}
+                                    onClick={() => openAuthModal("register")}
                                     className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-purple-400 dark:border-purple-500 text-purple-700 dark:text-purple-300 font-semibold rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
                                   >
                                     <PenTool className="w-4 h-4" />
@@ -921,31 +952,41 @@ const LandingPage = () => {
                                 </div>
                               </div>
                             ) : !userHasPublished ? (
-                              <form onSubmit={handlePublishFeed} className="mt-4 space-y-4">
+                              <form
+                                onSubmit={handlePublishFeed}
+                                className="mt-4 space-y-4"
+                              >
                                 <div>
                                   <input
                                     type="text"
                                     value={feedTitle}
-                                    onChange={(e) => setFeedTitle(e.target.value)}
+                                    onChange={(e) =>
+                                      setFeedTitle(e.target.value)
+                                    }
                                     placeholder="Título (opcional)"
                                     maxLength={100}
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                   />
                                 </div>
                                 <div>
                                   <textarea
                                     value={feedContent}
-                                    onChange={(e) => setFeedContent(e.target.value)}
+                                    onChange={(e) =>
+                                      setFeedContent(e.target.value)
+                                    }
                                     placeholder="Escribe una escena, un fragmento, un momento..."
                                     rows={6}
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none"
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
                                   />
                                   <div className="flex items-center justify-between mt-2">
-                                    <span className={`text-sm ${
-                                      feedWordCount < 50 || feedWordCount > 300
-                                        ? 'text-red-600 dark:text-red-400'
-                                        : 'text-green-600 dark:text-green-400'
-                                    }`}>
+                                    <span
+                                      className={`text-sm ${
+                                        feedWordCount < 50 ||
+                                        feedWordCount > 300
+                                          ? "text-red-600 dark:text-red-400"
+                                          : "text-green-600 dark:text-green-400"
+                                      }`}
+                                    >
                                       {feedWordCount} / 50-300 palabras
                                     </span>
                                   </div>
@@ -954,20 +995,28 @@ const LandingPage = () => {
                                 {feedError && (
                                   <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                                     <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                                    <span className="text-sm text-red-600 dark:text-red-400">{feedError}</span>
+                                    <span className="text-sm text-red-600 dark:text-red-400">
+                                      {feedError}
+                                    </span>
                                   </div>
                                 )}
 
                                 {feedSuccess && (
                                   <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                     <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                    <span className="text-sm text-green-600 dark:text-green-400">{feedSuccess}</span>
+                                    <span className="text-sm text-green-600 dark:text-green-400">
+                                      {feedSuccess}
+                                    </span>
                                   </div>
                                 )}
 
                                 <button
                                   type="submit"
-                                  disabled={publishing || feedWordCount < 50 || feedWordCount > 300}
+                                  disabled={
+                                    publishing ||
+                                    feedWordCount < 50 ||
+                                    feedWordCount > 300
+                                  }
                                   className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-lg transition-all disabled:cursor-not-allowed"
                                 >
                                   {publishing ? (
@@ -986,7 +1035,8 @@ const LandingPage = () => {
                             ) : (
                               <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                 <p className="text-green-700 dark:text-green-300 text-center">
-                                  ✓ Ya publicaste tu microhistoria para este prompt
+                                  ✓ Ya publicaste tu microhistoria para este
+                                  prompt
                                 </p>
                               </div>
                             )}
@@ -997,7 +1047,9 @@ const LandingPage = () => {
                         {storiesLoading ? (
                           <div className="text-center py-12">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                            <p className="text-gray-600 dark:text-gray-400">Cargando microhistorias...</p>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Cargando microhistorias...
+                            </p>
                           </div>
                         ) : stories.length > 0 ? (
                           <div className="space-y-4">
@@ -1019,19 +1071,28 @@ const LandingPage = () => {
                         ) : (
                           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>Sé el primero en publicar una microhistoria para este prompt</p>
+                            <p>
+                              Sé el primero en publicar una microhistoria para
+                              este prompt
+                            </p>
                           </div>
                         )}
 
                         {/* Preview del próximo prompt - Collapsible */}
                         {nextPrompt && (
                           <div className="mt-6 relative">
-                            <div className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/10 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800 shadow-lg transition-all duration-700 ease-out ${
-                              nextPromptExpanded ? 'max-h-96 opacity-100' : 'max-h-20 opacity-90'
-                            }`}>
+                            <div
+                              className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/10 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800 shadow-lg transition-all duration-700 ease-out ${
+                                nextPromptExpanded
+                                  ? "max-h-96 opacity-100"
+                                  : "max-h-20 opacity-90"
+                              }`}
+                            >
                               {/* Botón de expansión */}
                               <button
-                                onClick={() => setNextPromptExpanded(!nextPromptExpanded)}
+                                onClick={() =>
+                                  setNextPromptExpanded(!nextPromptExpanded)
+                                }
                                 className="w-full p-4 flex items-center cursor-pointer justify-between hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-300 group"
                               >
                                 <div className="flex items-center gap-3">
@@ -1050,15 +1111,23 @@ const LandingPage = () => {
                                     </span>
                                   </div>
                                 </div>
-                                <ChevronRight className={`h-5 w-5 text-purple-600 dark:text-purple-400 transition-transform duration-300 ${
-                                  nextPromptExpanded ? 'rotate-90' : 'group-hover:translate-x-1'
-                                }`} />
+                                <ChevronRight
+                                  className={`h-5 w-5 text-purple-600 dark:text-purple-400 transition-transform duration-300 ${
+                                    nextPromptExpanded
+                                      ? "rotate-90"
+                                      : "group-hover:translate-x-1"
+                                  }`}
+                                />
                               </button>
 
                               {/* Contenido expandido */}
-                              <div className={`px-4 pb-4 transition-all duration-500 ${
-                                nextPromptExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-                              }`}>
+                              <div
+                                className={`px-4 pb-4 transition-all duration-500 ${
+                                  nextPromptExpanded
+                                    ? "opacity-100 translate-y-0"
+                                    : "opacity-0 -translate-y-4"
+                                }`}
+                              >
                                 {nextPrompt.description && (
                                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                                     {nextPrompt.description}
@@ -1072,15 +1141,22 @@ const LandingPage = () => {
                                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                   <Calendar className="h-4 w-4 text-purple-500" />
                                   <span>
-                                    Inicia el {new Date(nextPrompt.start_date).toLocaleDateString('es-CO', {
-                                      weekday: 'long', day: 'numeric', month: 'long'
+                                    Inicia el{" "}
+                                    {new Date(
+                                      nextPrompt.start_date,
+                                    ).toLocaleDateString("es-CO", {
+                                      weekday: "long",
+                                      day: "numeric",
+                                      month: "long",
                                     })}
                                   </span>
                                 </div>
                                 <div className="mt-3 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
                                   <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-300">
                                     <BookOpen className="h-4 w-4" />
-                                    <span>Microhistoria de 50 a 300 palabras</span>
+                                    <span>
+                                      Microhistoria de 50 a 300 palabras
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -1093,7 +1169,10 @@ const LandingPage = () => {
                           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                             <Zap className="w-12 h-12 mx-auto mb-3 opacity-50" />
                             <p>No hay prompt activo en este momento</p>
-                            <p className="text-sm mt-1">Vuelve pronto para el próximo prompt de microhistorias</p>
+                            <p className="text-sm mt-1">
+                              Vuelve pronto para el próximo prompt de
+                              microhistorias
+                            </p>
                           </div>
                         )}
                       </>
@@ -1839,6 +1918,7 @@ const LandingPage = () => {
         isOpen={showFeatureModal}
         onClose={() => setShowFeatureModal(false)}
         userId={user?.id}
+        onGoToMicrohistorias={() => setActiveTab("semanal")}
       />
     </div>
   );
