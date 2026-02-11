@@ -26,6 +26,7 @@ import {
   Send,
   Archive,
   AlertCircle,
+  ChevronRight,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import SEOHead from "../components/SEO/SEOHead";
@@ -132,6 +133,9 @@ const LandingPage = () => {
 
   // Countdown para el prompt del feed
   const [feedTimeLeft, setFeedTimeLeft] = useState('');
+
+  // Expandir/colapsar próximo prompt semanal
+  const [nextPromptExpanded, setNextPromptExpanded] = useState(false);
 
   // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
   const historicalStats = {
@@ -427,7 +431,7 @@ const LandingPage = () => {
     }
 
     if (feedWordCount < 50 || feedWordCount > 300) {
-      setFeedError('La historia debe tener entre 50 y 300 palabras');
+      setFeedError('La microhistoria debe tener entre 50 y 300 palabras');
       return;
     }
 
@@ -447,7 +451,7 @@ const LandingPage = () => {
 
       if (insertError) throw insertError;
 
-      setFeedSuccess('¡Historia publicada!');
+      setFeedSuccess('¡Microhistoria publicada!');
       setFeedTitle('');
       setFeedContent('');
       setFeedWordCount(0);
@@ -867,7 +871,7 @@ const LandingPage = () => {
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   <span>50-300 palabras</span>
                                   <span>•</span>
-                                  <span>{activePrompt.stories_count || 0} historias</span>
+                                  <span>{activePrompt.stories_count || 0} microhistorias</span>
                                   {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
                                     <>
                                       <span>•</span>
@@ -891,7 +895,7 @@ const LandingPage = () => {
                             {!user ? (
                               <div className="mt-4 p-5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
                                 <p className="text-gray-700 dark:text-gray-300 mb-4">
-                                  Inicia sesión o crea una cuenta para publicar tu microhistoria
+                                  Inicia sesión o crea una cuenta para publicar tu microhistoria o microrrelato
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                   <button
@@ -967,7 +971,7 @@ const LandingPage = () => {
                                   ) : (
                                     <>
                                       <Send className="w-5 h-5" />
-                                      Publicar Historia
+                                      Publicar Microhistoria
                                     </>
                                   )}
                                 </button>
@@ -975,23 +979,23 @@ const LandingPage = () => {
                             ) : (
                               <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                 <p className="text-green-700 dark:text-green-300 text-center">
-                                  ✓ Ya publicaste tu historia para este prompt
+                                  ✓ Ya publicaste tu microhistoria para este prompt
                                 </p>
                               </div>
                             )}
                           </div>
                         )}
 
-                        {/* Lista de historias */}
+                        {/* Lista de microhistorias */}
                         {storiesLoading ? (
                           <div className="text-center py-12">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                            <p className="text-gray-600 dark:text-gray-400">Cargando historias...</p>
+                            <p className="text-gray-600 dark:text-gray-400">Cargando microhistorias...</p>
                           </div>
                         ) : stories.length > 0 ? (
                           <div className="space-y-4">
                             <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
-                              Historias de la comunidad ({stories.length})
+                              Microhistorias de la comunidad ({stories.length})
                             </h3>
                             {stories.map((story) => (
                               <MicroStoryCard
@@ -1008,32 +1012,72 @@ const LandingPage = () => {
                         ) : (
                           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                             <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>Sé el primero en publicar una historia para este prompt</p>
+                            <p>Sé el primero en publicar una microhistoria para este prompt</p>
                           </div>
                         )}
 
-                        {/* Preview del próximo prompt */}
+                        {/* Preview del próximo prompt - Collapsible */}
                         {nextPrompt && (
-                          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border border-purple-200 dark:border-purple-800 rounded-xl">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Calendar className="w-4 h-4 text-purple-500" />
-                              <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-                                Próximo prompt
-                              </span>
+                          <div className="mt-6 relative">
+                            <div className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/10 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800 shadow-lg transition-all duration-700 ease-out ${
+                              nextPromptExpanded ? 'max-h-96 opacity-100' : 'max-h-20 opacity-90'
+                            }`}>
+                              {/* Botón de expansión */}
+                              <button
+                                onClick={() => setNextPromptExpanded(!nextPromptExpanded)}
+                                className="w-full p-4 flex items-center cursor-pointer justify-between hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-300 group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="relative">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                      <Sparkles className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="absolute inset-0 w-10 h-10 bg-purple-400 rounded-full animate-pulse opacity-20"></div>
+                                  </div>
+                                  <div className="text-left">
+                                    <span className="text-sm font-medium text-purple-600 dark:text-purple-400 block">
+                                      Próximo prompt
+                                    </span>
+                                    <span className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors duration-300">
+                                      {nextPrompt.title}
+                                    </span>
+                                  </div>
+                                </div>
+                                <ChevronRight className={`h-5 w-5 text-purple-600 dark:text-purple-400 transition-transform duration-300 ${
+                                  nextPromptExpanded ? 'rotate-90' : 'group-hover:translate-x-1'
+                                }`} />
+                              </button>
+
+                              {/* Contenido expandido */}
+                              <div className={`px-4 pb-4 transition-all duration-500 ${
+                                nextPromptExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+                              }`}>
+                                {nextPrompt.description && (
+                                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                                    {nextPrompt.description}
+                                  </p>
+                                )}
+                                {nextPrompt.prompt_text && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-3">
+                                    &ldquo;{nextPrompt.prompt_text}&rdquo;
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                  <Calendar className="h-4 w-4 text-purple-500" />
+                                  <span>
+                                    Inicia el {new Date(nextPrompt.start_date).toLocaleDateString('es-CO', {
+                                      weekday: 'long', day: 'numeric', month: 'long'
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="mt-3 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-300">
+                                    <BookOpen className="h-4 w-4" />
+                                    <span>Microhistoria de 50 a 300 palabras</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-1">
-                              {nextPrompt.title}
-                            </h4>
-                            {nextPrompt.description && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                {nextPrompt.description}
-                              </p>
-                            )}
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Inicia el {new Date(nextPrompt.start_date).toLocaleDateString('es-CO', {
-                                weekday: 'long', day: 'numeric', month: 'long'
-                              })}
-                            </p>
                           </div>
                         )}
 
@@ -1042,7 +1086,7 @@ const LandingPage = () => {
                           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                             <Zap className="w-12 h-12 mx-auto mb-3 opacity-50" />
                             <p>No hay prompt activo en este momento</p>
-                            <p className="text-sm mt-1">Vuelve pronto para el próximo reto</p>
+                            <p className="text-sm mt-1">Vuelve pronto para el próximo prompt de microhistorias</p>
                           </div>
                         )}
                       </>

@@ -93,7 +93,7 @@ const PromptCard = ({ prompt, onClick }) => {
           </span>
         ) : (
           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Ver historias →
+            Ver microhistorias →
           </span>
         )}
       </div>

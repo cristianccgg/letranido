@@ -173,7 +173,7 @@ const ArchivedPromptsView = () => {
                 <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <FileText className="w-3.5 h-3.5" />
-                    <span>{prompt.stories_count || 0} historias</span>
+                    <span>{prompt.stories_count || 0} microhistorias</span>
                   </div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ const ArchivedPromptsView = () => {
               {storiesLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Cargando historias...</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Cargando microhistorias...</p>
                 </div>
               ) : stories.length > 0 ? (
                 <div className="space-y-4">
@@ -214,7 +214,7 @@ const ArchivedPromptsView = () => {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
-                  No hay historias para este prompt
+                  No hay microhistorias para este prompt
                 </div>
               )}
             </div>

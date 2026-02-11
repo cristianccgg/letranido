@@ -100,7 +100,7 @@ const MicroStoryCard = ({
         </h3>
       )}
 
-      {/* Contenido de la historia */}
+      {/* Contenido de la microhistoria */}
       <p className="text-gray-800 text-start dark:text-gray-200 whitespace-pre-wrap mb-4 leading-relaxed">
         {story.content}
       </p>
