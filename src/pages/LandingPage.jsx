@@ -849,46 +849,53 @@ const LandingPage = () => {
                         {/* Prompt Activo */}
                         {activePrompt && (
                           <div className="mb-6 bg-linear-to-r from-indigo-50 to-purple-50 dark:from-dark-700 dark:to-dark-600 p-6 rounded-xl border border-purple-200 dark:border-dark-500">
-                            <div className="flex items-start gap-3 mb-3">
-                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                            {/* Título + descripción */}
+                            <div className="flex items-start gap-3">
+                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1 shrink-0" />
                               <div className="flex-1">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                                   {activePrompt.title || 'Prompt de esta semana'}
                                 </h3>
                                 {activePrompt.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                     {activePrompt.description}
                                   </p>
                                 )}
-                                {activePrompt.prompt_text && (
-                                  <p className="text-sm text-gray-500 dark:text-gray-300 italic mt-1">
-                                    &ldquo;{activePrompt.prompt_text}&rdquo;
-                                  </p>
-                                )}
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                                  Escribe, lee y comenta — sin votación, solo escritura libre
-                                </p>
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  <span>50-300 palabras</span>
-                                  <span>•</span>
-                                  <span>{activePrompt.stories_count || 0} microhistorias</span>
-                                  {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
-                                        {feedTimeLeft}
-                                      </span>
-                                    </>
-                                  )}
-                                  {feedTimeLeft === 'Prompt cerrado' && (
-                                    <>
-                                      <span>•</span>
-                                      <span>Prompt cerrado</span>
-                                    </>
-                                  )}
-                                </div>
                               </div>
+                            </div>
+
+                            {/* Texto de inspiración destacado */}
+                            {activePrompt.prompt_text && (
+                              <div className="mt-3 pl-4 border-l-2 border-purple-300 dark:border-purple-600">
+                                <p className="text-gray-700 dark:text-gray-300 italic">
+                                  &ldquo;{activePrompt.prompt_text}&rdquo;
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Nota fija + stats */}
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                              No tiene que ser una historia completa, puede ser un momento, un recuerdo, un fragmento. Solo déjate llevar.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              <span>50–300 palabras</span>
+                              <span>•</span>
+                              <span>{activePrompt.stories_count || 0} microhistorias</span>
+                              {feedTimeLeft && feedTimeLeft !== 'Prompt cerrado' && (
+                                <>
+                                  <span>•</span>
+                                  <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {feedTimeLeft}
+                                  </span>
+                                </>
+                              )}
+                              {feedTimeLeft === 'Prompt cerrado' && (
+                                <>
+                                  <span>•</span>
+                                  <span>Prompt cerrado</span>
+                                </>
+                              )}
                             </div>
 
                             {/* Formulario de publicación o CTA de registro */}
@@ -929,7 +936,7 @@ const LandingPage = () => {
                                   <textarea
                                     value={feedContent}
                                     onChange={(e) => setFeedContent(e.target.value)}
-                                    placeholder="Escribe tu microhistoria..."
+                                    placeholder="Escribe una escena, un fragmento, un momento..."
                                     rows={6}
                                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none"
                                   />

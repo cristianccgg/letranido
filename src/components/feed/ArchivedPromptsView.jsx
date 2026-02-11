@@ -159,7 +159,7 @@ const ArchivedPromptsView = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <span className="text-xs text-gray-600 dark:text-gray-400">
-                    Semana {prompt.week_number} • {formatDateRange(prompt.start_date, prompt.end_date)}
+                    {formatDateRange(prompt.start_date, prompt.end_date)}
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
