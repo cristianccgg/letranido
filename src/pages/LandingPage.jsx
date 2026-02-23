@@ -785,14 +785,23 @@ const LandingPage = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("semanal")}
-                  className={`relative flex-1 flex items-center cursor-pointer justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                  className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 overflow-hidden ${
                     activeTab === "semanal"
                       ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                      : "text-gray-600 dark:text-dark-300 hover:bg-purple-50 dark:hover:bg-dark-700"
+                      : "bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 shadow-sm"
                   }`}
                 >
-                  <Zap className="w-4 h-4" />
-                  Microhistorias
+                  {/* Shimmer cuando no está activo */}
+                  {activeTab !== "semanal" && (
+                    <span className="tab-shimmer" />
+                  )}
+                  <span className="flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Microhistorias
+                  </span>
+                  <span className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}>
+                    práctica libre · sin votación
+                  </span>
                   {activeTab !== "semanal" && (
                     <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
                       Nuevo
@@ -854,10 +863,15 @@ const LandingPage = () => {
                 <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
                   {/* Header compacto */}
                   <div className="flex items-center justify-between p-4 border-b border-purple-100 dark:border-dark-600">
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                      Microhistorias
-                    </h3>
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        Microhistorias
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-dark-400 mt-0.5">
+                        Espacio de práctica libre · sin votación ni ganadores
+                      </p>
+                    </div>
                     <button
                       onClick={() => setShowArchive(!showArchive)}
                       className="flex items-center gap-2 px-3 py-1.5 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-sm font-medium text-purple-700 dark:text-purple-300"
@@ -872,27 +886,28 @@ const LandingPage = () => {
                       <>
                         {/* Prompt Activo */}
                         {activePrompt && (
-                          <div className="mb-6 bg-linear-to-r from-indigo-50 to-purple-50 dark:from-dark-700 dark:to-dark-600 p-6 rounded-xl border border-purple-200 dark:border-dark-500">
-                            {/* Título + descripción */}
-                            <div className="flex items-start gap-3">
-                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1 shrink-0" />
-                              <div className="flex-1">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-                                  {activePrompt.title ||
-                                    "Prompt de esta semana"}
-                                </h3>
-                                {activePrompt.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {activePrompt.description}
-                                  </p>
-                                )}
-                              </div>
+                          <div className="mb-6">
+                            {/* Título */}
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
+                              <h3 className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white leading-tight text-center">
+                                {activePrompt.title || "Prompt de esta semana"}
+                              </h3>
                             </div>
+
+                            {/* Descripción destacada */}
+                            {activePrompt.description && (
+                              <div className="bg-gradient-to-r from-purple-50 via-white to-indigo-50 dark:from-purple-900/20 dark:via-dark-800 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-xl p-4 mb-3">
+                                <p className="text-gray-700 dark:text-dark-300 md:text-lg leading-relaxed">
+                                  {activePrompt.description}
+                                </p>
+                              </div>
+                            )}
 
                             {/* Texto de inspiración destacado */}
                             {activePrompt.prompt_text && (
-                              <div className="mt-3 pl-4 border-l-2 border-purple-300 dark:border-purple-600">
-                                <p className="text-gray-700 dark:text-gray-300 italic">
+                              <div className="pl-4 border-l-2 border-purple-300 dark:border-purple-600">
+                                <p className="text-gray-600 dark:text-gray-400 italic">
                                   &ldquo;{activePrompt.prompt_text}&rdquo;
                                 </p>
                               </div>
