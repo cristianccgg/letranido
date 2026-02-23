@@ -515,7 +515,7 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
       "Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes",
     slug: "como-escribir-cuentos-paso-a-paso",
     excerpt:
-      "Aprende a escribir cuentos desde cero con esta guía paso a paso. Desde la idea inicial hasta el final perfecto, descubre técnicas probadas para crear historias que enganchen.",
+      "Guía completa con 8 pasos para escribir un cuento desde cero: cómo crear personajes, estructurar la historia, escribir el primer borrador y editarlo. Con ejemplos prácticos y ejercicios.",
     content: `
 # Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes
 
@@ -780,6 +780,13 @@ Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfecci
     category: "educacion",
     tags: [
       "cómo escribir cuentos",
+      "cómo escribir un cuento",
+      "escribir un cuento",
+      "como hacer un cuento",
+      "pasos para escribir un cuento",
+      "como iniciar un cuento",
+      "redactar un cuento",
+      "escribir cuentos",
       "escritura creativa",
       "guía para principiantes",
       "técnicas narrativas",
@@ -788,6 +795,379 @@ Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfecci
     ],
     image: "/images/blog/cuento.jpg",
     featured: true,
+    published: true,
+    updatedAt: "2026-02-22",
+  },
+
+  {
+    id: "como-iniciar-un-cuento",
+    title: "Cómo Iniciar un Cuento: Las Primeras Líneas que Enganchan al Lector",
+    slug: "como-iniciar-un-cuento",
+    excerpt:
+      "El inicio de un cuento es lo más importante: tienes 3 segundos para atrapar al lector. Aprende 7 técnicas probadas para comenzar tu historia con fuerza, con ejemplos reales.",
+    content: `
+# Cómo Iniciar un Cuento: Las Primeras Líneas que Enganchan al Lector
+
+El inicio de un cuento es la parte más importante que escribirás. Si las primeras líneas no atrapan al lector, el resto de tu historia nunca será leída. En este artículo aprenderás exactamente cómo iniciar un cuento de forma irresistible.
+
+## Por Qué el Inicio lo Es Todo
+
+Estudios de comportamiento lector muestran que una persona decide si seguir leyendo o no en los primeros **30 segundos**. En un cuento corto, eso equivale a las primeras 2 o 3 líneas.
+
+Un buen inicio debe:
+- **Crear una pregunta** en la mente del lector
+- **Establecer el tono** de toda la historia
+- **Presentar el conflicto** o insinuarlo
+- **Sorprender** sin confundir
+
+## 7 Técnicas para Iniciar un Cuento con Fuerza
+
+### Técnica 1: Empieza en Mitad de la Acción (In Medias Res)
+
+No empieces antes de que pase algo interesante. Empieza justo cuando la tensión ya está presente.
+
+**Ejemplo débil:**
+*"Juan era un policía de 40 años que vivía en Madrid. Era un hombre tranquilo que amaba a su familia..."*
+
+**Ejemplo fuerte:**
+*"Juan encontró el cuerpo a las 7 de la mañana, exactamente cuando su turno terminaba."*
+
+La segunda versión crea inmediatamente una pregunta: ¿qué pasó? ¿quién murió? ¿cómo reaccionará Juan?
+
+### Técnica 2: El Diálogo que Atrapa
+
+Un diálogo bien elegido puede revelar el conflicto y los personajes de golpe.
+
+**Ejemplo:**
+*"—Dijiste que nunca volverías —susurró ella sin darse la vuelta.*
+*—Lo sé —respondió él, cerrando la puerta despacio.*
+*Lo que había entre ellos seguía ahí, intacto y peligroso."*
+
+En tres líneas sabemos que hay una historia previa, tensión entre los personajes, y algo importante está a punto de suceder.
+
+### Técnica 3: La Declaración que Desestabiliza
+
+Una afirmación inesperada que obliga al lector a seguir para entender.
+
+**Ejemplos:**
+- *"El día que mi madre murió fue el más feliz de mi vida."*
+- *"Hacía tres años que Sara practicaba para matar a alguien, y por fin estaba lista."*
+- *"La única vez que mentí en mi vida fue también la única vez que salvé una."*
+
+Estas frases crean una contradicción o misterio que el lector necesita resolver.
+
+### Técnica 4: El Detalle Específico e Insólito
+
+Un detalle concreto y extraño ancla la historia en la realidad y despierta la curiosidad.
+
+**Ejemplo:**
+*"La mancha de café en el pasaporte de mi padre tenía la forma exacta de Colombia, el país que nunca visitó pero donde lo iban a enterrar."*
+
+El detalle específico (forma de Colombia) más el detalle insólito (lo enterrarían allí) crean intriga inmediata.
+
+### Técnica 5: La Pregunta Filosófica o Provocativa
+
+Involucra directamente al lector haciéndole reflexionar.
+
+**Ejemplos:**
+- *"¿Cuántas veces puedes empezar de nuevo antes de que te des cuenta de que eres tú el problema?"*
+- *"Todos tenemos un momento exacto en el que dejamos de ser quienes éramos. El mío fue un martes."*
+
+### Técnica 6: El Tiempo Comprimido
+
+Presenta mucho tiempo en poco espacio para crear contraste.
+
+**Ejemplo:**
+*"Durante veinte años esperé esa llamada. Cuando por fin llegó, ya no quería contestar."*
+
+Dos décadas de espera vs. el rechazo final. Todo en dos líneas.
+
+### Técnica 7: El Narrador que Rompe la Cuarta Pared
+
+El narrador habla directamente al lector, creando complicidad.
+
+**Ejemplo:**
+*"Lo que vas a leer sucedió de verdad, aunque tres personas que lo vivieron juren que no. Tú decides a quién creerle."*
+
+## Los 5 Errores Más Comunes al Iniciar un Cuento
+
+### ❌ Error 1: Empezar con el Protagonista Despertándose
+*"Sonó el despertador. Juan abrió los ojos y estiró los brazos..."*
+
+Este inicio es tan común que ya no dice nada. Evítalo siempre.
+
+### ❌ Error 2: La Descripción de Paisaje Larga
+*"El sol brillaba sobre los prados verdes mientras las nubes blancas..."*
+
+Nadie quiere leer esto. Pon a tu personaje en movimiento primero.
+
+### ❌ Error 3: La Historia de Toda la Vida del Personaje
+*"María nació en 1985 en un pequeño pueblo de Castilla. Desde niña había querido..."*
+
+No necesitas explicar todo desde el principio. Suelta información poco a poco.
+
+### ❌ Error 4: Demasiados Personajes de Golpe
+*"Juan, Pedro, María, Carlos y la tía Rosario estaban reunidos en el salón cuando..."*
+
+El lector no puede procesar cinco nombres nuevos en la primera frase.
+
+### ❌ Error 5: El Inicio Que Promete y No Cumple
+Si tu primera línea es explosiva pero el resto del cuento es plano, el lector se sentirá estafado. El inicio debe ser coherente con el tono de toda la historia.
+
+## Ejercicios para Practicar Inicios
+
+### Ejercicio 1: Los 5 Inicios
+Escribe 5 inicios diferentes para el mismo cuento usando 5 técnicas distintas. Luego elige el mejor.
+
+### Ejercicio 2: Rescata un Cuento
+Toma un cuento que hayas abandonado y reescribe solo las primeras 3 líneas con una de estas técnicas. Muchas veces eso es suficiente para desbloquearte.
+
+### Ejercicio 3: Colecciona Inicios
+Cuando leas un cuento que te atrape, copia su primera línea en un cuaderno. Estudia por qué funciona.
+
+### Ejercicio 4: El Inicio de 10 Palabras
+Escribe un inicio completo usando exactamente 10 palabras. La restricción te obligará a ser preciso.
+
+## Inicios Memorables de la Literatura en Español
+
+Aprende de los mejores:
+
+- *"Muchos años después, frente al pelotón de fusilamiento, el coronel Aureliano Buendía había de recordar aquella tarde remota en que su padre lo llevó a conocer el hielo."* — García Márquez
+- *"Llamadme Ismael."* — Herman Melville (solo dos palabras, pero perfectas)
+- *"En un lugar de la Mancha, de cuyo nombre no quiero acordarme..."* — Cervantes
+
+Nota cómo cada uno crea una pregunta, un misterio, o una voz que quieres seguir escuchando.
+
+## De las Primeras Líneas al Cuento Completo
+
+Un buen inicio es solo el comienzo. Para construir toda la historia paso a paso, lee nuestra [guía completa para escribir cuentos](/blog/como-escribir-cuentos-paso-a-paso), donde encontrarás cómo estructurar cada parte del relato.
+
+Y si quieres poner en práctica estas técnicas con lectores reales, participa en el [reto de escritura de Letranido](/contest/current). Cada mes, cientos de escritores como tú compiten con cuentos cortos y reciben feedback de la comunidad.
+
+**El mejor momento para empezar a escribir es ahora. ¿Cuál de estas técnicas vas a usar en tu próxima historia?**
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-02-22",
+    readTime: "9 min",
+    category: "educacion",
+    tags: [
+      "como iniciar un cuento",
+      "cómo iniciar un cuento",
+      "cómo empezar un cuento",
+      "como empezar un cuento",
+      "inicio de cuento",
+      "primeras líneas",
+      "cómo comenzar un cuento",
+      "técnicas narrativas",
+      "escritura creativa",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: true,
+    published: true,
+  },
+
+  {
+    id: "como-hacer-un-cuento",
+    title: "Cómo Hacer un Cuento: Todo lo que Necesitas Saber (con Ejemplos)",
+    slug: "como-hacer-un-cuento",
+    excerpt:
+      "Aprende cómo hacer un cuento desde cero: qué es, cuáles son sus partes, cómo crear personajes y conflicto, y cómo terminarlo bien. Guía práctica con ejemplos reales.",
+    content: `
+# Cómo Hacer un Cuento: Todo lo que Necesitas Saber
+
+¿Quieres hacer un cuento pero no sabes por dónde empezar? En esta guía aprenderás todo lo que necesitas: qué es un cuento, cuáles son sus partes, y cómo construirlo desde la primera idea hasta el punto final.
+
+## ¿Qué es un Cuento? (Y por Qué Importa Saberlo)
+
+Un cuento es una narración breve de ficción con tres características fundamentales:
+
+- **Brevedad:** Se lee de una sola vez
+- **Unidad:** Gira en torno a un solo conflicto o momento
+- **Intensidad:** Cada palabra tiene un propósito
+
+La diferencia con una novela no es solo el largo: es que el cuento captura un instante decisivo en la vida de un personaje, mientras la novela sigue una trayectoria completa.
+
+## Las 5 Partes de un Cuento
+
+Todo cuento, sin importar su género o estilo, tiene estas cinco partes:
+
+### 1. Presentación (o Exposición)
+Aquí conoces al personaje principal y su mundo. Debe ser breve: una o dos frases que establezcan quién es y dónde está.
+
+**Ejemplo:**
+*"Clara llevaba diez años trabajando en el mismo hospital sin tomarse un solo día libre."*
+
+En una frase sabemos quién es (Clara), dónde está (hospital) y algo sobre su carácter (dedicación extrema).
+
+### 2. Detonante (o Nudo Inicial)
+El evento que rompe el equilibrio y obliga al personaje a actuar. Sin esto, no hay historia.
+
+**Ejemplo:**
+*"Esa tarde, por primera vez, se equivocó de dosis."*
+
+Todo cambia. Ahora hay una historia.
+
+### 3. Desarrollo (o Complicación)
+El personaje intenta resolver el problema, pero surgen obstáculos. Es la parte más larga del cuento.
+
+**Clave:** Cada obstáculo debe ser peor que el anterior. La tensión debe crecer.
+
+### 4. Clímax
+El momento de mayor tensión. El punto sin retorno donde el personaje debe tomar la decisión más difícil.
+
+**Ejemplo:**
+*"El paciente la miraba desde la cama. Clara tenía que elegir: confesar su error o esperar a ver si el cuerpo lo corregía solo."*
+
+### 5. Desenlace
+Las consecuencias de la decisión del clímax. No tiene que ser feliz, pero sí coherente con lo que pasó antes.
+
+## Cómo Hacer un Cuento: Los 6 Pasos Prácticos
+
+### Paso 1: Encuentra una Situación, No Solo una Idea
+
+Los escritores principiantes piensan en temas ("quiero escribir sobre la soledad"). Los buenos escritores piensan en situaciones ("una mujer lleva 20 años esperando una llamada que no llega").
+
+Una situación tiene:
+- Un personaje específico
+- Una circunstancia concreta
+- Una tensión implícita
+
+**Ejercicio:** Toma cualquier emoción (miedo, culpa, esperanza) y conviértela en una situación específica.
+
+### Paso 2: Define a Tu Personaje Principal con 3 Preguntas
+
+No necesitas un perfil psicológico completo. Solo necesitas saber:
+
+1. **¿Qué quiere** tu personaje? (Deseo superficial)
+2. **¿Qué necesita** realmente? (Necesidad profunda, a veces opuesta al deseo)
+3. **¿Qué le impide** conseguirlo? (El conflicto)
+
+**Ejemplo:**
+- Quiere: que su hijo vuelva a casa
+- Necesita: aceptar que ya no depende de ella
+- Conflicto: cada vez que él intenta alejarse, ella se enferma
+
+### Paso 3: Decide el Conflicto
+
+El conflicto es el motor de todo cuento. Hay cuatro tipos:
+
+| Tipo | Descripción | Ejemplo |
+|------|-------------|---------|
+| Persona vs. Persona | Enfrentamiento entre personajes | Un divorcio |
+| Persona vs. Sociedad | El personaje contra normas o sistemas | Un inmigrante sin papeles |
+| Persona vs. Naturaleza | Lucha por sobrevivir | Una tormenta |
+| Persona vs. Sí mismo | Conflicto interno | Superar una adicción |
+
+El más poderoso, especialmente en cuentos cortos, es el conflicto interno.
+
+### Paso 4: Estructura tu Historia en Una Oración
+
+Antes de escribir una sola línea, completa esta oración:
+
+*"[Personaje] quiere [objetivo] pero [obstáculo], hasta que [clímax] y finalmente [resultado]."*
+
+**Ejemplo:**
+*"Clara quiere olvidar su error médico pero la culpa la paraliza, hasta que el paciente la confronta directamente y finalmente decide confesar aunque eso signifique perder su carrera."*
+
+Si puedes hacer esto, tienes un cuento. Si no puedes, aún no tienes suficiente historia.
+
+### Paso 5: Escribe el Borrador Sin Parar
+
+Reglas para el primer borrador:
+- **No te detengas** a corregir
+- **No borres** nada (tacha si quieres, pero no elimines)
+- **Escribe hasta el final** aunque la mitad sea mala
+- **La perfección es el enemigo** del borrador terminado
+
+Un cuento corto de 1000 palabras se puede escribir en 45-60 minutos si no te detienes.
+
+### Paso 6: Revisa con Tres Lecturas Distintas
+
+**Primera lectura:** ¿La historia se entiende? ¿Hay partes confusas?
+
+**Segunda lectura:** ¿Sobra algo? Lee en voz alta y elimina todo lo que no suene natural.
+
+**Tercera lectura:** ¿El inicio engancha? ¿El final sorprende pero tiene sentido?
+
+## Elementos del Cuento que No Puedes Ignorar
+
+### El Punto de Vista (¿Quién Narra?)
+
+- **Primera persona (yo):** Más íntimo, más limitado
+  *"Yo lo vi llegar con esa maleta y supe que algo había cambiado."*
+
+- **Tercera persona (él/ella):** Más libertad, más distancia
+  *"Ella lo vio llegar con esa maleta y supo que algo había cambiado."*
+
+Para cuentos cortos, la primera persona suele ser más efectiva.
+
+### El Tiempo Verbal
+
+- **Pasado:** Lo más común, distancia natural con los hechos
+- **Presente:** Más urgencia, más inmediatez, más difícil de mantener
+
+### El Tono
+
+¿Tu cuento es tenso, melancólico, irónico, tierno? El tono debe ser consistente de principio a fin.
+
+## Tipos de Cuentos Más Populares
+
+Conocer el tipo de cuento que quieres hacer te ayuda a enfocarte:
+
+- **Cuento realista:** Situaciones cotidianas con personajes creíbles
+- **Cuento fantástico:** Elementos imposibles en mundos posibles
+- **Cuento de terror:** Miedo como emoción central
+- **Microcuento:** Menos de 300 palabras, máxima concentración
+- **Cuento de misterio:** Una pregunta sin respuesta hasta el final
+
+## Un Ejemplo Completo: De la Idea al Cuento
+
+**Idea inicial:** Quiero escribir sobre alguien que espera.
+
+**Situación concreta:** Una mujer espera en el aeropuerto a alguien que ya no viene.
+
+**Personaje:** Ana, 55 años. Quiere ver a su hijo (deseo). Necesita aceptar que él eligió otra vida (necesidad). La impide: que nunca le preguntó directamente por qué se fue.
+
+**Estructura en una oración:** Ana espera a su hijo en el aeropuerto pero él no aparece, hasta que recibe un mensaje y finalmente entiende que el avión que esperaba era el suyo.
+
+**Borrador (100 palabras):**
+*"Ana llevaba tres horas mirando la puerta de llegadas. El café ya estaba frío. Cada vez que se abría la puerta automática, levantaba los ojos.*
+*A las seis de la tarde, llegó el mensaje: 'Mamá, no voy. Lo siento.'*
+*Ana guardó el teléfono despacio. Se levantó. Caminó hasta el mostrador de compra de billetes.*
+*—¿A dónde quiere ir? —le preguntó la chica.*
+*Ana pensó durante un segundo largo.*
+*—No lo sé todavía —respondió. Era la primera vez en años que eso le parecía bien."*
+
+Este cuento tiene los cinco elementos: presentación (Ana espera), detonante (el mensaje), desarrollo (la espera), clímax (la decisión de comprar un billete), desenlace (la aceptación).
+
+## Practica lo que Aprendiste
+
+El mejor aprendizaje es escribir y recibir feedback real. En [Letranido](/contest/current) publicamos un reto mensual de escritura creativa donde cientos de escritores envían sus cuentos, votan por sus favoritos y mejoran su técnica con cada reto.
+
+Si quieres profundizar más, lee también:
+- [Cómo escribir un cuento paso a paso](/blog/como-escribir-cuentos-paso-a-paso) — La guía completa con 8 pasos detallados
+- [Cómo iniciar un cuento](/blog/como-iniciar-un-cuento) — 7 técnicas para las primeras líneas
+
+**Ahora ya sabes cómo hacer un cuento. Solo falta que lo escribas.**
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-02-22",
+    readTime: "10 min",
+    category: "educacion",
+    tags: [
+      "como hacer un cuento",
+      "cómo hacer un cuento",
+      "hacer un cuento",
+      "partes de un cuento",
+      "elementos del cuento",
+      "cómo se hace un cuento",
+      "como se hace un cuento",
+      "elaborar un cuento",
+      "redactar un cuento",
+      "escritura creativa",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: false,
     published: true,
   },
 
