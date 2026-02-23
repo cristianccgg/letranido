@@ -1493,6 +1493,421 @@ Tu historia está esperando el reto perfecto. ¡2025 puede ser tu año!
     featured: true,
     published: false,
   },
+
+  {
+    id: "tecnicas-para-escribir-un-cuento",
+    title: "Técnicas para Escribir un Cuento Efectivo: Guía para Escritores",
+    slug: "tecnicas-para-escribir-un-cuento",
+    excerpt:
+      "Las técnicas narrativas que separan un cuento memorable de uno ordinario: punto de vista, tiempo, tensión, diálogo y ritmo. Con ejemplos prácticos para aplicar hoy.",
+    content: `
+# Técnicas para Escribir un Cuento Efectivo
+
+Conocer la teoría del cuento es útil. Dominar las técnicas que lo hacen funcionar es lo que te convierte en escritor. En esta guía exploramos las herramientas narrativas concretas que marcan la diferencia entre un cuento que se olvida y uno que se recuerda.
+
+## Técnica 1: El Control del Punto de Vista
+
+El punto de vista (PDV) es la lente a través de la cual el lector experimenta la historia. Es una de las decisiones más importantes que tomarás al escribir un cuento.
+
+### Primera persona — "Yo"
+El narrador es el protagonista. Máxima intimidad, mínima objetividad.
+
+**Cuándo usarla:**
+- Cuando la voz del personaje es única e irrepetible
+- Cuando el autoengaño o la perspectiva limitada son parte del tema
+- En cuentos cortos e intensos donde la cercanía emocional es clave
+
+**Ejemplo:**
+*"Nunca le dije que la quería. Ahora llevo años practicando esa frase frente al espejo, pero ya no hay nadie que la escuche."*
+
+### Tercera persona limitada — "Él/Ella"
+El narrador sigue a un personaje pero desde fuera. Libertad técnica con profundidad emocional.
+
+**Cuándo usarla:**
+- Cuando necesitas cierta distancia del personaje
+- Cuando quieres mostrar contradicciones entre lo que el personaje piensa y lo que hace
+- Es el PDV más versátil para cuentos
+
+**Ejemplo:**
+*"Elena dijo que estaba bien. Siguió lavando los platos durante cuarenta minutos."*
+
+### Tercera persona omnisciente — El narrador lo sabe todo
+Acceso a todos los personajes. Difícil de mantener en cuentos cortos.
+
+**Cuándo evitarla en cuentos:**
+- Casi siempre. La omnisciencia en un espacio corto suele resultar distante y fría.
+
+### El error más común con el PDV
+Cambiar de punto de vista sin transición dentro del mismo cuento. Si empiezas en la cabeza de Elena, quédate ahí hasta el final.
+
+## Técnica 2: La Manipulación del Tiempo
+
+El tiempo en un cuento no tiene que ser lineal. Saber jugarlo es una de las técnicas más poderosas.
+
+### Escena vs. Resumen
+
+**Escena:** El tiempo narrativo iguala al tiempo real. Máxima intensidad.
+*"—¿Por qué no me lo dijiste? —preguntó él.*
+*Ella tardó diez segundos en responder. Los contó.*
+*—Porque ya lo sabías."*
+
+**Resumen:** Se comprime el tiempo. Para saltar períodos sin importancia.
+*"Pasaron tres años. La casa fue vaciándose de ruidos."*
+
+**La regla práctica:** Usa escena para los momentos cruciales. Usa resumen para pasar de un momento crucial al siguiente.
+
+### El flashback: úsalo con cuidado
+
+Un flashback mal colocado rompe la tensión. Las reglas básicas:
+- Nunca en el inicio (el lector no tiene razón para interesarse aún en el pasado)
+- Nunca en el clímax (mata la tensión en el peor momento)
+- Solo cuando la información del pasado es imprescindible para entender el presente
+
+### El tiempo presente como herramienta
+
+Escribir en presente crea urgencia e inmediatez. Compara:
+
+**Pasado:** *"Abrió la puerta y encontró la carta sobre la mesa."*
+**Presente:** *"Abre la puerta. La carta está sobre la mesa."*
+
+El presente acerca al lector a la acción. Pero es agotador de mantener en textos largos — en cuentos cortos funciona muy bien.
+
+## Técnica 3: Construir Tensión
+
+La tensión es lo que mantiene al lector leyendo. No es solo suspenso — es la sensación de que algo importante está en juego.
+
+### Los 3 ingredientes de la tensión
+
+**1. El lector sabe que algo puede salir mal**
+No hace falta que sea una amenaza física. Puede ser una conversación incómoda, una decisión difícil, una verdad a punto de revelarse.
+
+**2. El personaje no puede escapar fácilmente**
+Si en cualquier momento puede salir de la situación sin consecuencias, no hay tensión.
+
+**3. El tiempo corre**
+La urgencia amplifica la tensión. Una decisión que debe tomarse ahora es más tensa que una que puede esperar.
+
+### Técnica de la "bomba bajo la mesa"
+
+Alfred Hitchcock lo explicó mejor que nadie: si dos personas hablan de fútbol y de repente explota una bomba, el espectador se sorprende 15 segundos. Si ves la bomba bajo la mesa antes de que empiecen a hablar, tienes tensión durante toda la escena.
+
+En un cuento: deja que el lector sepa algo que el personaje no sabe, o deja que ambos sepan que algo malo se acerca sin saber cuándo llegará.
+
+### Pausar en el momento equivocado
+
+Una técnica simple pero efectiva: cuando la tensión llega al punto máximo, interrumpe la escena con un detalle aparentemente trivial.
+
+*"El sobre estaba sobre la mesa. Blanco. Con su nombre escrito a mano.*
+*Fue a la cocina a buscar un vaso de agua.*
+*Cuando volvió, el sobre seguía ahí."*
+
+Esa ida a la cocina multiplica la tensión porque el lector quiere saber qué hay dentro, y tú retrasas la respuesta.
+
+## Técnica 4: El Diálogo que Trabaja
+
+El diálogo malo es el que solo transmite información. El diálogo bueno hace varias cosas a la vez.
+
+### Lo que el diálogo debe hacer
+
+- **Revelar carácter:** Cómo habla alguien dice más de quién es que cómo se le describe
+- **Avanzar la trama:** Cada intercambio debe cambiar algo
+- **Crear subtexto:** Lo que no se dice es tan importante como lo que se dice
+
+### El subtexto: hablar de una cosa para decir otra
+
+Este es el nivel más sofisticado del diálogo. Los personajes raramente dicen exactamente lo que sienten.
+
+**Sin subtexto (plano):**
+*"—Te echo de menos —dijo ella.*
+*—Yo también te echo de menos —respondió él."*
+
+**Con subtexto:**
+*"—¿Cómo está tu perro? —preguntó ella.*
+*—Murió el mes pasado.*
+*—Ah. Lo siento.*
+*Pausa.*
+*—¿Y tú cómo estás? —preguntó él.*
+*—Igual que el perro."*
+
+### Los errores más comunes en diálogo
+
+- **Sobreexplicar:** Los personajes no explican lo que ambos ya saben. Si dos hermanos hablan de su madre, no dicen "nuestra madre, que nos crió a los dos en ese pueblo de Castilla".
+- **Todos hablan igual:** Cada personaje debe tener un ritmo y vocabulario propio.
+- **Demasiados adverbios:** *"—Te odio —dijo apasionadamente"* — el adverbio casi siempre sobra si el diálogo está bien escrito.
+
+## Técnica 5: El Ritmo y la Frase
+
+El ritmo de un cuento se controla con la longitud de las frases y los párrafos.
+
+### Frases cortas = velocidad, urgencia, impacto
+
+*"Corrió. Tropezó. Se levantó. Siguió."*
+
+### Frases largas = calma, reflexión, descripción
+
+*"Caminó despacio por el pasillo que recordaba de su infancia, ese pasillo que olía a madera húmeda y a los domingos de su madre, preguntándose si alguna vez había sido tan larga esa distancia entre la puerta y la cocina."*
+
+### La regla práctica del ritmo
+
+Varía. Un cuento escrito entero en frases cortas se vuelve telegráfico y agotador. Un cuento en frases largas se vuelve soporífero. La variación es lo que crea música en la prosa.
+
+**El golpe final:** La última frase de un cuento, en especial, debe ser corta. La brevedad le da peso.
+
+## Técnica 6: Mostrar vs. Contar
+
+"Show, don't tell" es el consejo más repetido en escritura creativa, y también el más mal entendido.
+
+### Contar (telling)
+*"Estaba muy nerviosa."*
+
+### Mostrar (showing)
+*"No podía dejar de mirar el reloj. Llevaba la uña del pulgar mordida hasta la cutícula."*
+
+### Cuándo contar está bien
+
+La regla no es absoluta. A veces contar es más eficiente:
+- Para información secundaria que no merece una escena
+- Para transiciones rápidas de tiempo o lugar
+- Cuando mostrar requeriría demasiado espacio para algo que no es crucial
+
+La decisión real es: **¿qué merece escena y qué merece resumen?** Solo los momentos cruciales merecen la inversión del showing completo.
+
+## Junta Todo: El Proceso de Revisión Técnica
+
+Después de terminar tu borrador, haz una lectura exclusivamente técnica para cada elemento:
+
+**Lectura 1 — PDV:** ¿Cambias de punto de vista sin querer? ¿Es el PDV correcto para esta historia?
+
+**Lectura 2 — Tiempo:** ¿Hay flashbacks innecesarios? ¿Usas escena donde deberías usar resumen o viceversa?
+
+**Lectura 3 — Tensión:** ¿En cada escena algo está en juego? ¿Hay momentos donde el lector puede relajarse demasiado?
+
+**Lectura 4 — Diálogo:** Lee solo los diálogos en voz alta. ¿Suena natural? ¿Cada personaje suena distinto?
+
+**Lectura 5 — Ritmo:** ¿Varías la longitud de frases? ¿La última frase tiene peso?
+
+## Practica con un Reto Real
+
+La teoría sin práctica no sirve de nada. La mejor forma de dominar estas técnicas es escribir con regularidad y recibir feedback de lectores reales.
+
+En [Letranido](/contest/current) publicamos un prompt de escritura cada mes. Miles de escritores participan, leen las historias de otros y votan. Es la manera más rápida de ver qué técnicas funcionan y cuáles no.
+
+Si quieres repasar la estructura completa antes de aplicar estas técnicas, lee nuestra [guía paso a paso para escribir un cuento](/blog/como-escribir-cuentos-paso-a-paso).
+
+**Las técnicas no hacen al escritor. La práctica sí. ¿Cuál vas a usar en tu próximo cuento?**
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-03-08",
+    readTime: "11 min",
+    category: "educacion",
+    tags: [
+      "técnicas para escribir un cuento",
+      "técnicas narrativas",
+      "técnicas de escritura",
+      "como mejorar escritura",
+      "escritura creativa",
+      "punto de vista narrativo",
+      "tensión narrativa",
+      "diálogo en cuento",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: false,
+    published: false,
+  },
+
+  {
+    id: "como-redactar-un-cuento",
+    title: "Cómo Redactar un Cuento: Del Borrador al Texto Final",
+    slug: "como-redactar-un-cuento",
+    excerpt:
+      "Redactar un cuento es más que escribirlo: es revisarlo, mejorarlo y pulirlo. Aprende el proceso completo de redacción con técnicas de edición, estilo y corrección.",
+    content: `
+# Cómo Redactar un Cuento: Del Borrador al Texto Final
+
+Muchos escritores confunden escribir con redactar. Escribir es sacar la historia. Redactar es darle forma, pulirla, hacerla funcionar. En esta guía aprenderás el proceso completo de redacción de un cuento: desde el primer borrador hasta el texto listo para publicar o presentar.
+
+## La Diferencia Entre Escribir y Redactar
+
+**Escribir** es el proceso creativo: generar ideas, encontrar la historia, dejar que fluya sin juzgar.
+
+**Redactar** es el proceso técnico: organizar, cortar, mejorar, corregir.
+
+El error más común es intentar hacer ambas cosas a la vez. Cuando escribes el borrador, escribe sin corregir. Cuando redactas, hazlo con frialdad, como si fueras otra persona que lee por primera vez.
+
+## Fase 1: El Borrador Libre
+
+Antes de redactar, necesitas material. El borrador libre tiene una sola regla: **no te detengas a corregir**.
+
+### Cómo hacer el borrador libre
+
+1. Escribe sin mirar hacia atrás
+2. Si no sabes cómo sigue, escribe "[CONTINUAR AQUÍ]" y sigue adelante
+3. Si una frase no te convence, márcala con "[REVISAR]" y sigue
+4. Llega hasta el final aunque la mitad sea terrible
+
+El borrador libre no es el cuento. Es la arcilla con la que harás el cuento.
+
+### Cuánto tiempo esperar antes de redactar
+
+Al menos 24 horas. Idealmente 3-7 días. Necesitas distancia para leer lo que escribiste como lector, no como autor. Si lees el borrador inmediatamente, tu mente corrige automáticamente errores que no están en la página.
+
+## Fase 2: La Primera Lectura — Sin Tocar Nada
+
+Antes de cambiar una sola palabra, lee el borrador completo de principio a fin. Toma notas al margen, pero no edites todavía.
+
+Lo que buscas en esta lectura:
+
+- **¿Hay una historia?** Un personaje que quiere algo, un obstáculo, una resolución
+- **¿Se entiende?** Si algo te confunde, confundirá al lector
+- **¿El inicio engancha?** Si el principio es plano, pocos llegarán al final
+- **¿El final funciona?** ¿Es sorprendente pero inevitable?
+
+Anota los problemas grandes antes de preocuparte por los pequeños.
+
+## Fase 3: Redacción Estructural — Los Problemas Grandes
+
+Primero resuelve los problemas de estructura. No tiene sentido pulir el estilo de una escena que vas a eliminar.
+
+### Preguntas de estructura
+
+**¿El inicio es el correcto?**
+Muchos borradores empiezan demasiado temprano. A menudo el verdadero inicio del cuento está en el segundo o tercer párrafo. Corta todo lo que precede al momento en que la historia realmente arranca.
+
+**¿Sobra alguna escena?**
+Si eliminas una escena y el cuento funciona igual o mejor, esa escena sobra. En un cuento corto, cada escena debe ser necesaria.
+
+**¿El clímax es el punto más alto?**
+Si hay un momento más intenso que el clímax oficial, tienes el clímax mal colocado.
+
+**¿El final responde a la pregunta que el inicio planteó?**
+El inicio de un cuento siempre hace una pregunta implícita. El final debe responderla, aunque la respuesta sea ambigua.
+
+## Fase 4: Redacción de Párrafos — Los Problemas Medios
+
+Con la estructura resuelta, trabaja párrafo por párrafo.
+
+### Cada párrafo debe tener un propósito
+
+Un párrafo que no hace ninguna de estas cosas sobra:
+- Avanzar la trama
+- Revelar carácter
+- Crear atmósfera necesaria para la historia
+- Aportar información que el lector necesitará después
+
+### El párrafo de apertura de cada escena
+
+Los primeros dos o tres renglones de cada escena nueva deben orientar al lector: ¿dónde estamos?, ¿cuándo?, ¿quién está presente? Si eso no está claro en las primeras líneas, el lector flota sin ancla.
+
+### La longitud del párrafo como herramienta
+
+- **Párrafo largo:** Da sensación de expansión, reflexión, detalle
+- **Párrafo corto:** Da urgencia, énfasis, impacto
+- **Párrafo de una línea:** Para el efecto más fuerte. Úsalo con moderación.
+
+## Fase 5: Redacción de Frases — Los Problemas Pequeños
+
+Aquí es donde el estilo se construye. Trabaja frase por frase.
+
+### Elimina las palabras innecesarias
+
+Cada palabra que no aporta, resta. Lee cada frase y pregunta: ¿qué pasa si elimino esta palabra?
+
+**Antes:** *"Ella se sintió muy triste y emocionada al mismo tiempo cuando lo vio llegar."*
+**Después:** *"Cuando lo vio llegar, no supo si llorar o reír."*
+
+### Cuidado con los adverbios en "-mente"
+
+Los adverbios terminados en "-mente" casi siempre son señal de que el verbo es débil.
+
+**Débil:** *"Caminó lentamente por el pasillo."*
+**Fuerte:** *"Arrastró los pies por el pasillo."*
+
+### Los verbos son el motor de la prosa
+
+Elige verbos específicos y activos. Evita el verbo "ser" cuando puedas.
+
+**Con "ser":** *"La habitación era pequeña y oscura."*
+**Con verbo activo:** *"La habitación aplastaba. Sin ventanas."*
+
+### Elimina los gerundios apilados
+
+*"Entrando a la habitación, mirando alrededor y viendo que no había nadie, decidió sentarse."*
+
+Esto se llama "gerundio apilado" y hace la prosa pesada. Divide en frases simples:
+
+*"Entró. Miró alrededor. No había nadie. Se sentó."*
+
+## Fase 6: La Lectura en Voz Alta
+
+Antes de dar el cuento por terminado, léelo en voz alta de principio a fin.
+
+Lo que detectarás que no verías leyendo en silencio:
+- Frases que no se pueden decir de una vez sin respirar (demasiado largas)
+- Repeticiones de palabras cercanas que el ojo salta pero el oído nota
+- Diálogos que no suenan naturales
+- Ritmo monótono (todas las frases del mismo largo)
+- El final: si al leerlo en voz alta no sientes nada, tampoco lo sentirá el lector
+
+## Fase 7: La Revisión de Corrección
+
+Por último, la corrección técnica: ortografía, puntuación, concordancia.
+
+### Los errores más frecuentes en cuentos en español
+
+**Comas mal puestas:**
+- No se pone coma entre sujeto y verbo: *"La mujer, llegó tarde"* ❌
+- Sí se pone coma en incisos: *"La mujer, que llegaba siempre tarde, llegó a tiempo"* ✅
+
+**Puntuación en diálogos:**
+- *"—Hola —dijo ella."* ✅ (minúscula después del cierre del diálogo si sigue la acción)
+- *"—Hola. —Dijo ella."* ❌
+
+**Tiempos verbales mezclados:**
+Decide si narras en pasado o presente y mantenlo. Los saltos involuntarios confunden al lector.
+
+## El Proceso Completo en Resumen
+
+| Fase | Qué haces | Cuándo |
+|------|-----------|--------|
+| Borrador libre | Escribes sin parar | Día 1 |
+| Descanso | No tocas nada | Días 2-7 |
+| Primera lectura | Identificas problemas grandes | Día 7 |
+| Redacción estructural | Cortas/reordenas escenas | Días 8-9 |
+| Redacción de párrafos | Mejoras cada párrafo | Días 10-11 |
+| Redacción de frases | Puless el estilo | Día 12 |
+| Lectura en voz alta | Detectas errores de ritmo | Día 13 |
+| Corrección final | Ortografía y puntuación | Día 14 |
+
+No tienes que seguir este calendario exacto. Pero sí el orden: siempre de lo grande a lo pequeño.
+
+## Practica la Redacción con Feedback Real
+
+La mejor forma de mejorar en redacción es leer tu texto como lo lee un extraño. Y la mejor forma de conseguir eso es publicar y recibir feedback real.
+
+En [Letranido](/contest/current) organizamos retos mensuales de escritura donde puedes publicar tu cuento, leer los de otros escritores y votar. Ver cómo reaccionan los lectores ante tu historia es la lección de redacción más valiosa que existe.
+
+Para repasar el proceso completo desde la idea inicial, visita nuestra [guía para escribir un cuento paso a paso](/blog/como-escribir-cuentos-paso-a-paso).
+
+**Un cuento bien redactado no se escribe — se rescribe. Empieza hoy.**
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-03-22",
+    readTime: "10 min",
+    category: "educacion",
+    tags: [
+      "como redactar un cuento",
+      "cómo redactar un cuento",
+      "redactar un cuento",
+      "redacción de cuentos",
+      "editar un cuento",
+      "corregir un cuento",
+      "borrador cuento",
+      "escritura creativa",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: false,
+    published: false,
+  },
 ];
 
 export const categories = [
