@@ -34,7 +34,7 @@ const MicroStoryCard = ({
     <div className="bg-white dark:bg-dark-800 rounded-xl border border-purple-100 dark:border-dark-600 p-4 hover:shadow-md hover:border-purple-200 dark:hover:border-dark-500 transition-all">
       {/* Header - Autor */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
           <UserCardWithBadges
             userId={story.user_id}
             userName={story.author}
@@ -42,9 +42,9 @@ const MicroStoryCard = ({
             avatarSize="md"
             badgeSize="xs"
             maxBadges={1}
-            className="flex min-w-0"
+            className="flex shrink-0"
           />
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
             • {formatTimeAgo(story.created_at)} • {story.word_count} palabras
           </span>
         </div>
@@ -95,13 +95,13 @@ const MicroStoryCard = ({
 
       {/* Título (opcional) */}
       {story.title && (
-        <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg text-center tracking-wide">
           {story.title}
         </h3>
       )}
 
       {/* Contenido de la microhistoria */}
-      <p className="text-gray-800 text-start dark:text-gray-200 whitespace-pre-wrap mb-4 leading-relaxed">
+      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-base text-left mb-4">
         {story.content}
       </p>
 
