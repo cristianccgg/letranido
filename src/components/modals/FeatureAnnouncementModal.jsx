@@ -73,10 +73,10 @@ const FeatureAnnouncementModal = ({ isOpen, onClose, userId, onGoToMicrohistoria
             </div>
             <div className="flex-1">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                Nuevos prompts de inspiración
+                Prompts para escribir microhistorias
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Publicamos prompts de inspiración regularmente. Escribe una escena, un fragmento, un momento. No tiene que ser una historia completa, solo déjate llevar.
+                Cada prompt es una invitación a escribir una microhistoria corta (50–300 palabras). Una escena, un momento, un personaje. El objetivo es practicar y compartir con la comunidad.
               </p>
             </div>
           </div>
