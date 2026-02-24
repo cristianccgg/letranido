@@ -106,6 +106,14 @@ const CommentCard = ({
   );
 };
 
+const feedbackPlaceholders = [
+  "¿Qué imagen o momento te quedó grabado de esta historia?",
+  "¿Qué te gustó del estilo o la voz del narrador?",
+  "¿Hay algo que cambiarías o desarrollarías más?",
+  "¿Qué emoción te generó al leerla?",
+  "¿La conclusión te sorprendió o la esperabas?",
+];
+
 const FeedCommentsSection = ({
   comments = [],
   onAddComment,
@@ -118,6 +126,9 @@ const FeedCommentsSection = ({
   const [submitting, setSubmitting] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyContent, setReplyContent] = useState("");
+  const [placeholder] = useState(
+    () => feedbackPlaceholders[Math.floor(Math.random() * feedbackPlaceholders.length)]
+  );
 
   // Estado para likes (optimistic UI)
   const [userLikes, setUserLikes] = useState({});
@@ -256,7 +267,7 @@ const FeedCommentsSection = ({
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Escribe un comentario..."
+            placeholder={placeholder}
             rows={3}
             maxLength={500}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none text-sm"
