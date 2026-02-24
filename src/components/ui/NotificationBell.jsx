@@ -45,6 +45,12 @@ const NotificationBell = ({ userId, className = "" }) => {
         return <MessageCircle className="w-5 h-5 text-blue-500" />;
       case 'comment_like':
         return <Heart className="w-5 h-5 text-red-500" />;
+      case 'feed_story_liked':
+        return <Heart className="w-5 h-5 text-red-500" />;
+      case 'feed_story_commented':
+        return <MessageCircle className="w-5 h-5 text-blue-500" />;
+      case 'feed_comment_reply':
+        return <MessageCircle className="w-5 h-5 text-blue-500" />;
       case 'contest_winner':
         return <Crown className="w-5 h-5 text-purple-500" />;
       default:
@@ -76,6 +82,11 @@ const NotificationBell = ({ userId, className = "" }) => {
     } else if (notification.type === 'comment_like' && data.story_id && data.comment_id) {
       // Ir a la historia y hacer scroll al comentario que recibió el like
       window.location.href = `/story/${data.story_id}#comment-${data.comment_id}`;
+    } else if (['feed_story_liked', 'feed_story_commented'].includes(notification.type) && data.story_id) {
+      // Ir al feed — la historia está en la landing/feed, no tiene ruta propia
+      window.location.href = `/`;
+    } else if (notification.type === 'feed_comment_reply' && data.story_id) {
+      window.location.href = `/`;
     } else if (notification.type === 'badge') {
       // Ir al perfil para ver badges
       window.location.href = `/profile`;
