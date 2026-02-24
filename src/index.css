@@ -62,6 +62,7 @@
   --animate-count-bounce: count-bounce 0.4s ease-out;
   --animate-sparkle: sparkle 1.2s ease-in-out;
   --animate-skeleton-wave: skeleton-wave 1.5s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s infinite;
 
   /* Animation keyframes */
   --keyframes-heart-beat: {
@@ -232,6 +233,15 @@
     }
   }
 
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
   /* Custom transition timing */
   --transition-vote: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: all 0.3s ease;
@@ -259,6 +269,23 @@
 
 .dark {
   color-scheme: dark;
+}
+
+/* Tab shimmer - Microhistorias */
+.tab-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(253, 224, 71, 0.7), transparent);
+  animation: shimmer-slide 1.5s ease-in-out infinite;
+  transform: skewX(-15deg);
+  pointer-events: none;
+}
+
+.dark .tab-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(253, 224, 71, 0.4), transparent);
 }
 
 /* Global styles */

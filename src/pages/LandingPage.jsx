@@ -1,5 +1,5 @@
-// pages/LandingPage.jsx - VERSIÓN CORREGIDA SIN HISTORIAS
-import { useState, useEffect, useRef } from "react";
+// pages/LandingPage.jsx - Landing con feed integrado para usuarios autenticados
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -22,6 +22,11 @@ import {
   MessageCircle,
   Vote,
   Crown,
+  Rss,
+  Send,
+  Archive,
+  AlertCircle,
+  ChevronRight,
 } from "lucide-react";
 import { useGlobalApp } from "../contexts/GlobalAppContext";
 import SEOHead from "../components/SEO/SEOHead";
@@ -40,6 +45,12 @@ import WelcomeBanner from "../components/ui/WelcomeBanner";
 import FeatureAnnouncementModal from "../components/modals/FeatureAnnouncementModal";
 import { FEATURES } from "../lib/config";
 import logo from "../assets/images/letranido-logo.png";
+// Feed components
+import useFeedPrompts from "../hooks/useFeedPrompts";
+import useMicroStories from "../hooks/useMicroStories";
+import MicroStoryCard from "../components/feed/MicroStoryCard";
+import ArchivedPromptsView from "../components/feed/ArchivedPromptsView";
+import { supabase } from "../lib/supabase";
 
 // Componente para mostrar el badge del ganador
 const WinnerBadgeDisplay = ({ userId }) => {
@@ -62,7 +73,7 @@ const WinnerBadgeDisplay = ({ userId }) => {
   // Encontrar el badge de mayor prestigio
   const topBadge = userBadges
     .filter((badge) =>
-      Object.prototype.hasOwnProperty.call(prestigeOrder, badge.id)
+      Object.prototype.hasOwnProperty.call(prestigeOrder, badge.id),
     )
     .sort((a, b) => (prestigeOrder[b.id] || 0) - (prestigeOrder[a.id] || 0))[0];
 
@@ -95,7 +106,47 @@ const LandingPage = () => {
     globalStats,
     globalStatsLoading,
     loadGlobalStats,
+    // Auth modal
+    openAuthModal,
   } = useGlobalApp();
+
+  // 🆕 FEED STATE - Solo para usuarios autenticados
+  const {
+    activePrompt,
+    nextPrompt,
+    loading: promptsLoading,
+  } = useFeedPrompts("active");
+  const {
+    stories,
+    loading: storiesLoading,
+    refreshStories,
+    updateStoryLikeCount,
+    deleteStory,
+    userHasPublished,
+  } = useMicroStories(activePrompt?.id);
+
+  // Estado del formulario de feed
+  const [feedTitle, setFeedTitle] = useState("");
+  const [feedContent, setFeedContent] = useState("");
+  const [feedWordCount, setFeedWordCount] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+  const [feedError, setFeedError] = useState(null);
+  const [feedSuccess, setFeedSuccess] = useState(null);
+
+  // Estado de likes (optimistic UI)
+  const [userLikes, setUserLikes] = useState({});
+
+  // Tab para ver archivo
+  const [showArchive, setShowArchive] = useState(false);
+
+  // Tab principal: Reto Mensual vs Microhistorias
+  const [activeTab, setActiveTab] = useState("mensual");
+
+  // Countdown para el prompt del feed
+  const [feedTimeLeft, setFeedTimeLeft] = useState("");
+
+  // Expandir/colapsar próximo prompt semanal
+  const [nextPromptExpanded, setNextPromptExpanded] = useState(false);
 
   // ✅ ESTADÍSTICAS DESDE CONTEXTO GLOBAL - Con fallbacks locales
   const historicalStats = {
@@ -138,6 +189,75 @@ const LandingPage = () => {
     }
   }, [user, initialized]);
 
+  // 🆕 FEED: Countdown del prompt activo
+  useEffect(() => {
+    if (!activePrompt?.end_date) {
+      setFeedTimeLeft("");
+      return;
+    }
+
+    const updateFeedTime = () => {
+      const now = new Date();
+      const deadline = new Date(activePrompt.end_date);
+      const diff = deadline - now;
+
+      if (diff <= 0) {
+        setFeedTimeLeft("Prompt cerrado");
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (days > 0) {
+        setFeedTimeLeft(`${days}d ${hours}h ${minutes}m`);
+      } else {
+        setFeedTimeLeft(`${hours}h ${minutes}m`);
+      }
+    };
+
+    updateFeedTime();
+    const interval = setInterval(updateFeedTime, 60000);
+    return () => clearInterval(interval);
+  }, [activePrompt?.end_date]);
+
+  // 🆕 FEED: Calcular word count
+  useEffect(() => {
+    const words = feedContent
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length > 0);
+    setFeedWordCount(words.length);
+  }, [feedContent]);
+
+  // 🆕 FEED: Cargar likes del usuario
+  // Usar story IDs como dependencia estable para no re-ejecutar al cambiar likes_count
+  const storyIds = stories.map((s) => s.id).join(",");
+  useEffect(() => {
+    const loadUserLikes = async () => {
+      if (!user || !storyIds) return;
+
+      const ids = storyIds.split(",");
+      const { data } = await supabase.rpc("get_user_feed_story_likes_batch", {
+        p_user_id: user.id,
+        p_story_ids: ids,
+      });
+
+      if (data) {
+        const likesMap = {};
+        data.forEach((item) => {
+          likesMap[item.story_id] = true;
+        });
+        setUserLikes(likesMap);
+      }
+    };
+
+    loadUserLikes();
+  }, [user, storyIds]);
+
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
 
@@ -152,12 +272,12 @@ const LandingPage = () => {
         const finishedContests = contests
           .filter(
             (contest) =>
-              contest.status === "results" && contest.id !== currentContest?.id
+              contest.status === "results" && contest.id !== currentContest?.id,
           )
           .sort(
             (a, b) =>
               new Date(b.finalized_at || b.voting_deadline) -
-              new Date(a.finalized_at || a.voting_deadline)
+              new Date(a.finalized_at || a.voting_deadline),
           );
 
         if (finishedContests.length === 0) {
@@ -205,7 +325,7 @@ const LandingPage = () => {
   }, [initialized, contests, currentContest, getStoriesByContest]);
 
   // Estado para forzar re-render cuando cambia la fase automáticamente
-  const [_phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
+  const [phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
 
   // Contador de tiempo restante (dinámico según la fase del reto)
   const [timeLeft, setTimeLeft] = useState("");
@@ -238,12 +358,12 @@ const LandingPage = () => {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
       setTimeLeft(
-        `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`
+        `${days > 0 ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`,
       );
     };
 
@@ -281,7 +401,7 @@ const LandingPage = () => {
 
     // Programar timeout para el deadline + 2 segundos de buffer
     console.log(
-      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`
+      `⏰ Próximo cambio de fase programado en ${Math.round(timeUntilDeadline / 1000)} segundos`,
     );
     const timeout = setTimeout(() => {
       console.log("🔄 Deadline alcanzado, actualizando fase automáticamente");
@@ -293,96 +413,118 @@ const LandingPage = () => {
     return () => clearTimeout(timeout);
   }, [currentContest, currentContestPhase]);
 
+  // 🆕 FEED: Handlers
+  const handlePublishFeed = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      setFeedError("Debes iniciar sesión para publicar");
+      return;
+    }
+
+    if (!feedTitle.trim()) {
+      setFeedError("El título es obligatorio");
+      return;
+    }
+
+    if (feedWordCount < 50 || feedWordCount > 300) {
+      setFeedError("La microhistoria debe tener entre 50 y 300 palabras");
+      return;
+    }
+
+    try {
+      setPublishing(true);
+      setFeedError(null);
+
+      const { error: insertError } = await supabase
+        .from("feed_stories")
+        .insert([
+          {
+            prompt_id: activePrompt.id,
+            user_id: user.id,
+            title: feedTitle.trim(),
+            content: feedContent.trim(),
+            word_count: feedWordCount,
+          },
+        ]);
+
+      if (insertError) throw insertError;
+
+      setFeedSuccess("¡Microhistoria publicada!");
+      setFeedTitle("");
+      setFeedContent("");
+      setFeedWordCount(0);
+
+      refreshStories();
+
+      setTimeout(() => setFeedSuccess(null), 3000);
+    } catch (err) {
+      console.error("Error publishing feed story:", err);
+      setFeedError(err.message);
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleLikeFeed = async (storyId) => {
+    if (!user) return;
+
+    const currentlyLiked = userLikes[storyId] || false;
+    const likeChange = currentlyLiked ? -1 : 1;
+
+    setUserLikes((prev) => ({ ...prev, [storyId]: !currentlyLiked }));
+    updateStoryLikeCount(storyId, likeChange);
+
+    try {
+      await supabase.rpc("toggle_feed_story_like", {
+        p_user_id: user.id,
+        p_story_id: storyId,
+      });
+    } catch (err) {
+      setUserLikes((prev) => ({ ...prev, [storyId]: currentlyLiked }));
+      updateStoryLikeCount(storyId, -likeChange);
+      console.error("Error toggling like:", err);
+    }
+  };
+
+  const handleDeleteFeed = async (storyId) => {
+    if (!user) return;
+    if (!window.confirm("¿Estás seguro de que quieres eliminar esta historia?"))
+      return;
+
+    const result = await deleteStory(storyId, user.id);
+    if (!result.success) {
+      setFeedError("Error al eliminar la historia");
+    }
+  };
+
+  const handleReportFeed = async (storyId) => {
+    if (!user) return;
+    try {
+      const { error: reportError } = await supabase.from("reports").insert([
+        {
+          reporter_id: user.id,
+          reported_item_type: "feed_story",
+          reported_item_id: storyId,
+          reason: "Reportado por usuario",
+        },
+      ]);
+
+      if (reportError) throw reportError;
+      alert("Historia reportada. Gracias por ayudar a mantener la comunidad.");
+    } catch (err) {
+      console.error("Error reporting feed story:", err);
+      setFeedError("Error al reportar la historia");
+    }
+  };
+
   // Estado para mostrar el modal de reglas
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [rulesModalContest, setRulesModalContest] = useState(null);
   const [nextContestExpanded, setNextContestExpanded] = useState(false);
 
-  // 🎯 Estado para el sidebar de rankings con persistencia
-  // En desktop (≥1024px): sidebar incrustado, cerrado por defecto (usuario puede abrirlo)
-  // En mobile (<1024px): sidebar modal, cerrado por defecto
-  const getInitialSidebarState = () => {
-    // Verificar si estamos en desktop
-    const isDesktop = window.innerWidth >= 1024;
-
-    // En desktop, verificar localStorage
-    if (isDesktop) {
-      const saved = localStorage.getItem("landingSidebarOpen");
-      // Por defecto cerrado en desktop, el usuario puede abrirlo con el botón
-      return saved !== null ? saved === "true" : false;
-    }
-
-    // En mobile siempre empieza cerrado
-    return false;
-  };
-
-  const [showRankingsSidebar, setShowRankingsSidebar] = useState(
-    getInitialSidebarState
-  );
-
-  // 📍 Referencia para hacer scroll a la sidebar
-  const sidebarRef = useRef(null);
-
-  // 🎯 Función para abrir sidebar y hacer scroll hacia ella
-  const openSidebarAndScroll = () => {
-    setShowRankingsSidebar(true);
-
-    // Pequeño delay para que la sidebar se renderice primero
-    setTimeout(() => {
-      if (sidebarRef.current) {
-        sidebarRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
-        });
-      }
-    }, 100);
-  };
-
-  // 📱 Detectar si estamos en mobile o desktop
-  const [isMobile, setIsMobile] = useState(() => {
-    // Inicializar correctamente desde el principio
-    if (typeof window !== "undefined") {
-      return window.innerWidth < 1024;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile((prevMobile) => {
-        // Solo actualizar si realmente cambió
-        if (prevMobile !== mobile) {
-          // 🔧 Si cambiamos a mobile, cerrar la sidebar para evitar problemas de layout
-          if (mobile && showRankingsSidebar) {
-            setShowRankingsSidebar(false);
-          }
-          // 🔧 Si cambiamos a desktop, abrir la sidebar (comportamiento por defecto)
-          else if (!mobile && !showRankingsSidebar) {
-            setShowRankingsSidebar(true);
-          }
-          return mobile;
-        }
-        return prevMobile;
-      });
-    };
-
-    // Escuchar cambios de tamaño
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, [showRankingsSidebar]);
-
-  // Guardar preferencia en localStorage cuando cambie (solo desktop)
-  useEffect(() => {
-    const isDesktop = window.innerWidth >= 1024;
-    if (isDesktop) {
-      localStorage.setItem(
-        "landingSidebarOpen",
-        showRankingsSidebar.toString()
-      );
-    }
-  }, [showRankingsSidebar]);
+  // Estado para el sidebar de rankings
+  const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
 
   // ✅ Contador para el siguiente reto
   const [nextTimeLeft, setNextTimeLeft] = useState("");
@@ -407,7 +549,7 @@ const LandingPage = () => {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -450,293 +592,649 @@ const LandingPage = () => {
         url="/"
       />
 
-      {/* Welcome Banner - Fuera del layout para que ocupe todo el ancho */}
-      <WelcomeBanner lastContestWinners={lastContestWinners} />
+      {/* Welcome Banner */}
+      <WelcomeBanner />
 
-      {/* 🖥️ Sección superior con sidebar (Hero + Contest actual) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Layout de 2 columnas en desktop - Sidebar + Contenido */}
-        <div className="lg:flex lg:gap-8">
-          {/* 📄 Contenido Principal - Columna derecha */}
-          <div className="flex-1 min-w-0">
-            {/* Hero Section - Elegante y moderno */}
-            <section className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300 rounded-2xl">
-              {/* Elementos decorativos modernos */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-10 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
-                <div className="absolute top-32 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
-                <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
-                <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
-              </div>
+      {/* Hero Section - Elegante y moderno */}
+      <section className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 relative overflow-hidden transition-colors duration-300">
+        {/* Elementos decorativos modernos */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-linear-to-br from-indigo-200 to-purple-300 rounded-full opacity-10 blur-xl"></div>
+          <div className="absolute top-32 right-16 w-24 h-24 bg-linear-to-br from-purple-200 to-pink-300 rounded-full opacity-15 blur-lg"></div>
+          <div className="absolute bottom-20 left-20 w-20 h-20 bg-linear-to-br from-pink-200 to-indigo-300 rounded-full opacity-12 blur-lg animate-pulse"></div>
+          <div className="absolute bottom-32 right-10 w-40 h-40 bg-linear-to-br from-purple-200 to-indigo-200 rounded-full opacity-8 blur-2xl"></div>
+        </div>
 
-              <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
-                {/* Logo/Título con tagline */}
-                <div className="mb-0 flex flex-col items-center">
-                  <div className="flex items-center mb-0">
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
-                      Letranido
-                    </h1>
-                    <img
-                      src={logo}
-                      alt="Logo de Letranido - Pluma en nido, símbolo de escritura creativa"
-                      className="h-15 md:h-25 w-auto transition-all duration-300 hover:scale-110 hover:rotate-3 hover:drop-shadow-lg cursor-pointer"
-                    />
-                  </div>
+        <div className="relative max-w-6xl mx-auto px-4 py-6 sm:py-12 md:py-8 lg:py-8 text-center">
+          {/* Logo/Título con tagline */}
+          <div className="mb-0 flex flex-col items-center">
+            <div className="flex items-center mb-0">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl text-primary-600 font-dm-serif tracking-tight">
+                Letranido
+              </h1>
+              <img
+                src={logo}
+                alt="Logo de Letranido - Pluma en nido, símbolo de escritura creativa"
+                className="h-15 md:h-25 w-auto transition-all duration-300 hover:scale-110 hover:rotate-3 hover:drop-shadow-lg cursor-pointer"
+              />
+            </div>
 
-                  {/* HERO PRINCIPAL - Claro y motivacional */}
-                  <div className="mb-8">
-                    {/* Tagline emocional */}
-                    <p className="font-dancing-script text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-4 font-semibold transition-colors duration-300">
-                      <span className="text-indigo-600 dark:text-indigo-400">
-                        Escribe
-                      </span>
-                      .
-                      <span className="text-purple-600 dark:text-purple-400">
-                        {" "}
-                        Recibe feedback
-                      </span>
-                      .
-                      <span className="text-indigo-600 dark:text-indigo-400">
-                        {" "}
-                        Crece como escritor
-                      </span>
-                      .
-                    </p>
+            {/* HERO PRINCIPAL - Claro y motivacional */}
+            <div className="mb-8">
+              {/* Tagline emocional */}
+              <p className="font-dancing-script text-xl md:text-2xl lg:text-3xl text-gray-800 dark:text-dark-200 mb-4 font-semibold transition-colors duration-300">
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  Escribe
+                </span>
+                .
+                <span className="text-purple-600 dark:text-purple-400">
+                  {" "}
+                  Recibe feedback
+                </span>
+                .
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  {" "}
+                  Crece como escritor
+                </span>
+                .
+              </p>
 
-                    {/* Explicación clara del concepto */}
-                    <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-4 max-w-3xl leading-relaxed transition-colors duration-300">
-                      Cada mes un{" "}
-                      <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
-                        prompt diferente
-                      </span>{" "}
-                      que puedes interpretar como quieras: síguelo exactamente,
-                      adáptalo o úsalo como inspiración
-                    </p>
+              {/* Explicación clara del concepto */}
+              <p className="text-lg md:text-2xl text-gray-700 dark:text-dark-300 mb-4 max-w-3xl leading-relaxed transition-colors duration-300">
+                Cada mes un{" "}
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold transition-colors duration-300">
+                  prompt diferente
+                </span>{" "}
+                que puedes interpretar como quieras: síguelo exactamente,
+                adáptalo o úsalo como inspiración
+              </p>
 
-                    <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
-                      ✨ Recuerda: escribimos para crecer, mejorar y disfrutar,
-                      no solo para ganar. Cada historia es un paso en tu viaje
-                      literario.
-                    </p>
-                  </div>
+              <p className="text-base md:text-lg text-gray-600 dark:text-dark-400 mb-6 max-w-2xl mx-auto italic transition-colors duration-300">
+                ✨ Recuerda: escribimos para crecer, mejorar y disfrutar, no
+                solo para ganar. Cada historia es un paso en tu viaje literario.
+              </p>
+            </div>
 
-                  {/* 🆕 CTAs PRINCIPALES ESTILO WATTPAD - Solo visible en desarrollo */}
-                  {FEATURES.PORTFOLIO_STORIES && (
-                    <div className="mb-12">
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-lg mx-auto">
-                        {/* Leer Historias */}
-                        <Link
-                          to="/stories"
-                          className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-2xl hover:bg-purple-700 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
-                        >
-                          <BookOpen className="h-6 w-6" />
-                          <span>Leer Historias</span>
-                        </Link>
+            {/* 🆕 CTAs PRINCIPALES ESTILO WATTPAD - Solo visible en desarrollo */}
+            {FEATURES.PORTFOLIO_STORIES && (
+              <div className="mb-12">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-lg mx-auto">
+                  {/* Leer Historias */}
+                  <Link
+                    to="/stories"
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-purple-600 text-white font-bold text-lg rounded-2xl hover:bg-purple-700 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                  >
+                    <BookOpen className="h-6 w-6" />
+                    <span>Leer Historias</span>
+                  </Link>
 
-                        {/* Escribir Historia */}
-                        <Link
-                          to="/contest/current"
-                          className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-amber-500 text-white font-bold text-lg rounded-2xl hover:bg-amber-600 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
-                        >
-                          <PenTool className="h-6 w-6" />
-                          <span>Escribir Historia</span>
-                        </Link>
-                      </div>
-
-                      {/* Subtextos explicativos */}
-                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
-                        <div className="text-sm text-gray-600 dark:text-dark-400">
-                          <span className="font-medium text-purple-700 dark:text-purple-400">
-                            ✨ Descubre
-                          </span>{" "}
-                          creatividad premium sin límites
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-dark-400">
-                          <span className="font-medium text-amber-700 dark:text-amber-400">
-                            🏆 Participa
-                          </span>{" "}
-                          en el reto mensual
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Escribir Historia */}
+                  <Link
+                    to="/contest/current"
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-amber-500 text-white font-bold text-lg rounded-2xl hover:bg-amber-600 hover:shadow-xl transition-all duration-300 shadow-lg whitespace-nowrap"
+                  >
+                    <PenTool className="h-6 w-6" />
+                    <span>Escribir Historia</span>
+                  </Link>
                 </div>
 
-                {/* Beneficios y ganador - diseño original */}
-                <div className="mb-8 max-w-4xl mx-auto">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
-                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                        Feedback real
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                        Tus derechos 100%
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
-                      <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
-                        Comunidad activa
-                      </span>
-                    </div>
-                    {/* Tarjeta especial del ganador - MEJORADA */}
-                    {lastContestWinners && (
-                      <button
-                        onClick={() => {
-                          const winnersSection =
-                            document.querySelector("#winners-section");
-                          if (winnersSection) {
-                            winnersSection.scrollIntoView({
-                              behavior: "smooth",
-                            });
-                          }
-                        }}
-                        className="flex items-center justify-center gap-1 md:gap-2 bg-linear-to-r from-yellow-50 to-yellow-100 dark:bg-linear-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-auto"
-                      >
-                        {/* Efecto de brillo sutil */}
-                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                {/* Subtextos explicativos */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center max-w-2xl mx-auto">
+                  <div className="text-sm text-gray-600 dark:text-dark-400">
+                    <span className="font-medium text-purple-700 dark:text-purple-400">
+                      ✨ Descubre
+                    </span>{" "}
+                    creatividad premium sin límites
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-dark-400">
+                    <span className="font-medium text-amber-700 dark:text-amber-400">
+                      🏆 Participa
+                    </span>{" "}
+                    en el reto mensual
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
-                        <WinnerBadgeDisplay
-                          userId={lastContestWinners.winners[0].user_id}
-                        />
-                        <div className="text-center relative z-10">
-                          <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
-                            1ER LUGAR
+          {/* Beneficios y ganador - diseño original */}
+          <div className="mb-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] md:text-base">
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-indigo-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                  Feedback real
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-purple-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                  Tus derechos 100%
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-pink-100 dark:border-dark-600 transition-colors duration-300 min-h-[60px] md:min-h-auto">
+                <span className="font-medium text-gray-900 dark:text-dark-100 transition-colors duration-300 text-center">
+                  Comunidad activa
+                </span>
+              </div>
+              {/* Tarjeta especial del ganador - MEJORADA */}
+              {lastContestWinners && (
+                <button
+                  onClick={() => {
+                    const winnersSection =
+                      document.querySelector("#winners-section");
+                    if (winnersSection) {
+                      winnersSection.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="flex items-center justify-center gap-1 md:gap-2 bg-linear-to-r from-yellow-50 to-yellow-100 dark:bg-linear-to-r dark:from-yellow-900/30 dark:to-yellow-800/40 backdrop-blur-sm rounded-lg px-2 py-3 md:px-4 md:py-3 border border-yellow-400 dark:border-yellow-500 hover:border-yellow-500 dark:hover:border-yellow-400 hover:shadow-lg transition-all duration-300 group cursor-pointer relative overflow-hidden min-h-[60px] md:min-h-auto"
+                >
+                  {/* Efecto de brillo sutil */}
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-yellow-200/20 to-transparent -skew-x-12 translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                  <WinnerBadgeDisplay
+                    userId={lastContestWinners.winners[0].user_id}
+                  />
+                  <div className="text-center relative z-10">
+                    <div className="font-bold text-yellow-800 dark:text-yellow-200 text-[8px] md:text-xs leading-tight">
+                      1ER LUGAR
+                    </div>
+                    <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
+                      {lastContestWinners.contest.month}
+                    </div>
+                    <div className="font-semibold text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
+                      {lastContestWinners.winners[0].author}
+                    </div>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {currentContest && (
+            <div className="space-y-6">
+              {/* Tab Bar - Visible para todos */}
+              <div className="flex bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-indigo-200 dark:border-dark-600">
+                <button
+                  onClick={() => setActiveTab("mensual")}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                    activeTab === "mensual"
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
+                      : "text-gray-600 dark:text-dark-300 hover:bg-indigo-50 dark:hover:bg-dark-700"
+                  }`}
+                >
+                  <Calendar className="w-4 h-4" />
+                  Reto Mensual
+                </button>
+                <button
+                  onClick={() => setActiveTab("semanal")}
+                  className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 overflow-hidden ${
+                    activeTab === "semanal"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                      : "bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 shadow-sm"
+                  }`}
+                >
+                  {/* Shimmer cuando no está activo */}
+                  {activeTab !== "semanal" && (
+                    <span className="tab-shimmer" />
+                  )}
+                  <span className="flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Microhistorias
+                  </span>
+                  <span className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}>
+                    práctica libre · sin votación
+                  </span>
+                  {activeTab !== "semanal" && (
+                    <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
+                      Nuevo
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Reto Mensual */}
+              {activeTab === "mensual" && (
+                <>
+                  <ContestCard
+                    contest={currentContest}
+                    phase={currentContestPhase}
+                    timeLeft={timeLeft}
+                    isNext={false}
+                    onRulesClick={() => {
+                      setRulesModalContest(currentContest);
+                      setShowRulesModal(true);
+                    }}
+                    onExpandNext={() => setNextContestExpanded(true)}
+                  />
+
+                  {nextContest && (
+                    <div data-next-contest>
+                      <ContestCard
+                        contest={nextContest}
+                        phase="submission"
+                        timeLeft={
+                          currentContestPhase === "voting" ||
+                          currentContestPhase === "counting"
+                            ? nextTimeLeft
+                            : null
+                        }
+                        isNext={true}
+                        isEnabled={
+                          currentContestPhase === "voting" ||
+                          currentContestPhase === "counting"
+                        }
+                        forceExpanded={nextContestExpanded}
+                        onRulesClick={() => {
+                          setRulesModalContest(nextContest);
+                          setShowRulesModal(true);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <NextContestOrPoll
+                    nextContest={nextContest}
+                    currentContest={currentContest}
+                    isEnabled={true}
+                  />
+                </>
+              )}
+
+              {/* Microhistorias - Visible para todos */}
+              {activeTab === "semanal" && (
+                <div className="bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl border-2 border-purple-200 dark:border-dark-600">
+                  {/* Header compacto */}
+                  <div className="flex items-center justify-between p-4 border-b border-purple-100 dark:border-dark-600">
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        Microhistorias
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-dark-400 mt-0.5">
+                        Espacio de práctica libre · sin votación ni ganadores
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowArchive(!showArchive)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-sm font-medium text-purple-700 dark:text-purple-300"
+                    >
+                      <Archive className="w-4 h-4" />
+                      {showArchive ? "Ver Actual" : "Ver Archivo"}
+                    </button>
+                  </div>
+
+                  <div className="p-6">
+                    {!showArchive ? (
+                      <>
+                        {/* Prompt Activo */}
+                        {activePrompt && (
+                          <div className="mb-6">
+                            {/* Título */}
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
+                              <h3 className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white leading-tight text-center">
+                                {activePrompt.title || "Prompt de esta semana"}
+                              </h3>
+                            </div>
+
+                            {/* Descripción destacada */}
+                            {activePrompt.description && (
+                              <div className="bg-gradient-to-r from-purple-50 via-white to-indigo-50 dark:from-purple-900/20 dark:via-dark-800 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-xl p-4 mb-3">
+                                <p className="text-gray-700 dark:text-dark-300 md:text-lg leading-relaxed">
+                                  {activePrompt.description}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Texto de inspiración destacado */}
+                            {activePrompt.prompt_text && (
+                              <div className="pl-4 border-l-2 border-purple-300 dark:border-purple-600">
+                                <p className="text-gray-600 dark:text-gray-400 italic">
+                                  &ldquo;{activePrompt.prompt_text}&rdquo;
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Nota fija + stats */}
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                              No tiene que ser una historia completa, puede ser
+                              un momento, un recuerdo, un fragmento. Solo déjate
+                              llevar.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              <span>50–300 palabras</span>
+                              <span>•</span>
+                              <span>
+                                {activePrompt.stories_count || 0} microhistorias
+                              </span>
+                              {feedTimeLeft &&
+                                feedTimeLeft !== "Prompt cerrado" && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {feedTimeLeft}
+                                    </span>
+                                  </>
+                                )}
+                              {feedTimeLeft === "Prompt cerrado" && (
+                                <>
+                                  <span>•</span>
+                                  <span>Prompt cerrado</span>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Formulario de publicación o CTA de registro */}
+                            {!user ? (
+                              <div className="mt-4 p-5 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
+                                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                                  Inicia sesión o crea una cuenta para publicar
+                                  tu microhistoria o microrrelato
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                  <button
+                                    onClick={() => openAuthModal("login")}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all"
+                                  >
+                                    Iniciar sesión
+                                  </button>
+                                  <button
+                                    onClick={() => openAuthModal("register")}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border-2 border-purple-400 dark:border-purple-500 text-purple-700 dark:text-purple-300 font-semibold rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
+                                  >
+                                    <PenTool className="w-4 h-4" />
+                                    Crear cuenta gratis
+                                  </button>
+                                </div>
+                              </div>
+                            ) : !userHasPublished ? (
+                              <form
+                                onSubmit={handlePublishFeed}
+                                className="mt-4 space-y-4"
+                              >
+                                <div>
+                                  <input
+                                    type="text"
+                                    value={feedTitle}
+                                    onChange={(e) =>
+                                      setFeedTitle(e.target.value)
+                                    }
+                                    placeholder="Título de tu microhistoria"
+                                    maxLength={100}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                  />
+                                </div>
+                                <div>
+                                  <textarea
+                                    value={feedContent}
+                                    onChange={(e) =>
+                                      setFeedContent(e.target.value)
+                                    }
+                                    placeholder="Escribe una escena, un fragmento, un momento..."
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                                  />
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span
+                                      className={`text-sm ${
+                                        feedWordCount < 50 ||
+                                        feedWordCount > 300
+                                          ? "text-red-600 dark:text-red-400"
+                                          : "text-green-600 dark:text-green-400"
+                                      }`}
+                                    >
+                                      {feedWordCount} / 50-300 palabras
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {feedError && (
+                                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                    <span className="text-sm text-red-600 dark:text-red-400">
+                                      {feedError}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {feedSuccess && (
+                                  <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                    <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
+                                    <span className="text-sm text-green-600 dark:text-green-400">
+                                      {feedSuccess}
+                                    </span>
+                                  </div>
+                                )}
+
+                                <button
+                                  type="submit"
+                                  disabled={
+                                    publishing ||
+                                    feedWordCount < 50 ||
+                                    feedWordCount > 300
+                                  }
+                                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed"
+                                >
+                                  {publishing ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                      Publicando...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Send className="w-5 h-5" />
+                                      Publicar Microhistoria
+                                    </>
+                                  )}
+                                </button>
+                              </form>
+                            ) : (
+                              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                <p className="text-green-700 dark:text-green-300 text-center">
+                                  ✓ Ya publicaste tu microhistoria para este
+                                  prompt
+                                </p>
+                              </div>
+                            )}
                           </div>
-                          <div className="font-medium text-yellow-900 dark:text-yellow-100 text-[8px] md:text-xs">
-                            {lastContestWinners.contest.month}
+                        )}
+
+                        {/* Lista de microhistorias */}
+                        {storiesLoading ? (
+                          <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Cargando microhistorias...
+                            </p>
                           </div>
-                          <div className="font-semibold text-gray-800 dark:text-gray-200 text-[8px] md:text-xs truncate max-w-[60px] md:max-w-none">
-                            {lastContestWinners.winners[0].author}
+                        ) : stories.length > 0 ? (
+                          <div className="space-y-4">
+                            <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
+                              Microhistorias de la comunidad ({stories.length})
+                            </h3>
+                            {stories.map((story) => (
+                              <MicroStoryCard
+                                key={story.id}
+                                story={story}
+                                onLike={handleLikeFeed}
+                                isLiked={userLikes[story.id] || false}
+                                currentUserId={user?.id}
+                                onDelete={handleDeleteFeed}
+                                onReport={handleReportFeed}
+                              />
+                            ))}
                           </div>
-                        </div>
-                      </button>
+                        ) : (
+                          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p>
+                              Sé el primero en publicar una microhistoria para
+                              este prompt
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Preview del próximo prompt - Collapsible */}
+                        {nextPrompt && (
+                          <div className="mt-6 relative">
+                            <div
+                              className={`relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/10 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800 shadow-lg transition-all duration-700 ease-out ${
+                                nextPromptExpanded
+                                  ? "max-h-96 opacity-100"
+                                  : "max-h-20 opacity-90"
+                              }`}
+                            >
+                              {/* Botón de expansión */}
+                              <button
+                                onClick={() =>
+                                  setNextPromptExpanded(!nextPromptExpanded)
+                                }
+                                className="w-full p-4 flex items-center cursor-pointer justify-between hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-300 group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="relative">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                      <Sparkles className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="absolute inset-0 w-10 h-10 bg-purple-400 rounded-full animate-pulse opacity-20"></div>
+                                  </div>
+                                  <div className="text-left">
+                                    <span className="text-sm font-medium text-purple-600 dark:text-purple-400 block">
+                                      Próximo prompt
+                                    </span>
+                                    <span className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors duration-300">
+                                      {nextPrompt.title}
+                                    </span>
+                                  </div>
+                                </div>
+                                <ChevronRight
+                                  className={`h-5 w-5 text-purple-600 dark:text-purple-400 transition-transform duration-300 ${
+                                    nextPromptExpanded
+                                      ? "rotate-90"
+                                      : "group-hover:translate-x-1"
+                                  }`}
+                                />
+                              </button>
+
+                              {/* Contenido expandido */}
+                              <div
+                                className={`px-4 pb-4 transition-all duration-500 ${
+                                  nextPromptExpanded
+                                    ? "opacity-100 translate-y-0"
+                                    : "opacity-0 -translate-y-4"
+                                }`}
+                              >
+                                {nextPrompt.description && (
+                                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                                    {nextPrompt.description}
+                                  </p>
+                                )}
+                                {nextPrompt.prompt_text && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-3">
+                                    &ldquo;{nextPrompt.prompt_text}&rdquo;
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                  <Calendar className="h-4 w-4 text-purple-500" />
+                                  <span>
+                                    Inicia el{" "}
+                                    {new Date(
+                                      nextPrompt.start_date,
+                                    ).toLocaleDateString("es-CO", {
+                                      weekday: "long",
+                                      day: "numeric",
+                                      month: "long",
+                                    })}
+                                  </span>
+                                </div>
+                                <div className="mt-3 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-300">
+                                    <BookOpen className="h-4 w-4" />
+                                    <span>
+                                      Microhistoria de 50 a 300 palabras
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Estado vacío */}
+                        {!activePrompt && !nextPrompt && !promptsLoading && (
+                          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                            <Zap className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                            <p>No hay prompt activo en este momento</p>
+                            <p className="text-sm mt-1">
+                              Vuelve pronto para el próximo prompt de
+                              microhistorias
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <ArchivedPromptsView />
                     )}
                   </div>
                 </div>
+              )}
 
-                <div className="lg:flex lg:gap-8">
-                  {/* 📊 Sidebar de Rankings - Columna izquierda integrada (desktop only) */}
-                  {!isMobile && showRankingsSidebar && (
-                    <aside ref={sidebarRef} className="lg:w-80 flex-shrink-0 text-start">
-                      <KarmaRankingsSidebar
-                        isOpen={showRankingsSidebar}
-                        onClose={() => setShowRankingsSidebar(false)}
-                        isEmbedded={true}
-                      />
-                    </aside>
-                  )}
-                  {currentContest && (
-                    <div className="space-y-6">
-                      {/* Tarjeta del reto actual */}
-                      <ContestCard
-                        contest={currentContest}
-                        phase={currentContestPhase}
-                        timeLeft={timeLeft}
-                        isNext={false}
-                        onRulesClick={() => {
-                          setRulesModalContest(currentContest);
-                          setShowRulesModal(true);
-                        }}
-                        onExpandNext={() => setNextContestExpanded(true)}
-                      />
-                      {/* Tarjeta del siguiente reto - igual diseño que actual */}
-                      {nextContest && (
-                        <div data-next-contest>
-                          <ContestCard
-                            contest={nextContest}
-                            phase="submission" // El siguiente siempre está en submission
-                            timeLeft={
-                              currentContestPhase === "voting" ||
-                              currentContestPhase === "counting"
-                                ? nextTimeLeft
-                                : null
-                            } // Contador real cuando esté habilitado
-                            isNext={true}
-                            isEnabled={
-                              currentContestPhase === "voting" ||
-                              currentContestPhase === "counting"
-                            } // Habilitado durante votación y counting
-                            forceExpanded={nextContestExpanded} // ✅ Controlar expansión externamente
-                            onRulesClick={() => {
-                              setRulesModalContest(nextContest);
-                              setShowRulesModal(true);
-                            }}
-                          />
-                        </div>
-                      )}
-                      {/* Mostrar encuesta activa (cuando esté disponible) */}
-                      <NextContestOrPoll
-                        nextContest={nextContest}
-                        currentContest={currentContest}
-                        isEnabled={true} // Siempre habilitado para verificar encuestas disponibles
-                      />
-                      {/* Estadísticas integradas en el hero */}
-                      <div className="mt-12 ">
-                        <div className="max-w-6xl mx-auto">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-linear-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
-                            <div className="text-center">
-                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                                <AnimatedCounter
-                                  key="users-counter"
-                                  end={historicalStats.totalUsers}
-                                  duration={2000}
-                                  startDelay={200}
-                                  className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
-                                />
-                              </div>
-                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                                Escritores en la comunidad
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                                <AnimatedCounter
-                                  key="stories-counter"
-                                  end={historicalStats.totalStories}
-                                  duration={2200}
-                                  startDelay={400}
-                                  className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
-                                />
-                              </div>
-                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                                Historias publicadas
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
-                                <AnimatedCounter
-                                  key="words-counter"
-                                  end={historicalStats.totalWords}
-                                  duration={2500}
-                                  startDelay={600}
-                                  formatNumber={true}
-                                  className="bg-linear-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
-                                />
-                              </div>
-                              <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
-                                Palabras escritas
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+              {/* Estadísticas integradas en el hero */}
+              <div className="mt-12 ">
+                <div className="max-w-6xl mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 ring-1 ring-accent-500 gap-8 bg-white/95 dark:bg-dark-800/95 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-500 border-2 border-indigo-200 dark:border-dark-600 hover:border-purple-300 dark:hover:border-purple-500 hover:bg-linear-to-r hover:from-white hover:to-purple-50 dark:hover:from-dark-800 dark:hover:to-purple-900/20">
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key="users-counter"
+                          end={historicalStats.totalUsers}
+                          duration={2000}
+                          startDelay={200}
+                          className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent inline-block w-full"
+                        />
+                      </div>
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                        Escritores en la comunidad
                       </div>
                     </div>
-                  )}
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key="stories-counter"
+                          end={historicalStats.totalStories}
+                          duration={2200}
+                          startDelay={400}
+                          className="bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent inline-block w-full"
+                        />
+                      </div>
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                        Historias publicadas
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 min-w-0 px-2">
+                        <AnimatedCounter
+                          key="words-counter"
+                          end={historicalStats.totalWords}
+                          duration={2500}
+                          startDelay={600}
+                          formatNumber={true}
+                          className="bg-linear-to-r from-pink-600 to-indigo-600 bg-clip-text text-transparent inline-block w-full"
+                        />
+                      </div>
+                      <div className="text-gray-700 dark:text-dark-300 md:text-lg lg:text-xl text-sm font-medium transition-colors duration-300">
+                        Palabras escritas
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              {/* Fin div relative max-w-6xl */}
-            </section>
-            {/* Fin Hero Section */}
-          </div>
-          {/* Fin contenido principal columna derecha */}
+            </div>
+          )}
         </div>
-        {/* Fin layout de 2 columnas */}
-      </div>
-      {/* Fin sección superior con sidebar */}
+      </section>
 
-      {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO (ancho completo) */}
+      {/* 🆕 SISTEMA DE KARMA RANKINGS - ANUNCIO */}
       <section className="py-12 lg:py-16 bg-linear-to-r from-primary-500 to-indigo-600 relative overflow-hidden">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden">
@@ -794,7 +1292,7 @@ const LandingPage = () => {
               </div>
               <ArrowRight className="h-5 w-5 text-white/60 hidden sm:block" />
               <button
-                onClick={openSidebarAndScroll}
+                onClick={() => setShowRankingsSidebar(true)}
                 className="inline-flex cursor-pointer items-center px-6 py-3 bg-white dark:bg-white/95 text-primary-600 dark:text-primary-700 rounded-xl font-semibold hover:bg-white/90 dark:hover:bg-white/85 transition-all duration-200 shadow-lg hover:scale-105 transform"
               >
                 <Trophy className="h-5 w-5 mr-2" />
@@ -921,7 +1419,7 @@ const LandingPage = () => {
 
             {/* 🏆 GANADOR DESTACADO - MÁXIMA VISIBILIDAD */}
             <div className="mb-8">
-              <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-4 sm:p-8 relative overflow-hidden">
+              <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 rounded-2xl shadow-2xl border-2 border-indigo-200 dark:border-dark-600 p-8 relative overflow-hidden">
                 {/* Elementos decorativos tipo spotlight */}
                 <div className="absolute inset-0 bg-linear-to-r from-indigo-100/20 via-purple-100/30 to-pink-100/20 dark:from-indigo-900/20 dark:via-purple-900/30 dark:to-pink-900/20 rounded-2xl"></div>
                 <div className="absolute top-6 right-6 w-24 h-24 bg-linear-to-br from-indigo-200 to-purple-300 dark:from-indigo-700 dark:to-purple-600 rounded-full opacity-20 blur-xl animate-pulse"></div>
@@ -946,7 +1444,7 @@ const LandingPage = () => {
                   {/* Ganador - mismo ancho que finalistas pero destacado */}
                   <div className="mb-8 flex justify-center">
                     <div className="w-full max-w-lg">
-                      <div className="relative p-4 sm:p-6 rounded-2xl border-3 bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-2 sm:ring-4 ring-yellow-300/50 ring-offset-1 sm:ring-offset-2">
+                      <div className="relative p-6 rounded-2xl border-3 bg-linear-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-dark-800 dark:via-dark-700 dark:to-dark-800 border-indigo-400 dark:border-indigo-500 transition-all duration-300 shadow-lg ring-4 ring-yellow-300/50 ring-offset-2">
                         {/* Badge destacado */}
                         <div className="absolute -top-3 left-6">
                           <div className="px-5 py-2 rounded-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-xl animate-pulse ring-2 ring-yellow-400/60">
@@ -956,8 +1454,8 @@ const LandingPage = () => {
 
                         {/* Corona más grande y llamativa */}
                         <div className="text-center mb-4 mt-6">
-                          <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
-                            <span className="text-3xl sm:text-5xl">👑</span>
+                          <div className="w-24 h-24 mx-auto rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-xl border-4 border-yellow-300 ring-2 ring-yellow-400/60">
+                            <span className="text-5xl">👑</span>
                           </div>
                         </div>
 
@@ -986,9 +1484,9 @@ const LandingPage = () => {
 
                         {/* Estadísticas más destacadas */}
                         <div className="text-center mb-4">
-                          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
-                            <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="font-bold text-base sm:text-lg">
+                          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full border-3 bg-indigo-100 dark:bg-dark-700 border-indigo-400 dark:border-indigo-500 text-indigo-800 dark:text-indigo-300 shadow-md ring-2 ring-yellow-400/40">
+                            <Heart className="h-5 w-5" />
+                            <span className="font-bold text-lg">
                               {lastContestWinners.winners[0].likes_count || 0}{" "}
                               votos
                             </span>
@@ -999,7 +1497,7 @@ const LandingPage = () => {
                         <div className="text-center">
                           <Link
                             to={`/story/${lastContestWinners.winners[0].id}`}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl ring-2 ring-yellow-400/50"
                           >
                             <BookOpen className="h-5 w-5" />
                             <span>Leer historia destacada</span>
@@ -1017,9 +1515,8 @@ const LandingPage = () => {
                       </h4>
                       {/* Nota sobre criterio de desempate */}
                       <p className="text-xs text-gray-500 dark:text-dark-400 text-center mb-6 max-w-2xl mx-auto">
-                        <strong>Criterio de desempate:</strong> Si hay empate en
-                        votos, el orden se define por la fecha de envío (quien
-                        envió primero queda mejor posicionado).
+                        Las posiciones se determinan por número de votos. En
+                        caso de empate, se prioriza la historia enviada primero.
                       </p>
                       <div className="grid gap-6 max-w-6xl mx-auto grid-cols-1 lg:grid-cols-2">
                         {lastContestWinners.winners
@@ -1121,6 +1618,7 @@ const LandingPage = () => {
                               </div>
                             );
                           })}
+
                       </div>
                     </div>
                   )}
@@ -1325,49 +1823,19 @@ const LandingPage = () => {
         contest={rulesModalContest || currentContest}
       />
 
+      {/* Sidebar de rankings */}
+      <KarmaRankingsSidebar
+        isOpen={showRankingsSidebar}
+        onClose={() => setShowRankingsSidebar(false)}
+      />
+
       {/* Modal de anuncio de nuevas features */}
       <FeatureAnnouncementModal
         isOpen={showFeatureModal}
         onClose={() => setShowFeatureModal(false)}
         userId={user?.id}
+        onGoToMicrohistorias={() => setActiveTab("semanal")}
       />
-
-      {/* 📱 Sidebar de rankings en mobile (modal) */}
-      {isMobile && (
-        <KarmaRankingsSidebar
-          isOpen={showRankingsSidebar}
-          onClose={() => setShowRankingsSidebar(false)}
-          isEmbedded={false}
-        />
-      )}
-
-      {/* 🔘 Botón flotante para abrir sidebar (mobile y desktop cuando está cerrado) */}
-      {!showRankingsSidebar && (
-        <button
-          onClick={openSidebarAndScroll}
-          className="
-            fixed left-0 z-30 cursor-pointer
-            bg-gradient-to-r from-yellow-400 to-orange-500
-            text-white font-bold
-            rounded-r-xl shadow-lg hover:shadow-xl
-            transform transition-all duration-300 hover:scale-105
-            flex items-center justify-center
-            hover:translate-x-1
-            lg:top-1/2 lg:-translate-y-1/2 lg:py-3 lg:px-4
-            top-1/2 py-1 px-1 pr-2
-          "
-          aria-label="Abrir Rankings"
-        >
-          <div className="flex items-center">
-            <span
-              className="lg:text-sm text-xs leading-tight"
-              style={{ writingMode: "vertical-rl" }}
-            >
-              Rankings
-            </span>
-          </div>
-        </button>
-      )}
     </div>
   );
 };

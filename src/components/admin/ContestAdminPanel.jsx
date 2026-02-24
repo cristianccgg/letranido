@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Trophy,
   Settings,
@@ -27,6 +27,9 @@ import {
   Vote,
   Heart,
   BookOpen,
+  Rss,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useGlobalApp } from "../../contexts/GlobalAppContext";
 import { useContestFinalization } from "../../hooks/useContestFinalization";
@@ -41,6 +44,7 @@ import PollAdminPanel from "./PollAdminPanel";
 import SocialGenerator from "./SocialGenerator";
 import KofiBadgePanel from "./KofiBadgePanel";
 import ReadingMetricsPanel from "./ReadingMetricsPanel";
+import FeedAdminPanel from "./FeedAdminPanel";
 
 const ContestAdminPanel = () => {
   const [selectedContest, setSelectedContest] = useState(null);
@@ -63,6 +67,7 @@ const ContestAdminPanel = () => {
   const [finalizingContestId, setFinalizingContestId] = useState(null); // ID del concurso que se está finalizando
   const [rankingLoading, setRankingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("concursos");
+  const tabsNavRef = useRef(null);
   const [metricsContestId, setMetricsContestId] = useState(null); // ID del concurso para métricas de lectura
 
   // Función para determinar si un concurso es de prueba
@@ -1342,6 +1347,7 @@ const ContestAdminPanel = () => {
   const tabs = [
     { id: "concursos", label: "Concursos", icon: Trophy },
     { id: "encuestas", label: "Encuestas", icon: Vote },
+    { id: "feed", label: "Feed", icon: Rss },
     { id: "analytics", label: "Analytics", icon: Award },
     { id: "lecturas", label: "Métricas de Lectura", icon: BookOpen },
     { id: "kofi", label: "Ko-fi Badges", icon: Heart },
@@ -1409,26 +1415,42 @@ const ContestAdminPanel = () => {
 
         {/* Tabs Navigation */}
         <div className="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-gray-200 dark:border-dark-600">
-          <div className="border-b border-gray-200 dark:border-dark-600">
-            <nav className="flex space-x-1 p-1">
+          <div className="border-b border-gray-200 dark:border-dark-600 relative">
+            {/* Flecha izquierda */}
+            <button
+              onClick={() => tabsNavRef.current?.scrollBy({ left: -200, behavior: "smooth" })}
+              className="absolute left-0 top-0 bottom-0 z-10 px-2 flex items-center bg-gradient-to-r from-white dark:from-dark-800 to-transparent pointer-events-auto"
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-500 dark:text-dark-400" />
+            </button>
+
+            <nav ref={tabsNavRef} className="flex overflow-x-auto scrollbar-hide px-7 py-1 gap-1">
               {tabs.map((tab) => {
                 const IconComponent = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    className={`flex items-center whitespace-nowrap px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 shrink-0 ${
                       activeTab === tab.id
                         ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
-                        : "text-gray-500 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-700"
+                        : "text-gray-700 dark:text-dark-400 hover:text-gray-900 dark:hover:text-dark-200 hover:bg-gray-100 dark:hover:bg-dark-700"
                     }`}
                   >
-                    <IconComponent className="h-4 w-4 mr-2" />
+                    <IconComponent className="h-4 w-4 mr-2 shrink-0" />
                     {tab.label}
                   </button>
                 );
               })}
             </nav>
+
+            {/* Flecha derecha */}
+            <button
+              onClick={() => tabsNavRef.current?.scrollBy({ left: 200, behavior: "smooth" })}
+              className="absolute right-0 top-0 bottom-0 z-10 px-2 flex items-center bg-gradient-to-l from-white dark:from-dark-800 to-transparent pointer-events-auto"
+            >
+              <ChevronRight className="h-4 w-4 text-gray-500 dark:text-dark-400" />
+            </button>
           </div>
         </div>
 
@@ -1854,6 +1876,11 @@ const ContestAdminPanel = () => {
           {activeTab === "encuestas" && (
             <div className="p-6">
               <PollAdminPanel />
+            </div>
+          )}
+          {activeTab === "feed" && (
+            <div className="p-6">
+              <FeedAdminPanel />
             </div>
           )}
           {activeTab === "analytics" && (
