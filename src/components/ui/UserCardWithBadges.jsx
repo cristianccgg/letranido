@@ -76,8 +76,6 @@ const UserCardWithBadges = ({
     >
       {isKofiSupporter && (
         <>
-          {/* Shimmer animado */}
-          <div className="kofi-shimmer"></div>
           {/* Destellos en esquinas */}
           <div className="kofi-sparkle kofi-sparkle-tl"></div>
           <div className="kofi-sparkle kofi-sparkle-tr"></div>
@@ -136,6 +134,8 @@ const UserCardWithBadges = ({
           isKofiSupporter ? "kofi-supporter-card-inner" : ""
         }`}
       >
+        {/* Shimmer dentro del inner para que overflow:hidden lo contenga */}
+        {isKofiSupporter && <div className="kofi-shimmer"></div>}
         {/* Avatar */}
         <div className="relative z-10">
           <UserAvatar
@@ -270,8 +270,6 @@ export const UserCardWithBadgesVertical = ({
     >
       {isKofiSupporter && (
         <>
-          {/* Shimmer animado */}
-          <div className="kofi-shimmer"></div>
           {/* Destellos en esquinas */}
           <div className="kofi-sparkle kofi-sparkle-tl"></div>
           <div className="kofi-sparkle kofi-sparkle-tr"></div>
@@ -330,6 +328,8 @@ export const UserCardWithBadgesVertical = ({
           isKofiSupporter ? "kofi-supporter-card-inner" : ""
         }`}
       >
+        {/* Shimmer dentro del inner para que overflow:hidden lo contenga */}
+        {isKofiSupporter && <div className="kofi-shimmer"></div>}
         {/* Avatar */}
         <div className="relative z-10">
           <UserAvatar

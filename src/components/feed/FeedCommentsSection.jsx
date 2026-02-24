@@ -36,26 +36,27 @@ const CommentCard = ({
           : "bg-gray-50 dark:bg-gray-700"
       }`}
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between mb-2 gap-2">
+        <div className="flex items-center gap-1 flex-wrap min-w-0">
           <UserCardWithBadges
             userId={comment.author_id}
             userName={comment.author}
             avatarSize="sm"
             badgeSize="xs"
             maxBadges={1}
+            className="flex shrink-0"
           />
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
             {formatTimeAgo(comment.created_at)}
           </span>
           {isReply && (
-            <span className="text-xs text-primary-600 dark:text-primary-400">
+            <span className="text-xs text-primary-600 dark:text-primary-400 shrink-0">
               • Respuesta
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {isAuthor && onDelete && (
             <button
               onClick={() => onDelete(comment.id)}
