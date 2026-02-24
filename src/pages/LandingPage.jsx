@@ -773,14 +773,14 @@ const LandingPage = () => {
                   }`}
                 >
                   {/* Shimmer cuando no está activo */}
-                  {activeTab !== "semanal" && (
-                    <span className="tab-shimmer" />
-                  )}
+                  {activeTab !== "semanal" && <span className="tab-shimmer" />}
                   <span className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
                     Microhistorias
                   </span>
-                  <span className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}>
+                  <span
+                    className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}
+                  >
                     práctica libre · sin votación
                   </span>
                   {activeTab !== "semanal" && (
@@ -1618,7 +1618,6 @@ const LandingPage = () => {
                               </div>
                             );
                           })}
-
                       </div>
                     </div>
                   )}
