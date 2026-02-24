@@ -766,14 +766,18 @@ const LandingPage = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("semanal")}
-                  className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 overflow-hidden ${
+                  className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                     activeTab === "semanal"
                       ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
                       : "bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 shadow-sm"
                   }`}
                 >
-                  {/* Shimmer cuando no está activo */}
-                  {activeTab !== "semanal" && <span className="tab-shimmer" />}
+                  {/* Shimmer cuando no está activo - contenedor overflow-hidden para no cortar el badge */}
+                  {activeTab !== "semanal" && (
+                    <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                      <span className="tab-shimmer" />
+                    </span>
+                  )}
                   <span className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
                     Microhistorias
@@ -855,10 +859,10 @@ const LandingPage = () => {
                     </div>
                     <button
                       onClick={() => setShowArchive(!showArchive)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-sm font-medium text-purple-700 dark:text-purple-300"
+                      title={showArchive ? "Ver Actual" : "Ver Archivo"}
+                      className="flex items-center justify-center p-2 bg-purple-100 dark:bg-dark-700 hover:bg-purple-200 dark:hover:bg-dark-600 rounded-lg transition-colors text-purple-700 dark:text-purple-300 shrink-0"
                     >
                       <Archive className="w-4 h-4" />
-                      {showArchive ? "Ver Actual" : "Ver Archivo"}
                     </button>
                   </div>
 
