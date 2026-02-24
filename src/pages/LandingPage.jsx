@@ -446,6 +446,11 @@ const LandingPage = () => {
       return;
     }
 
+    if (!feedTitle.trim()) {
+      setFeedError("El título es obligatorio");
+      return;
+    }
+
     if (feedWordCount < 50 || feedWordCount > 300) {
       setFeedError("La microhistoria debe tener entre 50 y 300 palabras");
       return;
@@ -461,7 +466,7 @@ const LandingPage = () => {
           {
             prompt_id: activePrompt.id,
             user_id: user.id,
-            title: feedTitle.trim() || null,
+            title: feedTitle.trim(),
             content: feedContent.trim(),
             word_count: feedWordCount,
           },
@@ -978,7 +983,7 @@ const LandingPage = () => {
                                     onChange={(e) =>
                                       setFeedTitle(e.target.value)
                                     }
-                                    placeholder="Título (opcional)"
+                                    placeholder="Título de tu microhistoria"
                                     maxLength={100}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                   />
@@ -1032,7 +1037,7 @@ const LandingPage = () => {
                                     feedWordCount < 50 ||
                                     feedWordCount > 300
                                   }
-                                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-lg transition-all disabled:cursor-not-allowed"
+                                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
                                   {publishing ? (
                                     <>

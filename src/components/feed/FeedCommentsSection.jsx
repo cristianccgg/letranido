@@ -59,7 +59,7 @@ const CommentCard = ({
           {isAuthor && onDelete && (
             <button
               onClick={() => onDelete(comment.id)}
-              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+              className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
               title="Eliminar"
             >
               <Trash2 className="w-3 h-3" />
@@ -68,7 +68,7 @@ const CommentCard = ({
           {!isAuthor && onReport && (
             <button
               onClick={() => onReport(comment.id)}
-              className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
+              className="p-1 text-gray-400 hover:text-orange-600 transition-colors cursor-pointer"
               title="Reportar"
             >
               <Flag className="w-3 h-3" />
@@ -90,7 +90,7 @@ const CommentCard = ({
             e.stopPropagation();
             onLike(comment.id);
           }}
-          className={`flex items-center gap-1 text-xs transition-colors ${
+          className={`flex items-center gap-1 text-xs transition-colors cursor-pointer ${
             isLiked
               ? "text-red-500"
               : "text-gray-400 dark:text-gray-500 hover:text-red-500"
@@ -259,7 +259,7 @@ const FeedCommentsSection = ({
             placeholder="Escribe un comentario..."
             rows={3}
             maxLength={500}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white resize-none text-sm"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none text-sm"
           />
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -268,7 +268,7 @@ const FeedCommentsSection = ({
             <button
               type="submit"
               disabled={submitting || !newComment.trim()}
-              className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <>
@@ -316,7 +316,7 @@ const FeedCommentsSection = ({
               {user && !replyingTo && (
                 <button
                   onClick={() => setReplyingTo(comment.id)}
-                  className="ml-8 text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+                  className="ml-8 text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <Reply className="w-3 h-3" />
                   Responder
@@ -346,14 +346,14 @@ const FeedCommentsSection = ({
                           setReplyingTo(null);
                           setReplyContent("");
                         }}
-                        className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer"
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
                         disabled={submitting || !replyContent.trim()}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
                       >
                         <Send className="w-3 h-3" />
                         Responder
