@@ -57,7 +57,7 @@ const AllStories = () => {
   // Usar historias de concursos finalizados desde el contexto global
   const finishedContests = useMemo(
     () => contests.filter((c) => c.status === "results"),
-    [contests]
+    [contests],
   );
 
   // Función para cargar todas las historias de concursos finalizados
@@ -100,7 +100,7 @@ const AllStories = () => {
         } catch (contestError) {
           console.error(
             `Error loading stories for contest ${contest.id}:`,
-            contestError
+            contestError,
           );
         }
       }
@@ -115,7 +115,7 @@ const AllStories = () => {
             user_id: s.user_id,
             excerpt_preview: s.excerpt?.substring(0, 50),
             contest_title: s.contest_title,
-          }))
+          })),
         );
       }
 
@@ -156,7 +156,7 @@ const AllStories = () => {
 
               console.log(
                 "👥 Nombres de usuarios cargados:",
-                userProfiles.length
+                userProfiles.length,
               );
 
               // Debug final: mostrar historias con nombres actualizados
@@ -167,7 +167,7 @@ const AllStories = () => {
                   author: s.author,
                   user_id: s.user_id,
                   contest_title: s.contest_title,
-                }))
+                })),
               );
             }
           } catch (userError) {
@@ -237,14 +237,14 @@ const AllStories = () => {
         (story) =>
           story.title.toLowerCase().includes(search) ||
           story.author.toLowerCase().includes(search) ||
-          (story.excerpt && story.excerpt.toLowerCase().includes(search))
+          (story.excerpt && story.excerpt.toLowerCase().includes(search)),
       );
     }
 
     if (categoryFilter) {
       filtered = filtered.filter(
         (story) =>
-          (story.story_category || story.contest_category) === categoryFilter
+          (story.story_category || story.contest_category) === categoryFilter,
       );
     }
 
@@ -281,13 +281,13 @@ const AllStories = () => {
 
       case "views":
         return filtered.sort(
-          (a, b) => (b.views_count || 0) - (a.views_count || 0)
+          (a, b) => (b.views_count || 0) - (a.views_count || 0),
         );
 
       case "recent":
       default:
         return filtered.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
         );
     }
   }, [stories, searchTerm, categoryFilter, sortBy]);
@@ -534,79 +534,72 @@ const AllStories = () => {
                   >
                     {/* Header con categoría */}
                     <div className="p-4 border-b border-gray-100 dark:border-dark-700">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 dark:text-dark-100 text-lg mb-2 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {story.title}
-                          </h3>
-
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1 min-w-0">
-                              <UserAvatar
-                                user={{
-                                  name: story.author,
-                                  email: `${story.author}@mock.com`,
-                                }}
-                                size="xs"
-                              />
-                              <span className="text-sm text-gray-500 dark:text-dark-400"></span>
-                              <UserWithTopBadge
-                                userId={story.user_id}
-                                userName={story.author}
-                                className="text-sm"
-                              />
-                              <ProfileButton
-                                userId={story.user_id}
-                                size="xs"
-                                variant="primary"
-                                showText={false}
-                                className="flex-shrink-0"
-                              />
-                            </div>
+                      {/* Título + emoji ganador */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-bold text-gray-900 dark:text-dark-100 text-lg line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex-1 min-w-0">
+                          {story.title}
+                        </h3>
+                        {((story.winner_position &&
+                          story.winner_position <= 3) ||
+                          story.is_winner) && (
+                          <div
+                            className={`flex items-center justify-center w-8 h-8 rounded-full text-lg shrink-0 ${
+                              story.winner_position === 1 ||
+                              (story.is_winner && !story.winner_position)
+                                ? "bg-gradient-to-r from-yellow-400 to-yellow-600 shadow-lg"
+                                : story.winner_position === 2
+                                  ? "bg-gradient-to-r from-gray-300 to-gray-500"
+                                  : "bg-gradient-to-r from-amber-600 to-amber-800"
+                            }`}
+                            title={
+                              story.winner_position === 1
+                                ? "Primer lugar"
+                                : story.winner_position === 2
+                                  ? "Segundo lugar"
+                                  : story.winner_position === 3
+                                    ? "Tercer lugar"
+                                    : "Ganador"
+                            }
+                          >
+                            {(story.winner_position === 1 ||
+                              (story.is_winner && !story.winner_position)) &&
+                              "👑"}
+                            {story.winner_position === 2 && "🥈"}
+                            {story.winner_position === 3 && "🥉"}
                           </div>
-                        </div>
-
-                        <div className="flex flex-col items-end gap-2 ml-2">
-                          {/* Indicador de ganador - movido aquí */}
-                          {(story.winner_position &&
-                            story.winner_position <= 3) ||
-                          story.is_winner ? (
-                            <div
-                              className={`flex items-center justify-center w-8 h-8 rounded-full text-lg ${
-                                story.winner_position === 1 ||
-                                (story.is_winner && !story.winner_position)
-                                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600 shadow-lg"
-                                  : story.winner_position === 2
-                                    ? "bg-gradient-to-r from-gray-300 to-gray-500"
-                                    : "bg-gradient-to-r from-amber-600 to-amber-800"
-                              }`}
-                              title={
-                                story.winner_position === 1
-                                  ? "Primer lugar"
-                                  : story.winner_position === 2
-                                    ? "Segundo lugar"
-                                    : story.winner_position === 3
-                                      ? "Tercer lugar"
-                                      : "Ganador"
-                              }
-                            >
-                              {(story.winner_position === 1 ||
-                                (story.is_winner && !story.winner_position)) &&
-                                "👑"}
-                              {story.winner_position === 2 && "🥈"}
-                              {story.winner_position === 3 && "🥉"}
-                            </div>
-                          ) : null}
-
-                          <span className="px-2 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 text-indigo-700 dark:text-indigo-300 text-xs font-medium rounded-full">
-                            {getCategoryName(
-                              story.story_category || story.contest_category
-                            )}
-                          </span>
-                        </div>
+                        )}
                       </div>
 
-                      <div className="text-xs text-gray-500 dark:text-dark-400 mb-2">
+                      {/* Autor */}
+                      <div className="flex items-center gap-1 mb-2">
+                        <UserAvatar
+                          user={{
+                            name: story.author,
+                            email: `${story.author}@mock.com`,
+                          }}
+                          size="xs"
+                        />
+                        <UserWithTopBadge
+                          userId={story.user_id}
+                          userName={story.author}
+                          className="text-sm"
+                        />
+                        <ProfileButton
+                          userId={story.user_id}
+                          size="xs"
+                          variant="primary"
+                          showText={false}
+                          className="flex-shrink-0"
+                        />
+                      </div>
+
+                      {/* Categoría y mes */}
+                      <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-dark-400">
+                        <span className="px-2 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 text-indigo-700 dark:text-indigo-300 font-medium rounded-full">
+                          {getCategoryName(
+                            story.story_category || story.contest_category,
+                          )}
+                        </span>
                         <span className="flex items-center gap-1">
                           <Trophy className="w-3 h-3" />
                           {story.contest_month}
@@ -724,7 +717,7 @@ const AllStories = () => {
                                 <span className="px-2 py-1 bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-dark-300 text-xs rounded">
                                   {getCategoryName(
                                     story.story_category ||
-                                      story.contest_category
+                                      story.contest_category,
                                   )}
                                 </span>
                               </div>
