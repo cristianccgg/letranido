@@ -21,12 +21,13 @@ const ArchivedPromptsView = () => {
     loadArchivedPrompts();
   }, []);
 
-  // Cargar likes del usuario cuando cambian las historias
+  // Cargar likes del usuario cuando cambian las historias o el prompt expandido
   useEffect(() => {
     if (user && stories.length > 0) {
       loadUserLikes();
     }
-  }, [user, stories]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, expandedPromptId, stories.length]);
 
   const loadArchivedPrompts = async () => {
     try {

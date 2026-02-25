@@ -234,13 +234,12 @@ const LandingPage = () => {
   }, [feedContent]);
 
   // 🆕 FEED: Cargar likes del usuario
-  // Usar story IDs como dependencia estable para no re-ejecutar al cambiar likes_count
-  const storyIds = stories.map((s) => s.id).join(",");
+  // Depende de activePrompt.id y user para recargar al cambiar de prompt o usuario
   useEffect(() => {
     const loadUserLikes = async () => {
-      if (!user || !storyIds) return;
+      if (!user || !stories.length) return;
 
-      const ids = storyIds.split(",");
+      const ids = stories.map((s) => s.id);
       const { data } = await supabase.rpc("get_user_feed_story_likes_batch", {
         p_user_id: user.id,
         p_story_ids: ids,
@@ -256,7 +255,8 @@ const LandingPage = () => {
     };
 
     loadUserLikes();
-  }, [user, storyIds]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, activePrompt?.id, stories.length]);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
   // No necesitamos useEffect ni queries a Supabase
