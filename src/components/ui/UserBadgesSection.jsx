@@ -82,7 +82,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
   return (
     <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-600 shadow-sm">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100 dark:border-dark-700">
+      <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-dark-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Trophy className="w-6 h-6 text-purple-600" />
@@ -107,7 +107,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {!hasAnyBadges ? (
           /* Estado vacío */
           <div className="text-center py-6">
@@ -123,7 +123,7 @@ const UserBadgesSection = ({ userId, userName = "Usuario" }) => {
           </div>
         ) : (
           /* Solo mostrar badges conseguidos - vista compacta */
-          <BadgeGrid badges={userBadges} maxVisible={6} size="sm" className="justify-center sm:justify-start" />
+          <BadgeGrid badges={userBadges} maxVisible={6} size="sm" className="flex-wrap justify-center sm:justify-start" />
         )}
       </div>
     </div>

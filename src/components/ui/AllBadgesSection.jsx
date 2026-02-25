@@ -160,7 +160,7 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
   return (
     <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-600 shadow-sm">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100 dark:border-dark-700">
+      <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-dark-700">
         <div className="flex items-center gap-3 mb-4">
           <Trophy className="w-6 h-6 text-purple-600" />
           <div>
@@ -196,7 +196,7 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`
-                  col-span-1 cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  col-span-1 cursor-pointer flex items-center justify-between gap-1 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium transition-colors
                   ${
                     selectedCategory === category.id
                       ? `bg-${category.color}-100 text-${category.color}-700 dark:bg-${category.color}-900/30 dark:text-${category.color}-300 border border-${category.color}-200`
@@ -204,10 +204,11 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
                   }
                 `}
               >
-                <Icon className="w-4 h-4" />
-                <span>{category.name}</span>
-
-                <span className="bg-gray-200 dark:bg-dark-600 text-gray-700 dark:text-dark-300 text-xs px-1.5 py-0.5 rounded-full">
+                <div className="flex items-center gap-1 min-w-0">
+                  <Icon className="w-4 h-4 shrink-0 hidden sm:block" />
+                  <span className="truncate">{category.name}</span>
+                </div>
+                <span className="bg-gray-200 dark:bg-dark-600 text-gray-700 dark:text-dark-300 text-xs px-1.5 py-0.5 rounded-full shrink-0">
                   {earnedCount}/{categoryBadges.length}
                 </span>
               </button>
@@ -217,7 +218,7 @@ const AllBadgesSection = ({ userId, userName = "Usuario" }) => {
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {filteredBadges.length === 0 ? (
           <div className="text-center py-8">
             <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-3" />

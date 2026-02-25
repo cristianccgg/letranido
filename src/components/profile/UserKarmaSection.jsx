@@ -147,38 +147,36 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
   return (
     <div className="bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-600 shadow-sm">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100 dark:border-dark-700 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg">
-              <Zap className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-                Tu Karma: <span className="text-primary-600 dark:text-primary-400">{userKarma.totalKarma}</span>
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-dark-300">
-                Puntuación de participación en la comunidad
-                {userKarma.isFromCache && (
-                  <span className="block text-xs text-primary-600 dark:text-primary-400 mt-1">
-                    🏆 Rankings se actualizan al finalizar retos
-                  </span>
-                )}
-              </p>
-            </div>
+      <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-dark-700 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-lg shadow-lg shrink-0">
+            <Zap className="h-6 w-6 text-white" />
           </div>
-          {userRanking && (
-            <div className="text-right">
-              <div className="flex items-center gap-2 text-sm font-medium text-primary-600 dark:text-primary-400">
-                <Trophy className="h-4 w-4" />
-                Puesto #{userRanking.position}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-dark-400">
-                Top {userRanking.percentile}% de {userRanking.totalUsers} usuarios
-              </div>
-            </div>
-          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
+              Tu Karma: <span className="text-primary-600 dark:text-primary-400">{userKarma.totalKarma}</span>
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-dark-300">
+              Puntuación de participación en la comunidad
+            </p>
+            {userKarma.isFromCache && (
+              <p className="text-xs text-primary-600 dark:text-primary-400 mt-0.5">
+                🏆 Rankings se actualizan al finalizar retos
+              </p>
+            )}
+          </div>
         </div>
+        {userRanking && (
+          <div className="mt-3 flex items-center gap-2 text-sm">
+            <Trophy className="h-4 w-4 text-primary-500 shrink-0" />
+            <span className="font-medium text-primary-600 dark:text-primary-400">
+              Puesto #{userRanking.position}
+            </span>
+            <span className="text-gray-500 dark:text-dark-400">
+              · Top {userRanking.percentile}% de {userRanking.totalUsers} usuarios
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Contenido */}
@@ -194,22 +192,22 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
             </h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <PenTool className="h-4 w-4 text-green-500" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <PenTool className="h-4 w-4 text-green-500 shrink-0" />
                   <span className="text-sm">Historias publicadas</span>
                 </div>
-                <div className="font-semibold text-green-600 dark:text-green-400">
+                <div className="font-semibold text-green-600 dark:text-green-400 shrink-0 ml-2">
                   {userKarma.totalStories} (+{userKarma.totalStories * KARMA_POINTS.STORY_PUBLISHED})
                 </div>
               </div>
 
               {userKarma.contestWins > 0 && (
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Crown className="h-4 w-4 text-yellow-500" />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Crown className="h-4 w-4 text-yellow-500 shrink-0" />
                     <span className="text-sm">Victorias en concursos</span>
                   </div>
-                  <div className="font-semibold text-yellow-600 dark:text-yellow-400">
+                  <div className="font-semibold text-yellow-600 dark:text-yellow-400 shrink-0 ml-2">
                     {userKarma.contestWins} (+{userKarma.contestWins * KARMA_POINTS.CONTEST_WIN})
                   </div>
                 </div>
@@ -217,11 +215,11 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
 
               {userKarma.contestFinals > 0 && (
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Medal className="h-4 w-4 text-orange-500" />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Medal className="h-4 w-4 text-orange-500 shrink-0" />
                     <span className="text-sm">Finales alcanzadas</span>
                   </div>
-                  <div className="font-semibold text-orange-600 dark:text-orange-400">
+                  <div className="font-semibold text-orange-600 dark:text-orange-400 shrink-0 ml-2">
                     {userKarma.contestFinals} (+{userKarma.contestFinals * KARMA_POINTS.CONTEST_FINALIST})
                   </div>
                 </div>
@@ -237,31 +235,31 @@ const UserKarmaSection = ({ userId, userName = "Usuario", compact = false }) => 
             </h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-blue-500" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <MessageCircle className="h-4 w-4 text-blue-500 shrink-0" />
                   <span className="text-sm">Comentarios dados</span>
                 </div>
-                <div className="font-semibold text-blue-600 dark:text-blue-400">
+                <div className="font-semibold text-blue-600 dark:text-blue-400 shrink-0 ml-2">
                   {userKarma.commentsGiven} (+{userKarma.commentsGiven * KARMA_POINTS.COMMENT_GIVEN})
                 </div>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Heart className="h-4 w-4 text-pink-500" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <Heart className="h-4 w-4 text-pink-500 shrink-0" />
                   <span className="text-sm">Comentarios recibidos</span>
                 </div>
-                <div className="font-semibold text-pink-600 dark:text-pink-400">
+                <div className="font-semibold text-pink-600 dark:text-pink-400 shrink-0 ml-2">
                   {userKarma.commentsReceived} (+{userKarma.commentsReceived * KARMA_POINTS.COMMENT_RECEIVED})
                 </div>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-700 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Vote className="h-4 w-4 text-purple-500" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <Vote className="h-4 w-4 text-purple-500 shrink-0" />
                   <span className="text-sm">Votos dados</span>
                 </div>
-                <div className="font-semibold text-purple-600 dark:text-purple-400">
+                <div className="font-semibold text-purple-600 dark:text-purple-400 shrink-0 ml-2">
                   {userKarma.votesGiven} (+{userKarma.votesGiven * KARMA_POINTS.VOTE_GIVEN})
                 </div>
               </div>
