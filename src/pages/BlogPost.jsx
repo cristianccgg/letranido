@@ -155,8 +155,8 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen">
       <SEOHead
-        title={`${post.title} | Blog Letranido - Recursos para Escritores`}
-        description={`${post.excerpt} ⭐ Guía completa en Letranido | ${post.readTime} de lectura | Tips y recursos para escritores creativos`}
+        title={post.title}
+        description={post.excerpt}
         keywords={`${post.tags.join(", ")}, escritura creativa, recursos escritores, letranido, guías escritura, ${post.category}`}
         image={
           post.image

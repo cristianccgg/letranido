@@ -515,7 +515,7 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
       "Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes",
     slug: "como-escribir-cuentos-paso-a-paso",
     excerpt:
-      "Guía completa con 8 pasos para escribir un cuento desde cero: cómo crear personajes, estructurar la historia, escribir el primer borrador y editarlo. Con ejemplos prácticos y ejercicios.",
+      "Aprende a escribir un cuento paso a paso con 8 pasos claros: idea, personajes, estructura, primer borrador y edición. Con ejemplos prácticos y ejercicios para principiantes.",
     content: `
 # Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes
 
