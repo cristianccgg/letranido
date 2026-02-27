@@ -477,13 +477,27 @@ git pull origin main         # Actualizar main
 
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Febrero 27, 2026 - Automatización de cierre de retos (pg_cron)
+**Última actualización**: Febrero 27, 2026 - Automatización completa de emails del ciclo de retos
 
 ---
 
-### ✅ Febrero 27, 2026 - Automatización del Cierre de Retos
+### ✅ Febrero 27, 2026 - Automatización Completa del Ciclo de Retos
 
-**Objetivo**: Eliminar la necesidad de cerrar retos manualmente. El sistema ahora se cierra solo al vencer el `voting_deadline`.
+**Objetivo**: Eliminar toda intervención manual en el ciclo mensual. Cierre automático + 5 emails automáticos por reto.
+
+**Calendario fijo de emails** (hora Colombia):
+| Email | Día | Hora |
+|-------|-----|------|
+| 🎉 Nuevo reto | Día 4 del mes | 10:00 AM |
+| ⏰ Recordatorio mitad | Día 15 del mes | 10:00 AM |
+| ⏰ Recordatorio -24h | Día 25 del mes | 10:00 AM |
+| 🗳️ Votación iniciada | Día 27 del mes | 12:01 AM |
+| ⏰ Recordatorio votación | Día 1 mes siguiente | 10:00 AM |
+| 🏆 Resultados | Día 3 mes siguiente | 11:59 PM |
+
+**Convención de fechas estándar**:
+- `submission_deadline`: siempre día 26 del mes a las 23:59 Colombia
+- `voting_deadline`: siempre día 3 del mes siguiente a las 23:59 Colombia
 
 **Arquitectura**:
 - **pg_cron**: Job de un solo disparo programado para el `voting_deadline` exacto de cada reto
@@ -491,27 +505,31 @@ git pull origin main         # Actualizar main
 - **Edge Function** `auto-finalize-contest`: Replica la lógica de `useContestFinalization.js` con service role
 - **Idempotente**: Si el admin cierra manualmente antes, el cron detecta `finalized_at IS NOT NULL` y sale sin error
 
-**Flujo**:
-1. Admin crea/edita reto → `schedule_contest_finalization()` programa el cron job
-2. Al vencer `voting_deadline` → pg_cron llama Edge Function
-3. Edge Function: marca ganadores, asigna badges, actualiza `status = 'results'`, envía email de resultados
-4. Log en `contest_automation_log`
+**Flujo completo**:
+1. Admin crea/edita reto → `schedule_contest_finalization()` programa cierre + todos los emails
+2. Emails corren en fechas fijas del ciclo (días 4, 15, 25, 27 del mes y día 1 siguiente)
+3. Al vencer `voting_deadline` → pg_cron llama `auto-finalize-contest`
+4. Edge Function: marca ganadores, asigna badges, actualiza `status = 'results'`, envía email resultados
+5. Todo registrado en `contest_automation_log`
 
 **Archivos creados/modificados**:
-- `database-scripts/migrations/auto_finalization_setup.sql` - Tabla + funciones SQL
-- `supabase/functions/auto-finalize-contest/index.ts` - Edge Function
+- `database-scripts/migrations/auto_finalization_setup.sql` - Tabla + funciones SQL iniciales
+- `database-scripts/migrations/auto_finalization_add_emails.sql` - Función actualizada con emails
+- `supabase/functions/auto-finalize-contest/index.ts` - Edge Function de cierre
+- `supabase/functions/send-scheduled-email/index.ts` - Edge Function de emails programados
 - `src/components/admin/ContestAdminPanel.jsx` - Llama `schedule_contest_finalization` al crear/editar
 
 **Funciones SQL**:
-- `schedule_contest_finalization(UUID)` - Programa/re-programa el cron job de un reto
-- `cancel_contest_finalization(UUID)` - Cancela el cron job (si se borra un reto)
+- `schedule_contest_finalization(UUID)` - Programa cierre + todos los emails del ciclo. Seguro re-ejecutar.
+- `cancel_contest_finalization(UUID)` - Cancela todos los jobs de un reto
 
-**Tabla BD**: `contest_automation_log` - Auditoría de programación y ejecución
-
-**Convención de fechas**: Nuevos retos usan `voting_deadline` a las `23:59` Colombia (antes 7 PM)
+**Tabla BD**: `contest_automation_log` - Auditoría completa de programación y ejecución
 
 **⚠️ CRÍTICO**:
 - Secrets en Supabase Vault: `supabase_url` y `service_role_key`
 - Extensiones requeridas: `pg_cron` y `pg_net`
-- Al editar `voting_deadline`, el job se re-programa automáticamente
-- Botón manual en admin se conserva como respaldo
+- Al crear/editar un reto, TODOS los jobs se cancelan y re-programan automáticamente
+- Emails con fecha pasada se omiten (protección automática)
+- Retos "test/prueba/demo" → emails solo al admin (`emailMode: test`)
+- Botón manual en admin se conserva como respaldo de emergencia
+- Verificar jobs: `SELECT jobname, schedule FROM cron.job WHERE jobname LIKE 'email_%' OR jobname LIKE 'finalize_%' ORDER BY jobname;`
