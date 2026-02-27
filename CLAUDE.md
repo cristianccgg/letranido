@@ -13,9 +13,10 @@
 
 ### 🏆 Sistema de Retos (Core)
 - **Fases automáticas**: `submission` → `voting` → `counting` → `results`
-- **Transiciones**: Por fechas automáticas, excepto `results` que es manual
+- **Transiciones**: Por fechas automáticas, `results` ahora también automático via pg_cron
 - **Votación**: 3 votos máximo por usuario en reto actual
-- **Finalización**: Manual por admin genera ganadores y badges
+- **Finalización**: ✅ AUTOMATIZADA (Feb 2026) via pg_cron + Edge Function `auto-finalize-contest`
+- **Botón manual**: Se conserva en admin como respaldo de emergencia
 
 ### 📊 Sistema de Encuestas (Sept 2025)
 - **Funcionalidad**: Votación comunitaria por prompts para futuros retos
@@ -476,4 +477,41 @@ git pull origin main         # Actualizar main
 
 **Objetivo**: Este archivo permite que Claude recuerde automáticamente la estructura, funcionalidades y puntos críticos del proyecto Letranido sin necesidad de re-explicación en cada sesión.
 
-**Última actualización**: Enero 25, 2026 - Sistema de badges custom con imágenes (en progreso)
+**Última actualización**: Febrero 27, 2026 - Automatización de cierre de retos (pg_cron)
+
+---
+
+### ✅ Febrero 27, 2026 - Automatización del Cierre de Retos
+
+**Objetivo**: Eliminar la necesidad de cerrar retos manualmente. El sistema ahora se cierra solo al vencer el `voting_deadline`.
+
+**Arquitectura**:
+- **pg_cron**: Job de un solo disparo programado para el `voting_deadline` exacto de cada reto
+- **pg_net**: Llama a la Edge Function via HTTP desde el cron job
+- **Edge Function** `auto-finalize-contest`: Replica la lógica de `useContestFinalization.js` con service role
+- **Idempotente**: Si el admin cierra manualmente antes, el cron detecta `finalized_at IS NOT NULL` y sale sin error
+
+**Flujo**:
+1. Admin crea/edita reto → `schedule_contest_finalization()` programa el cron job
+2. Al vencer `voting_deadline` → pg_cron llama Edge Function
+3. Edge Function: marca ganadores, asigna badges, actualiza `status = 'results'`, envía email de resultados
+4. Log en `contest_automation_log`
+
+**Archivos creados/modificados**:
+- `database-scripts/migrations/auto_finalization_setup.sql` - Tabla + funciones SQL
+- `supabase/functions/auto-finalize-contest/index.ts` - Edge Function
+- `src/components/admin/ContestAdminPanel.jsx` - Llama `schedule_contest_finalization` al crear/editar
+
+**Funciones SQL**:
+- `schedule_contest_finalization(UUID)` - Programa/re-programa el cron job de un reto
+- `cancel_contest_finalization(UUID)` - Cancela el cron job (si se borra un reto)
+
+**Tabla BD**: `contest_automation_log` - Auditoría de programación y ejecución
+
+**Convención de fechas**: Nuevos retos usan `voting_deadline` a las `23:59` Colombia (antes 7 PM)
+
+**⚠️ CRÍTICO**:
+- Secrets en Supabase Vault: `supabase_url` y `service_role_key`
+- Extensiones requeridas: `pg_cron` y `pg_net`
+- Al editar `voting_deadline`, el job se re-programa automáticamente
+- Botón manual en admin se conserva como respaldo

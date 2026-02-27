@@ -1094,9 +1094,25 @@ const ContestAdminPanel = () => {
       }
 
       if (result.success) {
-        const message = contestForm.status === "poll" 
+        // Programar cierre automático para retos normales (no encuestas)
+        if (contestForm.status !== "poll") {
+          const contestId = result.contest?.id || result.data?.id;
+          if (contestId) {
+            const { data: scheduleResult, error: scheduleError } = await supabase.rpc(
+              'schedule_contest_finalization',
+              { p_contest_id: contestId }
+            );
+            if (scheduleError) {
+              console.error('⚠️ Error programando cierre automático:', scheduleError);
+            } else {
+              console.log('🤖 Cierre automático programado:', scheduleResult);
+            }
+          }
+        }
+
+        const message = contestForm.status === "poll"
           ? "¡Concurso con encuesta creado exitosamente!"
-          : "¡Concurso creado exitosamente!";
+          : "¡Concurso creado exitosamente! Cierre automático programado.";
         alert(message);
         setShowCreateModal(false);
         resetForm();
@@ -1193,7 +1209,20 @@ const ContestAdminPanel = () => {
       const result = await updateContest(editingContest.id, updateData);
 
       if (result.success) {
-        alert("¡Concurso actualizado exitosamente!");
+        // Re-programar cierre automático si el reto no está finalizado
+        if (editingContest.status !== "results" && !editingContest.finalized_at) {
+          const { data: scheduleResult, error: scheduleError } = await supabase.rpc(
+            'schedule_contest_finalization',
+            { p_contest_id: editingContest.id }
+          );
+          if (scheduleError) {
+            console.error('⚠️ Error re-programando cierre automático:', scheduleError);
+          } else {
+            console.log('🤖 Cierre automático re-programado:', scheduleResult);
+          }
+        }
+
+        alert("¡Concurso actualizado exitosamente! Cierre automático re-programado.");
         setShowEditModal(false);
         setEditingContest(null);
         resetForm();
@@ -1709,6 +1738,23 @@ const ContestAdminPanel = () => {
                                   : "Sin fecha"}
                               </div>
                             </div>
+
+                            {/* Indicador de cierre automático */}
+                            {!contest.finalized_at && contest.status !== "results" && contest.voting_deadline && (
+                              <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 mb-4 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
+                                <span>🤖</span>
+                                <span>
+                                  Cierre automático:{" "}
+                                  {new Date(contest.voting_deadline).toLocaleString("es-CO", {
+                                    timeZone: "America/Bogota",
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            )}
 
                             {/* 🆕 CONTROLES DE PRUEBA */}
                             {contest.status !== "results" && (
