@@ -1,236 +1,148 @@
-# Letranido - Plataforma de Escritura Creativa
+# Letranido — Creative Writing Platform
 
-Letranido es una plataforma de retos de escritura donde los usuarios participan en retos mensuales, votan por sus historias favoritas y descubren nuevos talentos literarios.
+> A full-stack platform where writers compete in monthly challenges, vote for their favorite stories, and build a public portfolio.
 
-## 🚀 Tecnologías
-
-- **Frontend**: React 19 + Vite + Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Edge Functions)
-- **Hosting**: Vercel
-- **Zona Horaria**: Colombia (UTC-5)
-
-## 📊 Sistema de Encuestas (Nuevo - Sept 2025)
-
-### 🎯 Funcionalidad
-Sistema integrado que permite a la comunidad **votar por prompts** para futuros retos. Las encuestas se convierten automáticamente en concursos cuando termina la votación.
-
-### 🔄 Flujo de Encuestas
-1. **Admin crea encuesta** con múltiples opciones de prompts
-2. **Usuarios votan** por su prompt favorito (1 voto por encuesta)
-3. **Resultados visibles** inmediatamente después de votar
-4. **Conversión automática** a reto cuando expira la encuesta
-5. **El prompt ganador** se convierte en el tema del próximo reto
-
-### 📱 Interfaz de Usuario
-- **Componente expandible** con diseño purple/indigo
-- **Estados visuales claros**: activa, votada, cerrada
-- **Responsive design** optimizado para móvil
-- **Feedback inmediato** al votar
-
-### 🛠️ Componentes Principales
-- `PollPreview.jsx` - Interfaz de votación para usuarios
-- `PollAdminPanel.jsx` - Panel completo de administración  
-- `NextContestOrPoll.jsx` - Lógica para mostrar encuesta o próximo reto
-- `supabase-polls.js` - API de gestión de encuestas
-
-### 🗄️ Base de Datos
-```sql
--- Nuevas tablas
-polls           -- Encuestas principales
-poll_options    -- Opciones de cada encuesta  
-poll_votes      -- Votos de usuarios
-
--- Modificaciones
-contests        -- Nuevos campos: poll_enabled, poll_deadline
-```
-
-### 🔒 Seguridad y Reglas
-- **Un voto por encuesta** por usuario autenticado
-- **Cambio de voto permitido** mientras esté activa
-- **RLS (Row Level Security)** para protección de datos
-- **Conversión automática** por triggers de base de datos
-
-### ⚙️ Para Administradores
-- **Crear encuestas** con múltiples opciones
-- **Editar encuestas activas** (título, descripción, fechas)
-- **Ver resultados detallados** con estadísticas
-- **Conversión manual** o automática a retos
-
-### 🎨 Diseño
-- **Tema consistente**: Purple/indigo gradients
-- **Animaciones suaves**: Expansión y hover effects
-- **Estados diferenciados**: Colores para cada estado de encuesta
-- **Iconografía clara**: Vote, Clock, Users, Sparkles
-
-## 📋 Comandos Principales
-
-```bash
-npm run dev          # Desarrollo local
-npm run dev:local    # Desarrollo con BD local
-npm run dev:prod     # Desarrollo con BD producción
-npm run build        # Build para producción
-npm run lint         # ESLint
-npm run env:status   # Ver configuración actual
-```
-
-## 🏆 Flujo de Retos
-
-### Fases Automáticas (por fecha/tiempo)
-1. **`submission`** - Hasta `submission_deadline` ⏰
-2. **`voting`** - Hasta `voting_deadline` ⏰
-3. **`counting`** - Después de `voting_deadline` ⏰
-4. **`results`** - Solo cuando admin finaliza manualmente ✋
-
-### Transiciones Críticas
-- **7:00 PM Colombia**: Cierre automático de votación
-- **Fase "counting"**: Votación bloqueada, reto sigue siendo "actual"
-- **Finalización manual**: Marca `status: "results"` + `finalized_at`
-- **Rotación automática**: Siguiente reto → actual
-
-## 🔧 Archivos Clave
-
-### Frontend Principal
-- `src/contexts/GlobalAppContext.jsx` - Estado global y lógica principal
-- `src/pages/CurrentContest.jsx` - Página del reto actual
-- `src/pages/LandingPage.jsx` - Landing page con ganadores
-- `src/pages/StoryPage.jsx` - Vista individual de historia
-
-### Lógica de Retos
-- `src/hooks/useContestFinalization.js` - Finalización y generación de resultados
-- `src/components/admin/ContestAdminPanel.jsx` - Panel de administración
-
-### Sistema de Encuestas
-- `src/components/ui/PollPreview.jsx` - Interfaz de votación
-- `src/components/ui/NextContestOrPoll.jsx` - Lógica encuesta/concurso
-- `src/components/admin/PollAdminPanel.jsx` - Panel admin de encuestas
-- `src/lib/supabase-polls.js` - API de gestión de encuestas
-
-### Funciones Críticas
-- `getContestPhase(contest)` - Determina fase actual por fechas
-- `findCurrentContest(contests)` - Selecciona reto activo
-- `finalizeContest(contestId)` - Genera resultados y marca ganadores
-- `canVoteInStory(storyId)` - Valida permisos de votación
-
-## 🗳️ Sistema de Votación
-
-### Reglas
-- **3 votos máximo** por usuario en el reto actual
-- **Votación ciega** durante fase `voting` (sin ver conteos)
-- **Votos privados** - solo el usuario ve sus votos
-- **Bloqueo automático** en fases `submission`, `counting`, `results`
-
-### Determinación de Ganadores
-1. **Ordenamiento**: Por `likes_count` descendente, luego `created_at` ascendente
-2. **Top 3**: Marcados con `is_winner: true` y `winner_position: 1,2,3`
-3. **Badges automáticos**: `contest_winner`, `contest_finalist`, `contest_winner_veteran`
-4. **Actualización stats**: Incrementa `wins_count` en `user_profiles`
-
-## 📱 UI Estados
-
-### Landing Page Containers
-- **Superior**: Reto actual (todas las fases)
-- **Inferior**: Siguiente reto (siempre `phase: "submission"`)
-- **Sección Ganadores**: Solo retos con `status: "results"` (excluyendo actual)
-
-### Mensajes por Fase
-- **submission**: "📝 Período de Envío"
-- **voting**: "🗳️ Votación Activa"
-- **counting**: "⏱️ Votación Cerrada" (automática, transparente)
-- **results**: "🏆 Resultados Finales"
-
-## 🛠️ Zona Horaria y Fechas
-
-### Configuración
-- **Zona horaria principal**: Colombia (UTC-5)
-- **Fechas en BD**: UTC (ISO strings)
-- **Comparaciones**: Automáticas por `getContestPhase()`
-
-### Funciones de Conversión
-- `toColombiaISO()` - DateTime local → UTC para BD
-- `utcToColombiaLocal()` - UTC de BD → DateTime local
-- `formatColombiaDateTime()` - Para emails y displays
-
-## 🚨 Proceso de Cierre de Reto
-
-### Antes del Cierre (6:59 PM)
-- Reto actual en fase `voting`
-- Usuarios pueden votar normalmente
-- Siguiente reto visible en contenedor inferior
-
-### Cierre Automático (7:00 PM)
-- **Automático**: Fase cambia a `counting`
-- **UI**: "⏱️ Votación Cerrada" 
-- **Votación**: Bloqueada con mensaje transparente
-- **Retos**: Misma disposición (actual/siguiente)
-
-### Finalización Manual (Admin)
-- **Panel Admin**: Botón "Finalizar Reto"
-- **Backend**: `finalizeContest()` procesa ganadores
-- **Actualización**: `status: "results"` + `finalized_at`
-- **Rotación**: Siguiente → actual, nuevo siguiente → contenedor
-
-## 📊 Base de Datos
-
-### Tablas Principales
-- `contests` - Retos y fechas límite
-- `stories` - Historias con `is_winner`, `winner_position`
-- `votes` - Votos de usuarios (3 max por reto actual)
-- `user_profiles` - Usuarios con `wins_count`
-
-### Tablas de Encuestas (Nuevo)
-- `polls` - Encuestas principales con metadatos
-- `poll_options` - Opciones de cada encuesta con contadores
-- `poll_votes` - Votos individuales de usuarios (1 por encuesta)
-
-### Migraciones Disponibles
-```bash
-# Ubicación: database-scripts/migrations/
-polls_system_migration.sql       # Tablas base del sistema
-polls_rls_policies.sql          # Políticas de seguridad RLS  
-polls_auto_conversion.sql       # Triggers de conversión automática
-contests_poll_integration.sql   # Integración con sistema existente
-```
-
-### Estados de Reto
-- `status`: `'submission'`, `'voting'`, `'results'` (manual)
-- `finalized_at`: NULL hasta finalización manual
-- **Fases calculadas**: Por comparación de fechas en tiempo real
-
-## ⚠️ Puntos Críticos
-
-1. **Zona horaria**: Todo en Colombia (UTC-5)
-2. **Fases automáticas**: Por fechas, no por `status`
-3. **Votación limitada**: 3 votos solo en reto actual
-4. **Finalización manual**: Único momento que cambia `status: "results"`
-5. **Transparencia**: Mensajes indican procesos automáticos
-
-## 🔍 Debug y Troubleshooting
-
-### Logs Importantes
-- `🔄 loadContests` - Carga y determina retos actual/siguiente
-- `🗳️ VotingInfo` - Validación de permisos de voto
-- `🏆 Ganadores determinados` - Proceso de finalización
-
-### Comandos Útiles
-```bash
-npm run env:status    # Ver configuración BD actual
-npm run lint          # Verificar errores
-git status            # Estado del repositorio
-```
-
-### Panel Admin
-- **URL**: `/admin` (solo usuarios con `is_admin: true`)
-- **Funciones**: Finalizar retos, previsualizar ganadores, revertir
-
-## 🎯 Flujo Típico de Reto
-
-1. **Creación**: Admin crea reto con fechas
-2. **Submission**: Usuarios envían historias hasta `submission_deadline`
-3. **Voting**: Votación hasta `voting_deadline` (automático)
-4. **Counting**: UI muestra "cerrado", votación bloqueada (automático)
-5. **Results**: Admin finaliza manualmente, ganadores generados
-6. **Rotación**: Siguiente reto → actual automáticamente
+**Live:** [letranido.com](https://www.letranido.com) · **Stack:** React 19 · Supabase · PostgreSQL · Vercel
 
 ---
 
-*Última actualización: Septiembre 2025 - Sistema de fases mejorado para transparencia*
+## Overview
+
+Letranido is a community-driven creative writing platform built from scratch. Users submit short stories to monthly contests, vote blindly for their favorites, earn achievement badges, and maintain public author profiles. The entire contest lifecycle — from submission to winner announcement — runs automatically with zero manual intervention.
+
+---
+
+## Key Features
+
+### Contest System
+- **Automated lifecycle**: Submission → Voting → Counting → Results phases driven by deadlines
+- **Blind voting**: Vote counts hidden during voting phase to prevent bandwagon effect
+- **Auto-finalization**: `pg_cron` triggers a Supabase Edge Function at the exact `voting_deadline` to compute winners, assign badges, and send email notifications — no admin action required
+- **6 automated emails** per contest cycle via Resend (new contest, reminders, voting open, results)
+
+### Microhistories Feed
+- Social writing feed inspired by Instagram: weekly rotating prompts, 50–300 word stories
+- Real-time likes and nested comments with optimistic UI (no page reloads)
+- Separate from the contest system — focused on daily practice, not competition
+
+### Badge & Karma System
+- 14 badge types: writing milestones, contest wins, community engagement, special donors
+- Auto-assigned by PostgreSQL function `check_and_award_badges()` triggered on story publish
+- Badges for contest wins are **repeatable per contest** — handled without a UNIQUE constraint using `EXISTS()` checks
+
+### Public Author Profiles
+- Each user gets a profile page at `/author/:userId` with their full story history, stats, and badges
+- Optional: bio, country, social links — fully privacy-controlled by the user
+- **Read tracking**: Stories auto-marked as read after 15 seconds; unread stories sorted first during voting
+
+### Community Polls
+- Community votes on prompts for upcoming contests
+- Winning prompt auto-converts to the next contest via DB trigger
+
+---
+
+## Architecture
+
+```
+Frontend (React 19 + Vite + Tailwind CSS)
+│
+├── GlobalAppContext.jsx        — Central state (auth, contests, votes)
+├── Custom hooks (19)          — Contest logic, badges, feed, read tracking
+├── Supabase JS client         — Auth, realtime, storage
+│
+Backend (Supabase / PostgreSQL)
+│
+├── Row Level Security         — All tables protected by RLS policies
+├── Edge Functions (Deno)      — auto-finalize-contest, send-scheduled-email
+├── pg_cron                    — Scheduled jobs for auto-finalization & emails
+├── pg_net                     — HTTP calls from cron to Edge Functions
+└── DB functions               — check_and_award_badges(), schedule_contest_finalization()
+```
+
+**Frontend → Supabase** for all data. No custom API server — business logic lives in PostgreSQL functions and Supabase Edge Functions (Deno/TypeScript).
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, Tailwind CSS 4 |
+| Routing | React Router v7 |
+| Backend / DB | Supabase (PostgreSQL + Auth + Storage) |
+| Automation | pg_cron, pg_net, Supabase Edge Functions |
+| Email | Resend |
+| Hosting | Vercel |
+| Rich text | Quill 2.0 |
+| SEO | React Helmet Async |
+
+---
+
+## Project Structure
+
+```
+src/
+├── contexts/           # Global state (auth, contests, user data)
+├── pages/              # 26 page components
+├── components/
+│   ├── admin/          # Contest management, polls, moderation
+│   ├── feed/           # Microhistories social feed
+│   ├── ui/             # Reusable components (Badge, UserCard, ProfileButton)
+│   └── voting/         # Voting UI and validation
+├── hooks/              # 19 custom hooks (finalization, badges, feed, reads)
+└── lib/                # Supabase client, email templates, feature flags
+```
+
+---
+
+## Database Design Highlights
+
+- `contests` + `stories` + `votes` — core contest flow
+- `user_profiles` — public stats, bio, country, social links, privacy toggle
+- `feed_prompts` + `feed_stories` + `feed_story_likes` + `feed_story_comments` — social feed
+- `user_story_reads` — per-user read tracking for fair story distribution during voting
+- `contest_automation_log` — full audit trail of scheduled jobs and email sends
+- All counters (`likes_count`, `comments_count`) maintained by DB triggers for performance
+
+---
+
+## Notable Engineering Decisions
+
+**Optimistic UI for likes** — Feed likes update instantly in the UI without waiting for the DB round-trip, then reconcile on error.
+
+**Blind voting fairness** — Vote counts are hidden during the active voting phase and revealed only after finalization, preventing popularity bias.
+
+**Idempotent auto-finalization** — The Edge Function checks `finalized_at IS NOT NULL` before processing, so manual admin closure and the scheduled job can never double-process a contest.
+
+**Badge deduplication without UNIQUE constraint** — Contest winner badges are intentionally repeatable (one per contest), so duplicate prevention uses `EXISTS()` queries instead of a DB constraint.
+
+**Read-first ordering** — During voting phase, stories a user hasn't read yet appear first. This improves discovery equity across all submissions regardless of submission time.
+
+---
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Development (connects to production DB — read-only safe)
+npm run dev:prod
+
+# Development with local Supabase
+npm run dev:local
+
+# Build
+npm run build
+
+# Lint
+npm run lint
+```
+
+Requires `.env.local` with Supabase URL + anon key (see `.env.example`).
+
+---
+
+## License
+
+Private project. All rights reserved.
