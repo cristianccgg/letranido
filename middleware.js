@@ -1,9 +1,9 @@
-// middleware.js - Edge Middleware para Open Graph meta tags en microhistorias
+// middleware.js - Edge Middleware para Open Graph meta tags
 // Se ejecuta en el edge de Vercel ANTES del rewrite a index.html
 // Solo actúa cuando el visitor es un bot de redes sociales
 
 export const config = {
-  matcher: ['/microhistoria/:id'],
+  matcher: ['/microhistoria/:id', '/story/:id'],
 };
 
 // User-agents de bots de redes sociales y scrapers OG
@@ -80,6 +80,90 @@ function buildOgHtml({ title, description, url, image, authorName }) {
 </html>`;
 }
 
+async function fetchAuthorName(supabaseUrl, supabaseKey, userId) {
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/user_profiles?id=eq.${userId}&select=display_name`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    if (!res.ok) return 'Letranido';
+    const profiles = await res.json();
+    return profiles?.[0]?.display_name || 'Letranido';
+  } catch {
+    return 'Letranido';
+  }
+}
+
+async function handleMicroStory(supabaseUrl, supabaseKey, storyId, baseUrl) {
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/feed_stories?id=eq.${storyId}&select=id,title,content,user_id`,
+    {
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  if (!res.ok) return null;
+  const stories = await res.json();
+  if (!stories?.length) return null;
+
+  const story = stories[0];
+  const authorName = await fetchAuthorName(supabaseUrl, supabaseKey, story.user_id);
+
+  const titleText = story.title || `Microhistoria de ${authorName}`;
+  const description = story.content
+    ? story.content.slice(0, 155).replace(/\n/g, ' ') + (story.content.length > 155 ? '…' : '')
+    : `Una microhistoria de ${authorName} en Letranido`;
+
+  return {
+    title: titleText,
+    description,
+    url: `${baseUrl}/microhistoria/${story.id}`,
+    image: `${baseUrl}/OG_image.png`,
+    authorName,
+  };
+}
+
+async function handleContestStory(supabaseUrl, supabaseKey, storyId, baseUrl) {
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/stories?id=eq.${storyId}&select=id,title,content,user_id`,
+    {
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  if (!res.ok) return null;
+  const stories = await res.json();
+  if (!stories?.length) return null;
+
+  const story = stories[0];
+  const authorName = await fetchAuthorName(supabaseUrl, supabaseKey, story.user_id);
+
+  const titleText = story.title || `Historia de ${authorName}`;
+  const description = story.content
+    ? story.content.slice(0, 155).replace(/\n/g, ' ') + (story.content.length > 155 ? '…' : '')
+    : `Una historia de ${authorName} en Letranido`;
+
+  return {
+    title: titleText,
+    description,
+    url: `${baseUrl}/story/${story.id}`,
+    image: `${baseUrl}/OG_image.png`,
+    authorName,
+  };
+}
+
 export default async function middleware(request) {
   const userAgent = request.headers.get('user-agent') || '';
 
@@ -90,7 +174,8 @@ export default async function middleware(request) {
 
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
-  const storyId = pathParts[pathParts.length - 1];
+  const routeType = pathParts[1]; // 'microhistoria' o 'story'
+  const storyId = pathParts[2];
 
   if (!storyId) return;
 
@@ -100,62 +185,18 @@ export default async function middleware(request) {
   if (!supabaseUrl || !supabaseKey) return;
 
   try {
-    // Cargar historia
-    const storyRes = await fetch(
-      `${supabaseUrl}/rest/v1/feed_stories?id=eq.${storyId}&select=id,title,content,user_id,word_count`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const baseUrl = 'https://www.letranido.com';
+    let ogData = null;
 
-    if (!storyRes.ok) return;
-    const stories = await storyRes.json();
-    if (!stories?.length) return;
-
-    const story = stories[0];
-
-    // Cargar nombre del autor
-    const profileRes = await fetch(
-      `${supabaseUrl}/rest/v1/user_profiles?id=eq.${story.user_id}&select=display_name`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    let authorName = 'Letranido';
-    if (profileRes.ok) {
-      const profiles = await profileRes.json();
-      if (profiles?.length) authorName = profiles[0].display_name || authorName;
+    if (routeType === 'microhistoria') {
+      ogData = await handleMicroStory(supabaseUrl, supabaseKey, storyId, baseUrl);
+    } else if (routeType === 'story') {
+      ogData = await handleContestStory(supabaseUrl, supabaseKey, storyId, baseUrl);
     }
 
-    const baseUrl = 'https://www.letranido.com';
-    const storyUrl = `${baseUrl}/microhistoria/${story.id}`;
-    const image = `${baseUrl}/OG_image.png`;
+    if (!ogData) return;
 
-    const titleText = story.title
-      ? story.title
-      : `Microhistoria de ${authorName}`;
-
-    // Descripción: primeros 155 chars del contenido
-    const description = story.content
-      ? story.content.slice(0, 155).replace(/\n/g, ' ') + (story.content.length > 155 ? '…' : '')
-      : `Una microhistoria de ${authorName} en Letranido`;
-
-    const html = buildOgHtml({
-      title: titleText,
-      description,
-      url: storyUrl,
-      image,
-      authorName,
-    });
+    const html = buildOgHtml(ogData);
 
     return new Response(html, {
       status: 200,
