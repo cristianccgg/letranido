@@ -21,6 +21,8 @@ import UserAvatar from "../ui/UserAvatar";
 import CookieBanner from "../ui/CookieBanner";
 import NotificationBell from "../ui/NotificationBell";
 import ThemeToggle from "../ui/ThemeToggle";
+import KarmaRankingsButton from "../ui/KarmaRankingsButton";
+import KarmaRankingsSidebar from "../ui/KarmaRankingsSidebar";
 import logo from "../../assets/images/letranido-logo.png";
 
 const Layout = ({ children, onFeedbackClick }) => {
@@ -52,6 +54,7 @@ const Layout = ({ children, onFeedbackClick }) => {
     showCookieBanner,
   } = useGlobalApp();
   const isLanding = location.pathname === "/";
+  const [showRankingsSidebar, setShowRankingsSidebar] = useState(false);
 
   // ✅ VERIFICACIÓN DE PARTICIPACIÓN DIRECTA - sin estado local ni useEffect
   const hasUserParticipatedInCurrent =
@@ -1036,6 +1039,20 @@ const Layout = ({ children, onFeedbackClick }) => {
           </>
         )}
       </header>
+
+      {/* Karma Rankings Button - Solo visible en landing page */}
+      {isLanding && (
+        <KarmaRankingsButton
+          isOpen={showRankingsSidebar}
+          onToggle={() => setShowRankingsSidebar(true)}
+        />
+      )}
+
+      {/* Karma Rankings Sidebar */}
+      <KarmaRankingsSidebar
+        isOpen={showRankingsSidebar}
+        onClose={() => setShowRankingsSidebar(false)}
+      />
 
       {/* Main Content */}
       <main
