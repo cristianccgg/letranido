@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Heart, MessageCircle, MoreVertical, Flag } from "lucide-react";
 import UserCardWithBadges from "../ui/UserCardWithBadges";
 import FeedStoryComments from "./FeedStoryComments";
+import SocialShareDropdown from "../ui/SocialShareDropdown";
 
 const MicroStoryCard = ({
   story,
@@ -16,6 +17,14 @@ const MicroStoryCard = ({
   const [showComments, setShowComments] = useState(false);
   const [commentsCount, setCommentsCount] = useState(story.comments_count || 0);
   const isAuthor = currentUserId === story.user_id;
+
+  const shareData = {
+    title: story.title || "Microhistoria en Letranido",
+    text: story.title
+      ? `"${story.title}" — microhistoria en Letranido`
+      : "Lee esta microhistoria en Letranido",
+    url: `${window.location.origin}/microhistoria/${story.id}`,
+  };
 
   // Formatear tiempo relativo
   const formatTimeAgo = (dateString) => {
@@ -136,6 +145,14 @@ const MicroStoryCard = ({
             <span className="text-sm font-medium">{commentsCount}</span>
           )}
         </button>
+
+        <SocialShareDropdown
+          shareData={shareData}
+          compact={true}
+          direction="up"
+          variant="story"
+          iconOnly={true}
+        />
       </div>
 
       {/* Sistema de comentarios expandible */}

@@ -54,6 +54,7 @@ const FreeStories = lazy(() => import("./pages/FreeStories"));
 const AllStories = lazy(() => import("./pages/AllStories"));
 const Support = lazy(() => import("./pages/Support"));
 const AuthorProfile = lazy(() => import("./pages/AuthorProfile"));
+const MicroStoryPage = lazy(() => import("./pages/MicroStoryPage"));
 
 // ✅ Componente interno que usa el contexto unificado
 function AppContent() {
@@ -213,6 +214,9 @@ function AppContent() {
             
             {/* ✅ RUTAS DE PERFILES PÚBLICOS */}
             <Route path="/author/:userId" element={<AuthorProfile />} />
+
+            {/* ✅ RUTA DE MICROHISTORIAS */}
+            <Route path="/microhistoria/:id" element={<MicroStoryPage />} />
 
             {/* Redirects para evitar contenido duplicado */}
             <Route

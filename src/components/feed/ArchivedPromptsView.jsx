@@ -1,6 +1,6 @@
 // components/feed/ArchivedPromptsView.jsx - Vista de prompts archivados
 import React, { useState, useEffect } from 'react';
-import { Archive, Calendar, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Archive, Calendar, FileText, ChevronDown, ChevronUp, Trophy, Heart } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import useMicroStories from '../../hooks/useMicroStories';
@@ -102,6 +102,69 @@ const ArchivedPromptsView = () => {
     }
   };
 
+  const renderStoriesWithTop = () => {
+    const medals = ['🥇', '🥈', '🥉'];
+    const top3 = [...stories]
+      .sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0))
+      .slice(0, 3)
+      .filter(s => (s.likes_count || 0) > 0);
+    const top3Ids = new Set(top3.map(s => s.id));
+    const rest = stories.filter(s => !top3Ids.has(s.id));
+
+    return (
+      <div className="space-y-4">
+        {top3.length > 0 && (
+          <div className="mb-2">
+            <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-amber-700 dark:text-amber-400">
+              <Trophy className="w-4 h-4" />
+              Más queridas
+            </div>
+            <div className="space-y-3">
+              {top3.map((story, index) => (
+                <div key={story.id} className="relative">
+                  <span className="absolute -left-1 -top-2 text-lg z-10 select-none">
+                    {medals[index]}
+                  </span>
+                  <div className="ring-2 ring-amber-300 dark:ring-amber-600 rounded-xl">
+                    <MicroStoryCard
+                      story={story}
+                      onLike={handleLike}
+                      isLiked={userLikes[story.id] || false}
+                      currentUserId={user?.id}
+                      onDelete={null}
+                      onReport={null}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {rest.length > 0 && (
+          <div>
+            {top3.length > 0 && (
+              <div className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-3 mt-4 uppercase tracking-wide">
+                Todas las historias
+              </div>
+            )}
+            {rest.map((story) => (
+              <div key={story.id} className="mb-4">
+                <MicroStoryCard
+                  story={story}
+                  onLike={handleLike}
+                  isLiked={userLikes[story.id] || false}
+                  currentUserId={user?.id}
+                  onDelete={null}
+                  onReport={null}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const formatDateRange = (startDate, endDate) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -199,20 +262,7 @@ const ArchivedPromptsView = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Cargando microhistorias...</p>
                 </div>
               ) : stories.length > 0 ? (
-                <div className="space-y-4">
-                  {stories.map((story) => (
-                    <MicroStoryCard
-                      key={story.id}
-                      story={story}
-                      onLike={handleLike}
-                      isLiked={userLikes[story.id] || false}
-                      currentUserId={user?.id}
-                      // En archivo no permitimos eliminar ni reportar
-                      onDelete={null}
-                      onReport={null}
-                    />
-                  ))}
-                </div>
+                renderStoriesWithTop()
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
                   No hay microhistorias para este prompt

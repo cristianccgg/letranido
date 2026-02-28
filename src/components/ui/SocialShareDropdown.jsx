@@ -7,14 +7,15 @@ import {
   X
 } from "lucide-react";
 
-const SocialShareDropdown = ({ 
-  shareData, 
-  className = "", 
+const SocialShareDropdown = ({
+  shareData,
+  className = "",
   size = "default",
   variant = "story", // "story" o "contest"
   compact = false, // Nueva prop para versión compacta
   direction = "up", // "up", "down", "left"
-  minimal = false // Nueva prop para versión sin header
+  minimal = false, // Nueva prop para versión sin header
+  iconOnly = false // Solo ícono, sin texto ni fondo (para usar inline con otros iconos)
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -117,31 +118,41 @@ const SocialShareDropdown = ({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Trigger Button */}
-      <button
-        onClick={() => {
-          console.log('Toggle dropdown:', !isOpen);
-          setIsOpen(!isOpen);
-        }}
-        className={`${buttonSizes[size]} ${
-          copied
-            ? "bg-green-500 hover:bg-green-600 text-white"
-            : "bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:scale-105 transition-all duration-300 ease-in-out"
-        } rounded-lg flex items-center gap-2 cursor-pointer border border-blue-200 dark:border-blue-700`}
-        title={copied ? "¡Enlace copiado!" : `Compartir ${variant === "story" ? "historia" : "reto"} en redes sociales`}
-      >
-        {copied ? (
-          <>
-            <CheckCircle className={iconSizes[size]} />
-            <span>¡Copiado!</span>
-          </>
-        ) : (
-          <>
-            <Share2 className={iconSizes[size]} />
-            <span>Compartir</span>
-            <ChevronDown className={`${iconSizes[size]} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-          </>
-        )}
-      </button>
+      {iconOnly ? (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
+          title="Compartir"
+        >
+          <Share2 className="w-5 h-5" />
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            console.log('Toggle dropdown:', !isOpen);
+            setIsOpen(!isOpen);
+          }}
+          className={`${buttonSizes[size]} ${
+            copied
+              ? "bg-green-500 hover:bg-green-600 text-white"
+              : "bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:scale-105 transition-all duration-300 ease-in-out"
+          } rounded-lg flex items-center gap-2 cursor-pointer border border-blue-200 dark:border-blue-700`}
+          title={copied ? "¡Enlace copiado!" : `Compartir ${variant === "story" ? "historia" : "reto"} en redes sociales`}
+        >
+          {copied ? (
+            <>
+              <CheckCircle className={iconSizes[size]} />
+              <span>¡Copiado!</span>
+            </>
+          ) : (
+            <>
+              <Share2 className={iconSizes[size]} />
+              <span>Compartir</span>
+              <ChevronDown className={`${iconSizes[size]} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </>
+          )}
+        </button>
+      )}
 
       {/* Dropdown Menu - Adaptive Layout */}
       {isOpen && (

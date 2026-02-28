@@ -9,6 +9,8 @@ import {
   Globe,
   ArrowLeft,
   Lock,
+  Zap,
+  MessageCircle,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import UserAvatar from "../components/ui/UserAvatar";
@@ -29,6 +31,8 @@ const AuthorProfile = () => {
   const [storiesLoading, setStoriesLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("newest"); // newest, oldest, popular
+  const [microStories, setMicroStories] = useState([]);
+  const [microStoriesLoading, setMicroStoriesLoading] = useState(true);
 
   // Función para limpiar tags HTML del texto
   const stripHtmlTags = (text) => {
@@ -95,7 +99,10 @@ const AuthorProfile = () => {
       // Note: Los perfiles públicos siempre se pueden ver, pero con información limitada según configuración de privacidad
 
       setAuthor(profile);
-      await loadAuthorStories(profile.id);
+      await Promise.all([
+        loadAuthorStories(profile.id),
+        loadMicroStories(profile.id),
+      ]);
     } catch (err) {
       console.error("Error cargando perfil del autor:", err);
       setError("Error al cargar el perfil del autor");
@@ -194,6 +201,25 @@ const AuthorProfile = () => {
       setAuthorStories([]);
     } finally {
       setStoriesLoading(false);
+    }
+  };
+
+  const loadMicroStories = async (authorId) => {
+    try {
+      setMicroStoriesLoading(true);
+      const { data, error } = await supabase
+        .from("feed_stories")
+        .select("id, title, content, word_count, likes_count, comments_count, created_at, prompt_id")
+        .eq("user_id", authorId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setMicroStories(data || []);
+    } catch (err) {
+      console.error("Error cargando microhistorias:", err);
+      setMicroStories([]);
+    } finally {
+      setMicroStoriesLoading(false);
     }
   };
 
@@ -680,6 +706,97 @@ const AuthorProfile = () => {
             )}
           </div>
         </div>
+        {/* Sección de microhistorias */}
+        {(microStoriesLoading || microStories.length > 0) && (
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+              <div className="flex items-center gap-3">
+                <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Microhistorias
+                  {!microStoriesLoading && (
+                    <span className="ml-2 text-lg font-normal text-gray-500 dark:text-gray-400">
+                      ({microStories.length})
+                    </span>
+                  )}
+                </h2>
+              </div>
+              {!microStoriesLoading && microStories.length > 0 && (
+                <div className="flex gap-4 mt-3 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    {microStories.reduce((sum, s) => sum + (s.likes_count || 0), 0)} likes
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4 text-blue-400" />
+                    {microStories.reduce((sum, s) => sum + (s.comments_count || 0), 0)} comentarios
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6">
+              {microStoriesLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="animate-pulse h-24 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {microStories.map((story) => (
+                    <Link
+                      key={story.id}
+                      to={`/microhistoria/${story.id}`}
+                      className="group block border border-purple-100 dark:border-purple-900/40 rounded-xl p-4 hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all bg-white dark:bg-gray-800/50"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        {story.title ? (
+                          <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                            {story.title}
+                          </h3>
+                        ) : (
+                          <p className="text-gray-700 dark:text-gray-300 line-clamp-1 text-sm italic">
+                            {story.content.slice(0, 80)}…
+                          </p>
+                        )}
+                        <span className="flex-shrink-0 ml-3 text-xs text-gray-400 dark:text-gray-500">
+                          {story.word_count} palabras
+                        </span>
+                      </div>
+
+                      {story.title && (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+                          {story.content.slice(0, 120)}…
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Heart className="w-3.5 h-3.5 text-red-400" />
+                            {story.likes_count || 0}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MessageCircle className="w-3.5 h-3.5 text-blue-400" />
+                            {story.comments_count || 0}
+                          </span>
+                        </div>
+                        <time dateTime={story.created_at}>
+                          {new Date(story.created_at).toLocaleDateString("es-ES", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </time>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
