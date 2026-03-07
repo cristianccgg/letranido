@@ -184,15 +184,25 @@ const FeedAdminPanel = () => {
       new Date(p.end_date) > new Date(latest.end_date) ? p : latest
     );
 
-    // Día siguiente al end_date del último prompt
-    const nextStart = new Date(latestPrompt.end_date);
-    nextStart.setDate(nextStart.getDate() + 1);
+    // Convertir end_date a fecha Colombia (UTC-5) para mostrar la fecha correcta al admin
+    // end_date en BD: "2026-03-08T04:59:59Z" = 7 de marzo 23:59 Colombia
+    const endDateColombia = new Date(latestPrompt.end_date).toLocaleDateString('en-CA', {
+      timeZone: 'America/Bogota'
+    }); // "2026-03-07"
+    const [year, month, day] = endDateColombia.split('-').map(Number);
+
+    // Día siguiente al end_date en Colombia
+    const nextStart = new Date(year, month - 1, day + 1);
 
     // 7 días después del inicio
-    const nextEnd = new Date(nextStart);
-    nextEnd.setDate(nextEnd.getDate() + 6);
+    const nextEnd = new Date(year, month - 1, day + 7);
 
-    const formatForInput = (date) => date.toISOString().split('T')[0];
+    const formatForInput = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
 
     return {
       start_date: formatForInput(nextStart),
@@ -242,13 +252,14 @@ const FeedAdminPanel = () => {
     );
   };
 
-  // Formatear fecha
+  // Formatear fecha mostrando la hora en Colombia (UTC-5)
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-CO', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'America/Bogota'
     });
   };
 
