@@ -785,7 +785,9 @@ const LandingPage = () => {
                   <span
                     className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}
                   >
-                    práctica libre · sin votación
+                    {feedTimeLeft && activeTab !== "semanal"
+                      ? `⏳ cierra en ${feedTimeLeft}`
+                      : "práctica libre · sin votación"}
                   </span>
                   {activeTab !== "semanal" && (
                     <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
