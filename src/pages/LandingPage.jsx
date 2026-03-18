@@ -255,7 +255,7 @@ const LandingPage = () => {
     };
 
     loadUserLikes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, activePrompt?.id, stories.length]);
 
   // ✅ Las estadísticas ahora se calculan automáticamente desde statsFromContext
