@@ -98,12 +98,12 @@ BEGIN
     format(
       $cmd$
       SELECT net.http_post(
-        url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/auto-finalize-contest',
+        url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/auto-finalize-contest',
+        body    := %L::jsonb,
         headers := jsonb_build_object(
           'Content-Type', 'application/json',
           'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-        ),
-        body := %L::BYTEA
+        )
       );
       $cmd$,
       jsonb_build_object('contestId', p_contest_id)::TEXT
@@ -153,12 +153,12 @@ BEGIN
       format(
         $cmd$
         SELECT net.http_post(
-          url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          body    := %L::jsonb,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
             'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-          ),
-          body := %L::BYTEA
+          )
         );
         $cmd$,
         jsonb_build_object('emailType', 'new_contest', 'contestId', p_contest_id)::TEXT
@@ -178,12 +178,12 @@ BEGIN
       format(
         $cmd$
         SELECT net.http_post(
-          url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          body    := %L::jsonb,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
             'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-          ),
-          body := %L::BYTEA
+          )
         );
         $cmd$,
         jsonb_build_object('emailType', 'submission_reminder', 'contestId', p_contest_id)::TEXT
@@ -203,12 +203,12 @@ BEGIN
       format(
         $cmd$
         SELECT net.http_post(
-          url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          body    := %L::jsonb,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
             'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-          ),
-          body := %L::BYTEA
+          )
         );
         $cmd$,
         jsonb_build_object('emailType', 'submission_reminder', 'contestId', p_contest_id)::TEXT
@@ -228,12 +228,12 @@ BEGIN
       format(
         $cmd$
         SELECT net.http_post(
-          url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          body    := %L::jsonb,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
             'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-          ),
-          body := %L::BYTEA
+          )
         );
         $cmd$,
         jsonb_build_object('emailType', 'voting_started', 'contestId', p_contest_id)::TEXT
@@ -253,12 +253,12 @@ BEGIN
       format(
         $cmd$
         SELECT net.http_post(
-          url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          url     := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'supabase_url') || '/functions/v1/send-scheduled-email',
+          body    := %L::jsonb,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
             'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'service_role_key')
-          ),
-          body := %L::BYTEA
+          )
         );
         $cmd$,
         jsonb_build_object('emailType', 'voting_reminder', 'contestId', p_contest_id)::TEXT
