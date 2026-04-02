@@ -31,13 +31,9 @@ serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  // NOTA: SUPABASE_SERVICE_ROLE_KEY es un secret reservado con valor incorrecto en este proyecto.
-  // Usar SERVICE_ROLE_KEY (secret custom) como fallback.
-  const serviceRoleKey =
-    Deno.env.get("SERVICE_ROLE_KEY") ||
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
-    "";
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const serviceRoleKey = Deno.env.get("SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
   try {
     const { emailType, contestId } = await req.json();
@@ -103,6 +99,7 @@ serve(async (req) => {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${serviceRoleKey}`,
+          "x-internal-call": "true",
         },
         body: JSON.stringify({ emailType, contestId, emailMode }),
       }

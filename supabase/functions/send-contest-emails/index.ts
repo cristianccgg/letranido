@@ -44,13 +44,19 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client usando JWT del admin que hace el request
+    // Initialize Supabase client
+    // Si viene del sistema interno (x-internal-call), usar service role para bypassear RLS
+    // Si viene del admin frontend, usar su JWT para respetar RLS
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const serviceRoleKey = Deno.env.get("SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const isInternalCall = req.headers.get("x-internal-call") === "true";
     const authHeader = req.headers.get("Authorization") ?? "";
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const supabaseClient = isInternalCall
+      ? createClient(supabaseUrl, serviceRoleKey)
+      : createClient(supabaseUrl, supabaseAnonKey, {
+          global: { headers: { Authorization: authHeader } },
+        });
 
     // Get request data
     const { emailType, contestId, subject, htmlContent, textContent, email, preview, emailMode, countOnly, batchLimit, batchOffset, batchNumber }: EmailRequest = await req.json();
