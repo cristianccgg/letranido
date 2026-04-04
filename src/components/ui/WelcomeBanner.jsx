@@ -6,7 +6,7 @@ const WelcomeBanner = ({ lastContestWinners }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   // Se muestra automáticamente si hay un reto finalizado con ganadores
-  const month = lastContestWinners?.contest?.month;
+  const month = lastContestWinners?.contest?.month || "Marzo";
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -23,8 +23,8 @@ const WelcomeBanner = ({ lastContestWinners }) => {
     }
   };
 
-  // No mostrar si no hay reto finalizado o ha sido cerrado
-  if (!isVisible || !month) return null;
+  // No mostrar si ha sido cerrado
+  if (!isVisible) return null;
 
   return (
     <div className="bg-linear-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
@@ -36,11 +36,11 @@ const WelcomeBanner = ({ lastContestWinners }) => {
               <p className="text-xs sm:text-base font-medium">
                 <span className="hidden sm:flex items-center gap-2">
                   <Sparkles className="h-4 w-4 shrink-0" />
-                  ¡Descubre las historias destacadas de {month}!
+                  ✨ ¡Ya están las historias destacadas de {month}!
                 </span>
                 <span className="sm:hidden flex items-center gap-2">
                   <Sparkles className="h-3 w-3 shrink-0" />
-                  Historias destacadas de {month}
+                  ✨ Historias destacadas de {month}
                 </span>
               </p>
             </div>
@@ -54,7 +54,7 @@ const WelcomeBanner = ({ lastContestWinners }) => {
               className="inline-flex cursor-pointer items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-white/20 hover:bg-white/30 rounded-full transition-all duration-200 hover:scale-105 backdrop-blur-sm"
             >
               <span className="hidden sm:inline">Ver Historias Destacadas</span>
-              <span className="sm:hidden">Ver Historias</span>
+              <span className="sm:hidden">Ver Destacadas</span>
             </button>
 
             {/* Botón cerrar */}
