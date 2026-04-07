@@ -9,7 +9,7 @@ const BlogUnderConstruction = () => {
       <SEOHead
         title="Blog en Construcción - Letranido"
         description="Nuestro blog de recursos para escritores estará disponible muy pronto. Mientras tanto, explora nuestras guías de escritura."
-        url="/recursos/blog"
+        url="/blog"
       />
 
       <div className="max-w-4xl mx-auto px-4 py-16">

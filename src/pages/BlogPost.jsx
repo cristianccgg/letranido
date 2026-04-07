@@ -20,7 +20,7 @@ const BlogPost = () => {
 
   // If post not found, redirect to blog
   if (!post) {
-    return <Navigate to="/recursos/blog" replace />;
+    return <Navigate to="/blog" replace />;
   }
 
   const formatDate = (dateString) => {
@@ -163,8 +163,8 @@ const BlogPost = () => {
             ? `https://letranido.com${post.image}`
             : `https://letranido.com/letranido-og.png`
         }
-        url={`/recursos/blog/${post.slug}`}
-        canonicalUrl={`https://letranido.com/recursos/blog/${post.slug}`}
+        url={`/blog/${post.slug}`}
+        canonicalUrl={`https://www.letranido.com/blog/${post.slug}`}
         type="article"
         publishedTime={post.publishedAt}
         modifiedTime={post.updatedAt || post.publishedAt}
@@ -199,10 +199,10 @@ const BlogPost = () => {
           wordCount: Math.round(post.content.length / 6),
           articleSection: categoryData?.name || "Recursos",
           keywords: post.tags.join(", "),
-          url: `https://letranido.com/recursos/blog/${post.slug}`,
+          url: `https://www.letranido.com/blog/${post.slug}`,
           mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `https://letranido.com/recursos/blog/${post.slug}`,
+            "@id": `https://www.letranido.com/blog/${post.slug}`,
           },
           about: {
             "@type": "Thing",
@@ -217,7 +217,7 @@ const BlogPost = () => {
           {/* Navigation */}
           <div className="mb-8">
             <Link
-              to="/recursos/blog"
+              to="/blog"
               className="inline-flex items-center text-indigo-600 hover:text-indigo-800 dark:text-indigo-200 dark:hover:text-indigo-100 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -452,7 +452,7 @@ const BlogPost = () => {
                   .map((relatedPost) => (
                     <Link
                       key={relatedPost.id}
-                      to={`/recursos/blog/${relatedPost.slug}`}
+                      to={`/blog/${relatedPost.slug}`}
                       className="group bg-white/20 dark:bg-dark-800 backdrop-blur-md rounded-xl shadow-lg border border-white/30 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
                     >
                       <div className="p-6">

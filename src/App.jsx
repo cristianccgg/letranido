@@ -4,7 +4,13 @@ import {
   Routes,
   Route,
   Navigate,
+  useParams,
 } from "react-router-dom";
+
+const RedirectBlogPost = () => {
+  const { postId } = useParams();
+  return <Navigate to={`/blog/${postId}`} replace />;
+};
 
 import { lazy, Suspense, useState, useEffect } from "react";
 import { GlobalAppProvider, useGlobalApp } from "./contexts/GlobalAppContext";
@@ -289,7 +295,7 @@ function AppContent() {
             />
             <Route
               path="/recursos/blog/:postId"
-              element={<Navigate to="/blog/:postId" replace />}
+              element={<RedirectBlogPost />}
             />
 
             {/* Premium Plans - Solo visible en desarrollo */}

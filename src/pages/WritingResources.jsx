@@ -424,7 +424,7 @@ const WritingResources = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/recursos/blog"
+                to="/blog"
                 className="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 <BookOpen className="h-5 w-5 mr-3" />
