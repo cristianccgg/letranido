@@ -488,7 +488,7 @@ const StoryPage = () => {
         }
         keywords={`${story?.title?.split(" ").slice(0, 3).join(", ") || "historia"}, ${story?.contest?.title || "escritura creativa"}, ${story?.author?.display_name || "autor"}, reto literario, ficción, letranido`}
         url={`/story/${id}`}
-        canonicalUrl={`https://letranido.com/story/${id}`}
+        canonicalUrl={`https://www.letranido.com/story/${id}`}
         type="article"
         author={story?.author?.display_name}
         publishedTime={story?.created_at}
