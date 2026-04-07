@@ -1908,6 +1908,394 @@ Para repasar el proceso completo desde la idea inicial, visita nuestra [guía pa
     featured: false,
     published: false,
   },
+
+  {
+    id: "fundamentos-escritura-creativa",
+    title: "Fundamentos de Escritura Creativa: Personajes, Estructura y Voz Narrativa",
+    slug: "fundamentos-escritura-creativa",
+    excerpt:
+      "Aprende las bases sólidas de la escritura creativa: cómo crear personajes memorables, usar la estructura de tres actos, aplicar el 'show don't tell' y elegir el punto de vista correcto para tu historia.",
+    content: `
+# Fundamentos de Escritura Creativa: Personajes, Estructura y Voz Narrativa
+
+Si estás comenzando tu camino como escritor o quieres reforzar las bases, estos fundamentos te darán las herramientas esenciales para construir historias sólidas y memorables.
+
+## Cómo Crear Personajes Memorables
+
+Los personajes son el corazón de cualquier historia. Un lector puede olvidar la trama, pero jamás olvida a un personaje que lo impactó.
+
+### Técnicas clave para crear personajes que conecten
+
+**Dale a cada personaje una motivación clara y específica.** No basta con que tu protagonista "quiera ser feliz". ¿Qué necesita exactamente? ¿Recuperar a su familia? ¿Demostrar que se equivocaron con él? Cuanto más específica la motivación, más creíble el personaje.
+
+**Crea contradicciones internas que los hagan humanos.** Los personajes planos son perfectos o perfectamente malvados. Los personajes reales son valientes pero cobardes en ciertos momentos, generosos pero egoístas en otros. Esas contradicciones los hacen humanos.
+
+**Desarrolla un pasado que explique sus acciones presentes.** No necesitas contarlo todo, pero tú debes saber qué le pasó a tu personaje antes de que comience la historia. Ese bagaje invisible guía sus decisiones.
+
+**Asigna manías, gestos y formas de hablar únicas.** ¿Siempre toca su anillo cuando está nervioso? ¿Habla en frases cortas? ¿Usa un vocabulario muy formal aunque sea joven? Estos detalles pequeños dan vida.
+
+**Haz que evolucionen a lo largo de la historia.** Al final, tu personaje debe ser diferente al del principio. El cambio (o la negativa a cambiar) es el núcleo del arco narrativo.
+
+---
+
+## Estructura Narrativa: Los Tres Actos
+
+El esquema clásico de tres actos no es una fórmula rígida, sino un mapa que funciona en casi cualquier género literario porque refleja cómo los seres humanos percibimos los conflictos.
+
+### Cómo funciona la estructura de tres actos
+
+**Acto I (25% de la historia):** Presenta el mundo, los personajes y el conflicto principal. El lector debe entender qué está en juego y con quién va a pasar las próximas horas.
+
+**Punto de giro 1:** El momento que lanza la historia real. Algo ocurre que obliga al protagonista a actuar. Ya no puede volver a la vida normal.
+
+**Acto II (50% de la historia):** El desarrollo del conflicto. Los obstáculos crecen, el protagonista falla, aprende y vuelve a intentarlo. Es la parte más larga y la que más escritores abandona. La clave es el **punto medio**: una revelación o giro que cambia las reglas del juego.
+
+**Acto III (25% de la historia):** El clímax, donde todo lo aprendido se pone a prueba. Luego la resolución y una conclusión que deje al lector satisfecho (aunque no necesariamente feliz).
+
+> En Letranido practicamos esta estructura cada mes en los [retos de escritura](/contest/current). Enviar una historia con límite de palabras te obliga a dominarla.
+
+---
+
+## Show, Don't Tell: La Regla de Oro
+
+"Muestra, no cuentes" es el consejo más repetido en talleres de escritura, y por buena razón: la diferencia entre una historia que se siente viva y una que se siente como un resumen está aquí.
+
+### Cómo aplicar el show don't tell
+
+**En lugar de "Juan estaba nervioso", describe sus manos sudorosas, cómo repasa mentalmente lo que va a decir, cómo su voz sale más aguda de lo normal.**
+
+**Usa el entorno para reflejar el estado emocional.** Una escena de ruptura en un día soleado y luminoso puede ser más poderosa que en lluvia: el contraste duele más.
+
+**Deja que las acciones revelen la personalidad.** Un personaje generoso no necesita que el narrador lo diga: basta con que le dé su última moneda a alguien que le pidió ayuda.
+
+**Utiliza el diálogo para mostrar relaciones y conflictos.** Cómo dos personajes se hablan dice más sobre su relación que cualquier descripción.
+
+**Confía en la inteligencia de tus lectores.** No necesitas explicar todo. Si describes bien la situación, el lector llegará solo a la conclusión emocional correcta.
+
+---
+
+## Punto de Vista y Voz Narrativa
+
+Elegir el punto de vista equivocado puede arruinar una historia bien construida. Esta decisión define qué información tiene el lector y cómo la recibe.
+
+### Los tres puntos de vista principales
+
+**Primera persona ("yo"):** Máxima intimidad con el protagonista, pero el lector solo sabe lo que el narrador sabe. Ideal para historias muy internas o con narradores poco confiables. *Riesgo: puede volverse claustrofóbico.*
+
+**Tercera persona limitada ("él/ella", perspectiva de un personaje):** El balance perfecto entre intimidad y flexibilidad. El narrador sigue a un personaje pero puede describir el entorno con más distancia. Es el punto de vista más usado en ficción contemporánea.
+
+**Tercera persona omnisciente:** El narrador lo sabe todo y puede entrar en la cabeza de cualquier personaje. Funciona bien en narrativa épica, pero mal manejado crea el efecto "saltar cabezas" que desorienta al lector.
+
+### Regla crítica
+
+**Mantén consistente el punto de vista elegido.** Cambiar de perspectiva sin aviso es uno de los errores más comunes. Si empezaste en la cabeza de Ana, no saltes a la de Pedro sin una separación clara (salto de línea, cambio de capítulo).
+
+---
+
+## Manejo del Tiempo Narrativo
+
+El tiempo es una de las herramientas más poderosas del escritor. Puedes acelerar décadas en una oración o dedicar cinco páginas a un minuto de pánico.
+
+**Usa flashbacks solo cuando agreguen información crucial** que el lector necesita en ese momento. Un flashback que puede esperar, sobra.
+
+**Marca claramente los cambios temporales.** "Tres años antes", "aquella tarde de octubre", "mientras tanto" son señales que orientan al lector.
+
+**Alterna entre escenas rápidas y lentas para crear ritmo.** Una escena de acción contada en frases cortas y rápidas. Un momento de reflexión en párrafos más largos y pausados. El contraste crea tensión.
+
+**Los saltos temporales deben servir a la historia, no confundir.** Si tu lector tiene que volver páginas atrás para entender en qué momento está, algo falló.
+
+---
+
+## Construcción de Mundos Convincentes
+
+El worldbuilding no es solo para ciencia ficción o fantasía. Toda historia transcurre en un mundo que el escritor debe conocer mejor que el lector.
+
+**Establece las reglas de tu mundo y respétalas.** Si en tu historia los teléfonos no funcionan después de medianoche, esa regla no puede romperse por conveniencia del plot.
+
+**No hagas info-dumping.** No pares la historia para explicar la historia del mundo. Revela el contexto gradualmente, cuando sea relevante.
+
+**Cada detalle debe servir a la historia.** Describir la arquitectura de una ciudad está bien si esa arquitectura importa. Si no importa, sobra.
+
+**Menos es más: sugiere más de lo que explicas.** Los mundos más ricos son los que se sienten infinitamente grandes aunque solo veas una esquina de ellos.
+
+---
+
+## Practica Estos Fundamentos
+
+La mejor forma de internalizar estos fundamentos es escribir constantemente. En Letranido publicamos un [reto mensual de escritura](/contest/current) donde puedes aplicar todo lo aprendido y recibir votos de la comunidad.
+
+También puedes explorar [otros recursos del blog](/blog) para seguir profundizando en técnicas específicas.
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-04-07",
+    readTime: "10 min",
+    category: "tecnicas",
+    tags: [
+      "fundamentos escritura creativa",
+      "cómo crear personajes",
+      "estructura narrativa tres actos",
+      "show don't tell",
+      "punto de vista narrativo",
+      "voz narrativa",
+      "técnicas de escritura",
+      "escritura creativa",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: true,
+    published: true,
+  },
+
+  {
+    id: "proceso-escritura-productividad",
+    title: "Proceso de Escritura: Cómo Superar el Bloqueo, Crear Rutinas y Editar tu Texto",
+    slug: "proceso-escritura-productividad",
+    excerpt:
+      "Guía práctica sobre el proceso de escritura: técnicas para superar el bloqueo del escritor, establecer rutinas efectivas, encontrar inspiración y editar tus textos como un profesional.",
+    content: `
+# Proceso de Escritura: Cómo Superar el Bloqueo, Crear Rutinas y Editar tu Texto
+
+Saber técnicas narrativas es solo la mitad del camino. La otra mitad es sentarse a escribir de forma constante, superar los días difíciles y saber qué hacer con el texto cuando ya está escrito.
+
+## Superar el Bloqueo del Escritor
+
+El bloqueo del escritor no es falta de talento. Es miedo, perfeccionismo o agotamiento disfrazado de "no tengo ideas". Aquí van estrategias que funcionan:
+
+**Escribe mal antes que no escribir nada.** El primer borrador no tiene que ser bueno. Tiene que existir. Un texto mediocre se puede mejorar; una página en blanco no.
+
+**Cambia de ambiente o herramienta de escritura.** Si siempre escribes en tu computador, prueba con cuaderno y pluma. Si siempre escribes en casa, ve a una cafetería. El cambio de estímulos desbloquea la mente.
+
+**Escribe sobre por qué no puedes escribir.** Suena extraño, pero funciona. "Hoy no puedo escribir porque tengo miedo de que esto sea malo y..." A menudo, en esa frase aparece lo que realmente quieres escribir.
+
+**Vuelve a leer lo último que escribiste.** A veces el bloqueo es que perdiste el hilo. Releer te devuelve al mundo de la historia y el impulso llega solo.
+
+**Fija metas pequeñas y alcanzables.** No "hoy escribo un capítulo". Hoy escribes 100 palabras. Solo 100. Casi siempre escribirás más, pero quitarle presión a la meta lo hace posible.
+
+---
+
+## Rutinas de Escritura Efectivas
+
+Los escritores más prolíficos no esperan la inspiración. La citan a la misma hora todos los días.
+
+**Escribe a la misma hora cada día.** El cerebro aprende que a esa hora escribe. Con el tiempo, la resistencia disminuye y las palabras fluyen más fácil. No importa si es 6 AM o 11 PM, lo que importa es la consistencia.
+
+**Crea un espacio dedicado solo a escribir.** No tiene que ser una oficina. Puede ser un rincón específico del sofá, con los mismos auriculares, la misma taza. El ritual espacial le dice al cerebro: "es hora de crear".
+
+**Establece metas de tiempo, no solo de palabras.** "Escribo 30 minutos" es más sostenible que "escribo 500 palabras". El tiempo es controlable; las palabras, no siempre.
+
+**Apaga las distracciones.** Teléfono en silencio, notificaciones desactivadas, redes sociales bloqueadas. La escritura exige presencia total. Incluso 20 minutos de escritura concentrada superan a 2 horas de escritura fragmentada.
+
+**Celebra los pequeños logros diarios.** Terminaste la escena difícil. Escribiste aunque no querías. Llegaste a tu meta de palabras. Esos logros merecen reconocimiento: son los ladrillos de tu hábito de escritura.
+
+---
+
+## Generadores de Ideas para Historias
+
+La inspiración no llega esperando. Llega cuando estás activo, observando, preguntando.
+
+**Combina dos noticias aleatorias del periódico.** Toma la primera noticia y la última del día. ¿Qué historia conecta esos dos mundos?
+
+**Pregúntate "¿qué pasaría si...?" sobre situaciones cotidianas.** ¿Qué pasaría si el vecino que saluda cada mañana fuera en realidad...? Esta pregunta es el motor de casi toda la ficción especulativa.
+
+**Observa a personas desconocidas e imagina sus historias.** En una cafetería, en el metro, en una fila. ¿De dónde vienen? ¿A dónde van? ¿Qué llevan cargando emocionalmente?
+
+**Lleva siempre algo donde anotar ideas.** Las mejores ideas llegan en los momentos más inconvenientes. En la ducha, manejando, antes de dormir. Si no las anotas, desaparecen.
+
+**Lee géneros diferentes a los que escribes.** Si escribes romance, lee thriller. Si escribes fantasía, lee realismo mágico latinoamericano. Las ideas más frescas vienen de cruzar géneros.
+
+---
+
+## Ejercicios de Escritura Diarios
+
+Estos ejercicios cortos mantienen activa tu creatividad aunque no estés trabajando en un proyecto grande:
+
+- **Escribe 250 palabras sobre un objeto en tu habitación.** No lo describas: dale historia, dueños anteriores, secretos.
+- **Describe el mismo lugar desde 3 puntos de vista diferentes.** Una plaza vista por un niño, un anciano y alguien que acaba de recibir una mala noticia.
+- **Reescribe un cuento de hadas en la actualidad.** Caperucita en un barrio urbano. La Cenicienta en una startup.
+- **Escribe un diálogo sin usar verbos de diálogo.** Sin "dijo", "respondió", "preguntó". Solo lo que dicen y lo que hacen.
+- **Cuenta una historia completa en exactamente 55 palabras.** Este ejercicio enseña más sobre estructura que muchos libros.
+
+> En Letranido practicamos la escritura bajo límites cada mes. Los [retos mensuales](/contest/current) son el ejercicio perfecto para aplicar estas técnicas con una audiencia real.
+
+---
+
+## Revisión y Edición Profesional
+
+El primer borrador siempre puede mejorar. La edición es donde la escritura se convierte en arte.
+
+**Deja reposar el texto antes de revisar.** Al menos un día. Idealmente una semana. La distancia temporal te permite leer lo que escribiste, no lo que crees que escribiste.
+
+**Lee en voz alta para detectar problemas de ritmo.** Si te trabas al leer, el lector también se trabará. Si suena raro dicho en voz alta, hay que reescribir.
+
+**Revisa primero la estructura, luego los detalles.** No corrijas la coma de una frase que vas a eliminar. Primero asegúrate de que cada escena es necesaria, de que el arco está completo, de que el ritmo funciona. Luego ve a los detalles.
+
+**Elimina palabras innecesarias sin piedad.** "Muy", "bastante", "realmente", "que era", "el hecho de que". Cada palabra que no agrega, quita. La prosa apretada es más poderosa que la prosa inflada.
+
+**Cada frase debe avanzar la historia o desarrollar personajes.** Si una frase no hace ninguna de las dos cosas, probablemente sobra.
+
+---
+
+## Cómo Dar y Recibir Feedback
+
+La escritura no se hace en aislamiento. El feedback es la herramienta más valiosa para crecer.
+
+### Dar feedback constructivo
+
+- Siempre menciona algo que funciona bien primero
+- Sé específico en tus observaciones: no "no me convenció el final" sino "el final me dejó con la sensación de que el conflicto central no se resolvió"
+- Enfócate en el texto, no en el escritor
+- Sugiere soluciones, no solo problemas
+- Usa "yo como lector sentí..." en lugar de "esto está mal"
+
+### Recibir críticas sin desanimarse
+
+- Escucha sin defenderte inmediatamente. La primera reacción casi siempre es defensiva; espera.
+- Busca patrones en las críticas de diferentes lectores. Si tres personas señalan lo mismo, hay algo ahí.
+- No todos los consejos son apropiados para tu historia. Tú conoces tu texto mejor que nadie.
+- Agradece el tiempo que invirtieron en leer. Leer con atención crítica es un regalo.
+- Usa las críticas para mejorar, no para desanimarte. El feedback duele porque te importa. Eso es bueno.
+
+---
+
+## Empieza Hoy
+
+El mejor momento para escribir es ahora. No cuando tengas más tiempo, más inspiración o más confianza. Ahora, con lo que tienes.
+
+Únete a la comunidad de [Letranido](/contest/current) y practica con escritores que están en el mismo camino que tú.
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-04-07",
+    readTime: "9 min",
+    category: "tecnicas",
+    tags: [
+      "bloqueo del escritor",
+      "rutinas de escritura",
+      "cómo editar un texto",
+      "proceso de escritura",
+      "productividad escritor",
+      "inspiración para escribir",
+      "ejercicios de escritura",
+      "escritura creativa",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: false,
+    published: true,
+  },
+
+  {
+    id: "como-escribir-diferentes-generos",
+    title: "Cómo Escribir en Diferentes Géneros: Thriller, Romance, Ciencia Ficción y Más",
+    slug: "como-escribir-diferentes-generos",
+    excerpt:
+      "Guía especializada para escribir en los géneros más populares: thriller con tensión real, romance creíble, ciencia ficción humana. Técnicas específicas para cada estilo narrativo.",
+    content: `
+# Cómo Escribir en Diferentes Géneros: Thriller, Romance, Ciencia Ficción y Más
+
+Cada género literario tiene sus propias convenciones, expectativas y técnicas. Conocerlas no limita tu creatividad: te da las herramientas para usarlas o romperlas con intención.
+
+## Tensión y Suspense en el Thriller
+
+El thriller es el género de la anticipación. El lector debe sentir que algo va a pasar, que el peligro está cerca, que el tiempo se acaba.
+
+### Cómo construir tensión real
+
+**Alterna entre revelación y ocultación de información.** La tensión vive en el espacio entre lo que el lector sabe y lo que no sabe. Si revelas todo, no hay misterio. Si no revelas nada, no hay conexión. El arte está en dosificar.
+
+**Usa deadlines y consecuencias claras.** "Si no encuentra la evidencia antes del amanecer, la acusarán a ella." Los límites de tiempo crean urgencia. Las consecuencias claras hacen que el lector entienda qué está en juego.
+
+**Cada capítulo debe terminar con una pregunta.** No necesariamente un cliffhanger dramático, pero sí algo sin resolver que obligue al lector a seguir. Una pregunta sobre un personaje, una amenaza que no se concretó, una revelación a medias.
+
+**Planta pistas pero no reveles todo de inmediato.** Las mejores historias de suspense funcionan de atrás hacia adelante: el autor sabe el final y planta las pistas en el camino. El lector, en la relectura, las ve todas.
+
+**La tensión se construye con lo que NO dices.** El silencio de un personaje puede ser más aterrador que su grito. Lo que está fuera de campo asusta más que lo que se muestra.
+
+---
+
+## Romance Creíble y Emotivo
+
+El romance malo es el romance apresurado. Dos personajes se miran y se enamoran en una página. El romance bueno construye la atracción con paciencia y honestidad.
+
+### Cómo escribir relaciones amorosas que conecten
+
+**Desarrolla la atracción gradualmente, no instantáneamente.** El "amor a primera vista" puede existir, pero el lector necesita ver por qué. ¿Qué específicamente de ese personaje atrae al otro? La atracción debe ser concreta, no mágica.
+
+**Crea conflictos reales, no malentendidos forzados.** El peor recurso del romance es el conflicto que se resuelve con una conversación de cinco minutos. Si tus personajes no se hablan por un malentendido tonto, el lector se frustra. Los mejores conflictos románticos vienen de diferencias reales de valores, miedos genuinos o circunstancias externas imposibles.
+
+**Ambos personajes deben tener agencia en la relación.** No un personaje activo y uno pasivo que espera ser amado. Los dos deben elegir la relación, sacrificar algo por ella, arriesgarse.
+
+**Muestra compatibilidad más allá de la atracción física.** ¿Qué disfrutan juntos? ¿Cómo se hacen reír? ¿Cómo se apoyan en los momentos difíciles? La atracción física atrae; la compatibilidad retiene.
+
+**El romance debe contribuir al arco narrativo general.** La relación debe cambiar a ambos personajes. No es un subplot decorativo: es parte del tema de la historia.
+
+---
+
+## Ciencia Ficción Efectiva
+
+La ciencia ficción es el género del "¿qué pasaría si?". No se trata de tecnología: se trata de humanidad enfrentada a cambios radicales.
+
+### Cómo balancear ciencia y humanidad
+
+**La tecnología debe servir a la historia, no dominarla.** La nave espacial más detallada del universo no vale nada si el lector no le importan los personajes que van en ella. La tecnología es el escenario; las personas son la historia.
+
+**Explora las consecuencias humanas de los cambios tecnológicos.** ¿Qué le pasa a las relaciones humanas cuando la gente puede vivir 200 años? ¿Qué le pasa a la identidad cuando puedes transferir tu mente a un cuerpo diferente? Las mejores preguntas de la ciencia ficción son preguntas sobre humanidad.
+
+**Investiga la ciencia real para mayor credibilidad.** No necesitas ser científico, pero sí necesitas entender los principios básicos de lo que describes. Los lectores de ciencia ficción suelen saber cuando algo es imposible incluso dentro de la lógica interna del universo.
+
+**Enfócate en "¿qué pasaría si...?" más que en explicaciones técnicas.** La pregunta es el corazón. "¿Qué pasaría si pudieras ver tu propia muerte?" genera más historia que 20 páginas explicando el mecanismo de la máquina que lo permite.
+
+**Los problemas deben seguir siendo fundamentalmente humanos.** El villano alienígena más elaborado es aburrido si su motivación no resuena con algo humano: ambición, miedo, amor, supervivencia.
+
+---
+
+## Otros Géneros: Notas Rápidas
+
+### Fantasía
+- Construye las reglas de tu mundo antes de escribir
+- La magia debe tener costos y limitaciones
+- El worldbuilding se revela en la acción, no en descripciones largas
+- Los mejores mundos de fantasía comentan sobre el mundo real
+
+### Terror
+- El miedo anticipado siempre supera al horror mostrado
+- Crea personajes a los que el lector quiera que sobrevivan
+- La atmósfera es tan importante como los eventos
+- El terror cotidiano (lo familiar que se vuelve amenazante) suele ser más efectivo que los monstruos
+
+### Realismo Mágico
+- Lo mágico se trata como ordinario; esa es la clave
+- Funciona mejor cuando el elemento mágico es una metáfora de algo real
+- La narrativa latinoamericana es el gran referente: García Márquez, Isabel Allende, Laura Esquivel
+- El tono no debe cambiar cuando aparece lo mágico
+
+---
+
+## El Género Como Punto de Partida, No Como Jaula
+
+Los mejores libros suelen estar en la intersección de géneros. Un thriller con romance. Una ciencia ficción con terror. Una fantasía con elementos de realismo mágico.
+
+Conocer las convenciones de cada género te permite usarlas estratégicamente: cumplirlas cuando el lector las necesita, romperlas cuando quieres sorprender.
+
+Practica escribiendo en diferentes géneros. En los [retos mensuales de Letranido](/contest/current) aparecen prompts que invitan a explorar distintos estilos. Es la forma más directa de descubrir en qué género tu voz funciona mejor.
+
+También te puede interesar: [Fundamentos de escritura creativa](/blog/fundamentos-escritura-creativa) y [Proceso de escritura y productividad](/blog/proceso-escritura-productividad).
+    `,
+    author: "Equipo Letranido",
+    publishedAt: "2026-04-07",
+    readTime: "9 min",
+    category: "tecnicas",
+    tags: [
+      "cómo escribir thriller",
+      "cómo escribir romance",
+      "cómo escribir ciencia ficción",
+      "géneros literarios",
+      "escritura creativa",
+      "técnicas narrativas",
+      "tensión narrativa",
+      "worldbuilding",
+    ],
+    image: "/images/blog/cuento.jpg",
+    featured: false,
+    published: true,
+  },
 ];
 
 export const categories = [
@@ -1930,6 +2318,11 @@ export const categories = [
     id: "recursos",
     name: "Recursos",
     description: "Análisis de servicios y plataformas",
+  },
+  {
+    id: "tecnicas",
+    name: "Técnicas",
+    description: "Fundamentos y técnicas de escritura creativa",
   },
 ];
 

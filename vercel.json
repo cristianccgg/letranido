@@ -10,6 +10,16 @@
           "value": "letranido.com"
         }
       ]
+    },
+    {
+      "source": "/gallery",
+      "destination": "/historias",
+      "permanent": true
+    },
+    {
+      "source": "/writing-resources",
+      "destination": "/blog",
+      "permanent": true
     }
   ],
   "rewrites": [

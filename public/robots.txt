@@ -42,7 +42,8 @@ Allow: /privacy
 Allow: /community-guidelines
 Allow: /cookie-policy
 Allow: /faq
-Allow: /writing-resources
+Allow: /blog/
+Allow: /blog
 
 # Sitemap location
 Sitemap: https://www.letranido.com/sitemap.xml
