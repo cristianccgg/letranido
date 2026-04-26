@@ -1,5 +1,5 @@
 // pages/LandingPage.jsx - Landing con feed integrado para usuarios autenticados
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   PenTool,
@@ -326,6 +326,7 @@ const LandingPage = () => {
 
   // Estado para forzar re-render cuando cambia la fase automáticamente
   const [phaseCheckTimestamp, setPhaseCheckTimestamp] = useState(Date.now());
+  const deadlinePassedFiredRef = useRef(false);
 
   // Contador de tiempo restante (dinámico según la fase del reto)
   const [timeLeft, setTimeLeft] = useState("");

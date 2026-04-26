@@ -4422,7 +4422,7 @@ export function GlobalAppProvider({ children }) {
 const isTestContest = (contest) => {
   if (!contest?.title) return false;
   const title = contest.title.toLowerCase();
-  return title.includes('test') || title.includes('prueba') || title.includes('demo');
+  return /\btest\b/.test(title) || /\bprueba\b/.test(title) || /\bdemo\b/.test(title);
 };
 
 // Función para encontrar el reto actual con lógica híbrida

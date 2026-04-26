@@ -74,11 +74,7 @@ const ContestAdminPanel = () => {
   const isTestContest = (contest) => {
     if (!contest?.title) return false;
     const title = contest.title.toLowerCase();
-    return (
-      title.includes("test") ||
-      title.includes("prueba") ||
-      title.includes("demo")
-    );
+    return /\btest\b/.test(title) || /\bprueba\b/.test(title) || /\bdemo\b/.test(title);
   };
 
   // Función para ordenar concursos según prioridad de cola
@@ -272,24 +268,25 @@ const ContestAdminPanel = () => {
   // Resetear form
   const resetForm = () => {
     const now = new Date();
-    const thisMonth = now.toLocaleDateString("es-ES", {
+
+    // Fechas del ciclo fijo, alineadas con los emails automáticos de pg_cron:
+    // - submission_deadline: día 26 del próximo mes a las 23:59 Colombia
+    // - voting_deadline:     día 3 del mes siguiente a las 23:59 Colombia
+    // El input datetime-local se interpreta como hora Colombia (UTC-5) por toColombiaISO al guardar.
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const submissionEnd = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 26, 23, 59, 0, 0);
+
+    const twoMonthsAhead = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+    const votingEnd = new Date(twoMonthsAhead.getFullYear(), twoMonthsAhead.getMonth(), 3, 23, 59, 0, 0);
+
+    const thisMonthRaw = submissionEnd.toLocaleDateString("es-ES", {
       month: "long",
       year: "numeric",
     });
-
-    // ✅ CORREGIDO: Sugerir fechas por defecto en hora de Colombia
-    const submissionEnd = new Date(now);
-    submissionEnd.setDate(now.getDate() + 20); // 20 días para envíos
-    submissionEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
-
-    const votingEnd = new Date(submissionEnd);
-    votingEnd.setDate(submissionEnd.getDate() + 7); // 7 días para votación
-    votingEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+    const thisMonth = thisMonthRaw.charAt(0).toUpperCase() + thisMonthRaw.slice(1);
 
     // Función para convertir a formato datetime-local (sin zona horaria)
     const toDateTimeLocal = (date) => {
-      // Para datetime-local necesitamos formato YYYY-MM-DDTHH:mm
-      // pero interpretado como hora local de Colombia
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
@@ -299,10 +296,9 @@ const ContestAdminPanel = () => {
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
-    // Fecha para encuesta (1 día antes del fin de envíos del concurso actual)
+    // Fecha para encuesta (1 día antes del cierre de envíos)
     const pollEnd = new Date(submissionEnd);
-    pollEnd.setDate(submissionEnd.getDate() - 1); // 1 día antes
-    pollEnd.setHours(19, 0, 0, 0); // 7:00 PM Colombia
+    pollEnd.setDate(submissionEnd.getDate() - 1);
 
     setContestForm({
       title: "",
