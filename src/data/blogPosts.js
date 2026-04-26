@@ -968,10 +968,10 @@ Y si quieres poner en práctica estas técnicas con lectores reales, participa e
 
   {
     id: "como-hacer-un-cuento",
-    title: "Cómo Hacer un Cuento: Todo lo que Necesitas Saber (con Ejemplos)",
+    title: "Cómo Hacer un Cuento Paso a Paso (Guía con Ejemplos Reales)",
     slug: "como-hacer-un-cuento",
     excerpt:
-      "Aprende cómo hacer un cuento desde cero: qué es, cuáles son sus partes, cómo crear personajes y conflicto, y cómo terminarlo bien. Guía práctica con ejemplos reales.",
+      "Aprende a hacer un cuento desde cero: estructura, personajes, conflicto y final. Guía práctica con ejemplos reales para escritores principiantes y avanzados.",
     content: `
 # Cómo Hacer un Cuento: Todo lo que Necesitas Saber
 
