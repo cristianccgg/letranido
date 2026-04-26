@@ -270,14 +270,23 @@ const ContestAdminPanel = () => {
     const now = new Date();
 
     // Fechas del ciclo fijo, alineadas con los emails automáticos de pg_cron:
-    // - submission_deadline: día 26 del próximo mes a las 23:59 Colombia
+    // - submission_deadline: día 26 del mes a las 23:59 Colombia
     // - voting_deadline:     día 3 del mes siguiente a las 23:59 Colombia
-    // El input datetime-local se interpreta como hora Colombia (UTC-5) por toColombiaISO al guardar.
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const submissionEnd = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 26, 23, 59, 0, 0);
+    // Partimos del mes después del último reto en cola para no sugerir fechas repetidas.
+    const activeContests = contests.filter(c => c.finalized_at === null);
+    let baseMonth;
+    if (activeContests.length > 0) {
+      const lastDeadline = activeContests.reduce((latest, c) =>
+        new Date(c.submission_deadline) > new Date(latest.submission_deadline) ? c : latest
+      );
+      const lastDate = new Date(lastDeadline.submission_deadline);
+      baseMonth = new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
+    } else {
+      baseMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    }
 
-    const twoMonthsAhead = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-    const votingEnd = new Date(twoMonthsAhead.getFullYear(), twoMonthsAhead.getMonth(), 3, 23, 59, 0, 0);
+    const submissionEnd = new Date(baseMonth.getFullYear(), baseMonth.getMonth(), 26, 23, 59, 0, 0);
+    const votingEnd = new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 3, 23, 59, 0, 0);
 
     const thisMonthRaw = submissionEnd.toLocaleDateString("es-ES", {
       month: "long",
