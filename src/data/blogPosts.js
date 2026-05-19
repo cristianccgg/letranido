@@ -191,7 +191,7 @@ Personalmente, combino Notion para planificación, Scrivener para escribir, y un
 ## Recursos Relacionados
 
 Si estás empezando con la escritura, no te pierdas:
-- [Cómo escribir cuentos paso a paso](/blog/como-escribir-cuentos-paso-a-paso) - Guía completa para principiantes
+- [Cómo escribir un cuento para niños paso a paso](/blog/como-escribir-cuentos-paso-a-paso) - Guía con ejemplos y plantilla
 - [Los mejores retos de escritura 2025](/blog/mejores-retos-escritura-2025) - Pon en práctica tus herramientas
 - [Cursos de escritura creativa online](/blog/cursos-escritura-creativa-online-2025) - Formación profesional
     `,
@@ -511,292 +511,194 @@ Kindle Unlimited no es para todos, pero puede ser una herramienta poderosa si la
 
   {
     id: "como-escribir-cuentos-paso-a-paso",
-    title:
-      "Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes",
+    title: "Cómo Escribir un Cuento para Niños: Guía Paso a Paso (2026)",
     slug: "como-escribir-cuentos-paso-a-paso",
     excerpt:
-      "Aprende a escribir un cuento paso a paso con 8 pasos claros: idea, personajes, estructura, primer borrador y edición. Con ejemplos prácticos y ejercicios para principiantes.",
+      "Guía paso a paso para escribir un cuento infantil: ideas, personajes, estructura y ejemplos listos. Para niños de primaria y maestros.",
     content: `
-# Cómo Escribir un Cuento Paso a Paso: Guía Completa para Principiantes
+# Cómo Escribir un Cuento para Niños Paso a Paso
 
-Escribir un cuento puede parecer intimidante al principio, pero con la técnica adecuada y siguiendo pasos claros, cualquiera puede crear historias memorables. En esta guía te enseñaré exactamente cómo escribir cuentos paso a paso.
+¿Tienes que escribir un cuento para la escuela y no sabes por dónde empezar? ¿Eres maestro o padre y quieres enseñarle a un niño a crear su primera historia? Esta guía tiene todo lo que necesitas: pasos simples, ejemplos concretos y ejercicios que funcionan.
 
-## Antes de Empezar: ¿Qué Hace a un Buen Cuento?
+## ¿Qué Necesita un Cuento Infantil?
 
-Un cuento exitoso tiene tres elementos esenciales:
-- **Brevedad:** Debe poder leerse de una sentada
-- **Intensidad:** Cada palabra cuenta para crear impacto
-- **Unidad:** Una sola historia, un momento decisivo
+Un cuento para niños tiene tres ingredientes básicos:
 
-## Paso 1: Encuentra Tu Idea (El Punto de Partida)
+- **Un personaje claro:** El niño necesita saber quién es el protagonista desde la primera línea
+- **Un problema:** Algo que el personaje quiere resolver o conseguir
+- **Una solución:** Cómo termina la historia (puede ser feliz, sorprendente o con una lección)
 
-### Técnicas para Generar Ideas
+Eso es todo. No necesitas nada más para tener un cuento completo.
 
-**La Técnica del "¿Qué Pasaría Si?"**
-- ¿Qué pasaría si encontraras una carta dirigida a ti de hace 50 años?
-- ¿Qué pasaría si pudieras escuchar los pensamientos de los objetos?
-- ¿Qué pasaría si tu sombra actuara por su cuenta?
+## Paso 1: Elige a Tu Personaje Principal
 
-**Observación de la Vida Cotidiana**
-- Una conversación extraña en el café
-- Una persona que siempre ves en el metro
-- Un objeto encontrado en la calle
+El personaje puede ser cualquier cosa: un niño, un animal, un objeto mágico, un monstruo amigable. Lo importante es que el lector pueda imaginar cómo piensa y siente.
 
-**Reescritura de Clásicos**
-- Caperucita Roja en el año 2025
-- Romeo y Julieta en redes sociales
-- Cenicienta como emprendedora
+**Preguntas para crear tu personaje:**
+- ¿Cómo se llama?
+- ¿Cuántos años tiene o qué tipo de ser es?
+- ¿Qué le gusta hacer?
+- ¿Qué le da miedo o qué le falta?
 
-### Ejercicio Práctico
-Dedica 10 minutos a escribir 20 ideas usando la técnica del "¿Qué pasaría si?". No las juzgues, solo escribe.
+**Ejemplo:**
+*Luna es una tortuga que sueña con correr tan rápido como las liebres del bosque.*
 
-## Paso 2: Define Tu Protagonista (El Corazón de la Historia)
+En una frase ya sabemos quién es Luna y cuál es su deseo. Eso es suficiente para empezar.
 
-### Método de los 3 Círculos
+### Ideas de Personajes para Niños
 
-**Círculo Exterior: Lo Visible**
-- Edad, profesión, apariencia física
-- Manera de hablar, gestos característicos
+- Un dragón que no puede escupir fuego
+- Una niña que descubre que su abuela es bruja
+- Un robot que quiere aprender a reír
+- Un pez que quiere ver cómo es la tierra
+- Un niño que encuentra un mapa en el patio de su escuela
 
-**Círculo Medio: Lo Oculto**
-- Miedos, deseos profundos
-- Secretos que no comparte
-- Heridas del pasado
+## Paso 2: Inventa el Problema
 
-**Círculo Interior: Lo Inconsciente**
-- Lo que ni él mismo sabe de sí
-- Contradicciones internas
-- Potencial de transformación
+Sin un problema no hay historia. El problema es lo que hace que el lector quiera seguir leyendo.
 
-### Ejemplo Práctico
-**Protagonista:** María, 34 años, bibliotecaria
-- **Visible:** Tímida, usa gafas, siempre puntual
-- **Oculto:** Sueña con ser aventurera, tiene miedo al rechazo
-- **Inconsciente:** Su timidez esconde una gran valentía
+**Tipos de problemas para cuentos infantiles:**
 
-## Paso 3: Estructura Tu Cuento (El Esqueleto)
+| Tipo | Ejemplo |
+|------|---------|
+| Quiere algo que no tiene | Luna quiere correr rápido |
+| Pierde algo importante | Un niño pierde a su perro |
+| Tiene que ayudar a alguien | Una niña debe salvar a su amigo |
+| Descubre un secreto | Un robot aprende que fue construido por error |
+| Tiene miedo de algo | Un dragón le teme a la oscuridad |
 
-### La Estructura Clásica en 5 Actos
+**Ejercicio:** Escoge un personaje de la lista de arriba y asígnale un problema. Con eso ya tienes el corazón de tu cuento.
 
-**1. Exposición (10%)**
-- Presenta al protagonista y su mundo normal
-- *"María ordenaba libros como todos los días cuando..."*
+## Paso 3: Estructura la Historia en 3 Partes
 
-**2. Detonante (20%)**
-- El evento que cambia todo
-- *"...encontró una nota misteriosa entre las páginas."*
+Todo cuento, por corto que sea, tiene inicio, desarrollo y final. Así funciona:
 
-**3. Desarrollo/Complicación (40%)**
-- El protagonista persigue su objetivo
-- Aparecen obstáculos y conflictos
+### Inicio: Presenta al personaje y el problema
+*"Luna era una tortuga lenta que vivía al borde del lago. Todos los días veía a las liebres correr y pensaba: '¿Por qué yo no puedo hacer eso?'"*
 
-**4. Clímax (20%)**
-- El momento de mayor tensión
-- La decisión crucial del protagonista
+### Desarrollo: El personaje intenta resolver el problema (y las cosas se complican)
+*"Un día, Luna decidió entrenarse. Corrió todo el día hasta que le dolían las patas. Pero las liebres seguían siendo más rápidas. Luna estaba a punto de rendirse cuando encontró algo inesperado: una carrera especial en la que cada animal competía usando su propia habilidad."*
 
-**5. Desenlace (10%)**
-- Las consecuencias de la decisión
-- El nuevo estado del protagonista
+### Final: La solución y lo que aprendió el personaje
+*"Luna ganó la carrera de nado sin esfuerzo. Entendió que ser rápida en el agua valía tanto como ser rápida en la tierra, y que cada uno tiene su propio tipo de velocidad."*
 
-### Plantilla de Una Página
+### Plantilla para Rellenar
 \`\`\`
-TÍTULO: _________________
-
-PROTAGONISTA: ___________
-DESEO: __________________
-OBSTÁCULO: ______________
-
-DETONANTE: ______________
-CLÍMAX: _________________
-FINAL: __________________
+MI PERSONAJE se llama: ________________
+Lo que más quiere es: ________________
+El problema que tiene: ________________
+Lo que intenta hacer: ________________
+Lo que le sale mal: __________________
+Cómo lo resuelve al final: ___________
+Lo que aprende: _____________________
 \`\`\`
 
-## Paso 4: Escribe el Primer Borrador (Sin Miedo)
+## Paso 4: Escribe el Cuento Sin Parar
 
-### Reglas de Oro del Primer Borrador
+Una vez que tienes la plantilla llena, escribe el cuento de corrido. No te detengas a corregir — eso viene después.
 
-**1. No Edites Mientras Escribes**
-- Deja fluir la historia
-- Marca con [REVISAR] las partes dudosas
-- Continúa escribiendo
+**Reglas para el primer borrador:**
+- Escribe en voz alta si te ayuda
+- No borres nada mientras escribes
+- Si no sabes cómo continuar, escribe: "y entonces..." y sigue
 
-**2. Busca la Emoción, No la Perfección**
-- Escribe la escena que más te emociona primero
-- Si te aburres, el lector se aburrirá
+Un cuento corto de 10 a 20 líneas se puede escribir en 15 minutos si no te detienes.
 
-**3. Técnica del "Vómito Verbal"**
-- Escribe todo lo que se te ocurra sobre la escena
-- Luego selecciona lo mejor
+## Paso 5: Ponle un Buen Inicio
 
-### Método de los 25 Minutos
-1. Programa un temporizador para 25 minutos
-2. Escribe sin parar hasta que suene
-3. Descansa 5 minutos
-4. Repite hasta completar el cuento
+El inicio es lo primero que lee el lector. Tiene que ser interesante desde la primera línea.
 
-## Paso 5: Crea un Inicio Irresistible
+**Inicios que funcionan para niños:**
 
-### 5 Tipos de Inicios Efectivos
+**Empieza con una pregunta:**
+*"¿Alguna vez has visto a una tortuga intentar ganar una carrera de velocidad?"*
 
-**1. En Mitad de la Acción**
-*"El disparo resonó en la biblioteca vacía mientras María se escondía detrás del mostrador."*
+**Empieza en medio de la acción:**
+*"Luna llevaba tres horas corriendo y sus patas ya no respondían."*
 
-**2. Diálogo Intrigante**
-*"—No deberías haber leído esa carta —susurró la voz desde las sombras."*
+**Empieza con algo sorprendente:**
+*"La tortuga Luna odiaba el lago. Lo que amaba era correr."*
 
-**3. Declaración Sorprendente**
-*"María había matado a tres personas antes del desayuno, y todavía faltaba elegir el cuarto."*
+**Empieza con diálogo:**
+*"—Nunca podrás correr como nosotras —se rieron las liebres. Luna no respondió. Solo sonrió."*
 
-**4. Pregunta Provocativa**
-*"¿Qué harías si descubrieras que tu vida entera ha sido una mentira?"*
+**Inicio que NO funciona:**
+*"Había una vez una tortuga que se llamaba Luna y vivía en un lago muy bonito rodeado de árboles y flores..."* → Demasiado lento, no pasa nada.
 
-**5. Detalle Específico e Inusual**
-*"La mancha de café en la página 247 tenía exactamente la forma del mapa que María necesitaba."*
+## Paso 6: Revisa con 3 Preguntas
 
-### Errores Comunes a Evitar
-- ❌ Empezar con el protagonista despertándose
-- ❌ Descripciones largas del paisaje
-- ❌ Historia familiar completa del personaje
-- ❌ "Era una noche oscura y tormentosa"
+Antes de entregar tu cuento, léelo en voz alta y responde estas preguntas:
 
-## Paso 6: Desarrolla el Conflicto (El Motor de la Historia)
+1. **¿Se entiende quién es el personaje y qué quiere?** Si no, agrega una línea al inicio.
+2. **¿Hay un momento donde las cosas se complican?** Si no, el cuento es plano — añade un obstáculo.
+3. **¿El final tiene sentido con lo que pasó?** Si el personaje gana sin haber hecho nada difícil, el final no funciona.
 
-### Los 4 Tipos de Conflicto
+## Ejemplo Completo: Cuento de 15 Líneas
 
-**1. Persona vs. Persona**
-María vs. el bibliotecario que quiere despedirla
-
-**2. Persona vs. Sociedad**
-María vs. un mundo que no valora los libros
-
-**3. Persona vs. Naturaleza**
-María vs. una tormenta que amenaza la biblioteca
-
-**4. Persona vs. Sí Misma**
-María vs. su miedo a tomar riesgos
-
-### Escalando la Tensión
-Cada escena debe hacer que la situación sea:
-- **Más difícil** para el protagonista
-- **Más importante** que se resuelva
-- **Más urgente** en el tiempo
-
-## Paso 7: Construye un Final Memorable
-
-### Características de un Buen Final
-
-**1. Inevitable pero Sorprendente**
-- El lector debe pensar: "No lo vi venir, pero tenía que pasar"
-
-**2. Emocionalmente Satisfactorio**
-- Resuelve el conflicto principal
-- Muestra el cambio en el protagonista
-
-**3. Relacionado con el Inicio**
-- Crea un círculo narrativo
-- El protagonista vuelve al mundo normal, pero transformado
-
-### 3 Tipos de Finales Efectivos
-
-**Final Cerrado**
-Todas las preguntas respondidas, conflicto resuelto
-*"María guardó la carta en su bolso y salió de la biblioteca por última vez, rumbo a su nueva vida como detective."*
-
-**Final Abierto**
-Deja algunas preguntas sin responder
-*"María miró la carta una vez más antes de tomar la decisión que cambiaría todo. Pero esa es otra historia."*
-
-**Final Circular**
-Regresa al punto de inicio con nueva perspectiva
-*"María volvió a ordenar libros, pero ahora cada uno le susurraba nuevas aventuras posibles."*
-
-## Paso 8: Revisa y Edita (Donde Nace la Magia)
-
-### Primera Revisión: La Estructura
-- ¿La historia tiene un arco completo?
-- ¿Cada escena impulsa la historia hacia adelante?
-- ¿El conflicto se intensifica progresivamente?
-
-### Segunda Revisión: Los Personajes
-- ¿El protagonista cambia durante la historia?
-- ¿Sus acciones son coherentes con su personalidad?
-- ¿Los diálogos suenan naturales?
-
-### Tercera Revisión: El Estilo
-- ¿Puedes eliminar palabras innecesarias?
-- ¿Cada párrafo aporta algo nuevo?
-- ¿La voz narrativa es consistente?
-
-### Lista de Verificación Final
-- [ ] El inicio engancha en las primeras líneas
-- [ ] Hay un conflicto claro y urgente
-- [ ] El protagonista toma decisiones activas
-- [ ] El clímax es el momento más intenso
-- [ ] El final es inevitable pero sorprendente
-- [ ] Cada palabra cuenta
-
-## Ejercicios Prácticos para Mejorar
-
-### Ejercicio 1: El Cuento de 55 Palabras
-Escribe una historia completa en exactamente 55 palabras. Te obligará a ser preciso y eliminar todo lo innecesario.
-
-### Ejercicio 2: Cambia la Perspectiva
-Toma un cuento conocido y nárralo desde el punto de vista del antagonista.
-
-### Ejercicio 3: La Historia Detrás
-Escribe la historia que explica por qué tu protagonista tiene cicatrices en las manos.
-
-## Recursos Adicionales para Seguir Mejorando
-
-### Libros Recomendados Esenciales
-- [**"Mientras Escribo" - Stephen King**](https://amzn.to/4lSzk1N) - La biblia de todo escritor, combina memoria personal y manual práctico
-- [**"El Arte de la Ficción" - David Lodge**](https://amzn.to/3GZYVXF) - Análisis técnico perfecto para complementar tu aprendizaje
-- [**"Zen en el Arte de Escribir" - Ray Bradbury**](https://amzn.to/3IQzxEd) - Para mantener la pasión y superar bloqueos creativos
-- [**"Cartas a un Joven Novelista" - Mario Vargas Llosa**](https://amzn.to/44WmPfR) - Perspectiva latinoamericana sobre la vocación literaria
-- [**"Curso de Escritura Creativa" - Brandon Sanderson**](https://amzn.to/4mu81el) - Técnicas sistemáticas y modernas
-
-*Encuentra análisis detallados de todos estos libros en nuestra [guía completa de libros esenciales](/blog/libros-esenciales-escritores-2025)*
-
-### Práctica Constante y Comunidad
-- Participa en [retos de escritura](/contest/current) para poner en práctica estas técnicas
-- Únete a [nuestra comunidad de escritores](/) con retos mensuales y ambiente acogedor
-- Lee cuentos de autores que admires y analiza su técnica
-
-## Tu Primer Cuento Empieza Ahora
-
-Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfección en el primer intento. Como dice Stephen King: "Los primeros borradores son para contar la historia a ti mismo."
-
-¿Listo para empezar? Toma papel y lápiz, o abre tu programa de escritura favorito, y comienza con estas palabras: "Todo empezó cuando..."
-
-**Tu historia está esperando a ser contada.**
+Aquí tienes un cuento corto que sigue todos los pasos:
 
 ---
 
-*¿Te ha resultado útil esta guía? Pon en práctica estos consejos participando en nuestro [reto mensual de cuentos](/contest/current). ¡Cada mes, cientos de escritores como tú comparten sus historias y mejoran su técnica!*
+**La Carrera de Luna**
+
+*Luna era una tortuga que soñaba con correr. Todos los días veía a las liebres cruzar el bosque como rayos y pensaba: algún día yo también.*
+
+*Un martes, Luna se inscribió en la Gran Carrera del Bosque. Las liebres se rieron tanto que tuvieron que sentarse.*
+
+*Pero la carrera tenía una sorpresa: el camino cruzaba el lago.*
+
+*Las liebres pararon en la orilla. Ninguna sabía nadar.*
+
+*Luna entró al agua sin pensarlo. Cruzó el lago en dos minutos.*
+
+*Cuando llegó al otro lado, las liebres todavía estaban mirando el agua.*
+
+*Luna ganó. No porque fuera rápida. Sino porque era ella misma.*
+
+---
+
+Este cuento tiene 15 líneas, inicio claro, un problema, una complicación inesperada (el lago) y un final que tiene sentido.
+
+## Ejercicios para Practicar
+
+### Para niños de primaria
+**El cuento de 5 frases:** Escribe una historia completa usando exactamente 5 frases: una para el personaje, una para el problema, dos para lo que pasa, y una para el final.
+
+### Para maestros
+**El cuento colaborativo:** Cada estudiante escribe el inicio en una hoja. Pasan la hoja al compañero de al lado, que escribe el desarrollo. El tercero escribe el final. Al terminar, cada grupo lee su cuento en voz alta.
+
+### Para todos
+**Cambia el final:** Toma el cuento de Luna y escribe 3 finales distintos: uno feliz, uno triste y uno sorprendente.
+
+## Para Seguir Mejorando
+
+Si ya sabes escribir un cuento para niños y quieres aprender técnicas más avanzadas, lee también:
+- [Cómo hacer un cuento paso a paso](/blog/como-hacer-un-cuento) — Estructura completa con los 5 elementos del cuento
+- [Cómo iniciar un cuento](/blog/como-iniciar-un-cuento) — 7 técnicas para la primera línea
+
+Y si quieres practicar con lectores reales, en [Letranido](/contest/current) hay un reto mensual de escritura creativa abierto para todos los niveles.
+
+**El único cuento que no existe es el que no escribiste todavía.**
     `,
     author: "Equipo Letranido",
     publishedAt: "2025-08-02",
-    readTime: "12 min",
+    readTime: "10 min",
     category: "educacion",
     tags: [
-      "cómo escribir cuentos",
-      "cómo escribir un cuento",
+      "como escribir un cuento para niños",
+      "cuento infantil",
+      "como escribir un cuento infantil",
+      "pasos para escribir un cuento infantil",
+      "cuento para niños de primaria",
+      "como hacer un cuento para niños",
+      "escritura creativa niños",
+      "como escribir cuentos paso a paso",
       "escribir un cuento",
-      "como hacer un cuento",
-      "pasos para escribir un cuento",
-      "como iniciar un cuento",
-      "redactar un cuento",
-      "escribir cuentos",
-      "escritura creativa",
-      "guía para principiantes",
-      "técnicas narrativas",
-      "estructura de cuento",
-      "consejos de escritura",
     ],
     image: "/images/blog/cuento.jpg",
     featured: true,
     published: true,
-    updatedAt: "2026-02-22",
+    updatedAt: "2026-05-19",
   },
 
   {
@@ -1234,7 +1136,7 @@ Para 300 palabras puedes incluir los tres tiempos de la historia completa: pasad
 El mejor aprendizaje es escribir y recibir feedback real. En [Letranido](/contest/current) publicamos un reto mensual de escritura creativa donde cientos de escritores envían sus cuentos, votan por sus favoritos y mejoran su técnica con cada reto.
 
 Si quieres profundizar más, lee también:
-- [Cómo escribir un cuento paso a paso](/blog/como-escribir-cuentos-paso-a-paso) — La guía completa con 8 pasos detallados
+- [Cómo escribir un cuento para niños paso a paso](/blog/como-escribir-cuentos-paso-a-paso) — Con plantilla y ejemplo completo
 - [Cómo iniciar un cuento](/blog/como-iniciar-un-cuento) — 7 técnicas para las primeras líneas
 
 **Ahora ya sabes cómo hacer un cuento. Solo falta que lo escribas.**
