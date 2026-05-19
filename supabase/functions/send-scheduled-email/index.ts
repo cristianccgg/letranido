@@ -85,7 +85,7 @@ serve(async (req) => {
     // ------------------------------------------------------------------
     // 3. Determinar modo (test para retos de prueba, production para el resto)
     // ------------------------------------------------------------------
-    const isTestContest = /test|prueba|demo/i.test(contest.title);
+    const isTestContest = /\btest\b|\bprueba\b|\bdemo\b/i.test(contest.title);
     const emailMode = isTestContest ? "test" : "production";
     console.log(`📧 Modo: ${emailMode}`);
 
