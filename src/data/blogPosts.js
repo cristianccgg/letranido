@@ -801,10 +801,10 @@ Recuerda: el mejor cuento es el que terminas de escribir. No busques la perfecci
 
   {
     id: "como-iniciar-un-cuento",
-    title: "Cómo Iniciar un Cuento: Las Primeras Líneas que Enganchan al Lector",
+    title: "Cómo Iniciar un Cuento: 7 Técnicas con Ejemplos (2026)",
     slug: "como-iniciar-un-cuento",
     excerpt:
-      "El inicio de un cuento es lo más importante: tienes 3 segundos para atrapar al lector. Aprende 7 técnicas probadas para comenzar tu historia con fuerza, con ejemplos reales.",
+      "7 técnicas para empezar un cuento + ejemplos listos para usar. Evita los 5 errores más comunes y engancha al lector desde la primera línea.",
     content: `
 # Cómo Iniciar un Cuento: Las Primeras Líneas que Enganchan al Lector
 
@@ -937,6 +937,23 @@ Aprende de los mejores:
 - *"En un lugar de la Mancha, de cuyo nombre no quiero acordarme..."* — Cervantes
 
 Nota cómo cada uno crea una pregunta, un misterio, o una voz que quieres seguir escuchando.
+
+## 10 Frases para Iniciar un Cuento (Listas para Usar)
+
+Si tienes el bloqueo del inicio, estas frases te sirven de punto de partida. Tómalas como disparadores: cópialas, modifícalas, o úsalas tal cual.
+
+1. *"La última vez que vi a mi hermano, llevaba puesto mi abrigo."*
+2. *"Esa mañana, el periódico traía mi foto en la portada. Y yo llevaba tres años muerto."*
+3. *"—No vuelvas —le dije. Y ella no volvió. Eso fue lo peor."*
+4. *"Había dos cosas que nunca haría: mentirle a mi hijo y vender la casa. Ese día hice las dos."*
+5. *"El tren llegó con cuatro horas de retraso. Para entonces, ya no importaba."*
+6. *"Guardé el secreto durante veinte años. Lo solté en diez segundos, por accidente."*
+7. *"Mi vecina muere cada vez que llueve. Nadie más parece notarlo."*
+8. *"La carta decía solo tres palabras. Las tres cambiaron todo."*
+9. *"Cuando aprendí a mentir bien, lo primero que hice fue decirle la verdad."*
+10. *"El día que decidí irme fue también el día que entendí por qué me había quedado tanto tiempo."*
+
+Cada una de estas frases tiene un conflicto implícito, una pregunta sin responder, o una contradicción que obliga a seguir leyendo.
 
 ## De las Primeras Líneas al Cuento Completo
 
