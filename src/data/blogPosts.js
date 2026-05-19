@@ -968,10 +968,10 @@ Y si quieres poner en práctica estas técnicas con lectores reales, participa e
 
   {
     id: "como-hacer-un-cuento",
-    title: "Cómo Hacer un Cuento Paso a Paso (Guía con Ejemplos Reales)",
+    title: "Cómo Hacer un Cuento: Guía Paso a Paso con Ejemplos (2026)",
     slug: "como-hacer-un-cuento",
     excerpt:
-      "Aprende a hacer un cuento desde cero: estructura, personajes, conflicto y final. Guía práctica con ejemplos reales para escritores principiantes y avanzados.",
+      "5 partes, 6 pasos y ejemplos reales: aprende a hacer un cuento desde cero. Gratis, sin registros.",
     content: `
 # Cómo Hacer un Cuento: Todo lo que Necesitas Saber
 
@@ -1139,6 +1139,78 @@ Conocer el tipo de cuento que quieres hacer te ayuda a enfocarte:
 *—No lo sé todavía —respondió. Era la primera vez en años que eso le parecía bien."*
 
 Este cuento tiene los cinco elementos: presentación (Ana espera), detonante (el mensaje), desarrollo (la espera), clímax (la decisión de comprar un billete), desenlace (la aceptación).
+
+## Cómo Hacer un Cuento Corto: Ejemplos por Longitud
+
+A veces la tarea es específica: un cuento de 10 líneas para clase, uno de 100 palabras para un reto, o uno de 300 palabras con límite estricto. Aquí tienes un ejemplo de cada longitud usando la misma historia base.
+
+### Cuento de 10 Líneas
+
+*Ana llevaba tres horas mirando la puerta de llegadas. El café ya estaba frío.*
+*A las seis, llegó el mensaje: "Mamá, no voy. Lo siento."*
+*Ana guardó el teléfono despacio. Se levantó.*
+*Caminó hasta el mostrador de compra de billetes.*
+*—¿A dónde quiere ir? —preguntó la chica.*
+*Ana pensó durante un segundo largo.*
+*—No lo sé todavía —respondió.*
+*Era la primera vez en años que eso le parecía bien.*
+
+**Técnica:** En 10 líneas solo hay espacio para un momento y una emoción. Entra directo al detonante (línea 1-2), llega al clímax (línea 3) y cierra con el desenlace emocional (última línea).
+
+---
+
+### Cuento de 20 Líneas
+
+Toma el cuento de 10 líneas y añade contexto antes del detonante y una pequeña complicación después:
+
+*Ana llevaba diez años trabajando en el mismo hospital sin tomarse un solo día libre. Sus colegas bromeaban: "Ana no tiene vida propia." Ella sonreía sin responder.*
+*Ese año, su hijo le prometió visitarla en diciembre. Por primera vez en mucho tiempo, Ana pidió vacaciones.*
+*El día señalado llegó al aeropuerto tres horas antes. Compró un café. Se sentó frente a la puerta de llegadas internacionales.*
+*El café se enfrió. Los pasajeros del vuelo de Madrid ya habían salido todos.*
+*A las seis de la tarde, llegó el mensaje: "Mamá, no voy. Lo siento."*
+*Ana lo leyó dos veces. Guardó el teléfono.*
+*Se levantó, caminó hasta el mostrador de billetes y preguntó a la chica cuántos destinos había disponibles esa noche.*
+*—Muchos —respondió la chica.*
+*—Bien —dijo Ana—. Dame el más barato.*
+*Era la primera vez en diez años que tomaba una decisión sin pensar en nadie más.*
+
+**Técnica:** Las 10 líneas extra sirven para establecer el personaje (quién es Ana, qué ha sacrificado) y hacer que el clímax tenga más peso emocional.
+
+---
+
+### Cuento de 100 Palabras
+
+*Ana llevaba diez años sin tomarse un día libre. Ese año, su hijo prometió visitarla.*
+
+*El día señalado, llegó al aeropuerto tres horas antes. Compró un café. Esperó.*
+
+*El café se enfrió. Los pasajeros del vuelo de Madrid salieron todos. Su hijo no estaba entre ellos.*
+
+*A las seis, llegó el mensaje: "Mamá, no voy. Lo siento."*
+
+*Ana guardó el teléfono. Se levantó. Caminó hasta el mostrador de billetes.*
+
+*—¿A dónde quiere ir?*
+
+*Pensó un segundo largo.*
+
+*—No lo sé todavía —respondió. Era la primera vez en años que eso le parecía bien.*
+
+**Técnica:** 100 palabras exigen eliminar todo adjetivo no esencial y comprimir el contexto al mínimo. Cada frase debe hacer dos cosas a la vez: avanzar la trama y revelar carácter.
+
+---
+
+### Cuento de 300 Palabras
+
+Para 300 palabras puedes incluir los tres tiempos de la historia completa: pasado (quién es el personaje), presente (la acción), y una reflexión final más desarrollada. Aplica los 6 pasos de esta guía y tendrás exactamente esa extensión.
+
+**Regla práctica de longitudes:**
+| Extensión | Qué cabe | Qué sobra |
+|-----------|----------|-----------|
+| 10 líneas | Un momento + una emoción | Todo contexto previo |
+| 20 líneas | Un personaje + un momento | Subtramas |
+| 100 palabras | Acción pura + desenlace | Adjetivos, explicaciones |
+| 300 palabras | Historia completa simple | Personajes secundarios |
 
 ## Practica lo que Aprendiste
 
