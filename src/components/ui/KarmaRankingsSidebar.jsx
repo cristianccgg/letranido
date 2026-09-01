@@ -241,7 +241,7 @@ const KarmaRankingsSidebar = ({ isOpen, onClose, isEmbedded = false }) => {
         // Ko-fi badges
         supabase
           .from("user_badges")
-          .select("user_id")
+          .select("user_id, metadata")
           .eq("badge_id", "kofi_supporter"),
       ]);
 
@@ -260,9 +260,14 @@ const KarmaRankingsSidebar = ({ isOpen, onClose, isEmbedded = false }) => {
         "usuarios"
       );
 
-      // Ko-fi supporters
+      // Ko-fi supporters (excluye badges vencidos — expiran 30 días tras la última donación)
       const supporterIds = new Set(
-        (badgesResult.data || []).map((b) => b.user_id)
+        (badgesResult.data || [])
+          .filter((b) => {
+            const expiresAt = b.metadata?.expires_at;
+            return !expiresAt || new Date(expiresAt) > new Date();
+          })
+          .map((b) => b.user_id)
       );
 
       // Formatear rankings
@@ -492,11 +497,15 @@ const KarmaRankingsSidebar = ({ isOpen, onClose, isEmbedded = false }) => {
       if (userIds.length > 0) {
         const result = await supabase
           .from("user_badges")
-          .select("user_id, badge_id")
+          .select("user_id, badge_id, metadata")
           .in("user_id", userIds)
           .eq("badge_id", "kofi_supporter");
 
-        badges = result.data;
+        // Excluye badges vencidos (expiran 30 días tras la última donación)
+        badges = (result.data || []).filter((b) => {
+          const expiresAt = b.metadata?.expires_at;
+          return !expiresAt || new Date(expiresAt) > new Date();
+        });
         badgesError = result.error;
       }
 

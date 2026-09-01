@@ -106,7 +106,15 @@ export const useBadges = (userId) => {
         };
       }));
 
-      setUserBadges(transformedBadges);
+      // 🆕 Ko-fi Supporter es temporal (30 días desde la última donación):
+      // si ya venció, no se muestra aunque la fila siga en user_badges.
+      const activeBadges = transformedBadges.filter((badge) => {
+        if (badge.id !== "kofi_supporter") return true;
+        const expiresAt = badge.metadata?.expires_at;
+        return !expiresAt || new Date(expiresAt) > new Date();
+      });
+
+      setUserBadges(activeBadges);
     } catch (err) {
       console.error("Error loading user badges:", err);
       setError(err.message);
