@@ -189,6 +189,13 @@ const LandingPage = () => {
     }
   }, [user, initialized]);
 
+  // 🆕 FEED: Si no hay prompt activo, no dejar la tab de Microhistorias seleccionada
+  useEffect(() => {
+    if (!promptsLoading && !activePrompt && activeTab === "semanal") {
+      setActiveTab("mensual");
+    }
+  }, [promptsLoading, activePrompt, activeTab]);
+
   // 🆕 FEED: Countdown del prompt activo
   useEffect(() => {
     if (!activePrompt?.end_date) {
@@ -765,37 +772,34 @@ const LandingPage = () => {
                   <Calendar className="w-4 h-4" />
                   Reto Mensual
                 </button>
-                <button
-                  onClick={() => setActiveTab("semanal")}
-                  className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    activeTab === "semanal"
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                      : "bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 shadow-sm"
-                  }`}
-                >
-                  {/* Shimmer cuando no está activo - contenedor overflow-hidden para no cortar el badge */}
-                  {activeTab !== "semanal" && (
-                    <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
-                      <span className="tab-shimmer" />
-                    </span>
-                  )}
-                  <span className="flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    Microhistorias
-                  </span>
-                  <span
-                    className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}
+                {(promptsLoading || activePrompt) && (
+                  <button
+                    onClick={() => setActiveTab("semanal")}
+                    className={`relative flex-1 flex flex-col items-center cursor-pointer justify-center gap-0.5 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
+                      activeTab === "semanal"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                        : "bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 shadow-sm"
+                    }`}
                   >
-                    {feedTimeLeft && activeTab !== "semanal"
-                      ? `⏳ cierra en ${feedTimeLeft}`
-                      : "práctica libre · sin votación"}
-                  </span>
-                  {activeTab !== "semanal" && (
-                    <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
-                      Nuevo
+                    {/* Shimmer cuando no está activo */}
+                    {activeTab !== "semanal" && (
+                      <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                        <span className="tab-shimmer" />
+                      </span>
+                    )}
+                    <span className="flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Microhistorias
                     </span>
-                  )}
-                </button>
+                    <span
+                      className={`text-[10px] font-normal ${activeTab === "semanal" ? "text-white/80" : "text-purple-400 dark:text-purple-400"}`}
+                    >
+                      {feedTimeLeft && activeTab !== "semanal"
+                        ? `⏳ cierra en ${feedTimeLeft}`
+                        : "práctica libre · sin votación"}
+                    </span>
+                  </button>
+                )}
               </div>
 
               {/* Reto Mensual */}
