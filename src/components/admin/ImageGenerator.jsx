@@ -1,6 +1,28 @@
 // components/admin/ImageGenerator.jsx - Generador de imágenes para posts de redes sociales
 import { useRef, useEffect, useState, useCallback } from "react";
-import logoImage from "../../assets/images/letranido-logo.png";
+
+const FONTS_STYLESHEET_ID = "image-generator-fonts";
+const FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,600&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap";
+const CANVAS_FONTS = [
+  '600 100px "Fraunces"',
+  'italic 600 100px "Fraunces"',
+  '400 100px "Libre Franklin"',
+  '500 100px "Libre Franklin"',
+  '600 100px "Libre Franklin"',
+  '700 100px "Libre Franklin"',
+  '700 100px "Space Mono"',
+];
+
+// Carga el stylesheet de Google Fonts una sola vez (solo se usa en este tab de admin)
+const ensureFontsStylesheet = () => {
+  if (document.getElementById(FONTS_STYLESHEET_ID)) return;
+  const link = document.createElement("link");
+  link.id = FONTS_STYLESHEET_ID;
+  link.rel = "stylesheet";
+  link.href = FONTS_HREF;
+  document.head.appendChild(link);
+};
 
 const ImageGenerator = ({
   post,
@@ -9,7 +31,7 @@ const ImageGenerator = ({
   onImageGenerated,
 }) => {
   const canvasRef = useRef(null);
-  const logoRef = useRef(null);
+  const [fontsReady, setFontsReady] = useState(false);
 
   // Estados para edición de contenido
   const [isEditing, setIsEditing] = useState(false);
@@ -20,25 +42,14 @@ const ImageGenerator = ({
     details: "",
   });
 
-  // Configuraciones por plataforma - Formato cuadrado unificado
+  // Formatos disponibles: cuadrado (feed) y vertical (Stories/Reels)
   const platformConfig = {
     instagram: { width: 1080, height: 1080 },
     facebook: { width: 1080, height: 1080 },
     twitter: { width: 1080, height: 1080 },
     linkedin: { width: 1080, height: 1080 },
     universal: { width: 1080, height: 1080 }, // Formato universal para todas las redes
-  };
-
-  // Mapeo de emojis por tipo de post
-  const postEmojis = {
-    new_contest: "🎯",
-    tips: "✍️",
-    motivation: "🔥",
-    reminder: "⏰",
-    last_call: "🚨",
-    voting_start: "🗳️",
-    read_stories: "📚",
-    results: "🏆",
+    story: { width: 1080, height: 1920 }, // Stories / Reels (Instagram, Facebook)
   };
 
   // Extraer contenido inicial del post para edición
@@ -93,7 +104,7 @@ const ImageGenerator = ({
         !line.includes("letranido.com")
       ) {
         // Limpiar emojis al extraer detalles
-        const cleanLine = line.replace(/[📚🗳️⏰🎯✍️🔥🚨🏆📝📅🔗]/g, "").trim();
+        const cleanLine = line.replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "").trim();
         if (cleanLine) details.push(cleanLine);
       }
     }
@@ -122,193 +133,108 @@ const ImageGenerator = ({
     }
   }, [post, contest, extractInitialContent]);
 
-  // Cargar logo como imagen
+  // Cargar fuentes de Google Fonts (Fraunces, Libre Franklin, Space Mono) una sola vez
   useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      logoRef.current = img;
-      // Regenerar imagen cuando el logo esté listo
-      if (post) {
-        setTimeout(generateImage, 100);
-      }
-    };
-    img.src = logoImage;
-  }, [post]);
+    ensureFontsStylesheet();
+    Promise.all(CANVAS_FONTS.map((f) => document.fonts.load(f))).finally(() =>
+      setFontsReady(true)
+    );
+  }, []);
 
   // Función para dibujar formas orgánicas solo en esquinas diagonales
-  const drawOrganicBackground = (ctx, canvas) => {
+  // Trazo de tinta orgánico bajo el título (guiño a la escritura a mano)
+  const drawInkStroke = (ctx, cx, y, width, color, scale) => {
     ctx.save();
-
-    // Color morado del diseño
-    const purpleColor = "#8B5CF6";
-    ctx.fillStyle = purpleColor;
-
-    // Esquina superior izquierda - triángulo con lado interno ondulado
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.round(10 * scale);
+    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(0, 0); // Esquina exacta
-    ctx.lineTo(canvas.width * 0.3, 0); // Línea recta horizontal
-    // Lado interno ondulado
+    ctx.moveTo(cx - width / 2, y);
     ctx.bezierCurveTo(
-      canvas.width * 0.25,
-      canvas.height * 0.05,
-      canvas.width * 0.15,
-      canvas.height * 0.08,
-      canvas.width * 0.08,
-      canvas.height * 0.15
+      cx - width / 4,
+      y + 14 * scale,
+      cx + width / 4,
+      y - 14 * scale,
+      cx + width / 2,
+      y
     );
-    ctx.bezierCurveTo(
-      canvas.width * 0.05,
-      canvas.height * 0.2,
-      canvas.width * 0.02,
-      canvas.height * 0.25,
-      0,
-      canvas.height * 0.3
-    );
-    ctx.closePath();
-    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  };
 
-    // Esquina inferior derecha - triángulo con lado interno ondulado
+  // Chip redondeado con borde/relleno suave para datos (palabras, fecha)
+  const drawChip = (ctx, label, x, y, scale, { fill, textColor }) => {
+    const chipH = Math.round(54 * scale);
+    const padX = Math.round(26 * scale);
+    const width = ctx.measureText(label).width + padX * 2;
+
+    ctx.save();
+    ctx.fillStyle = fill;
     ctx.beginPath();
-    ctx.moveTo(canvas.width, canvas.height); // Esquina exacta
-    ctx.lineTo(canvas.width, canvas.height * 0.7); // Línea recta vertical
-    // Lado interno ondulado
-    ctx.bezierCurveTo(
-      canvas.width * 0.95,
-      canvas.height * 0.75,
-      canvas.width * 0.92,
-      canvas.height * 0.85,
-      canvas.width * 0.85,
-      canvas.height * 0.92
-    );
-    ctx.bezierCurveTo(
-      canvas.width * 0.8,
-      canvas.height * 0.95,
-      canvas.width * 0.75,
-      canvas.height * 0.98,
-      canvas.width * 0.7,
-      canvas.height
-    );
-    ctx.closePath();
+    ctx.roundRect(x, y - chipH + Math.round(16 * scale), width, chipH, 999);
     ctx.fill();
-
-    ctx.restore();
-  };
-
-  // Función para dibujar elementos decorativos (estrellas y corazones)
-  const drawDecorativos = (ctx, canvas, scale) => {
-    ctx.save();
-
-    const purpleColor = "#8B5CF6";
-    const lightPurple = "#A78BFA";
-
-    // Estrellas decorativas
-    const stars = [
-      { x: 0.15, y: 0.3, size: 30, color: purpleColor, opacity: 0.8 },
-      { x: 0.85, y: 0.2, size: 25, color: lightPurple, opacity: 0.7 },
-      { x: 0.12, y: 0.7, size: 20, color: purpleColor, opacity: 0.6 },
-      { x: 0.88, y: 0.75, size: 28, color: lightPurple, opacity: 0.9 },
-    ];
-
-    stars.forEach((star) => {
-      ctx.save();
-      ctx.fillStyle = star.color;
-      ctx.globalAlpha = star.opacity;
-      ctx.font = `${Math.round(star.size * scale)}px system-ui`;
-      ctx.textAlign = "center";
-      ctx.fillText("⭐", canvas.width * star.x, canvas.height * star.y);
-      ctx.restore();
-    });
-
-    // Corazones decorativos
-    const hearts = [
-      { x: 0.25, y: 0.25, size: 25, color: lightPurple, opacity: 0.7 },
-      { x: 0.78, y: 0.4, size: 22, color: purpleColor, opacity: 0.6 },
-      { x: 0.2, y: 0.8, size: 20, color: lightPurple, opacity: 0.8 },
-      { x: 0.85, y: 0.85, size: 26, color: purpleColor, opacity: 0.7 },
-    ];
-
-    hearts.forEach((heart) => {
-      ctx.save();
-      ctx.fillStyle = heart.color;
-      ctx.globalAlpha = heart.opacity;
-      ctx.font = `${Math.round(heart.size * scale)}px system-ui`;
-      ctx.textAlign = "center";
-      ctx.fillText("💜", canvas.width * heart.x, canvas.height * heart.y);
-      ctx.restore();
-    });
-
-    ctx.restore();
-  };
-
-  // Función para dibujar texto con sombra suave
-  const drawTextWithShadow = (
-    ctx,
-    text,
-    x,
-    y,
-    shadowOffset = 2,
-    shadowOpacity = 0.2
-  ) => {
-    // Sombra
-    ctx.save();
-    ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
-    ctx.fillText(text, x + shadowOffset, y + shadowOffset);
+    ctx.fillStyle = textColor;
+    ctx.textAlign = "center";
+    ctx.fillText(label, x + width / 2, y - Math.round(8 * scale));
     ctx.restore();
 
-    // Texto principal
-    ctx.fillText(text, x, y);
+    return width;
   };
 
-  // Generar imagen
+  // Genera la imagen: fondo claro cálido, título en Fraunces itálica, franja índigo con CTA
   const generateImage = () => {
     const canvas = canvasRef.current;
     if (!canvas || !post) return;
 
     const ctx = canvas.getContext("2d");
-    const config = platformConfig[platform];
+    const config = platformConfig[platform] || platformConfig.universal;
+    const vertical = config.height > config.width;
 
-    // Configurar canvas
     canvas.width = config.width;
     canvas.height = config.height;
 
-    // Limpiar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const scale = canvas.width / 1080;
+    const W = canvas.width;
+    const H = canvas.height;
+    const cx = W / 2;
 
-    // Fondo blanco base
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const paper = "#f6f1ff";
+    const indigo = "#4c1d95";
+    const violet = "#8b5cf6";
+    const inkSoft = "#5b4a86";
+    const gold = "#c8862b";
 
-    // Configuraciones de texto - Todas las imágenes son cuadradas ahora
-    const baseSize = 1080;
-    const scale = canvas.width / baseSize;
+    ctx.clearRect(0, 0, W, H);
 
-    // Formas orgánicas de fondo (como en tu diseño de Procreate)
-    drawOrganicBackground(ctx, canvas);
+    // Fondo papel claro
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, W, H);
 
-    // Elementos decorativos (estrellas y corazones)
-    drawDecorativos(ctx, canvas, scale);
+    // Lavado violeta suave en la esquina superior izquierda
+    const blob = ctx.createRadialGradient(
+      W * 0.1,
+      H * 0.05,
+      0,
+      W * 0.1,
+      H * 0.05,
+      W * 0.55
+    );
+    blob.addColorStop(0, "rgba(139,92,246,0.22)");
+    blob.addColorStop(1, "rgba(139,92,246,0)");
+    ctx.fillStyle = blob;
+    ctx.fillRect(0, 0, W, H * 0.6);
 
-    // Layout más simple, sin header superior
-    const marginX = Math.round(60 * scale);
-    const maxWidth = canvas.width - marginX * 5; // Máximo margen para textos muy cómodos
+    ctx.textAlign = "center";
 
-    // Función para dividir texto en líneas (necesitamos declararla antes de usarla)
-    const wrapText = (
-      text,
-      maxWidth,
-      fontSize,
-      fontFamily = "system-ui, -apple-system, sans-serif"
-    ) => {
-      ctx.font = `${Math.round(fontSize * scale)}px ${fontFamily}`;
+    // Función para envolver texto en líneas según el ancho máximo
+    const wrapText = (text, maxWidth, font) => {
+      ctx.font = font;
       const words = text.split(" ");
       const lines = [];
       let currentLine = "";
-
       for (const word of words) {
-        const testLine = currentLine + (currentLine ? " " : "") + word;
-        const metrics = ctx.measureText(testLine);
-
-        if (metrics.width > maxWidth && currentLine) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && currentLine) {
           lines.push(currentLine);
           currentLine = word;
         } else {
@@ -319,83 +245,21 @@ const ImageGenerator = ({
       return lines;
     };
 
-    // Función helper para procesar texto con saltos de línea y bullets
-    const processTextWithLineBreaks = (text, maxWidth, fontSize, fontFamily) => {
-      if (!text) return [];
-      
-      // Limpiar emojis
-      const cleanText = text
-        .replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "")
-        .trim();
-      
-      // Dividir por saltos de línea primero, luego envolver cada línea si es necesario
-      const paragraphs = cleanText.split('\n').filter(p => p.trim());
-      const allLines = [];
-      
-      paragraphs.forEach((paragraph, pIndex) => {
-        const wrappedLines = wrapText(paragraph.trim(), maxWidth, fontSize, fontFamily);
-        allLines.push(...wrappedLines);
-        
-        // Agregar espacio extra entre párrafos (excepto el último)
-        if (pIndex < paragraphs.length - 1) {
-          allLines.push(''); // Línea vacía para espacio
-        }
-      });
-      
-      return allLines;
-    };
+    const cleanEmojis = (text) =>
+      (text || "").replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "").trim();
 
-    // Título principal - Fuente más creativa y divertida
-    ctx.fillStyle = "#4C1D95"; // Morado más oscuro para contraste
-    ctx.font = `bold ${Math.round(52 * scale)}px "Comic Sans MS", "Marker Felt", "Trebuchet MS", cursive, sans-serif`;
-    ctx.textAlign = "center";
+    // Contenido: usar lo editado si está en modo edición, si no extraer del post
+    const eyebrowText = cleanEmojis(
+      editableContent.title || post.title
+    ).toUpperCase();
 
-    const titleY = Math.round(250 * scale); // Más arriba, sin header
-
-    // Usar el título personalizable o el título original como fallback
-    const displayTitle =
-      isEditing && editableContent.title
-        ? editableContent.title
-        : editableContent.title ||
-          post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, "").trim();
-
-    // Dividir título principal en múltiples líneas si es necesario (con soporte para saltos de línea)
-    const titleLines = processTextWithLineBreaks(
-      displayTitle,
-      maxWidth,
-      52,
-      '"Comic Sans MS", "Marker Felt", "Trebuchet MS", cursive, sans-serif'
-    );
-
-    // Dibujar el título principal
-    titleLines.slice(0, 2).forEach((line, lineIndex) => {
-      // Solo dibujar si la línea no está vacía (las líneas vacías son para espaciado)
-      if (line.trim()) {
-        drawTextWithShadow(
-          ctx,
-          line,
-          canvas.width / 2,
-          titleY + lineIndex * Math.round(60 * scale),
-          Math.round(2 * scale),
-          0.12
-        );
-      }
-    });
-
-    // Usar contenido editable si está en modo edición, sino extraer del post
-    let postTitle, contestTitle, description, details;
-
+    let contestTitle, description, details;
     if (isEditing && editableContent.title) {
-      // Usar contenido editado
-      postTitle = editableContent.title;
-      contestTitle = editableContent.subtitle;
+      contestTitle = cleanEmojis(editableContent.subtitle).replace(/^"|"$/g, "");
       description = editableContent.description;
       details = editableContent.details ? [editableContent.details] : [];
     } else {
-      // Extraer contenido del post original
-      const postLines = post.content.split("\n").filter((line) => line.trim());
-
-      postTitle = "";
+      const postLines = post.content.split("\n").filter((l) => l.trim());
       contestTitle = "";
       description = "";
       details = [];
@@ -403,12 +267,8 @@ const ImageGenerator = ({
       for (let i = 0; i < postLines.length; i++) {
         const line = postLines[i].trim();
 
-        if (line.includes("🎯") && line.includes("RETO") && !postTitle) {
-          postTitle = line.replace(/🎯/g, "").trim();
-        }
-
         if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
-          contestTitle = line;
+          contestTitle = line.replace(/^"|"$/g, "");
         }
 
         if (
@@ -423,223 +283,97 @@ const ImageGenerator = ({
           !description
         ) {
           description = line;
-          if (i + 1 < postLines.length) {
-            const nextLine = postLines[i + 1].trim();
-            if (
-              !nextLine.includes("📝") &&
-              !nextLine.includes("📅") &&
-              nextLine.length > 10
-            ) {
-              description += " " + nextLine;
-            }
+          const nextLine = postLines[i + 1]?.trim();
+          if (nextLine && !nextLine.includes("📝") && !nextLine.includes("📅") && nextLine.length > 10) {
+            description += " " + nextLine;
           }
         }
 
-        if (
-          (line.includes("📝") || line.includes("📅")) &&
-          !line.includes("letranido.com")
-        ) {
-          details.push(line);
+        if ((line.includes("📝") || line.includes("📅")) && !line.includes("letranido.com")) {
+          details.push(cleanEmojis(line));
         }
       }
-    }
-
-    // Calcular CTA Y position ANTES de usarlo
-    const ctaYPos = canvas.height - Math.round(250 * scale);
-
-    // Calcular altura del título para el layout
-    const titleHeight = titleLines.length * Math.round(60 * scale);
-
-    // Calcular altura disponible para contenido (se usa implícitamente en los cálculos de spacing)
-    // const availableHeight = ctaYPos - titleY - Math.round(100 * scale);
-
-    // Calcular contenido disponible y distribuir uniformemente, considerando el título principal
-    const availableContentHeight =
-      ctaYPos -
-      (titleY + titleHeight + Math.round(40 * scale)) -
-      Math.round(40 * scale); // Espacio disponible entre título principal y CTA
-
-    // Preparar contenido y calcular alturas necesarias
-    const contentItems = [];
-
-    // 1. Título secundario del post (extraído del contenido) - Opcional
-    // Para new_contest, NO mostrar el postTitle si es redundante con el título principal
-    const shouldShowPostTitle = postTitle &&
-                                 postTitle !== displayTitle &&
-                                 post.type !== 'new_contest';
-
-    if (shouldShowPostTitle) {
-      const titleLines = wrapText(postTitle, maxWidth, 36);
-      contentItems.push({
-        type: "secondary-title",
-        lines: titleLines.slice(0, 2),
-        height: titleLines.slice(0, 2).length * Math.round(42 * scale),
-      });
-    }
-
-    // 2. Título del reto (ej: "El último día de...")
-    if (contestTitle) {
-      const contestLines = processTextWithLineBreaks(contestTitle, maxWidth, 36, '"Georgia", "Times New Roman", serif');
-      contentItems.push({
-        type: "contest-title",
-        lines: contestLines.slice(0, 3), // Permitir hasta 3 líneas
-        height: contestLines.slice(0, 3).length * Math.round(42 * scale),
-      });
-    }
-
-    // 3. Descripción del reto - Con soporte para saltos de línea y bullets
-    if (description) {
-      const allDescLines = processTextWithLineBreaks(description, maxWidth, 30, '"Trebuchet MS", "Verdana", sans-serif');
-      
-      const lineHeight = Math.round(36 * scale);
-      contentItems.push({
-        type: "description",
-        lines: allDescLines,
-        height: allDescLines.length * lineHeight,
-        groupWithPrevious: true, // Agrupación visual con título del reto
-      });
-    }
-
-    // 4. Detalles técnicos (palabras, fecha) - Con soporte para saltos de línea
-    if (details.length > 0) {
-      // Unir todos los detalles en un solo texto con saltos de línea
-      const allDetailsText = details.join('\n');
-      const allDetailLines = processTextWithLineBreaks(allDetailsText, maxWidth, 28, '"Trebuchet MS", "Verdana", sans-serif');
-      
-      contentItems.push({
-        type: "details",
-        lines: allDetailLines,
-        height: allDetailLines.length * Math.round(32 * scale),
-      });
-    }
-
-    // Calcular altura total del contenido
-    const totalContentHeight = contentItems.reduce(
-      (sum, item) => sum + item.height,
-      0
-    );
-
-    // Distribuir espacio considerando agrupaciones visuales
-    const remainingSpace = availableContentHeight - totalContentHeight;
-    const normalSpacing =
-      contentItems.length > 1
-        ? remainingSpace / (contentItems.length + 1)
-        : remainingSpace / 2;
-    const groupSpacing = Math.round(15 * scale); // Espacio reducido entre elementos agrupados
-
-    // Posición inicial considerando el espacio del título principal (puede ser múltiples líneas)
-    let currentY =
-      titleY + titleHeight + Math.round(40 * scale) + normalSpacing;
-
-    // Renderizar cada elemento con espaciado adaptativo
-    contentItems.forEach((item) => {
-      if (item.type === "secondary-title") {
-        ctx.fillStyle = "#4C1D95"; // Morado oscuro para contraste
-        ctx.font = `bold ${Math.round(36 * scale)}px "Trebuchet MS", "Arial Rounded MT Bold", sans-serif`;
-        item.lines.forEach((line, lineIndex) => {
-          drawTextWithShadow(
-            ctx,
-            line,
-            canvas.width / 2,
-            currentY + lineIndex * Math.round(42 * scale),
-            Math.round(2 * scale),
-            0.2
-          );
-        });
-      } else if (item.type === "contest-title") {
-        ctx.fillStyle = "#4C1D95"; // Morado oscuro para contraste
-        ctx.font = `bold ${Math.round(36 * scale)}px "Georgia", "Times New Roman", serif`;
-        item.lines.forEach((line, lineIndex) => {
-          // Solo dibujar si la línea no está vacía (las líneas vacías son para espaciado)
-          if (line.trim()) {
-            drawTextWithShadow(
-              ctx,
-              line,
-              canvas.width / 2,
-              currentY + lineIndex * Math.round(42 * scale),
-              Math.round(2 * scale),
-              0.2
-            );
-          }
-        });
-      } else if (item.type === "description") {
-        ctx.fillStyle = "#4C1D95"; // Morado oscuro para buena legibilidad
-        ctx.font = `${Math.round(30 * scale)}px "Trebuchet MS", "Verdana", sans-serif`;
-        const lineHeight = Math.round(36 * scale);
-        item.lines.forEach((line, lineIndex) => {
-          // Solo dibujar si la línea no está vacía (las líneas vacías son para espaciado)
-          if (line.trim()) {
-            // Convertir bullets a símbolos uniformes
-            const processedLine = line.trim().startsWith('-') ? line.replace('-', '•') : 
-                                line.trim().startsWith('*') ? line.replace('*', '•') : line;
-            
-            drawTextWithShadow(
-              ctx,
-              processedLine,
-              canvas.width / 2,
-              currentY + lineIndex * lineHeight,
-              Math.round(1 * scale),
-              0.15
-            );
-          }
-        });
-      } else if (item.type === "details") {
-        ctx.fillStyle = "#4C1D95"; // Morado oscuro para detalles
-        ctx.font = `${Math.round(28 * scale)}px "Trebuchet MS", "Verdana", sans-serif`;
-        item.lines.forEach((line, lineIndex) => {
-          // Solo dibujar si la línea no está vacía (las líneas vacías son para espaciado)
-          if (line.trim()) {
-            // Convertir bullets a símbolos uniformes
-            const processedLine = line.trim().startsWith('-') ? line.replace('-', '•') : 
-                                line.trim().startsWith('*') ? line.replace('*', '•') : line;
-            
-            drawTextWithShadow(
-              ctx,
-              processedLine,
-              canvas.width / 2,
-              currentY + lineIndex * Math.round(32 * scale),
-              Math.round(1 * scale),
-              0.15
-            );
-          }
-        });
+      if (!contestTitle) {
+        contestTitle = editableContent.title || post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, "").trim();
       }
+    }
 
-      // Aplicar espaciado adaptativo según si es agrupado o no
-      const nextSpacing = item.groupWithPrevious ? groupSpacing : normalSpacing;
-      currentY += item.height + nextSpacing;
+    const maxWidth = W - 200 * scale;
+
+    // Eyebrow centrado
+    ctx.fillStyle = gold;
+    ctx.font = `700 ${Math.round(26 * scale)}px "Libre Franklin", sans-serif`;
+    const eyebrowY = (vertical ? 220 : 150) * scale;
+    ctx.fillText(eyebrowText, cx, eyebrowY);
+
+    // Título grande en Fraunces itálica
+    ctx.fillStyle = indigo;
+    ctx.font = `italic 600 ${Math.round(102 * scale)}px "Fraunces", Georgia, serif`;
+    const titleLines = wrapText(contestTitle, maxWidth, ctx.font).slice(0, 2);
+    const titleLineHeight = Math.round(108 * scale);
+    let titleY = eyebrowY + 120 * scale;
+    titleLines.forEach((line, i) => {
+      ctx.fillText(line, cx, titleY + i * titleLineHeight);
+    });
+    const titleBottom = titleY + (titleLines.length - 1) * titleLineHeight;
+
+    // Trazo de tinta bajo el título
+    drawInkStroke(ctx, cx, titleBottom + 34 * scale, 420 * scale, violet, scale);
+
+    // Descripción / prompt
+    ctx.fillStyle = inkSoft;
+    ctx.font = `400 ${Math.round(34 * scale)}px "Libre Franklin", sans-serif`;
+    const descLines = description ? wrapText(description, maxWidth, ctx.font) : [];
+    let py = titleBottom + (vertical ? 160 : 130) * scale;
+    descLines.forEach((line) => {
+      ctx.fillText(line, cx, py);
+      py += 48 * scale;
     });
 
-    // Call to action
-    const ctaY = ctaYPos;
+    // Chips de datos (palabras, fecha)
+    if (details.length > 0) {
+      const chipY = py + (vertical ? 100 : 70) * scale;
+      ctx.font = `700 ${Math.round(23 * scale)}px "Space Mono", monospace`;
+      const widths = details.map(
+        (label) => ctx.measureText(label).width + Math.round(26 * scale) * 2
+      );
+      const chipGap = Math.round(22 * scale);
+      const totalW = widths.reduce((a, b) => a + b, 0) + chipGap * (details.length - 1);
+      let chipX = cx - totalW / 2;
+      details.slice(0, 2).forEach((label) => {
+        const w = drawChip(ctx, label, chipX, chipY, scale, {
+          fill: "rgba(139,92,246,0.12)",
+          textColor: indigo,
+        });
+        chipX += w + chipGap;
+      });
+    }
 
-    // Texto del CTA - Estilo como en tu diseño
-    ctx.fillStyle = "#4C1D95"; // Morado oscuro para contraste
-    ctx.font = `bold ${Math.round(42 * scale)}px "Trebuchet MS", "Arial Rounded MT Bold", sans-serif`;
-    ctx.textAlign = "center";
-    drawTextWithShadow(
-      ctx,
-      "letranido.com",
-      canvas.width / 2,
-      ctaY,
-      Math.round(3 * scale),
-      0.3
-    );
+    // Franja inferior sólida con el CTA
+    const barH = (vertical ? 170 : 150) * scale;
+    ctx.fillStyle = indigo;
+    ctx.fillRect(0, H - barH, W, barH);
 
-    // Notificar que la imagen está lista
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `600 ${Math.round(44 * scale)}px "Fraunces", Georgia, serif`;
+    ctx.fillText("letranido.com", cx, H - barH / 2 + 8 * scale);
+
+    ctx.fillStyle = "#d7c8fb";
+    ctx.font = `500 ${Math.round(22 * scale)}px "Libre Franklin", sans-serif`;
+    ctx.fillText("Comparte tu historia con la comunidad", cx, H - barH / 2 + 44 * scale);
+
     if (onImageGenerated) {
       onImageGenerated(canvas.toDataURL("image/png"));
     }
   };
 
-  // Generar imagen cuando cambie el post, plataforma o contest
+  // Generar imagen cuando cambie el post, plataforma, contest, o cuando las fuentes terminen de cargar
   useEffect(() => {
-    if (post) {
-      // Pequeño delay para asegurar que el canvas esté listo
-      setTimeout(generateImage, 100);
+    if (post && fontsReady) {
+      setTimeout(generateImage, 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post, platform, contest]);
+  }, [post, platform, contest, fontsReady]);
 
   // Función para descargar la imagen
   const downloadImage = () => {
@@ -683,7 +417,7 @@ const ImageGenerator = ({
             <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Título principal (será el título grande de la imagen):
+                  Eyebrow (línea pequeña arriba del título):
                 </label>
                 <input
                   type="text"
@@ -701,7 +435,7 @@ const ImageGenerator = ({
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Título del reto:
+                  Título del reto (será el título grande de la imagen):
                 </label>
                 <input
                   type="text"

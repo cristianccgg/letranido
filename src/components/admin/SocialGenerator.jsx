@@ -12,6 +12,7 @@ const SocialGenerator = () => {
   const [showImageFor, setShowImageFor] = useState(null);
   const [generatedImages, setGeneratedImages] = useState({});
   const [selectedContestOption, setSelectedContestOption] = useState('current');
+  const [imageFormats, setImageFormats] = useState({}); // { [postId]: 'universal' | 'story' }
 
   // Obtener reto seleccionado según la opción
   const getSelectedContest = () => {
@@ -522,13 +523,37 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
               {/* Generador de imagen */}
               {showImageFor === post.id && (
                 <div className="mt-4 p-4 bg-white rounded-lg border">
-                  <h5 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                    <Image className="w-4 h-4" />
-                    Imagen para Redes Sociales (1080x1080)
-                  </h5>
+                  <div className="flex items-center justify-between mb-3">
+                    <h5 className="font-medium text-gray-900 flex items-center gap-2">
+                      <Image className="w-4 h-4" />
+                      Imagen para Redes Sociales
+                    </h5>
+                    <div className="flex bg-gray-100 rounded-lg p-1">
+                      <button
+                        onClick={() => setImageFormats((prev) => ({ ...prev, [post.id]: 'universal' }))}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                          (imageFormats[post.id] || 'universal') === 'universal'
+                            ? 'bg-white text-purple-700 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Cuadrado (Feed)
+                      </button>
+                      <button
+                        onClick={() => setImageFormats((prev) => ({ ...prev, [post.id]: 'story' }))}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                          imageFormats[post.id] === 'story'
+                            ? 'bg-white text-purple-700 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Vertical (Stories)
+                      </button>
+                    </div>
+                  </div>
                   <ImageGenerator
                     post={post}
-                    platform="universal"
+                    platform={imageFormats[post.id] || 'universal'}
                     contest={getSelectedContest()}
                     onImageGenerated={(imageDataUrl) => handleImageGenerated(post.id, imageDataUrl)}
                   />
