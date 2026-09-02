@@ -52,74 +52,19 @@ const ImageGenerator = ({
     story: { width: 1080, height: 1920 }, // Stories / Reels (Instagram, Facebook)
   };
 
-  // Extraer contenido inicial del post para edición
+  // Extraer contenido inicial del post para edición: usa los campos declarados
+  // en post.image (eyebrow, description, details) en vez de parsear post.content
   const extractInitialContent = useCallback(() => {
     if (!post) return;
 
-    const postLines = post.content.split("\n").filter((line) => line.trim());
-
-    let postTitle = "";
-    let contestTitle = "";
-    let description = "";
-    let details = [];
-
-    // Extraer contenido usando la misma lógica que generateImage
-    for (let i = 0; i < postLines.length; i++) {
-      const line = postLines[i].trim();
-
-      if (line.includes("🎯") && line.includes("RETO") && !postTitle) {
-        postTitle = line.replace(/🎯/g, "").trim();
-      }
-
-      if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
-        contestTitle = line;
-      }
-
-      if (
-        !line.includes("📝") &&
-        !line.includes("📅") &&
-        !line.includes("✍️") &&
-        !line.includes("🎯") &&
-        !line.includes("🏆") &&
-        !line.includes("🔗") &&
-        line.length > 20 &&
-        !line.startsWith('"') &&
-        !description
-      ) {
-        description = line;
-        if (i + 1 < postLines.length) {
-          const nextLine = postLines[i + 1].trim();
-          if (
-            !nextLine.includes("📝") &&
-            !nextLine.includes("📅") &&
-            nextLine.length > 10
-          ) {
-            description += " " + nextLine;
-          }
-        }
-      }
-
-      if (
-        (line.includes("📝") || line.includes("📅")) &&
-        !line.includes("letranido.com")
-      ) {
-        // Limpiar emojis al extraer detalles
-        const cleanLine = line.replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "").trim();
-        if (cleanLine) details.push(cleanLine);
-      }
-    }
-
-    // Usar el título principal del post como base para el título personalizable
-    const mainTitle = post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, "").trim();
+    const image = post.image || {};
 
     setEditableContent({
-      title: mainTitle || "Título personalizable", // Usar el título principal como base
-      subtitle:
-        contestTitle ||
-        (contest ? `"${contest.title}"` : '"Reto personalizable"'),
-      description: description || "Descripción personalizable del reto...",
+      title: image.eyebrow || "Título personalizable",
+      subtitle: contest ? `"${contest.title}"` : '"Reto personalizable"',
+      description: image.description || "Descripción personalizable del reto...",
       details:
-        details.join(" • ") ||
+        (image.details && image.details.length > 0 && image.details.join(" • ")) ||
         (contest
           ? `📝 ${contest.min_words} - ${contest.max_words} palabras`
           : "📝 Detalles personalizables"),
@@ -248,55 +193,14 @@ const ImageGenerator = ({
     const cleanEmojis = (text) =>
       (text || "").replace(/📚|🗳️|⏰|🎯|✍️|🔥|🚨|🏆|📝|📅|🔗/gu, "").trim();
 
-    // Contenido: usar lo editado si está en modo edición, si no extraer del post
-    const eyebrowText = cleanEmojis(
-      editableContent.title || post.title
-    ).toUpperCase();
-
-    let contestTitle, description, details;
-    if (isEditing && editableContent.title) {
-      contestTitle = cleanEmojis(editableContent.subtitle).replace(/^"|"$/g, "");
-      description = editableContent.description;
-      details = editableContent.details ? [editableContent.details] : [];
-    } else {
-      const postLines = post.content.split("\n").filter((l) => l.trim());
-      contestTitle = "";
-      description = "";
-      details = [];
-
-      for (let i = 0; i < postLines.length; i++) {
-        const line = postLines[i].trim();
-
-        if (line.startsWith('"') && line.endsWith('"') && !contestTitle) {
-          contestTitle = line.replace(/^"|"$/g, "");
-        }
-
-        if (
-          !line.includes("📝") &&
-          !line.includes("📅") &&
-          !line.includes("✍️") &&
-          !line.includes("🎯") &&
-          !line.includes("🏆") &&
-          !line.includes("🔗") &&
-          line.length > 20 &&
-          !line.startsWith('"') &&
-          !description
-        ) {
-          description = line;
-          const nextLine = postLines[i + 1]?.trim();
-          if (nextLine && !nextLine.includes("📝") && !nextLine.includes("📅") && nextLine.length > 10) {
-            description += " " + nextLine;
-          }
-        }
-
-        if ((line.includes("📝") || line.includes("📅")) && !line.includes("letranido.com")) {
-          details.push(cleanEmojis(line));
-        }
-      }
-      if (!contestTitle) {
-        contestTitle = editableContent.title || post.title.replace(/🎯|✍️|🔥|⏰|🚨|🗳️|📚|🏆/g, "").trim();
-      }
-    }
+    // Contenido: siempre viene de editableContent (inicializado desde post.image
+    // y contest.title), que el usuario puede sobreescribir en modo edición.
+    const eyebrowText = cleanEmojis(editableContent.title).toUpperCase();
+    const contestTitle = cleanEmojis(editableContent.subtitle).replace(/^"|"$/g, "");
+    const description = editableContent.description;
+    const details = editableContent.details
+      ? editableContent.details.split(" • ").filter(Boolean)
+      : [];
 
     const maxWidth = W - 200 * scale;
 
@@ -367,13 +271,13 @@ const ImageGenerator = ({
     }
   };
 
-  // Generar imagen cuando cambie el post, plataforma, contest, o cuando las fuentes terminen de cargar
+  // Generar imagen cuando cambie el post, plataforma, contest, contenido editable, o cuando las fuentes terminen de cargar
   useEffect(() => {
     if (post && fontsReady) {
       setTimeout(generateImage, 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post, platform, contest, fontsReady]);
+  }, [post, platform, contest, fontsReady, editableContent]);
 
   // Función para descargar la imagen
   const downloadImage = () => {

@@ -1,6 +1,6 @@
 // components/admin/SocialGenerator.jsx - Generador automático de posts para redes sociales
 import { useState } from 'react';
-import { Share2, Copy, CheckCircle, Calendar, Sparkles, Image, Download } from 'lucide-react';
+import { Share2, Copy, CheckCircle, Calendar, Sparkles, Image, Download, ClipboardList } from 'lucide-react';
 import { useGlobalApp } from '../../contexts/GlobalAppContext';
 import ImageGenerator from './ImageGenerator';
 
@@ -9,10 +9,15 @@ const SocialGenerator = () => {
   const [generatedPosts, setGeneratedPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [copiedBatch, setCopiedBatch] = useState(false);
   const [showImageFor, setShowImageFor] = useState(null);
   const [generatedImages, setGeneratedImages] = useState({});
   const [selectedContestOption, setSelectedContestOption] = useState('current');
   const [imageFormats, setImageFormats] = useState({}); // { [postId]: 'universal' | 'story' }
+  const [selectedPostIds, setSelectedPostIds] = useState([]);
+  const [downloadingBatch, setDownloadingBatch] = useState(false);
+  const [generatingBatch, setGeneratingBatch] = useState(false);
+  const [pendingGenerationIds, setPendingGenerationIds] = useState([]);
 
   // Obtener reto seleccionado según la opción
   const getSelectedContest = () => {
@@ -85,6 +90,10 @@ const SocialGenerator = () => {
 
       const posts = await generateContestPosts(contest);
       setGeneratedPosts(posts);
+      // Pre-selecciona solo los posts cuya fecha calculada ya pasó o cae
+      // dentro de los próximos 3 días, para no tener que pensar fechas a mano
+      const duePosts = posts.filter(p => isPostDue(p.scheduledDate));
+      setSelectedPostIds((duePosts.length > 0 ? duePosts : posts).map(p => p.id));
 
       // Limpiar imágenes generadas al cambiar reto
       setGeneratedImages({});
@@ -97,18 +106,61 @@ const SocialGenerator = () => {
     }
   };
 
+  // Calcula la fecha/hora concreta de publicación de cada uno de los 8 posts,
+  // a partir de submission_deadline y voting_deadline del reto (offsets reales,
+  // no días fijos de calendario, para que funcione aunque el reto no siga la
+  // convención de "cierre el 26").
+  const calculatePostDates = (contest) => {
+    const DAY = 24 * 60 * 60 * 1000;
+    const submission = contest.submission_deadline ? new Date(contest.submission_deadline) : null;
+    const voting = contest.voting_deadline ? new Date(contest.voting_deadline) : null;
+    const created = contest.created_at ? new Date(contest.created_at) : null;
+
+    // Ancla de "inicio del reto": created_at si existe, si no ~22 días antes del cierre de envíos
+    const start = created || (submission ? new Date(submission.getTime() - 22 * DAY) : new Date());
+
+    const votingMid = submission && voting
+      ? new Date((submission.getTime() + voting.getTime()) / 2)
+      : null;
+
+    return {
+      1: new Date(start.getTime() + 1 * DAY), // Nuevo reto: día 1
+      2: new Date(start.getTime() + 5 * DAY), // Tips: día 5
+      3: new Date(start.getTime() + 10 * DAY), // Motivación: día 10
+      4: submission ? new Date(submission.getTime() - 5 * DAY) : null, // Recordatorio: -5 días del cierre
+      5: submission ? new Date(submission.getTime() - 1 * DAY) : null, // Última llamada: -24h del cierre
+      6: submission, // Votación iniciada: justo al cerrar envíos
+      7: votingMid, // Lee las historias: mitad de la votación
+      8: voting, // Resultados: al cerrar votación
+    };
+  };
+
   // Función principal para generar posts basados en las fases del reto
   const generateContestPosts = async (contest) => {
     const posts = [];
-    
+    const dates = calculatePostDates(contest);
+
+    const deadlineStr = contest.submission_deadline
+      ? new Date(contest.submission_deadline).toLocaleDateString('es-ES')
+      : '';
+    const wordsStr = contest.min_words && contest.max_words
+      ? `📝 ${contest.min_words}-${contest.max_words} palabras`
+      : '';
+    const dateChip = deadlineStr ? `📅 ${deadlineStr}` : '';
+
     // Post 1: Anuncio del nuevo reto
     posts.push({
       id: 1,
       title: '✍️ Nuevo Reto de Escritura',
       content: generateNewContestPost(contest),
-      scheduledFor: 'Día 1 del mes',
+      scheduledDate: dates[1],
       type: 'new_contest',
-      hashtags: generateHashtags(['reto', 'escritura', 'concurso'])
+      hashtags: generateHashtags(['reto', 'escritura', 'concurso']),
+      image: {
+        eyebrow: 'Nuevo Reto',
+        description: contest.description || 'Un nuevo desafío te espera. Anímate a escribir tu historia.',
+        details: [wordsStr, dateChip].filter(Boolean)
+      }
     });
 
     // Post 2: Tips de escritura
@@ -116,9 +168,14 @@ const SocialGenerator = () => {
       id: 2,
       title: '✍️ Tips de Escritura',
       content: generateWritingTipsPost(contest),
-      scheduledFor: 'Día 5 del mes',
+      scheduledDate: dates[2],
       type: 'tips',
-      hashtags: generateHashtags(['tips', 'escritura', 'creatividad'])
+      hashtags: generateHashtags(['tips', 'escritura', 'creatividad']),
+      image: {
+        eyebrow: 'Tip de Escritura',
+        description: 'Un consejo rápido para avanzar con tu historia del reto activo.',
+        details: [dateChip].filter(Boolean)
+      }
     });
 
     // Post 3: Motivación a mitad de mes
@@ -126,9 +183,14 @@ const SocialGenerator = () => {
       id: 3,
       title: '🔥 Motivación de Mitad de Mes',
       content: generateMotivationPost(contest),
-      scheduledFor: 'Día 10 del mes',
+      scheduledDate: dates[3],
       type: 'motivation',
-      hashtags: generateHashtags(['motivacion', 'escritura', 'creatividad'])
+      hashtags: generateHashtags(['motivacion', 'escritura', 'creatividad']),
+      image: {
+        eyebrow: 'Seguí Escribiendo',
+        description: 'Aún hay tiempo para terminar tu historia y compartirla con la comunidad.',
+        details: [dateChip].filter(Boolean)
+      }
     });
 
     // Post 4: Recordatorio de envío
@@ -136,9 +198,14 @@ const SocialGenerator = () => {
       id: 4,
       title: '⏰ Recordatorio de Envío',
       content: generateReminderPost(contest),
-      scheduledFor: '5 días antes del cierre',
+      scheduledDate: dates[4],
       type: 'reminder',
-      hashtags: generateHashtags(['ultimosdias', 'envio', 'deadline'])
+      hashtags: generateHashtags(['ultimosdias', 'envio', 'deadline']),
+      image: {
+        eyebrow: 'Quedan 5 Días',
+        description: 'El envío de historias está por cerrar. Dale los últimos toques a la tuya.',
+        details: [dateChip].filter(Boolean)
+      }
     });
 
     // Post 5: Última llamada
@@ -146,9 +213,14 @@ const SocialGenerator = () => {
       id: 5,
       title: '🚨 Última Llamada',
       content: generateLastCallPost(contest),
-      scheduledFor: '24 horas antes del cierre',
+      scheduledDate: dates[5],
       type: 'last_call',
-      hashtags: generateHashtags(['ultimahora', 'deadline', 'urgente'])
+      hashtags: generateHashtags(['ultimahora', 'deadline', 'urgente']),
+      image: {
+        eyebrow: 'Últimas 24 Horas',
+        description: 'Es tu última oportunidad para enviar tu historia a este reto.',
+        details: [dateChip].filter(Boolean)
+      }
     });
 
     // Post 6: Votación iniciada
@@ -156,9 +228,14 @@ const SocialGenerator = () => {
       id: 6,
       title: '🗳️ Votación Iniciada',
       content: generateVotingStartPost(contest),
-      scheduledFor: 'Al iniciar votación',
+      scheduledDate: dates[6],
       type: 'voting_start',
-      hashtags: generateHashtags(['votacion', 'historias', 'comunidad'])
+      hashtags: generateHashtags(['votacion', 'historias', 'comunidad']),
+      image: {
+        eyebrow: 'Votación Abierta',
+        description: 'Ya podés leer las historias del reto y votar por tus favoritas.',
+        details: []
+      }
     });
 
     // Post 7: Animar a leer historias
@@ -166,9 +243,14 @@ const SocialGenerator = () => {
       id: 7,
       title: '📚 Lee las Historias',
       content: generateReadStoriesPost(contest),
-      scheduledFor: 'Mitad de votación',
+      scheduledDate: dates[7],
       type: 'read_stories',
-      hashtags: generateHashtags(['lectura', 'historias', 'vota'])
+      hashtags: generateHashtags(['lectura', 'historias', 'vota']),
+      image: {
+        eyebrow: '¿Ya Las Leíste?',
+        description: 'Descubre las historias del reto: mismo prompt, mundos completamente distintos.',
+        details: []
+      }
     });
 
     // Post 8: Resultados
@@ -176,28 +258,51 @@ const SocialGenerator = () => {
       id: 8,
       title: '🏆 Resultados',
       content: generateResultsPost(contest),
-      scheduledFor: 'Al publicar resultados',
+      scheduledDate: dates[8],
       type: 'results',
-      hashtags: generateHashtags(['resultados', 'ganadores', 'celebracion'])
+      hashtags: generateHashtags(['resultados', 'ganadores', 'celebracion']),
+      image: {
+        eyebrow: 'Resultados',
+        description: 'Ya tenemos los resultados del reto. Entra a letranido y descubre las historias más votadas por la comunidad.',
+        details: []
+      }
     });
 
-    return posts;
+    return posts.sort((a, b) => (a.scheduledDate?.getTime() || 0) - (b.scheduledDate?.getTime() || 0));
+  };
+
+  // Formatea la fecha calculada para mostrarla, indicando si ya pasó
+  const formatScheduledDate = (date) => {
+    if (!date) return 'Sin fecha calculada';
+    const isPast = date.getTime() < Date.now();
+    const formatted = date.toLocaleDateString('es-ES', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+    return isPast ? `${formatted} (ya pasó)` : formatted;
+  };
+
+  // Un post "toca publicarlo ahora" si su fecha calculada ya pasó o cae
+  // dentro de los próximos 3 días — así no hay que pensar fechas a mano.
+  const isPostDue = (date) => {
+    if (!date) return false;
+    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+    return date.getTime() <= Date.now() + THREE_DAYS;
   };
 
   // Generar post de nuevo concurso
   const generateNewContestPost = (contest) => {
-    return `¡NUEVO RETO DE ESCRITURA! 🎯
+    return `🎯 NUEVO RETO
 
 "${contest.title}"
 
 ${contest.description}
 
-📝 ${contest.min_words} - ${contest.max_words} palabras
-📅 Envío hasta: ${new Date(contest.submission_deadline).toLocaleDateString('es-ES')}
+📝 ${contest.min_words}-${contest.max_words} palabras
+📅 Hasta el ${new Date(contest.submission_deadline).toLocaleDateString('es-ES')}
 
-¿Estás listo/a para el desafío? ¡Demuestra tu creatividad y únete a nuestra comunidad de escritores!
+¿Te animas? 👇
 
-✍️ Participa en letranido.com`;
+✍️ letranido.com`;
   };
 
   // Generar post de tips
@@ -212,119 +317,96 @@ ${contest.description}
 
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
-    return `✍️ TIP DE ESCRITURA PARA EL RETO
+    return `💡 TIP RÁPIDO
 
 ${randomTip}
 
-¿Cuál es tu técnica favorita para superar el bloqueo creativo?
+¿Cuál es tu truco contra el bloqueo creativo? Contanos 👇
 
-Comparte tu sabiduría con la comunidad 👇
-
-#Reto: "${contest.title}"
-📝 Participa en letranido.com`;
+Reto activo: "${contest.title}"
+✍️ letranido.com`;
   };
 
   // Generar post motivacional
   const generateMotivationPost = (contest) => {
-    return `🔥 ESCRITOR/A, ¡ESTE ES TU MOMENTO!
+    return `🔥 ¿YA ESCRIBISTE LA TUYA?
 
-¿Ya empezaste tu historia para "${contest.title}"?
+"${contest.title}" te está esperando.
 
-Recuerda:
-✨ No existe la historia perfecta, solo la historia terminada
-🎯 Cada palabra cuenta
-💫 Tu perspectiva es única e irreemplazable
+✨ No existe la historia perfecta, solo la terminada
+💫 Tu voz es única
 
-La comunidad está esperando tu voz. ¡No dejes que el mundo se pierda tu historia!
+⏰ Aún hay tiempo. Andá por ella.
 
-⏰ Aún hay tiempo
 📝 letranido.com`;
   };
 
   // Generar post de recordatorio
   const generateReminderPost = (contest) => {
-    return `⏰ ¡ÚLTIMOS DÍAS!
+    return `⏰ QUEDAN 5 DÍAS
 
-Solo quedan 5 días para enviar tu historia al reto:
 "${contest.title}"
+📅 Cierra el ${new Date(contest.submission_deadline).toLocaleDateString('es-ES')}
 
-📅 Deadline: ${new Date(contest.submission_deadline).toLocaleDateString('es-ES')}
+¿Ya la tenés lista? Dale esos últimos toques 🖊️
 
-¿Tienes tu historia lista? ¿Necesitas esos últimos toques?
-
-¡No dejes para mañana lo que puedes escribir hoy!
-
-🏃‍♀️ El tiempo vuela, pero las buenas historias perduran
 ✍️ letranido.com`;
   };
 
   // Generar post de última llamada
   const generateLastCallPost = (contest) => {
-    return `🚨 ¡ÚLTIMA LLAMADA!
-
-⏰ Quedan menos de 24 horas para enviar tu historia
+    return `🚨 ÚLTIMAS 24 HORAS
 
 "${contest.title}"
 
-Si tienes una historia a medias, ¡termínala!
-Si solo tienes una idea, ¡plasmala!
-Si aún no empiezas, ¡AHORA ES EL MOMENTO!
+¿A medias? Terminala.
+¿Solo una idea? Escribila.
+¿Nada aún? Este es el momento.
 
-🔥 Las mejores historias a veces nacen de la presión del último momento
-
-⚡ ACTÚA AHORA: letranido.com`;
+⚡ letranido.com`;
   };
 
   // Generar post de inicio de votación
   const generateVotingStartPost = (contest) => {
-    return `🗳️ ¡LA VOTACIÓN HA COMENZADO!
+    return `🗳️ ¡VOTACIÓN ABIERTA!
 
-Las historias del reto "${contest.title}" están listas para ser leídas y votadas.
+Las historias de "${contest.title}" ya están listas.
 
-Nuestra increíble comunidad ha creado historias únicas que merecen ser descubiertas.
+📚 Leé
+❤️ Votá tus favoritas
+💬 Comentá
 
-📚 Lee las historias
-❤️ Vota por tus favoritas
-💬 Deja comentarios constructivos
-✨ Celebra la creatividad de la comunidad
-
-Tu voto cuenta. Cada historia merece una oportunidad.
+Tu voto cuenta 👇
 
 🔗 letranido.com`;
   };
 
   // Generar post para animar a leer
   const generateReadStoriesPost = (contest) => {
-    return `📚 ¿YA LEÍSTE LAS HISTORIAS?
+    return `📚 ¿YA LEÍSTE TODAS?
 
-El reto "${contest.title}" tiene historias increíbles esperándote:
+"${contest.title}" tiene historias que te van a sorprender.
 
-🌟 Diferentes perspectivas del mismo prompt
-🎭 Estilos únicos de cada escritor
-💫 Sorpresas en cada párrafo
-🎯 Creatividad sin límites
+🌟 Mismo prompt, mundos distintos
+🎭 Un estilo por cada autor/a
 
-Cada historia es un mundo nuevo. ¿Cuál será tu favorita?
+¿Cuál es tu favorita?
 
-👀 Lee ahora: letranido.com
-❤️ No olvides votar`;
+👀 letranido.com`;
   };
 
   // Generar post de resultados
   const generateResultsPost = (contest) => {
-    return `🏆 ¡RESULTADOS DEL RETO DISPONIBLES!
+    return `🏆 ¡YA HAY RESULTADOS!
 
-El reto "${contest.title}" ha concluido y ya puedes ver las historias más destacadas por la comunidad.
+"${contest.title}" llegó a su fin.
 
-✨ Historias más votadas
-📚 Creatividad extraordinaria
-🎭 Diversidad de enfoques
-💫 Talento de nuestra comunidad
+✨ Las historias más votadas
+🎉 Felicidades a todos los que participaron
 
-¡Felicidades a todos los participantes! Cada historia aportó algo especial y único.
+Ver el podio 👇
 
-🎉 Ver resultados completos: letranido.com
-✍️ ¿Listo para el próximo reto?`;
+🎉 letranido.com`;
   };
 
   // Generar hashtags universal (optimizado para Instagram pero funciona en todas)
@@ -363,7 +445,7 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
     if (!imageData) return;
 
     const link = document.createElement('a');
-    link.download = `${post.type}-letranido.png`;
+    link.download = `${post.id}-${post.type}-letranido.png`;
     link.href = imageData;
     link.click();
   };
@@ -371,6 +453,87 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
   // Toggle mostrar/ocultar imagen
   const toggleImagePreview = (postId) => {
     setShowImageFor(showImageFor === postId ? null : postId);
+  };
+
+  // Toggle selección de un post
+  const togglePostSelected = (postId) => {
+    setSelectedPostIds(prev =>
+      prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
+    );
+  };
+
+  const selectAllPosts = () => setSelectedPostIds(generatedPosts.map(p => p.id));
+  const deselectAllPosts = () => setSelectedPostIds([]);
+
+  // Copiar todos los posts seleccionados como JSON en un solo bloque
+  const copySelectedAsJson = async () => {
+    const selected = generatedPosts.filter(p => selectedPostIds.includes(p.id));
+    const payload = selected.map(post => ({
+      id: post.id,
+      type: post.type,
+      title: post.title,
+      scheduledFor: post.scheduledDate ? post.scheduledDate.toISOString() : null,
+      content: post.content,
+      hashtags: post.hashtags
+    }));
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      setCopiedBatch(true);
+      setTimeout(() => setCopiedBatch(false), 2000);
+    } catch (error) {
+      console.error('Error copiando JSON en bloque:', error);
+    }
+  };
+
+  // Genera (si hace falta) y descarga las imágenes de los posts seleccionados,
+  // una tras otra, con el id en el nombre del archivo para poder referenciarlas
+  // después por URL una vez subidas a Supabase Storage.
+  const downloadSelectedImages = async () => {
+    const selected = generatedPosts.filter(p => selectedPostIds.includes(p.id));
+    const missingIds = selected.filter(p => !generatedImages[p.id]).map(p => p.id);
+    let latestImages = generatedImages;
+
+    if (missingIds.length > 0) {
+      setGeneratingBatch(true);
+      setPendingGenerationIds(missingIds);
+      // Espera a que los ImageGenerator ocultos generen las imágenes faltantes
+      await new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          setGeneratedImages((current) => {
+            latestImages = current;
+            if (missingIds.every((id) => current[id])) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+            return current;
+          });
+        }, 200);
+        // Salvaguarda: no esperar más de 15s por si alguna imagen falla
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          resolve();
+        }, 15000);
+      });
+      setGeneratingBatch(false);
+      setPendingGenerationIds([]);
+    }
+
+    setDownloadingBatch(true);
+    try {
+      for (const post of selected) {
+        const imageData = latestImages[post.id];
+        if (!imageData) continue;
+        const link = document.createElement('a');
+        link.download = `${post.id}-${post.type}-letranido.png`;
+        link.href = imageData;
+        link.click();
+        // Pequeña pausa para que el navegador no bloquee descargas múltiples
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    } finally {
+      setDownloadingBatch(false);
+    }
   };
 
   return (
@@ -461,13 +624,84 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
             <Calendar className="w-5 h-5 text-gray-700" />
             Posts Generados ({generatedPosts.length})
           </h3>
-          
+
+          {/* Barra de acciones en bloque */}
+          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-purple-900">
+              {selectedPostIds.length} de {generatedPosts.length} seleccionados
+            </span>
+            <button
+              onClick={selectAllPosts}
+              className="text-xs text-purple-700 underline hover:text-purple-900"
+            >
+              Seleccionar todos
+            </button>
+            <button
+              onClick={deselectAllPosts}
+              className="text-xs text-purple-700 underline hover:text-purple-900"
+            >
+              Deseleccionar todos
+            </button>
+
+            <div className="flex-1" />
+
+            <button
+              onClick={copySelectedAsJson}
+              disabled={selectedPostIds.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-purple-700 transition-all"
+            >
+              {copiedBatch ? <CheckCircle className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
+              {copiedBatch ? 'JSON copiado' : 'Copiar Todo como JSON'}
+            </button>
+
+            <button
+              onClick={downloadSelectedImages}
+              disabled={selectedPostIds.length === 0 || downloadingBatch || generatingBatch}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-green-700 transition-all"
+            >
+              <Download className="w-4 h-4" />
+              {generatingBatch
+                ? 'Generando imágenes...'
+                : downloadingBatch
+                  ? 'Descargando...'
+                  : `Generar y Descargar Imágenes (${selectedPostIds.length})`}
+            </button>
+          </div>
+
+          {/* Genera en segundo plano (sin mostrar preview) las imágenes que aún
+              faltan para los posts seleccionados, para la descarga en bloque */}
+          {pendingGenerationIds.length > 0 && (
+            <div className="hidden">
+              {generatedPosts
+                .filter((post) => pendingGenerationIds.includes(post.id) && !generatedImages[post.id])
+                .map((post) => (
+                  <ImageGenerator
+                    key={post.id}
+                    post={post}
+                    platform={imageFormats[post.id] || 'universal'}
+                    contest={getSelectedContest()}
+                    onImageGenerated={(imageDataUrl) => handleImageGenerated(post.id, imageDataUrl)}
+                  />
+                ))}
+            </div>
+          )}
+
           {generatedPosts.map((post, index) => (
             <div key={post.id} className="bg-gray-50 rounded-lg p-4 border">
               <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h4 className="font-semibold text-gray-900">{post.title}</h4>
-                  <p className="text-sm text-gray-600">{post.scheduledFor}</p>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedPostIds.includes(post.id)}
+                    onChange={() => togglePostSelected(post.id)}
+                    className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{post.title}</h4>
+                    <p className={`text-sm ${post.scheduledDate && post.scheduledDate.getTime() < Date.now() ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
+                      📅 {formatScheduledDate(post.scheduledDate)}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -569,13 +803,11 @@ El reto "${contest.title}" ha concluido y ya puedes ver las historias más desta
         <h4 className="font-semibold text-blue-900 mb-2">💡 Cómo usar:</h4>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>1. <strong>Selecciona el reto:</strong> Actual, próximo o anterior</li>
-          <li>2. Haz clic en "Generar Posts del Mes"</li>
-          <li>3. Copia cada post con el botón "Copiar"</li>
-          <li>4. Haz clic en "Imagen" para generar la imagen del post</li>
-          <li>5. Descarga la imagen con "Descargar"</li>
-          <li>6. Sube imagen + texto a Buffer/Hootsuite</li>
-          <li>7. Programa las fechas sugeridas</li>
-          <li>8. ¡Relájate y deja que tu contenido trabaje por ti!</li>
+          <li>2. Haz clic en "Generar Posts del Mes" — se calculan las 8 fechas según el cierre real del reto</li>
+          <li>3. Se pre-seleccionan solo los posts que ya tocan o vencen en los próximos 3 días. Ajusta los checkboxes si quieres otros</li>
+          <li>4. Haz clic en "Generar y Descargar Imágenes" — genera automáticamente las que falten y descarga todas las seleccionadas (el nombre del archivo lleva el id del post, ej. "7-read_stories-letranido.png")</li>
+          <li>5. Usa "Copiar Todo como JSON" para copiar el texto y la fecha sugerida de los posts seleccionados en un solo bloque</li>
+          <li>6. Sube las imágenes al bucket de Supabase y pega el JSON + URLs (con su id) en el chat con Claude para crear los borradores en Buffer</li>
         </ul>
         <div className="mt-3 p-3 bg-blue-100 rounded-lg">
           <p className="text-sm text-blue-800 mb-2">
