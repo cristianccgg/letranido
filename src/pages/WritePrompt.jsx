@@ -617,9 +617,6 @@ const WritePrompt = () => {
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <span className="bg-primary-100 dark:bg-primary-800/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium transition-colors duration-300">
-                  {contestToUse.category}
-                </span>
                 <span className="bg-accent-100 dark:bg-accent-800/30 text-accent-700 dark:text-accent-300 px-2 py-1 rounded text-sm transition-colors duration-300">
                   {contestToUse.month}
                 </span>

@@ -604,10 +604,6 @@ function generateNewContestHTML(contest: any): string {
               <span style="color: #64748b; font-weight: 500;">📝 Extensión: </span>
               <span style="color: #1e293b; font-weight: bold;">${contest.min_words} - ${contest.max_words} palabras</span>
             </div>
-            <div style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-              <span style="color: #64748b; font-weight: 500;">🎭 Categoría: </span>
-              <span style="color: #1e293b; font-weight: bold;">${contest.category}</span>
-            </div>
             <div style="padding: 12px 0;">
               <span style="color: #64748b; font-weight: 500;">⏰ Fecha límite: </span>
               <span style="color: #6366f1; font-weight: bold;">${deadline}</span>

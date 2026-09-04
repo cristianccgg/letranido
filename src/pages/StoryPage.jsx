@@ -597,7 +597,7 @@ const StoryPage = () => {
               <div className="flex items-center">
                 <Trophy className="h-5 w-5 mr-2" />
                 <span className="font-medium">
-                  Reto de {story.contest.month} - {story.contest.category}
+                  Reto de {story.contest.month}
                 </span>
               </div>
 

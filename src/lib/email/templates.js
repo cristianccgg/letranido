@@ -116,7 +116,6 @@ export const newContestTemplate = (contest) => {
         minute: '2-digit',
         timeZone: 'America/Bogota'
       })}</li>
-      <li>🏆 <strong>Categoría:</strong> ${contest.category}</li>
     </ul>
     
     <p>¿Estás listo/a para el desafío? ¡Deja volar tu imaginación y crea algo increíble!</p>
