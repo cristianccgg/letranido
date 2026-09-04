@@ -16,7 +16,8 @@ export const ToastProvider = ({ children }) => {
       title,
       message,
       storyTitle,
-      showDonation: options.showDonation || false
+      showDonation: options.showDonation || false,
+      userName: options.userName || null
     });
   };
 
@@ -50,6 +51,7 @@ export const ToastProvider = ({ children }) => {
           title={successToast.title}
           message={successToast.message}
           storyTitle={successToast.storyTitle}
+          userName={successToast.userName}
           onClose={hideSuccessToast}
           onDonate={successToast.showDonation ? showKofiModal : null}
         />

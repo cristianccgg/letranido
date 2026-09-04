@@ -169,6 +169,7 @@ const CurrentContest = () => {
           storyTitle,
           {
             showDonation: true, // Mostrar sección de donación
+            userName: user?.name,
           }
         );
 
@@ -187,6 +188,7 @@ const CurrentContest = () => {
     toastShown,
     showSuccessToast,
     location.pathname,
+    user?.name,
   ]);
 
   // ✅ RECARGAR DATOS DE USUARIO CUANDO SE AUTENTICA
